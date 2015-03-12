@@ -24,5 +24,39 @@
 \date{Март, 2015}
 \maketitle
 
+\section{Основные соглашения и определения}
+
+Точку в пространстве будем задавать ее радиус-вектором - вектором, направленным из начала координат в рассматриваемую точку ($\overline{P}$).
+
+Прямую в трехмерном пространстве будем задавать \textit{опорной точкой} $\overline{P_0}$ и \textit{направляющим вектором} $\overline{V}$ ($L = (\overline{P_0}, \overline{V})$).
+Геометрическое место точек прямой описывается следующим образом:
+
+\begin{equation}
+    L = \{ \overline{P(t)} = \overline{P_0} + t\overline{V} \ | \ t \in \mathbb{R} \}.
+\end{equation}
+
+Сферу в трехмерном пространстве будем задавать ее центром $\overline{C}$ и радиусом $R$ ($S = (\overline{C}, R)$).
+Геометрическое местов точек поверхности сферы описывается следующим образом:
+
+\begin{equation}
+    S = \{ \overline{P} \ | \ {|\overline{P} - \overline{C}|}^2 = R^2 \}.
+\end{equation}
+
+\begin{definition}
+Пучком сфер, опирающимся на отрезок, концами которого являются точки пространства $\overline{P_1}$ и $\overline{P_2}$, будем называть семейство сфер $S(\alpha) = (\overline{C(\alpha)}, R(\alpha))$, где центры и радиусы сфер задаются следующими соотношениями:
+\begin{equation}
+    \begin{cases}
+        \overline{C(\alpha)} = \overline{P_1} + \alpha(\overline{P_2} - \overline{P_1}) = \overline{P_1} + \alpha \overline{V_{12}}, \\
+        R(\alpha) = R_1 + \alpha(R_2 - R_1) = R_1 + \alpha R_{12},
+    \end{cases}
+\end{equation}
+где $\alpha \in [0; 1]$.
+Обозначать пучок сфер будем
+\begin{equation}
+    \mathcal{S}(S(\alpha \in [0; 1])]) = \mathcal{S}(S_1, S_2),
+\end{equation}
+где $S_1 = (\overline{P_1}, R_1), \ S_2 = (\overline{P_2}, R_2)$.
+\end{definition}
+
 \end{document}
 
