@@ -58,5 +58,50 @@
 где $S_1 = (\overline{P_1}, R_1), \ S_2 = (\overline{P_2}, R_2)$.
 \end{definition}
 
+\section{Поиск точек пересечения прямой со сферой}
+
+Пусть дана прямая $L = (\overline{P_0}, \overline{V})$ и сфера $S = (\overline{C}, R)$.
+Требуется найти точки их пересечения.
+Таких точек может не быть, быть ровно одна (в случае касания) или быть две.
+Для поиска точек пересечения требуется решить следующую систему уравнений относительно $t$:
+
+\begin{equation}
+    \begin{cases}
+        \overline{P} = \overline{P_0} + t\overline{V}, \\
+        {|\overline{P} - \overline{C}|}^2 = R^2.
+    \end{cases}
+\end{equation}
+
+Без ограничения общности можно считать, что $\overline{P_0} = \overline{0}$, так как мы всегда можем добиться этого с помощью замены:
+
+\begin{equation}
+    \begin{cases}
+        \overline{P_0'} = \overline{0}, \\
+        \overline{C'} = \overline{C} - \overline{P_0}.
+    \end{cases}
+\end{equation}
+
+Таким образом, требуется решить следующую систему уравнений относительно $t$:
+
+\begin{equation}
+    \begin{cases}
+        \overline{P} = t\overline{V}, \\
+        {|\overline{P} - \overline{C}|}^2 = R^2.
+    \end{cases}
+\end{equation}
+
+Подставляя $\overline{P}$ из первого уравнения во второе, получим квадратное уравнение относительно $t$:
+
+\begin{eqnarray}
+    {|t\overline{V} - \overline{C}|}^2 = R^2, \\
+    {|\overline{V}|}^2t^2 - 2(\overline{C}\cdot\overline{V})t + ({|\overline{C}|}^2 - R^2) = 0.
+\end{eqnarray}
+
+Дискриминант этого уравнения равен $4\left((\overline{C}\cdot\overline{V})^2 - {|\overline{V}|}^2({|\overline{C}|}^2 - R^2)\right)$.
+Так как значение дискриминанта может быть вычислено непосредственно, то дальнейший поиск точек пересечения не представляет сложности.
+Если значение дискриминанта отрицательно, то точек пересечения нет.
+Если значение дискриминанта положительно, то точек пересечения ровно две.
+Равенство дискриминанта нулю означает касание прямой и сферы.
+
 \end{document}
 
