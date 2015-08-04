@@ -36,7 +36,7 @@
 \end{equation}
 
 Сферу в трехмерном пространстве будем задавать ее центром $\overline{C}$ и радиусом $R$ ($S = (\overline{C}, R)$).
-Геометрическое местов точек поверхности сферы описывается следующим образом:
+Геометрическое место точек поверхности сферы описывается следующим образом:
 
 \begin{equation}
     S = \{ \overline{P} \ | \ {|\overline{P} - \overline{C}|}^2 = R^2 \}.
@@ -46,14 +46,14 @@
 Пучком сфер, опирающимся на отрезок, концами которого являются точки пространства $\overline{C_1}$ и $\overline{C_2}$, будем называть семейство сфер $S(\alpha) = (\overline{C(\alpha)}, R(\alpha))$, где центры и радиусы сфер задаются следующими соотношениями:
 \begin{equation}
     \begin{cases}
-        \overline{C(\alpha)} = \overline{C_1} + \alpha(\overline{C_2} - \overline{C_1}) = \overline{C_1} + \alpha \overline{V_{12}}, \\
-        R(\alpha) = R_1 + \alpha(R_2 - R_1) = R_1 + \alpha R_{12},
+        \overline{C(\alpha)} = \overline{C_1} + \alpha(\overline{C_2} - \overline{C_1}) = \overline{C_1} + \alpha \overline{\Delta C}, \\
+        R(\alpha) = R_1 + \alpha(R_2 - R_1) = R_1 + \alpha \Delta R,
     \end{cases}
 \end{equation}
 где $\alpha \in [0; 1]$.
 Обозначать пучок сфер будем
 \begin{equation}
-    \mathcal{S}(S(\alpha \in [0; 1])]) = \mathcal{S}(S_1, S_2),
+    \mathbb{S}(S(\alpha \in [0; 1])) = \mathbb{S}(S_1, S_2),
 \end{equation}
 где $S_1 = (\overline{C_1}, R_1), \ S_2 = (\overline{C_2}, R_2)$.
 \end{definition}
@@ -105,7 +105,7 @@
 
 \section{Поиск точек пересечения прямой с пучком сфер}
 
-Пусть дана прямая $L = (\overline{0}, \overline{V})$ (как и в предыдущем пункте без ограничения общности считаем, что опорная точка совпадает с началом координат) и пучок сфер $\mathcal{S}(S_1, S_2)$.
+Пусть дана прямая $L = (\overline{0}, \overline{V})$ (как и в предыдущем пункте без ограничения общности считаем, что опорная точка совпадает с началом координат) и пучок сфер $\mathbb{S}(S_1, S_2)$.
 Требуется найти точки их пересечения.
 Прямая может не пересекать пучок сфер, может касаться его в одной точке или пересекать по отрезку.
 В случае, когда множество точек пересечения прямой и пучка сфер является отрезком, нужно найти концы этого отрезка, так что в дальнейшем под точками пересечения прямой и пучка сфер будем понимать именно данные точки.
@@ -120,7 +120,7 @@
 Подставляя в данной неравенство выражения для $\overline{C(\alpha)}$ и $R(\alpha)$, получим
 
 \begin{equation}
-    \left((\overline{C_1} + \alpha\overline{V_{12}})\cdot\overline{V}\right)^2 - {|\overline{V}|}^2\left((\overline{C_1} + \alpha\overline{V_{12}})^2 - (R_1 + \alpha R_{12})^2\right) \ge 0.
+    \left((\overline{C_1} + \alpha\overline{\Delta C})\cdot\overline{V}\right)^2 - {|\overline{V}|}^2\left((\overline{C_1} + \alpha\overline{\Delta C})^2 - (R_1 + \alpha \Delta R)^2\right) \ge 0.
 \end{equation}
 
 После раскрытия скобок получим квадратное неравенство относительно параметра $\alpha$:
@@ -133,8 +133,8 @@
 
 \begin{equation}
     \begin{cases}
-        A_2 = (\overline{V_{12}}\cdot\overline{V})^2 + |\overline{V}|^2(R_{12}^2 - |\overline{V_{12}}|^2), \\
-        A_1 = (\overline{C_1}\cdot\overline{V})\cdot(\overline{V_{12}}\cdot\overline{V}) + |\overline{V}|^2(R_1R_{12} - (\overline{C_1}\cdot\overline{V_{12}})), \\
+        A_2 = (\overline{\Delta C}\cdot\overline{V})^2 + |\overline{V}|^2({\Delta R}^2 - |\overline{\Delta C}|^2), \\
+        A_1 = (\overline{C_1}\cdot\overline{V})\cdot(\overline{\Delta C}\cdot\overline{V}) + |\overline{V}|^2(R_1\Delta R - (\overline{C_1}\cdot\overline{\Delta C})), \\
         A_0 = (\overline{C_1}\cdot\overline{V})^2 + |\overline{V}|^2(R_1^2 - |\overline{C_1}|^2).
     \end{cases}
 \end{equation}
@@ -164,11 +164,11 @@ TODO: краевые случаи.
 Перепишем формулу \ref{eqn:t_12_der_eq_0} в явном виде, в результате чего получим следующее уравнение относительно $\alpha$:
 
 \begin{eqnarray}
-    (\overline{V_{12}}\cdot\overline{V}) \pm \frac{A_2\alpha + A_1}{\sqrt{A_2\alpha^2 + 2A_1\alpha + A_0}} = 0, \\
+    (\overline{\Delta C}\cdot\overline{V}) \pm \frac{A_2\alpha + A_1}{\sqrt{A_2\alpha^2 + 2A_1\alpha + A_0}} = 0, \\
     q(A_2\alpha^2 + 2A_1\alpha + A_0) = (A_2\alpha + A_1)^2,
 \end{eqnarray}
 
-где $q = (\overline{V_{12}}\cdot\overline{V})^2$.
+где $q = (\overline{\Delta C}\cdot\overline{V})^2$.
 После преобразования получим следующее уравнение относительно $\alpha$:
 
 \begin{equation}\label{eqn:alpha_eqn}
@@ -182,7 +182,7 @@ TODO: краевые случаи.
 
 \begin{align}
     t_1 = \min\{t_1(\alpha_1), t_1(\alpha_2), t_1(\hat{\alpha_1}), t_1(\hat{\alpha_2})\}, \\
-    t_2 = \min\{t_2(\alpha_1), t_2(\alpha_2), t_2(\hat{\alpha_1}), t_2(\hat{\alpha_2})\}.
+    t_2 = \max\{t_2(\alpha_1), t_2(\alpha_2), t_2(\hat{\alpha_1}), t_2(\hat{\alpha_2})\}.
 \end{align}
 
 По найденным значениям $t_{1, 2}$ уже непосредственно находятся точки пересечения прямой с пучком сфер.
