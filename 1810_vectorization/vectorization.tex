@@ -103,7 +103,7 @@ The burned grass was crisscrossed in the now-familiar ideographic pattern, and c
 
 There was nothing in the remains but a charred scrap of bacon, which he ate thoughtfully. It had always been this way. The gunslinger had followed the man in black across the desert for two months now, across the endless, screamingly monotonous purgatorial wastes, and had yet to find spoor other than the hygienic sterile ideographs of the man in black?s camp fires. He had not found a can, a bottle, or a waterbag (the gunslinger had left four of those behind, like dead snake-skins).
 
-\section{First level Heading}
+\section{Flat cycles vectorization}
 
 The gunslinger walked stolidly, not hurrying, not loafing. A hide waterbag was slung around his middle like a bloated sausage. It was almost full. He had progressed through the khef over many years, and had reached the fifth level. At the seventh or eighth, he would not have been thirsty; he could have watched own body dehydrate with clinical, detached attention, watering its crevices and dark inner hollows only when his logic told him it must be done. He was not seventh or eighth. He was fifth. So he was thirsty, although he had no particular urge to drink. In a vague way, all this pleased him. It was romantic.
 
@@ -111,33 +111,47 @@ The gunslinger walked stolidly, not hurrying, not loafing. A hide waterbag was s
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.85\textwidth]{deform.eps}
+\includegraphics[width=0.85\textwidth]{pics/if_vectorization.pdf}
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
-Below the waterbag were his guns, finely weighted to his hand. The two belts crisscrossed above his crotch. The holsters were oiled too deeply for even this Philistine sun to crack. The stocks of the guns were sandalwood, yellow and finely grained. The holsters were tied down with raw hide cord, and they swung heavily against his hips. The brass casings of the cartridges looped into the gun belts twinkled and flashed and heliographed in the sun. The leather made subtle creaking noises. The guns themselves made no noise. They had spilled blood. There was no need to make noise in the sterility of the desert.
-
-\begin{multline}
-\int_{a_1}^{a_2} f(x)\,dx+\int_{a_2}^{a_3} f(x)\,dx
-+\dots+\int_{a_{n-1}}^{a_n} f(x)\,dx\\
-+\int_{a_1}^{a_2} g(x)\,dx+\int_{a_2}^{a_3} g(x)\,dx
-+\dots+\int_{a_{n-1}}^{a_n} g(x)\,dx\\
-+\int_{a_1}^{a_2} h(x)\,dx+\int_{a_2}^{a_3} h(x)\,dx
-+\dots+\int_{a_{n-1}}^{a_n} h(x)\,dx\\
-=\int_{a_1}^{a_n} f(x)+g(x)+h(x)\,dx.
-\end{multline}
-
-His clothes were the no-color of rain or dust. His shirt was open at the throat, with a rawhide thong dangling loosely in hand-punched eyelets. His pants were seam-stretched dungarees.
-
-He breasted a gently rising dune (although there was no sand here; the desert was hardpan, and even the harsh winds that blew when dark came raised only an aggravating harsh dust like scouring powder) and saw the kicked remains of a tiny campfire on the lee side, the side which the sun would quit earliest. Small signs like this, once more affirming the man in black?s essential humanity, never failed to please him. His lips stretched in the pitted, flaked remains of his face. He squatted.
+Below the waterbag were his guns, finely weighted to his hand. The two belts crisscrossed above his crotch. The holsters were oiled too deeply for even this Philistine sun to crack. The stocks of the guns were sandalwood, yellow and finely grained. The holsters were tied down with raw hide cord, and they swung heavily against his hips.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.85\textwidth]{deform.eps}
+\includegraphics[width=0.85\textwidth]{pics/if_else_vectorization.pdf}
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
+
+The brass casings of the cartridges looped into the gun belts twinkled and flashed and heliographed in the sun. The leather made subtle creaking noises. The guns themselves made no noise. They had spilled blood. There was no need to make noise in the sterility of the desert.
+
+\begin{table}[!h]
+\setcaptionmargin{0mm}
+\onelinecaptionsfalse
+\captionstyle{flushleft}
+\caption{Operations count for \textbf{if} and \textbf{if-else} statements vectorization in flat loops.}
+\bigskip
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{if} statement & operation count & \textbf{if-else} statement & operations count \\
+\hline
+a) & $ptw$ & a) & $\left( pt_1 + (1 - p)t_2 \right)w$ \\
+b) & $\left( 1 - (1 - p)^w \right)ptw$ & b) & $t_1 + (1 - p^w)(1 - p)t_2w$ \\
+c) & $t$ & c) & $t_1 + t_2$ \\
+d) & $\left( 1 - (1 - p)^w \right)t$ & d) & $t_1 + (1 - p^w)t_2$ \\
+\hline
+\end{tabular}
+\end{table}
+
+His clothes were the no-color of rain or dust. His shirt was open at the throat, with a rawhide thong dangling loosely in hand-punched eyelets. His pants were seam-stretched dungarees.
+
+\begin{equation}
+(1 - p)(1 - p^w) > \frac{1}{w}
+\end{equation}
+
+He breasted a gently rising dune (although there was no sand here; the desert was hardpan, and even the harsh winds that blew when dark came raised only an aggravating harsh dust like scouring powder) and saw the kicked remains of a tiny campfire on the lee side, the side which the sun would quit earliest. Small signs like this, once more affirming the man in black?s essential humanity, never failed to please him. His lips stretched in the pitted, flaked remains of his face. He squatted.
 
 He had burned the devil-grass, of course. It was the only thing out here that would burn. It burned with a greasy, flat light, and it burned slow. Border dwellers had told him that devils lived even in the flames. They burned it but would not look into the light. They said the devils hypnotized, beckoned, would eventually draw the one who looked into the fires. And the next man foolish enough to look into the fire might see you.
 
