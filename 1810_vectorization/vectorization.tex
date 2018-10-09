@@ -56,7 +56,7 @@ abstract
 
 introduction
 
-\section{Flat cycles vectorization}
+\section{Flat loops vectorization}
 
 The simplest context for vectorization is a flat loop. We call a flat cycle with the following properties. First, it should not contain inter-iteration dependencies, that is, all loop iterations can be executed in parallel. Secondly, within the iteration of the loop with number i there can only be such memory access operations that read or write elements of arrays with indices i (all references to memory can be reduced to the form a [i]). A trivial example of a flat loop is the addition of two arrays. As a rule, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations. The situation is more complicated with vectorization of flat cycles containing singularities. As features may be, for example, conditional operators or control transfer commands. Such cycles are also easily vectorized, but in practice the compiler often refuses to build a vector code due to a theoretical estimate of the possible acceleration. The presence of a strongly branched control in a flat cycle usually leads to the rejection of vectorization, in such cases the vector code must be built manually. The more serious features that prevent the construction of an effective parallel code is the presence of nested loops or function calls in a flat loop. In this case, the compiler is not able to perform vectorization, although using the inrinsikov functions, optimization can also be performed in these cases.
 
@@ -130,11 +130,16 @@ In particular, it follows from this equation that if the loop body contains a la
 
 Consider this formula more closely. With a large number of alternatives, their probabilities are close to zero, so the term $(1 - pi) ^ w$ is a positive value not much less than one. From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat cycle significantly increase the effect of vectorization. At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations. However, one should not forget that vector commands generally execute more slowly than their scalar counterparts. Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
 
-\section{Standalone formulae}
+\section{Matrix operations vectorization}
 
 section
 
-\section{Variables}
+\section{Vectorization of loops \protect\\
+with irregular number of iterations}
+
+section
+
+\section{Physical calculations vectorization}
 
 section
 
