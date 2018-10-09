@@ -145,7 +145,7 @@ With a complete cycle vectorization, the number of vector operations is of cours
 In particular, it follows from this equation that if the loop body contains a large number of alternative execution branches with probabilities less than 1 / w, then vectoring of this loop cannot be beneficial. When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
 
 \begin{equation}
-\sum_{i = 0}^{n - 1}{t_i \big( p_iw - 1 + (1 - p_i) ^w \big) } \ge 0
+\sum_{i = 0}^{n - 1}{t_i \left( p_iw - 1 + (1 - p_i) ^w \right) } \ge 0
 \end{equation}
 
 Consider this formula more closely. With a large number of alternatives, their probabilities are close to zero, so the term $(1 - pi) ^ w$ is a positive value not much less than one. From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat cycle significantly increase the effect of vectorization. At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations. However, one should not forget that vector commands generally execute more slowly than their scalar counterparts. Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
@@ -213,6 +213,46 @@ void mul_8x8(float * __restrict a, float * __restrict b,
         _mm512_i32scatter_ps(&r[j], ind_st, m2, _MM_SCALE_4);
     }
 \end{lstlisting}
+
+\begin{equation}
+\begin{cases}
+r_{i0} = a_{i0}b_{00} + a_{i1}b_{10} + ... + a_{i7}b_{70} \\
+... \\
+r_{i7} = a_{i0}b_{07} + a_{i1}b_{17} + ... + a_{i7}b_{77} \\
+\end{cases}
+\end{equation}
+
+\begin{equation}
+\overline{r_i} = a_{i0}\overline{b_0} + a_{i1}\overline{b_1} + ... + a_{i7}\overline{b_7} \\
+\end{equation}
+
+\begin{equation}
+\begin{cases}
+r_{i+1,0} = a_{i+1,0}b_{00} + a_{i+1,1}b_{10} + ... + a_{i+1,7}b_{70} \\
+... \\
+r_{i+1,7} = a_{i+1,0}b_{07} + a_{i+1,1}b_{17} + ... + a_{i+1,7}b_{77} \\
+\end{cases}
+\end{equation}
+
+\begin{equation}
+\overline{r_{i+1}} = a_{i+1,0}\overline{b_0} + a_{i+1,1}\overline{b_1} + ... + a_{i+1,7}\overline{b_7} \\
+\end{equation}
+
+\begin{equation}
+\left(\vcenter{\hbox{$\overline{r_i}$}\hbox{$\overline{r_{i+1}}$}}\right) =
+\left(
+\left(\vcenter{\hbox{$\overline{a_{i0}}$}\hbox{$\overline{a_{i+1,0}}$}}\right) \circ
+\left(\vcenter{\hbox{$\overline{b_0}$}\hbox{$\overline{b_0}$}}\right)
+\right) +
+\left(
+\left(\vcenter{\hbox{$\overline{a_{i1}}$}\hbox{$\overline{a_{i+1,1}}$}}\right) \circ
+\left(\vcenter{\hbox{$\overline{b_1}$}\hbox{$\overline{b_1}$}}\right)
+\right) +
+\left(
+\left(\vcenter{\hbox{$\overline{a_{i7}}$}\hbox{$\overline{a_{i+1,7}}$}}\right) \circ
+\left(\vcenter{\hbox{$\overline{b_7}$}\hbox{$\overline{b_7}$}}\right)
+\right)
+\end{equation}
 
 \begin{lstlisting}
 void mul_8x8(float * __restrict a, float * __restrict b,
