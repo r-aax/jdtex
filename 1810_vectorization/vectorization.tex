@@ -269,6 +269,24 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 }
 \end{lstlisting}
 
+\begin{table}[!h]
+\setcaptionmargin{0mm}
+\onelinecaptionsfalse
+\captionstyle{flushleft}
+\caption{Vectorization speedup for matrix 8x8, 7x7, 6x6, 5x5 operations.}
+\bigskip
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Matrices Size} & \textbf{Old Vect} & \textbf{Full Unroll} & \textbf{New Vect} \\
+\hline
+8x8 & 2.69 & 3.69 & 5.86 \\
+7x7 & 2.04 & 2.74 & 4.66 \\
+6x6 & 1.38 & 2.29 & 3.68 \\
+5x5 & 0.80 & 1.44 & 2.50 \\
+\hline
+\end{tabular}
+\end{table}
+
 \section{Vectorization of loops \protect\\
 with irregular number of iterations}
 
