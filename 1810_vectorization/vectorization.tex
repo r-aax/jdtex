@@ -272,7 +272,32 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 \section{Vectorization of loops \protect\\
 with irregular number of iterations}
 
-section
+\begin{lstlisting}
+void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
+{
+    int j = i;
+    __mmask16 ini_mask = ((unsigned int)0xFFFF) >> (16 - w);
+    __mmask16 mask = ini_mask;
+    __m512i ind_j = _mm512_add_epi32(_mm512_set1+epi32(i),
+                                     ind_straight);
+    __m512 t, q;
+
+    do
+    {
+        mask = mask & _mm512_mask_cmp_epi32_mask(mask, ind_j, ind_k,
+                                                 __MM_CMPINT_GE);
+        q = _mm512_mask_load_ps(q, mask, &m[j - k]);
+        mask = mask & _mm512_mask_cmp_ps_mask(mask, t, q,
+                                              __MM_CMPINT_LT);
+        _mm512_mask_store_ps(&m[j], mask, q);
+        ind_j = _mm512_mask_sub_epi32(ind_j, mask, ind_j, ind_k);
+        j -= k;
+    }
+    while (mask != 0x0);
+    
+    _mm512_mask_i32scatter_ps(m, ini_mask, ind_j, t, _MM_SCALE_4);
+}
+\end{lstlisting}
 
 \section{Physical calculations vectorization}
 
