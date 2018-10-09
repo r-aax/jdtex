@@ -125,7 +125,7 @@ With a complete cycle vectorization, the number of vector operations is of cours
 In particular, it follows from this equation that if the loop body contains a large number of alternative execution branches with probabilities less than 1 / w, then vectoring of this loop cannot be beneficial. When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
 
 \begin{equation}
-\sum_{i = 0}^{n - 1}{t_i \big( p_iw - 1 + (1 - p_i \big) ^w)} \ge 0
+\sum_{i = 0}^{n - 1}{t_i \big( p_iw - 1 + (1 - p_i) ^w \big) } \ge 0
 \end{equation}
 
 Consider this formula more closely. With a large number of alternatives, their probabilities are close to zero, so the term $(1 - pi) ^ w$ is a positive value not much less than one. From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat cycle significantly increase the effect of vectorization. At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations. However, one should not forget that vector commands generally execute more slowly than their scalar counterparts. Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
