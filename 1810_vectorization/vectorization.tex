@@ -105,11 +105,11 @@ There was nothing in the remains but a charred scrap of bacon, which he ate thou
 
 \section{Flat cycles vectorization}
 
-The simplest context for vectorization is a flat loop. We call a flat cycle with the following properties. First, it should not contain inter-iteration dependencies, that is, all loop iterations can be executed in parallel. Secondly, within the iteration of the loop with number i there can only be such memory access operations that read or write elements of arrays with indices i (all references to memory can be reduced to the form a[i]). A trivial example of a flat loop is the addition of two arrays. As a rule, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations. The situation is more complicated with vectorization of flat cycles containing singularities. As features may be, for example, conditional operators or control transfer commands. Such cycles are also easily vectorized, but in practice the compiler often refuses to cost a vector code due to a theoretical estimate of the possible acceleration. The presence of a strongly branched control in a flat cycle usually leads to the rejection of vectorization, in such cases the vector code must be built manually. The more serious features that prevent the construction of an effective parallel code is the presence of nested loops or function calls in a flat loop. In this case, the compiler is not able to perform vectorization, although using the inrinsikov functions, optimization can also be performed in these cases.
+The simplest context for vectorization is a flat loop. We call a flat cycle with the following properties. First, it should not contain inter-iteration dependencies, that is, all loop iterations can be executed in parallel. Secondly, within the iteration of the loop with number i there can only be such memory access operations that read or write elements of arrays with indices i (all references to memory can be reduced to the form a [i]). A trivial example of a flat loop is the addition of two arrays. As a rule, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations. The situation is more complicated with vectorization of flat cycles containing singularities. As features may be, for example, conditional operators or control transfer commands. Such cycles are also easily vectorized, but in practice the compiler often refuses to build a vector code due to a theoretical estimate of the possible acceleration. The presence of a strongly branched control in a flat cycle usually leads to the rejection of vectorization, in such cases the vector code must be built manually. The more serious features that prevent the construction of an effective parallel code is the presence of nested loops or function calls in a flat loop. In this case, the compiler is not able to perform vectorization, although using the inrinsikov functions, optimization can also be performed in these cases.
 
 Let us analyze in more detail the question of vectorization of flat cycles. Suppose that the vectorization uses vectors capable of containing w primitive data elements, in this case we will call w the vectorization width (AVX-512 vectors can contain 8 double elements or 16 float elements). We will not consider a variant in which the cycle body contains only arithmetic operations due to its triviality. Let the considered flat cycle contain n iterations. Then all iterations of this cycle can be divided into n / w groups by w iterations, and each group can be considered separately (a residual group of iterations containing less than w iterations is also possible; the presence of this group does not affect the optimization efficiency, it can be completed in the original form or vectorized using masks). Thus, for simplicity, we can restrict ourselves to the consideration of flat cycles containing exactly w iterations.
 
-As a first example, we consider a planar cycle whose body consists of a single linear section of a block, which is executed under the condition cond with probability p and has a length t (see Fig. N, a). In this case, the length of a linear section is understood to be a characteristic proportional to the execution time of a given linear section (the number of operators, machine instructions or cycles). If the probability that the condition cond is satisfied is low enough, then we can only stop at the vectorization of this condition and perform the whole cycle under this condition vcond. This transformation will be called the vectorization of the condition (see Fig. N, b). Moreover, the probability that the condition vcond turns out to be instinctive is $1 - (1 - p) ^ w$ (corresponds to the fact that at least one of the w elementary conditions is true). To vectorize the entire cycle, it is necessary to convert the program code into a predicate code, in which each instruction of the linear section block is executed under the predicate cond, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate vcond (see Fig. N, c ). At the same time, it is also not forbidden to use vcond checking for voidness before executing vectorized code in order to avoid executing code blocks with empty masks (see Fig. N, d).
+As a first example, we consider a planar cycle whose body consists of a single linear section of a block, which is executed under the condition cond with probability p and has a length t (see Fig. N, a). In this case, the length of a linear section is understood to be a characteristic proportional to the execution time of a given linear section (the number of operators, machine instructions or cycles). The total number of operations contained in the cycle is ptw (in this case, we assume that the auxiliary instructions related to the calculation of the condition and the provision of control can be neglected). If the probability that the condition cond is satisfied is low enough, then we can only stop at the vectorization of this condition and perform the whole cycle under this condition vcond. This transformation will be called the vectorization of the condition (see Fig. N, b). Moreover, the probability that the condition vcond turns out to be instinctive is $1 - (1 - p) ^ w$ (corresponds to the fact that at least one of the w elementary conditions is true). The total number of operations in the cycle from this conversion will not change (the cond and vcond conditions are not independent) and will remain equal to ptw, but the number of auxiliary operations and control operations will be reduced. To vectorize the entire cycle, it is necessary to convert the program code into a predicate code, in which each instruction of the linear section block is executed under the predicate cond, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate vcond (see Fig. N, c ). The number of operations of a fully vectorized cycle is simply t. At the same time, it is also not forbidden to use vcond checking for voidness before executing vectorized code in order to avoid executing code blocks with empty masks (see Fig. N, d). In this case, the number of cycle operations will be reduced by $1 - (1 - p) ^ w$ times, since the addition of a condition will cut off the execution of vector operations with an empty mask.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -119,7 +119,7 @@ As a first example, we consider a planar cycle whose body consists of a single l
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
-q
+As another example, consider a planar loop whose body is an if-else construct. Without loss of generality, we assume that the branch executed by the if-condition (block1) is more likely than its alternative (block2), that is, $p> = 1 - p$. The lengths of the linear sections in this example are t1 and t2, respectively (see Fig. N, a). In addition, we will assume that the block1 linear section is suitable for vectorization in any case, and a vector code is constructed for it (otherwise, the optimization of this code loses its meaning). The total number of operations performed during the cycle operation is calculated as the mathematical expectation of the number of operations per iteration multiplied by the number of iterations of the cycle, that is $(pt1 + (1 - p) t2) w$. In real computational problems, it often happens that an unlikely branch in such cycles does not lend itself to vectorization or this requires considerable effort. Such unlikely branches contain processing of extremely rare exceptions or unexpected situations. In such cases, it is natural to vectorize only the probable branch, and leave the alternative under the vectorized condition (Fig. N, b). Such a half vectorized cycle will contain $t1 + (1 - p) t2w$ operations. In the case of a complete vectorization of the cycle body, both linear sections fall under opposite predicates (vcond, ~ vcond) and the cycle body is completely freed from the control transfer commands (Fig. N, c). The number of executed instructions in a loop for a fully vectorized code is $t1 + t2$. As a last action, we apply the addition of checking the condition ~ vcond for an unlikely branch to exclude the execution of operations with empty masks (Fig. N, d). Since the probability of executing an alternative is $1 - p ^ w$, the final number of operations performed for a fully vectorized cycle with checking the vectorized condition for an alternative is $t1 + (1 - p ^ w) t2$.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -129,7 +129,7 @@ q
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
-q
+The table contains data on the number of operations performed for the two considered examples of a flat cycle, in which the cycle body consists of one if-condition and one if-else-construction.
 
 \begin{table}[!h]
 \setcaptionmargin{0mm}
@@ -142,20 +142,40 @@ q
 \textbf{if} statement & operations count & \textbf{if-else} statement & operations count \\
 \hline
 a) & $ptw$ & a) & $\left( pt_1 + (1 - p)t_2 \right)w$ \\
-b) & $\left( 1 - (1 - p)^w \right)ptw$ & b) & $t_1 + (1 - p^w)(1 - p)t_2w$ \\
+b) & $ptw$ & b) & $t_1 + (1 - p)t_2w$ \\
 c) & $t$ & c) & $t_1 + t_2$ \\
 d) & $\left( 1 - (1 - p)^w \right)t$ & d) & $t_1 + (1 - p^w)t_2$ \\
 \hline
 \end{tabular}
 \end{table}
 
-q
+We will analyze only the second example from the if-else constructions (the first example is treated similarly). A fully vectorized cycle is more profitable than a cycle with a vectorized condition, if it contains fewer operations, that is, if the condition $t1 + t2 <= t1 + (1 - p) t2w$, or $(1 - p) w >= 1$ is satisfied. Thus, for the benefit of vectorization, either a high vectorization width, or a high probability of an alternative. If we consider the application of checking vectorized conditions for a fully vectorized cycle body, then we obtain the condition $t1 + (1 - p ^ w) t2 <= t1 + (1 - p) t2w$, which translates into $1 - p ^ w <= (1 - p) w$. This condition is disclosed in the following:
 
 \begin{equation}
-(1 - p)(1 - p^w) > \frac{1}{w}
+\sum_{i = 0}^{w - 1}{p^i} <= w
 \end{equation}
 
-q
+This condition is obviously satisfied, since $p <= 1$, and the total terms are exactly w. Thus, we have obtained that using a fully vectorized loop body with a preliminary check of a vectorized condition for an unlikely branch is always more beneficial than using the original version of the code or condition vectoring. Note that this conclusion is true only under the assumption that the block1 linear segment is probable, and a vector code is always built for it.
+
+We can consider the general case of vectorization of a flat cycle containing an arbitrary number of alternatives. Let the loop body contain n alternatives (with numbers from 0 to n - 1), each of which is executed with probability pi. In this case, we can neglect the operations of calculating conditions. It is also known that each alternative has a length ti. It is required to understand the conditions under which the use of vectorization is beneficial, as well as the application of checking vectorized conditions for a vector code. As in the previous examples, you can calculate the total number of running operations for a non-vectorized code; it is equal to the mathematical expectation of the number of operations per iteration of the loop multiplied by the number of iterations.
+
+\begin{equation}
+T = \left( \sum_{i = 0}^{n - 1}{p_it_i} \right) w
+\end{equation}
+
+With a complete cycle vectorization, the number of vector operations is of course equal to the sum of the lengths of all linear sections ti. Thus, the condition of the advantage of vectorization is the following equation:
+
+\begin{equation}
+\sum_{i = 0}^{n - 1}{t_i(p_iw - 1)} \ge 0
+\end{equation}
+
+In particular, it follows from this equation that if the loop body contains a large number of alternative execution branches with probabilities less than 1 / w, then vectoring of this loop cannot be beneficial. When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
+
+\begin{equation}
+\sum_{i = 0}^{n - 1}{t_i \big( p_iw - 1 + (1 - p_i \big) ^w)} \ge 0
+\end{equation}
+
+Consider this formula more closely. With a large number of alternatives, their probabilities are close to zero, so the term $(1 - pi) ^ w$ is a positive value not much less than one. From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat cycle significantly increase the effect of vectorization. At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations. However, one should not forget that vector commands generally execute more slowly than their scalar counterparts. Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
 
 \section{Standalone formulae}
 
