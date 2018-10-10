@@ -409,6 +409,16 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 
 \section{Physical calculations vectorization}
 
+The implementation of the Riemannian solver considered in this article is publicly available on the Internet as part of the NUMERICA \ cite {Numerica} library. In this case, we will be interested in the one-dimensional case for a single-component medium, implemented as a pure function (function without side effects), which, by the density, velocity and gas pressure values to the left and right of the discontinuity, finds the values of the same quantities on the discontinuity itself at zero time time after removal of the septum.
+
+\begin{equation}\label{eq:riemann}
+U_l = \left( \begin{array}{ccc} d_l \\ u_l \\ p_l \end{array} \right),
+U_r = \left( \begin{array}{ccc} d_r \\ u_r \\ p_r \end{array} \right),
+U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
+\end{equation}
+
+The NUMERICA library is implemented in the FORTRAN programming language, therefore the vectorization of this code using intrinsic functions is not directly possible, so the version of the code ported to the C programming language was used.
+
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
@@ -416,6 +426,32 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 \includegraphics[width=0.6\textwidth]{pics/riemann.pdf}
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
+
+In Fig. ~ \ Ref {pic: functions} the scheme of work of the Riemannian solver with the indicated data streams and calls of all functions included in the implementation is shown. The riemann function calculates the speed of sound on the right and left, performs a vacuum test and successively calls the starpu and sample functions. The starpu function calculates the velocity and pressure values ​​in the middle region between the left and right waves (star region), and the function contains a cycle with an unknown number of iterations to solve a nonlinear equation using the Newton iterative method, inside which there are calls to other functions (prefun). The guessp and prefun functions contain only arithmetic calculations and simple conditions and are the simplest from the point of view of vectorization. Finally, the last sample function determines the final configuration of the discontinuity by calculating a set of conditions. This function contains a very extensive control, the nesting of conditions in it reaches four, which makes it difficult to use vectorization.
+
+In the counting process, numerous riemann function calls are made with different input data sets using numerical methods based on the Riemannian solver (each call iteration makes one call for each face of each cell of the computational grid). Since the riemann function is pure, calls for different input data sets (dl, ul, pl, dr, ur, pr) are independent and there is a desire to combine calls with the goal of effectively using vector (element) instructions. As such a combined call, we will consider a function into which, instead of atomic data of the float type, the corresponding vectors containing 16 elements each are fed.
+
+\begin{equation}\label{eq:riemann_16}
+\overline{U_l} = \left( \begin{array}{ccc} U_l^1 \\ ... \\ U_l^{16} \end{array} \right),
+\overline{U_r} = \left( \begin{array}{ccc} U_r^1 \\ ... \\ U_r^{16} \end{array} \right),
+\overline{U} = \left( \begin{array}{ccc} U^1 \\ ... \\ U^{16} \end{array} \right) = riem^{16}(\overline{U_l}, \overline{U_r})
+\end{equation}
+
+At the same time, it is possible to perform the same actions with vector data as with basic types - perform calculations, transfer to functions, and return as a result. In the process of optimization, for clarity, it will avoid substitution of the function body into the call point. Thus, as a result of vectorization, our goal is to obtain the vector analogs of all the functions described above used in the Riemannian solver.
+
+The sample function contains a highly branched control with a nesting level of 4 (see Fig. ~). The condition tree constructed for this function contains 10 leaf nodes, in each of which the value of the gas-dynamic quantities d, u, p is determined. Direct computation of the vector predicates of all leaf nodes and the execution of their code under these predicates leads to a slowdown of the resulting code, therefore, the following actions were performed when vectoring this function.
+
+First, it was noted that the 4 linear sections contain the definition of the gas-dynamic parameters d, u, and p, which could be changed to initialization by moving the assignment operations up through the function code. Thus, 4 linear sections were deleted. At the same time, this initialization of the d, u, p parameters does not contain arithmetic operations (the parameters are initialized by the arguments of the function dl, ul, pl or dr, ur, pr), which means it can be performed using the vector merge operations blend.
+
+It was further noted that the sample function processes the right and left profiles of the breakup decay in the same way with minor changes. Using a simple change of variables, which consists in changing the sign of the velocity value, we merged the code for two subtrees based on the condition pm $ \ le $ pl, which reduced the amount of the calculation code by half and expectedly reduced the execution time by 45%.
+
+After the reduction of the code, the number of leaf nodes in the conditions tree was reduced to three. However, even in this case, direct merging of the code using vector predicates turned out to be ineffective. This was due to the unlikely part of the code, heavy operations, among which there are calls to the function of raising to a power (Fig. ~ \ Ref {pic: sample}, lines 033-036). The vector predicate of this code segment in more than 95 percent of cases has a value of 0x0, therefore, before executing this code section, it is advisable to check this predicate for emptiness (which corresponds to removing the unlikely branch of execution from the function body). The removal of an unlikely branch of execution from the main program context can significantly speed up the executable code, since the presence of a large number of such rare computations can serve as a reason for refusing vectorization \ cite {RybLowProb}.
+
+For the rest of the code, you can merge with the comments described in the previous section. As a result, the vectorized sample function was accelerated more than 10 times. The final vector code is presented in Fig. ~ \ Ref {pic: }. In this code, lines 11–14 correspond to initialization, lines 16, 17, and 50 are responsible for replacing the variables for merging symmetric sections of the code, and the unlikely branch is selected in the block located in lines 41–47.
+
+The approaches to the vectorization of the Riemann solver functions described in the article were implemented in the C programming language using functions intrinsikov and tested on microprocessors Intel Xeon Phi 7290, which are part of the computational segment knl supercomputer MVS-10P, located in the MSC RAS.
+
+Performance testing was performed on the input data arrays collected in solving standard test problems: the Soda problem, the Lax problem, the weak shock wave problem, the Einfeldt problem, the Woodward-Colella problem, the Schu-Osher problem and others \ cite {BulVolTest}. As a result of the executed transformations of the source code, the Riemann solver accelerated by 7 times compared to the non-optimized versions.
 
 \section{Conclusion}
 
