@@ -152,6 +152,14 @@ Consider this formula more closely. With a large number of alternatives, their p
 
 \section{Matrix operations vectorization}
 
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
+\includegraphics[width=0.85\textwidth]{pics/mmult_1.pdf}
+\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
+\end{figure}
+
 \begin{lstlisting}
 #define SWIZ_2_ADD_2_BLEND_1(X, Y, SWIZ_TYPE, BLEND_MASK)         \
     _mm512_mask_blend_ps(BLEND_MASK,                              \
