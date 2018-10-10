@@ -162,6 +162,8 @@ In modern numerical methods used in high-performance computing, a special place 
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
+Consider different approaches to the multiplication of matrices of size 8 by 8. The logic of multiplying the two matrices is that the results of the pairwise scalar product of the rows of the first matrix and the columns of the second matrix form the elements of the resulting matrix. First, we consider a direct approach to vectorization, which consists in reading the rows and columns of matrices using the load and gather instructions (the scheme is shown in Fig. N). Using 512-bit memory access instructions allows you to load two neighbors of a row of a matrix (a sequential read operation) or two adjacent columns of a matrix (using the gather operation, see Fig. N, 1) in one operation. After this, we must calculate the four scalar products of each half of the vector loaded from matrix a with each half of the vector loaded from matrix b. To do this, all the operations of elementwise multiplication of two loaded vectors are performed, in one of which the higher and lower half of the second vector are interchanged (see Fig. N, 2). After performing these actions, there is a need to calculate the sum of the 8 lowest elements of this vector and 8 senior elements of the same vector. Thus, we come to the fact that each element of the resulting matrix must be obtained using the horizontal operation of summing 8 lower or higher elements of a certain zmm register (see Fig. N, 3). After adding the halves of the required registers, the result is written into two adjacent columns of the resulting matrix using the scatter operation (see fig. N, 4).
+
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
@@ -169,6 +171,8 @@ In modern numerical methods used in high-performance computing, a special place 
 \includegraphics[width=0.85\textwidth]{pics/mmult_1.pdf}
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
+
+The AVX-512 instruction set does not contain the operations of horizontal addition of elements. For the addition of two elements of the same vector, it is required component-wise to add this vector to its copy, in which the elements are rearranged as needed. The addition of pairs of elements within a single vector is performed using a bunch consisting of swizzle / permute, add, blend commands executed with the necessary masks. Below is a listing of such bundles.
 
 \begin{lstlisting}
 #define SWIZ_2_ADD_2_BLEND_1(X, Y, SWIZ_TYPE, BLEND_MASK)         \
@@ -181,6 +185,8 @@ In modern numerical methods used in high-performance computing, a special place 
                          ADD(Y, _mm512_permute4f128_ps(Y, PERM_TYPE)))
 
 \end{lstlisting}
+
+In fig. N, 2 shows a data flow tree in parallel calculation of the sum of the halves of 8 zmm registers. The tree contains three levels and as a result, the output is a vector in which the elements correspond to two rows of the resulting matrix, only written in the wrong order. These elements are written to memory using the scatter command, which serves the desired offset. As a result, you can submit a listing of software code that implements this approach.
 
 \begin{lstlisting}
 void mul_8x8(float * __restrict a, float * __restrict b,
@@ -232,6 +238,10 @@ void mul_8x8(float * __restrict a, float * __restrict b,
     }
 \end{lstlisting}
 
+As experiments have shown, the proposed approach is well suited for matrices of size 16 by 16, when used with small-format matrices, a decrease in performance is observed. This is mainly due to the use of slow multiple memory access operations with arbitrary offsets. To eliminate this drawback, we consider another approach, in which calls to memory are performed only by sequential addresses. Immediately, we note that this approach is applicable only for matrices of size no more than 8 by 8, since it requires the use of more registers zmm. In the case of a shortage of registers for matrices of higher dimension, a shortage of registers will immediately begin, which will lead to their dropping into memory and the associated loss of productivity.
+
+In order to get rid of memory access / scatter operations, as well as use combined operations from the AVX-512 command set, we write explicitly the values of the elements of the i-th row of the resulting matrix:
+
 \begin{equation}
 \begin{cases}
 r_{i0} = a_{i0}b_{00} + a_{i1}b_{10} + ... + a_{i7}b_{70} \\
@@ -240,9 +250,13 @@ r_{i7} = a_{i0}b_{07} + a_{i1}b_{17} + ... + a_{i7}b_{77} \\
 \end{cases}
 \end{equation}
 
+or in vector form
+
 \begin{equation}
 \overline{r_i} = a_{i0}\overline{b_0} + a_{i1}\overline{b_1} + ... + a_{i7}\overline{b_7} \\
 \end{equation}
+
+Similar expressions can be written for the row with the number $i + 1$:
 
 \begin{equation}
 \begin{cases}
@@ -252,9 +266,13 @@ r_{i+1,7} = a_{i+1,0}b_{07} + a_{i+1,1}b_{17} + ... + a_{i+1,7}b_{77} \\
 \end{cases}
 \end{equation}
 
+or in vector form
+
 \begin{equation}
 \overline{r_{i+1}} = a_{i+1,0}\overline{b_0} + a_{i+1,1}\overline{b_1} + ... + a_{i+1,7}\overline{b_7} \\
 \end{equation}
+
+Considering that the zmm registers contain 16 float elements, it is advisable to combine the above formulas into one, written in vector form as follows:
 
 \begin{equation}
 \left(\vcenter{\hbox{$\overline{r_i}$}\hbox{$\overline{r_{i+1}}$}}\right) =
@@ -271,6 +289,13 @@ r_{i+1,7} = a_{i+1,0}b_{07} + a_{i+1,1}b_{17} + ... + a_{i+1,7}b_{77} \\
 \left(\vcenter{\hbox{$\overline{b_7}$}\hbox{$\overline{b_7}$}}\right)
 \right)
 \end{equation}
+
+where $xxx$ denotes the combined vector consisting of the vectors $xxx$ and $xxx$, $xxx$ $xxx$ the combined vector consisting of two copies of the vector $xxx$, and the expression $xxx$ $xxx$ denotes a vector, the first 8 elements of which are equal to $xxx$, and the remaining 8 elements $xxx$ ($xxx$ Hadamard product, or elementwise product of vectors). Note that the combined vector obtained according to this formula ($xxx$ ($xxx$) is located in the memory sequentially, and it can be recorded in memory using the store intrinsic. In this case, we assume that the value of i is even, that is, the vector ($xxx$ $xxx$) is properly aligned in the memory. Other combined vectors in this expression are obtained using the perm instruction (intrinsic permutexvar) applied to the corresponding loaded adjacent rows of the a and b matrices. Thus, the implementation of the above formula does not require the use of slow gather / scatter instructions, since the columns of the matrices are not readable or written (the work is done only with strings). After the required vectors are formed, you need to perform their pairwise elementwise multiplication, and then add them into one vector (8 operations of elementwise multiplication, 7 addition operations). These actions can be performed using combined operations fmadd.
+
+To calculate the value ($xxx$ $xxx$), we need 8 vector operations (1 operation mul and 7 operations fmadd) (see Fig. 2). In this figure, for convenience, a diagram of the sequential addition of multiplied vectors is presented. It is also possible another option that implements the calculation ($xxx$ $xxx$) by balancing the data stream tree. This option would require 4 mul operations, 4 fmadd operations and 3 add operations. In this context of computing, the length of the critical chain does not affect the running time of the code, so we leave the option with the minimum number of instructions (less than 8 instructions cannot be used, since you need to perform at least 8 multiplication operations).
+
+We give the multiplication function of two 8x8 matrices, the mechanism of which was considered in the previous section. To implement, we perform a full load of both matrices a and b. This will require 8 memory operations, since two adjacent rows of the matrix are loaded in one operation. Next, you need to form 8 vectors of the form ($xxx$ $xxx$)), for which you will need 8 more perm operations (for each pair of loaded rows of matrix b, you need to duplicate the first row and duplicate the second row). The formation of index vectors for perm operations does not require computational time, since the indices are static and are calculated at the compilation stage.
+After preparing all the necessary data, the values ​​of the resulting matrix are calculated. The block of operations given below (macro BLOCK) performs the calculation of two adjacent rows of the resulting matrix. The block implementation consists of 8 perm operations, 1 mul operation and 7 fmadd operations, besides, one write operation is performed in memory. A total of four such blocks are performed, which, in sum and taking into account data preparation operations, leads to the following result: 8 simple read operations from memory, 40 perm operations, 4 mul operations, 28 fmadd operations, 4 simple write operations to memory. The final code (without displaying some duplicate sections) is shown in the listing below.
 
 \begin{lstlisting}
 void mul_8x8(float * __restrict a, float * __restrict b,
@@ -327,6 +352,11 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 }
 \end{lstlisting}
 
+Note that 28 vector operations fmadd and 4 vector operations mul correspond to (28⋅2 + 4) ⋅16 = 960 scalar operations, which exactly coincides with the number of scalar operations required to perform the multiplication of two 8x8 matrices. Thus, in the proposed implementation there are no unnecessary arithmetic operations, and the result of each performed operation affects the final result.
+When implementing multiplication of 7x7, 6x6, 5x5 matrices, superfluous vector operations are removed (for example, multiplication by a vector, all elements of which are zero), but still there are elements of vectors whose processing is excessive, which leads to a decrease in the efficiency of vectorization in these cases. Below we provide a table with an accurate calculation of the number of scalar operations for non-vectorized functions and the number of vector operations for their vectorized analogues (see Table 1).
+
+The approaches described in the article to the vectorization of matrix multiplication were tested on the MVS-10P MSC RAS ​​supercomputer, on its computational segment containing Intel Xeon Phi 7290 KNL microprocessors. Four functions were considered: mul8x8, mul7x7, mul6x6, mul5x5, performing the multiplication of matrices of the corresponding sizes. For each function, 3 implementation options were considered. As the first option, the old vectorization method was used with parallel calculation of the sums of vector elements (denoted by VECT OLD), as the second option, direct manual calculation of each element of the resulting matrix was taken, in which all cycles were deleted and for each element multiple copies were written scalar code (denoted by FULL UNROLL), as the third option, the considered approach is taken based on referring only to matrix rows and using combined fmadd operations (denoted VECT NEW).
+
 \begin{table}[!h]
 \setcaptionmargin{0mm}
 \onelinecaptionsfalse
@@ -344,6 +374,8 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 \hline
 \end{tabular}
 \end{table}
+
+In fig. 3 shows the test results of the described approaches on the machine. It follows from the figure that OLD VECT turned out to be the least efficient approach, its use is even less profitable than the direct writing of a scalar code. For matrices of size 5x5, this optimization method completely slows down the original non-optimized version of the function. The NEW VECT method demonstrates the best results from the described approaches, the acceleration on the 8x8 matrices is almost 6 times faster than the original code. As the matrix dimensions decrease, the vectorization efficiency somewhat decreases, but even for 5x5 matrices, an acceleration of about 2.5 times is observed, which makes it possible to implement this method in an industrial code.
 
 \section{Vectorization of loops \protect\\
 with irregular number of iterations}
