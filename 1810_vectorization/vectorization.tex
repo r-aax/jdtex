@@ -88,7 +88,7 @@ As a first example, we consider a planar cycle whose body consists of a single l
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.85\textwidth]{pics/if_vectorization.pdf}
+\includegraphics[width=0.62\textwidth]{pics/if_vectorization.pdf}
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
@@ -98,7 +98,7 @@ As another example, consider a planar loop whose body is an if-else construct. W
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.85\textwidth]{pics/if_else_vectorization.pdf}
+\includegraphics[width=0.65\textwidth]{pics/if_else_vectorization.pdf}
 \captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
@@ -151,6 +151,16 @@ In particular, it follows from this equation that if the loop body contains a la
 Consider this formula more closely. With a large number of alternatives, their probabilities are close to zero, so the term $(1 - pi) ^ w$ is a positive value not much less than one. From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat cycle significantly increase the effect of vectorization. At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations. However, one should not forget that vector commands generally execute more slowly than their scalar counterparts. Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
 
 \section{Matrix operations vectorization}
+
+In modern numerical methods used in high-performance computing, a special place is occupied by operations for working with vectors and matrices. In particular, one of the most critical operations is the multiplication of two matrices. Getting the product of two matrices, in which each row of the first matrix is multiplied by each column of the second matrix, is a heavy operation, which can take a significant part of the total program execution time. The presence of effective approaches to the implementation of this operation using the AVX-512 commands is necessary to increase the efficiency of the calculation codes using matrix calculations. In this section, we will consider the operations of multiplying small-size matrices (sizes 8 by 8, 7 by 7, 6 by 6 and 5 by 5) of the elements, which take, for example, up to 40\% of the work time of the domestic RANS / ILES calculation codes. In this case, the matrices under consideration are stored inside matrices of size 8 by 8 elements for reasons of alignment, as shown in Fig. N.
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
+\includegraphics[width=0.85\textwidth]{pics/matrices_8x8_7x7_6x6_5x5.pdf}
+\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
+\end{figure}
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
