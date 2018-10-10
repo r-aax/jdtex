@@ -414,6 +414,23 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 }
 \end{lstlisting}
 
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
+\includegraphics[width=0.85\textwidth]{pics/experimental_eff.pdf}
+\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
+\end{figure}
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
+\includegraphics[width=0.85\textwidth]{pics/theoretical_eff.pdf}
+\captionstyle{normal}\caption{Comparison of experimental acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
+\end{figure}
+
+
 \section{Physical calculations vectorization}
 
 The implementation of the Riemannian solver considered in this article is publicly available on the Internet as part of the NUMERICA \ cite {Numerica} library. In this case, we will be interested in the one-dimensional case for a single-component medium, implemented as a pure function (function without side effects), which, by the density, velocity and gas pressure values to the left and right of the discontinuity, finds the values of the same quantities on the discontinuity itself at zero time time after removal of the septum.
@@ -472,124 +489,43 @@ We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussion
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Rosales C. et al. (2016) A Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Newburn C.J., Sukha J., Sharapov I., Nguyen A.D., Miao CC. (2016) Application Suitability Assessment for Many-Core Targets. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Doerfler D. et al. (2016) Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Krzikalla O., Wende F., Hohnerbach M. (2016) Dynamic SIMD Vector Lane Scheduling. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Malas T., Kurth T., Deslippe J. (2016) Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Walden A., Khan S., Joó B., Ranjan D., Zubair M. (2016) Optimizing a Multiple Right-Hand Side Dslash Kernel for Intel Knights Corner. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Deslippe J. et al. (2016) Optimizing Excited-State Electronic-Structure Codes for Intel Knights Landing: A Case Study on the BerkeleyGW Software. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Joó B., Kalamkar D.D., Kurth T., Vaidyanathan K., Walden A. (2016) Optimizing Wilson-Dirac Operator and Linear Solvers for Intel® KNL. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
+Al Hasib, A., Cebrian, J.M. and Natvig, L. J Supercomput (2018) 74: 2705. https: doi.org/10.1007/s11227-018-2310-0
 
 \bibitem{ex}
 \refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D., Deslippe J., Williams S. et al., \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. ,\textquotedblright M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. - 2016. - vol. 9945. - pp. 339?353. DOI: 10.1007/978-3-319-46079-6.
-
+Bramas B., \textquotedblleft Fast Sorting Algorithms using AVX-512 on Intel Knights Landing. ,\textquotedblright In: Max Planck Computing and Data Facility (MPCDF)
 \end{thebibliography}
 
 \end{document}
