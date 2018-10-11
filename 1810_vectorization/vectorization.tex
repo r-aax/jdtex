@@ -163,21 +163,14 @@ Consider this formula more closely. With a large number of alternatives, their p
 
 \section{Matrix operations vectorization}
 
-In modern numerical methods used in high-performance computing, a special place is occupied by operations with vectors and matrices.
-Such operations include calculating the scalar product of two vectors, multiplying the matrix by the vector, finding the inverse matrix, decomposing the matrix, and other operations.
-In particular, the most frequently used operation is the multiplication of two matrices.
-Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take up a significant part of the total program execution time.
-The presence of effective approaches to the implementation of this operation is necessary to ensure the effective operation of program codes using matrix calculations.
-The capabilities of the AVX-512 instruction set allow to create efficient code for implementations of matrix operations, which provides significant acceleration of applications, which use them.
-In this section, we will consider the operations of multiplying small-size matrices (having sizes $8 \times 8$, $7 \times 7$, $6 \times 6$ and $5 \times 5$ elements).
-Operations with such matrices take, for example, up to 40\% of the total operating time of the indigenous Russian RANS/ILES calculation codes used in the modeling of unsteady turbulent flows \cite{Lyub_RANS_ILES, Ben_Lyub_Chest_RANS_ILES}.
-For reasons of alignment in memory, these matrices are considered as submatrices of a matrix of size $8 \times 8$ elements, as shown in Fig.~\ref{fig:matrices_8x8_7x7_6x6_5x5}.
+In modern numerical methods used in high-performance computing, a special place is occupied by operations for working with vectors and matrices. In particular, one of the most critical operations is the multiplication of two matrices. Getting the product of two matrices, in which each row of the first matrix is multiplied by each column of the second matrix, is a heavy operation, which can take a significant part of the total program execution time. The presence of effective approaches to the implementation of this operation using the AVX-512 commands is necessary to increase the efficiency of the calculation codes using matrix calculations. In this section, we will consider the operations of multiplying small-size matrices (sizes 8 by 8, 7 by 7, 6 by 6 and 5 by 5) of the elements, which take, for example, up to 40\% of the work time of the domestic RANS / ILES calculation codes. In this case, the matrices under consideration are stored inside matrices of size 8 by 8 elements for reasons of alignment, as shown in Fig. N.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.85\textwidth]{pics/matrices_8x8_7x7_6x6_5x5.pdf}
-\captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. The number of elements, and the number of addition and multiplication operations required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
+\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
 \end{figure}
 
 Consider different approaches to the multiplication of matrices of size 8 by 8. The logic of multiplying the two matrices is that the results of the pairwise scalar product of the rows of the first matrix and the columns of the second matrix form the elements of the resulting matrix. First, we consider a direct approach to vectorization, which consists in reading the rows and columns of matrices using the load and gather instructions (the scheme is shown in Fig. N). Using 512-bit memory access instructions allows you to load two neighbors of a row of a matrix (a sequential read operation) or two adjacent columns of a matrix (using the gather operation, see Fig. N, 1) in one operation. After this, we must calculate the four scalar products of each half of the vector loaded from matrix a with each half of the vector loaded from matrix b. To do this, all the operations of elementwise multiplication of two loaded vectors are performed, in one of which the higher and lower half of the second vector are interchanged (see Fig. N, 2). After performing these actions, there is a need to calculate the sum of the 8 lowest elements of this vector and 8 senior elements of the same vector. Thus, we come to the fact that each element of the resulting matrix must be obtained using the horizontal operation of summing 8 lower or higher elements of a certain zmm register (see Fig. N, 3). After adding the halves of the required registers, the result is written into two adjacent columns of the resulting matrix using the scatter operation (see fig. N, 4).
@@ -486,7 +479,7 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.85\textwidth]{pics/experimental_eff.pdf}
-\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
+\captionstyle{normal}\caption{Comparison of the experimental acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
 \end{figure}
 
 \begin{figure}[h]
@@ -494,7 +487,7 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.85\textwidth]{pics/theoretical_eff.pdf}
-\captionstyle{normal}\caption{Comparison of experimental acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
+\captionstyle{normal}\caption{Comparison of theoretical acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
 \end{figure}
 
 
@@ -553,24 +546,6 @@ We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussion
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
-
-% References for INTRODUCTION section.
-
-% References for FLAT CYCLES section.
-
-% References for MATRICES section.
-
-\bibitem{Lyub_RANS_ILES}
-\refitem{article}
-D.~A.~Lyubimov \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420-436 (2012).
-
-\bibitem{Ben_Lyub_Chest_RANS_ILES}
-\refitem{article}
-L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov. \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247-254 (2018).
-
-% References for IRREGULAR ITERATIONS LOOPS section.
-
-% References for PHYSICAL CALCULATIONS section.
 
 \bibitem{ex}
 \refitem{article}
@@ -643,6 +618,54 @@ I. M. Kulikov, I.G.Chernykh, B.M.Glinskiy, and V. A. Protasov \textquotedblleft 
 \bibitem{ex}
 \refitem{article}
 Roktaek L., Yeongha L., Raehyun K., Jaeyoung C., \textquotedblleft An implementation of matrix–matrix multiplication on the Intel KNL processor with AVX-512, \textquotedblright  doi.org/10.1007/s10586-018-2810-y
+
+\bibitem{ex}
+\refitem{article}
+Gueron S., Krasnov V., \textquotedblleft Fast Quicksort Implementation Using AVX Instructions \textquotedblright In: The Computer Journal, Vol. 59 No. 1 2016, doi.org/10.1093/comjnl/bxv063
+
+\bibitem{ex}
+\refitem{article}
+Ungethum, A., Pietrzyk, J., Damme, P., Habich, D., Lehner, W. (2018). Conflict detection-based run-length encoding - AVX-512 CD instruction set in action. Paper presented at the Proceedings - IEEE 34th International Conference on Data Engineering Workshops, ICDEW 2018, 96-101. 
+
+\bibitem{ex}
+\refitem{article}
+Aleen, F., Zakharin, V. P., Krishnaiyer, R., Gupta, G., Kreitzer, D., and Lin, C. -., Jr. (2018). Automated compiler optimization of multiple vector Loads/Stores. International Journal of Parallel Programming, 46(2), 471-503. doi:10.1007/s10766-016-0485-7
+
+\bibitem{ex}
+\refitem{article}
+Jubertie, S., Dupros, F., and De Martin, F. (2018). Vectorization of a spectral finite-element numerical kernel. Paper presented at the WPMVP 2018 - Proceedings of the 2018 4th Workshop on Programming Models for SIMD/Vector Processing, Co-Located with PPoPP 2018, doi:10.1145/3178433.3178441 
+
+\bibitem{ex}
+\refitem{article}
+Jeffers J., Reinders J., Sodani A. Intel Xeon Phi processor high performance programming. Knights Land-ing Edition. Morgan Kaufmann Publ., 2016, 632 p.
+
+\bibitem{ex}
+\refitem{article}
+Intel C++ Compiler 16.0 User and Reference Guide. Intel Corporation. 2015. URL: https://software.intel.com/en-us/articles/intel-c-compiler-160-for-windows-release-notes-for-intel-parallel-studio-xe-2016 (visited on 11.10.2018).
+
+\bibitem{ex}
+\refitem{article}
+Intel Intrinsics Guide. URL: https://software.intel.com/sites/landingpage/IntrinsicsGuide (visited on 11.10.2018).
+
+\bibitem{ex}
+\refitem{article}
+Krzikalla O., Wende F., Hohnerbach M. Dynamic SIMD Vector Lane Scheduling. In: ISC High Perfor-mance Workshops 2016, M. Taufer et al. (eds.), LNCS, 2016, vol. 9945, pp. 354–365.
+
+\bibitem{ex}
+\refitem{article}
+Cook B., Maris P., Shao M. High Performance Optimizations for Nuclear Physics Code MFDn on KNL. In: ISC High Performance Workshops 2016, M. Taufer et al. (eds.), LNCS, 2016, vol. 9945, pp. 366–377.
+
+\bibitem{ex}
+\refitem{article}
+Deslippe J., da Jornada F.H., Vigil-Fowler D. et al. Optimizing Excited-State Electronic-Structure Codes for Intel Knights Landing: A Case Study on the BerkeleyGW Software. In: ISC High Performance Workshops 2016, M. Taufer et al. (eds.), LNCS, 2016, vol. 9945, pp. 402–414.
+
+\bibitem{ex}
+\refitem{article}
+Maleki S., Gao Ya., Garzarám M.J., Wong T., Padua D.A. An evaluation of vectorizing compilers // Proc. Int. Conf. on Parallel Architectures and Compilation Techniques (PACT'11), 2011, pp. 372–382.
+
+\bibitem{ex}
+\refitem{article}
+LINKS TO https://oeis.org/A102549 FOR INTEGER SEQUENCES
 
 
 
