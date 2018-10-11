@@ -163,17 +163,43 @@ Consider this formula more closely. With a large number of alternatives, their p
 
 \section{Matrix operations vectorization}
 
-In modern numerical methods used in high-performance computing, a special place is occupied by operations for working with vectors and matrices. In particular, one of the most critical operations is the multiplication of two matrices. Getting the product of two matrices, in which each row of the first matrix is multiplied by each column of the second matrix, is a heavy operation, which can take a significant part of the total program execution time. The presence of effective approaches to the implementation of this operation using the AVX-512 commands is necessary to increase the efficiency of the calculation codes using matrix calculations. In this section, we will consider the operations of multiplying small-size matrices (sizes 8 by 8, 7 by 7, 6 by 6 and 5 by 5) of the elements, which take, for example, up to 40\% of the work time of the domestic RANS / ILES calculation codes. In this case, the matrices under consideration are stored inside matrices of size 8 by 8 elements for reasons of alignment, as shown in Fig. N.
+In modern numerical methods used in high-performance computing, a special place is occupied by operations with vectors and matrices.
+Such operations include calculating the scalar product of two vectors, multiplying the matrix by the vector, finding the inverse matrix, decomposing the matrix, and other operations.
+In particular, the most frequently used operation is the multiplication of two matrices.
+Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take up a significant part of the total program execution time.
+The presence of effective approaches to the implementation of this operation is necessary to ensure the effective operation of program codes using matrix calculations.
+The capabilities of the AVX-512 instruction set allow to create efficient code for implementations of matrix operations, which provides significant acceleration of applications, which use them.
+In this section, we will consider the operations of multiplying small-size matrices (having sizes $8 \times 8$, $7 \times 7$, $6 \times 6$ and $5 \times 5$ elements).
+Operations with such matrices take, for example, up to 40\% of the total operating time of the indigenous Russian RANS/ILES calculation codes used in the modeling of unsteady turbulent flows \cite{Lyub_RANS_ILES, Ben_Lyub_Chest_RANS_ILES}.
+For reasons of alignment in memory, these matrices are considered as submatrices of a matrix of size $8 \times 8$ elements, as shown in Fig.~\ref{fig:matrices_8x8_7x7_6x6_5x5}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
+\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.85\textwidth]{pics/matrices_8x8_7x7_6x6_5x5.pdf}
-\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
+\captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. The number of elements, and the number of addition and multiplication operations required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
 \end{figure}
 
-Consider different approaches to the multiplication of matrices of size 8 by 8. The logic of multiplying the two matrices is that the results of the pairwise scalar product of the rows of the first matrix and the columns of the second matrix form the elements of the resulting matrix. First, we consider a direct approach to vectorization, which consists in reading the rows and columns of matrices using the load and gather instructions (the scheme is shown in Fig. N). Using 512-bit memory access instructions allows you to load two neighbors of a row of a matrix (a sequential read operation) or two adjacent columns of a matrix (using the gather operation, see Fig. N, 1) in one operation. After this, we must calculate the four scalar products of each half of the vector loaded from matrix a with each half of the vector loaded from matrix b. To do this, all the operations of elementwise multiplication of two loaded vectors are performed, in one of which the higher and lower half of the second vector are interchanged (see Fig. N, 2). After performing these actions, there is a need to calculate the sum of the 8 lowest elements of this vector and 8 senior elements of the same vector. Thus, we come to the fact that each element of the resulting matrix must be obtained using the horizontal operation of summing 8 lower or higher elements of a certain zmm register (see Fig. N, 3). After adding the halves of the required registers, the result is written into two adjacent columns of the resulting matrix using the scatter operation (see fig. N, 4).
+We will compare the two approaches to implementing the multiplication of matrices of size $8 \times 8$, extend these approaches to smaller matrices and obtain the results of the comparison of the performance of the considered approaches.
+The multiplication logic of two matrices is that the results of the pairwise scalar product of all rows of the first matrix and all columns of the second matrix form the elements of the resulting matrix.
+First, we consider a direct approach to matrix multiplication, in which we will directly operate with the rows of the first matrix and the columns of the second matrix.
+The matrices in programming language C, represented as multidimentional arrays, are located in memory row by row, so for reading matrix row it is neeeded to use the operation of consequental loading from memory (\texttt{load}), and for reading matrix column it is needed to use operation of loading data elements with arbitrary offsets from base address (\texttt{gather}).
+We consider matrices whose elements are real single-precision values, therefore one \texttt{zmm} register with which commands from the instruction set AVX-512 operate, contains 16 elements of such matrix.
+Thus, the AVX-512 allows to load two rows or two columns of a matrix using one command.
+
+% continue...
+
+Using 512-bit memory access instructions allows you to load two neighbors of a row of a matrix (a sequential read operation) or two adjacent columns of a matrix (using the gather operation, see Fig. N, 1) in one operation.
+
+After this, we must calculate the four scalar products of each half of the vector loaded from matrix a with each half of the vector loaded from matrix b.
+
+To do this, all the operations of elementwise multiplication of two loaded vectors are performed, in one of which the higher and lower half of the second vector are interchanged (see Fig. N, 2).
+
+After performing these actions, there is a need to calculate the sum of the 8 lowest elements of this vector and 8 senior elements of the same vector.
+
+Thus, we come to the fact that each element of the resulting matrix must be obtained using the horizontal operation of summing 8 lower or higher elements of a certain zmm register (see Fig. N, 3).
+
+After adding the halves of the required registers, the result is written into two adjacent columns of the resulting matrix using the scatter operation (see fig. N, 4).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -479,7 +505,7 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.85\textwidth]{pics/experimental_eff.pdf}
-\captionstyle{normal}\caption{Comparison of the experimental acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
+\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
 \end{figure}
 
 \begin{figure}[h]
@@ -487,7 +513,7 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.85\textwidth]{pics/theoretical_eff.pdf}
-\captionstyle{normal}\caption{Comparison of theoretical acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
+\captionstyle{normal}\caption{Comparison of experimental acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{fig:1}
 \end{figure}
 
 
@@ -546,6 +572,24 @@ We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussion
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
+
+% References for INTRODUCTION section.
+
+% References for FLAT CYCLES section.
+
+% References for MATRICES section.
+
+\bibitem{Lyub_RANS_ILES}
+\refitem{article}
+D.~A.~Lyubimov, \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420-436 (2012).
+
+\bibitem{Ben_Lyub_Chest_RANS_ILES}
+\refitem{article}
+L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247-254 (2018).
+
+% References for IRREGULAR ITERATIONS LOOPS section.
+
+% References for PHYSICAL CALCULATIONS section.
 
 \bibitem{ex}
 \refitem{article}
@@ -625,7 +669,7 @@ Gueron S., Krasnov V., \textquotedblleft Fast Quicksort Implementation Using AVX
 
 \bibitem{ex}
 \refitem{article}
-Ungethum, A., Pietrzyk, J., Damme, P., Habich, D., Lehner, W. (2018). Conflict detection-based run-length encoding - AVX-512 CD instruction set in action. Paper presented at the Proceedings - IEEE 34th International Conference on Data Engineering Workshops, ICDEW 2018, 96-101. 
+Ungethum, A., Pietrzyk, J., Damme, P., Habich, D., Lehner, W. (2018). Conflict detection-based run-length encoding - AVX-512 CD instruction set in action. Paper presented at the Proceedings - IEEE 34th International Conference on Data Engineering Workshops, ICDEW 2018, 96-101.
 
 \bibitem{ex}
 \refitem{article}
@@ -633,7 +677,7 @@ Aleen, F., Zakharin, V. P., Krishnaiyer, R., Gupta, G., Kreitzer, D., and Lin, C
 
 \bibitem{ex}
 \refitem{article}
-Jubertie, S., Dupros, F., and De Martin, F. (2018). Vectorization of a spectral finite-element numerical kernel. Paper presented at the WPMVP 2018 - Proceedings of the 2018 4th Workshop on Programming Models for SIMD/Vector Processing, Co-Located with PPoPP 2018, doi:10.1145/3178433.3178441 
+Jubertie, S., Dupros, F., and De Martin, F. (2018). Vectorization of a spectral finite-element numerical kernel. Paper presented at the WPMVP 2018 - Proceedings of the 2018 4th Workshop on Programming Models for SIMD/Vector Processing, Co-Located with PPoPP 2018, doi:10.1145/3178433.3178441
 
 \bibitem{ex}
 \refitem{article}
