@@ -180,7 +180,26 @@ For reasons of alignment in memory, these matrices are considered as submatrices
 \captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. The number of elements, and the number of addition and multiplication operations required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
 \end{figure}
 
-Consider different approaches to the multiplication of matrices of size 8 by 8. The logic of multiplying the two matrices is that the results of the pairwise scalar product of the rows of the first matrix and the columns of the second matrix form the elements of the resulting matrix. First, we consider a direct approach to vectorization, which consists in reading the rows and columns of matrices using the load and gather instructions (the scheme is shown in Fig. N). Using 512-bit memory access instructions allows you to load two neighbors of a row of a matrix (a sequential read operation) or two adjacent columns of a matrix (using the gather operation, see Fig. N, 1) in one operation. After this, we must calculate the four scalar products of each half of the vector loaded from matrix a with each half of the vector loaded from matrix b. To do this, all the operations of elementwise multiplication of two loaded vectors are performed, in one of which the higher and lower half of the second vector are interchanged (see Fig. N, 2). After performing these actions, there is a need to calculate the sum of the 8 lowest elements of this vector and 8 senior elements of the same vector. Thus, we come to the fact that each element of the resulting matrix must be obtained using the horizontal operation of summing 8 lower or higher elements of a certain zmm register (see Fig. N, 3). After adding the halves of the required registers, the result is written into two adjacent columns of the resulting matrix using the scatter operation (see fig. N, 4).
+We will compare the two approaches to implementing the multiplication of matrices of size $8 \times 8$, extend these approaches to smaller matrices and obtain the results of the comparison of the performance of the considered approaches.
+The multiplication logic of two matrices is that the results of the pairwise scalar product of all rows of the first matrix and all columns of the second matrix form the elements of the resulting matrix.
+First, we consider a direct approach to matrix multiplication, in which we will directly operate with the rows of the first matrix and the columns of the second matrix.
+The matrices in programming language C, represented as multidimentional arrays, are located in memory row by row, so for reading matrix row it is neeeded to use the operation of consequental loading from memory (\texttt{load}), and for reading matrix column it is needed to use operation of loading data elements with arbitrary offsets from base address (\texttt{gather}).
+We consider matrices whose elements are real single-precision values, therefore one \texttt{zmm} register with which commands from the instruction set AVX-512 operate, contains 16 elements of such matrix.
+Thus, the AVX-512 allows to load two rows or two columns of a matrix using one command.
+
+% continue...
+
+Using 512-bit memory access instructions allows you to load two neighbors of a row of a matrix (a sequential read operation) or two adjacent columns of a matrix (using the gather operation, see Fig. N, 1) in one operation.
+
+After this, we must calculate the four scalar products of each half of the vector loaded from matrix a with each half of the vector loaded from matrix b.
+
+To do this, all the operations of elementwise multiplication of two loaded vectors are performed, in one of which the higher and lower half of the second vector are interchanged (see Fig. N, 2).
+
+After performing these actions, there is a need to calculate the sum of the 8 lowest elements of this vector and 8 senior elements of the same vector.
+
+Thus, we come to the fact that each element of the resulting matrix must be obtained using the horizontal operation of summing 8 lower or higher elements of a certain zmm register (see Fig. N, 3).
+
+After adding the halves of the required registers, the result is written into two adjacent columns of the resulting matrix using the scatter operation (see fig. N, 4).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -562,11 +581,11 @@ We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussion
 
 \bibitem{Lyub_RANS_ILES}
 \refitem{article}
-D.~A.~Lyubimov \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420-436 (2012).
+D.~A.~Lyubimov, \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420-436 (2012).
 
 \bibitem{Ben_Lyub_Chest_RANS_ILES}
 \refitem{article}
-L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov. \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247-254 (2018).
+L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247-254 (2018).
 
 % References for IRREGULAR ITERATIONS LOOPS section.
 
