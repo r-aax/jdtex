@@ -419,19 +419,33 @@ with irregular number of iterations}
 
 The AVX-512 instruction set is a 512-bit extension of the 256-bit AVX instructions from the Intel x86 instruction set, supported in the Intel Xeon Phi KNL and Intel Xeon Skylake microprocessor families.
 
-The use of masks in vector operations that allow selective processing of individual elements of the vectors, allows you to implement the predicate mode of execution of operations. Combined with a variety of vector element permutation operations, combined operations, multiple memory access operations at arbitrary addresses, and many other features of the AVX-512 instruction set, this allows you to create high-quality parallel code leading to multiple acceleration.
+The use of masks in vector operations allowing selective processing of individual elements of the vectors, lets to implement the predicate mode of operations execution.
+Combined with a variety of vector element permutation operations, combined operations, multiple memory access operations at arbitrary addresses, and many other features of the AVX-512 instruction set, this allows to create high-quality parallel code leading to multiple acceleration.
 
-To simplify the vectorization of the source code, special functions intrinsiki are available for the icc compiler, which are wrappers for instructions or groups of instructions AVX-512. Using intrinsic functions and built-in data types to support 512-bit vectors allows you to create specific vector instructions in the resulting code, while operating with high-level entities of the C programming language.
+To simplify the vectorization of the source code, special intrinsic functions are available for the icc compiler, which are wrappers for instructions or groups of AVX-512 instructions.
+Using intrinsic functions and built-in data types to support 512-bit vectors allows you to create specific vector instructions in the resulting code, while operating with high-level entities of the C programming language.
 
-Shell's sorting was chosen as the object of study, which has an extremely inconvenient execution context for vectorization using the AVX-512 instructions.
+Shell sorting was chosen as the object of study, which has an extremely inconvenient execution context for vectorization with AVX-512 instructions.
 
-The canonical implementation of Shell sorting consists of a loop nest containing three loops. The outer loop is performed in all steps of the sequence of steps used, starting with the maximum and ending with one. Two internal cycles perform the sorting of all subarrays that are slices of the original array with the current step $ k $.
+The canonical implementation of Shell sorting consists of a loop nest containing three loops.
+The outer loop is performed in all steps of the sequence of steps used, starting with the maximum and ending with one.
+Two internal cycles perform the sorting of all subarrays that are slices of the original array with the current step $ k $.
 
-Consider the possibilities for vectorization of Shell sorting for an array of float type real values ​​(the AVX-512 vector contains 16 such values). The most nested loop (the loop with the counter $ j $, we will call it simply internal) performs the sorting of one slice consisting of array elements, with the distance $ k $ between adjacent elements.
-The inner loop cannot be vectorized without making additional code modifications, since there is an inter-iteration relationship between writing the $ m [j] $ element and reading the $ m [j - k] $ element. However, it can be noted that two iterations of the average nesting cycle (the cycle with the inductive variable $ i $, we will call it intermediate) with the numbers $ i_1 $ and $ i_2 $ do not intersect the data and can be executed in parallel if the condition $ | i_1 is fulfilled - i_2 | <k $. Perform the Shell sorting decomposition so that you can explicitly select a kernel that can be vectorized.
+\subsection*{Vectorization of Shell sorting with AVX-512 instructions}
+
+Consider the possibilities for vectorization of Shell sorting for an array of float type real values(the AVX-512 vector contains 16 such values).
+The most nested loop (the loop with the counter $ j $, we will call it simply internal) performs the sorting of one slice consisting of array of elements, with the distance $ k $ between adjacent elements.
+The inner loop cannot be vectorized without making additional code modifications, since there is an inter-iteration dependence between writing the $ m [j] $ element and reading the $ m [j - k] $ element. However, it can be noted that two iterations of the average nesting cycle (the cycle with the inductive variable $ i $, we will call it intermediate) with the numbers $ i_1 $ and $ i_2 $ do not intersect the data and can be executed in parallel if the condition $ | i_1 - i_2 | < k $ is fulfilled. Perform the Shell sorting decomposition so that you can explicitly highlight a kernel that can be vectorized.
 
 
-In Fig. ~ \ Ref {pic: decompos} the decomposition scheme of Shell's sorting algorithm is presented, in which sections with different widths of vectorization are clearly identified. First, a block for steps $ k \ ge 16 $ is allocated. For these values ​​of steps, it is possible to perform 16 adjacent iterations of the intermediate cycle in parallel, while achieving the maximum vectorization density (shown in green in the diagram). All iterations of the intermediate cycle are divided into groups of 16 adjacent iterations and the remainder, which is vectorized with a width of less than 16 (shown in yellow, and if the remainder consists of just one iteration, then no vectorization is required, which is shown in red in the diagram) . Next, a block of step values ​​$ 1 <k <16 $ is considered. With these values, the width of the vectorization is always less than 16, moreover, as in the previous block, a non-vectorisable residue may appear. The last to be considered is the non-vectorisable final sorting by inserts for $ k = 1 $. The presence of code sections with a vectorization width of less than 16 leads to a non-optimal result code, but there is a more dangerous reason for the low efficiency of vectorization.
+In Fig. ~ \ Ref {pic: decompos} the decomposition scheme of Shell sort algorithm is presented, in which sections with different widths of vectorization are shown.
+First, the block for steps $ k \ ge 16 $ is depicted.
+For these values of steps, it is possible to perform 16 adjacent iterations of the intermediate cycle in parallel, while achieving the maximum vectorization density (shown in green in the diagram).
+All iterations of the intermediate cycle are divided into groups of 16 adjacent iterations and the remainder, which is vectorized with a width of less than 16 (shown in yellow, and if the remainder consists of just one iteration, then no vectorization is required, which is shown in red in the diagram).
+Next, the block of step values $ 1 <k <16 $ is considered.
+With these values, the width of the vectorization is always less than 16, moreover, as in the previous block, a non-vectorizable residue may appear.
+The last to be considered is the non-vectorizable final sorting by inserts for $ k = 1 $.
+The presence of code sections with a vectorization width of less than 16 leads to a non-optimal result code, but there is a more dangerous reason for the low efficiency of vectorization.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -441,21 +455,38 @@ In Fig. ~ \ Ref {pic: decompos} the decomposition scheme of Shell's sorting algo
 \captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting for different sequences of steps}\label{pic:decompos}
 \end{figure}
 
-The shell  \_sort \_k \_i \_w  function, which appeared after decomposing the Shell sorting algorithm, contains the implementation of sorting w adjacent array slices, taken with step k. At the same time, the number of iterations of the inner loop of this function is unknown. Moreover, the number of iterations of the inner loop when sorting one slice is in no way connected with the number of iterations of the inner loop when sorting the next slice. This is a significant problem when attempting to merge the code for sorting adjacent slices using vector instructions. For such a union, it is necessary to rewrite the slice sorting code in predicate form, then replace all instructions with vector analogs, and predicates with vector masks (Fig. ~\ref {pic: shell_cfg}). Moreover, if, prior to vectorization, the internal loop terminated when the predicate is false, then, after vectorization, the internal loop will terminate only if all elements of the corresponding vector mask are reset. Thus, the number of iterations of a vectorized inner loop is equal to the maximum number of iterations of all w combined cycles. If the values ​​of the number of iterations of adjacent merged cycles differ greatly (and for Shell sorting this statement is true), then we get a loss of vectorization efficiency due to the low density of vector instruction masks (that is, a small percentage of vector elements is actually processed when performing vector operation).
+The $ shell\_sort\_k\_i\_w $ function, which appeared after decomposing the Shell sorting algorithm, contains the implementation of sorting w adjacent array slices, taken with step k.
+At the same time, the number of iterations of the inner loop of this function is unknown.
+Moreover, the number of iterations of the inner loop when sorting one slice is in no way connected with the number of iterations of the inner loop when sorting the next slice.
+This is a significant problem when attempting to merge the code for sorting adjacent slices using vector instructions.
+For such a union, it is necessary to rewrite the slice sorting code in predicate form, then replace all instructions with vector analogs, and predicates with vector masks.
+Moreover, if, prior to vectorization, the internal loop terminated when the predicate is false, then, after vectorization, the internal loop will terminate only if all elements of the corresponding vector mask are reset.
+Thus, the number of iterations of a vectorized inner loop is equal to the maximum number of iterations of all w combined cycles.
+If the values of the number of iterations of adjacent merged cycles differ greatly (and for Shell sorting this statement is true), then we get a loss of vectorization efficiency due to the low density of vector instruction masks (that is, a small percentage of vector elements is actually processed when performing vector operation).
 
-You should also pay attention to the scatter operation, which appeared in the vector code, writing multiple data into memory with arbitrary offsets relative to the base address. This command appeared as a vector analogue of a write operation to memory from the original code due to the same reason - the irregularity of the number of iterations of the internal loop. It is worth noting that the scatter commands are extremely slow, which also causes a decrease in the efficiency of vectorization.
+You should also pay attention to the scatter operation, which appeared in the vector code, writing multiple data into memory with arbitrary offsets relative to the base address.
+This command appeared as a vector analogue of a write operation to memory from the original code due to the same reason - the irregularity of the number of iterations of the internal loop.
+It is worth noting that the scatter commands are extremely slow, which also causes a decrease in the efficiency of vectorization.
 
-In addition to the designated scatter command, there are other memory reference commands in the vectorized code, lines 10, 16, 19). These are the usual load and store commands that, generally speaking, must be addressed by aligned addresses in memory. In the general case, the addresses given to them are certainly not aligned, however, the use of non-aligned calls instead of them significantly slows down the code, so it was decided to leave these instructions.
+In addition to the designated scatter command, there are other memory reference commands in the vectorized code, lines 10, 16, 19).
+These are the usual load and store commands that, generally speaking, must be addressed by aligned addresses in memory.
+In the general case, the addresses given to them are certainly not aligned, however, the use of non-aligned calls instead of them significantly slows down the code, so it was decided to leave these instructions.
 
-By theoretical acceleration, we will simply mean the ratio of the number of iterations of the internal cycle of the non-vectorized version to the number of iterations of the internal cycle in an optimized vectorized version of the code. We define this acceleration more formally.
+By theoretical acceleration, we will simply mean the ratio of the number of iterations of the internal cycle of the non-vectorized version to the number of iterations of the internal cycle in an optimized vectorized version of the code.
+Define this acceleration more formally.
 
-First consider the non-vectorized code. Denote by $ T (k, i) $ the number of iterations of the inner loop with fixed $ k $ and $ i $. Then it is not difficult to calculate the total number of iterations of the inner loop when performing sorting (we denote this value by 
+First consider the non-vectorized code.
+Denote by $ T (k, i) $ the number of iterations of the inner loop with fixed $ k $ and $ i $.
+Then it is not difficult to calculate the total number of iterations of the inner loop when performing sorting (we denote this value as T).
 
 \begin{equation}
 T = \sum_{k \in ks}{\sum_{i = k}^{n - 1}{I(k, i)}}
 \end{equation}
 
-Now consider the vectorized version of the code. We also denote by $ T_v (k, i) $ the number of iterations of the inner loop with fixed $ k $ and $ i $. We know that the vectorization width cannot exceed $ k $ (due to dependencies on accessing the array), and 16 (vector size), that is, $ w (k) = \ min (k, 16) $. Moreover, the entire range of $ i $ values ​​from $ k $ to $ n - 1 $, whose length is $ n - k $ is divided into $ \ lfloor \ frac {n - k} {w (k)} \ rfloor $ groups in $ w $ elements in each, and the number of iterations in the vectorized cycle corresponding to each group is equal to the maximum value of the number of iterations of the non-vectorized cycles combined into this vectorized cycle. Taking into account the vectorization of the tail part of the loop, we obtain the following formula for the total number of iterations of a vectorized inner loop.
+Now consider the vectorized version of the code. We also denote by $ T_v (k, i) $ the number of iterations of the inner loop with fixed $ k $ and $ i $.
+We know that the vectorization width cannot exceed $ k $ (due to dependencies on accessing the array), and 16 (vector size), that is, $ w (k) = min (k, 16) $.
+Moreover, the entire range of $ i $ values from $ k $ to $ n - 1 $, whose length is $ n - k $ is divided into $ \lfloor \frac {n - k} {w (k)} \rfloor $ groups in $ w $ elements in each, and the number of iterations in the vectorized cycle corresponding to each group is equal to the maximum value of the number of iterations of the non-vectorized cycles combined into this vectorized cycle.
+Taking into account the vectorization of the tail part of the loop, we obtain the following formula for the total number of iterations of a vectorized inner loop.
 
 \begin{equation}
 T_v = \sum_{k \in ks}
@@ -469,7 +500,7 @@ T_v = \sum_{k \in ks}
 }
 \end{equation}
 
-where $ w (k) = \ min (k, 16) $, $ G (k) = \ lfloor \ frac {n - k} {w (k)} \ rfloor $. The values ​​of $ T = T (n) $ and $ T_v = T_v (n) $ were calculated when sorting pseudo-random arrays with the number of elements from 10 thousand to 2 million for each of the sequences of steps of Shell, Hibbard, Pratt and Sedvik. Based on this, the theoretical acceleration $ s (n) = T (n) / T_v (n) $ was calculated. In addition, similar characteristics were calculated without taking into account the step $ k = 1 $ (these values ​​are denoted $ T '(n) $, $ T'_v (n) $ and $ s' (n) $, respectively). The results were compared with the results of experimental launches on an Intel Xeon Phi 7290 KNL microprocessor.
+where $ w (k) = \min (k, 16) $, $ G (k) = \lfloor \frac {n - k} {w (k)} \rfloor $. The values of $ T = T (n) $ and $ T_v = T_v (n) $ were calculated when sorting pseudo-random arrays with the number of elements from 10 thousand to 2 million for each of the sequences of steps of Shell, Hibbard, Pratt and Sedvik. Based on this, the theoretical acceleration $ s (n) = T (n) / T_v (n) $ was calculated. In addition, similar characteristics were calculated without taking into account the step $ k = 1 $ (these values are denoted $ T '(n) $, $ T'_v (n) $ and $ s' (n) $, respectively). The results were compared with the results of experimental launches on an Intel Xeon Phi 7290 KNL microprocessor.
 
 
 
