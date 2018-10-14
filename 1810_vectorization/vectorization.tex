@@ -190,8 +190,9 @@ Thus, the AVX-512 allows to load two rows or two columns of a matrix using one c
 
 Fig.~\ref{fig:mmult_1} illustrates the implementation of this approach.
 First of all, we note that the left matrix (matrix $A$) is completely loaded into 4 vectors $A_1$, $A_2$, $A_3$, $A_4$ (each vector contains two adjacent rows of the matrix).
+This can be done using the usual instructions for reading sequentially located data from the memory (\texttt{load}).
 Next, we present a scheme for calculating two adjacent columns of the resulting matrix (columns numbered $j$ and $h = j + 1$).
-Two adjacent columns of the right matrix (matrix $B$) are loaded in the forward and reverse order into the vectors $B_j$ and $B_h$ (using the instructions \texttt{gather} and \texttt{permute}, Fig.~\ref{fig:mmult_1}, 1).
+Two adjacent columns of the right matrix (matrix $B$) are loaded in the forward and reverse order into the vectors $B_j$ and $B_h$ (using the instructions \texttt{gather} for reading data from the memory and \texttt{permute} for placing \texttt{zmm} vector halves in reverse order, Fig.~\ref{fig:mmult_1}, 1).
 Next, the operations of the elementwise multiplication of the vectors $B_j$ and $B_h$ by all the vectors, in which the matrix $A$ is loaded, are performed.
 The results of these multiplications are 8 vectors $M_0$ - $M_7$ (Fig.~\ref{fig:mmult_1}, 2).
 Each half of the $M_i, i \in [0, 7]$ vector (lower or high) contains elements, the sum of which forms one of the elements of the resulting matrix.
@@ -202,7 +203,7 @@ Finally, the resulting 16 values are written into the columns with the $j$ and $
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.85\textwidth]{pics/mmult_1.pdf}
+\includegraphics[width=0.9\textwidth]{pics/mmult_1.pdf}
 \captionstyle{normal}\caption{Scheme of two matrices multiplication with direct reading of rows and columns of matrices and parallel computation of their pairwise scalar products.}\label{fig:mmult_1}
 \end{figure}
 
@@ -223,7 +224,10 @@ Below is a listing of the implementation of these macros.
 
 \end{lstlisting}
 
-In fig. N, 2 shows a data flow tree in parallel calculation of the sum of the halves of 8 zmm registers. The tree contains three levels and as a result, the output is a vector in which the elements correspond to two rows of the resulting matrix, only written in the wrong order. These elements are written to memory using the scatter command, which serves the desired offset. As a result, you can submit a listing of software code that implements this approach.
+The \texttt{\_mm512\_swizzle\_ps} intrinsic is designed to rearrange the vector elements inside 128-bit quarters (composed of 4 single-precision floating-point elements), the \texttt{\_mm512\_permute4f128\_ps} command shuffles the 128-bit quarters themselves, and the \texttt{\_mm512\_mask\_blend\_ps} intrinsic performs the merging of two vectors using a mask.
+To calculate the elements sums for 16 halves of 8 registers \texttt{zmm}, the use of 7 such macros is required (4 operations for the first level of merging, 2 operations for the second level of merging and the last operation for obtaining the resulting vector $M_2$, as shown on the Fig.~\ref{fig:mmult_1}, 3).
+Since the scheme shown in Fig.~\ref{fig:mmult_1} provides the calculation of two adjacent columns of the resulting matrix, four such iterations are required to obtain the entire matrix.
+Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach.
 
 \begin{lstlisting}
 void mul_8x8(float * __restrict a, float * __restrict b,
@@ -275,64 +279,82 @@ void mul_8x8(float * __restrict a, float * __restrict b,
     }
 \end{lstlisting}
 
-As experiments have shown, the proposed approach is well suited for matrices of size 16 by 16, when used with small-format matrices, a decrease in performance is observed. This is mainly due to the use of slow multiple memory access operations with arbitrary offsets. To eliminate this drawback, we consider another approach, in which calls to memory are performed only by sequential addresses. Immediately, we note that this approach is applicable only for matrices of size no more than 8 by 8, since it requires the use of more registers zmm. In the case of a shortage of registers for matrices of higher dimension, a shortage of registers will immediately begin, which will lead to their dropping into memory and the associated loss of productivity.
+The experiments carried out demonstrated the effectiveness of this approach in relation to matrices of size $16 \times 16$.
+However, using smaller matrices, a decrease in performance was observed.
+The main reason for this is the use of slow multiple memory access operations with arbitrary offsets.
+To eliminate this drawback, we consider another approach, in which calls to memory are performed only by sequential addresses.
+At the same time, we note that this approach is applicable only for matrices of size no more than $8 \times 8$, since it requires a large number of \texttt{zmm} registers.
+In the event of a shortage of \texttt{zmm} registers, these registers are immediately dumped into memory, which causes extra store and load commands (so-called spill/fill operations appear) and leads to a catastrophic performance decrease.
 
-In order to get rid of memory access / scatter operations, as well as use combined operations from the AVX-512 command set, we write explicitly the values of the elements of the i-th row of the resulting matrix:
+So, when forming another approach to the multiplication of small-format matrices, we will consider the removal of multiple memory access operations as well as the use of special combined operations, which allow the expression $\pm a \cdot b \pm c$ to be calculated in one operation, as the main goals.
+We write the formulas for the $i$-th column of the resulting matrix:
 
 \begin{equation}
 \begin{cases}
-r_{i0} = a_{i0}b_{00} + a_{i1}b_{10} + ... + a_{i7}b_{70} \\
-... \\
-r_{i7} = a_{i0}b_{07} + a_{i1}b_{17} + ... + a_{i7}b_{77} \\
+r_{i0} = a_{i0}b_{00} + a_{i1}b_{10} + \ldots + a_{i7}b_{70} \\
+\ldots \\
+r_{i7} = a_{i0}b_{07} + a_{i1}b_{17} + \ldots + a_{i7}b_{77} \\
 \end{cases}
 \end{equation}
 
 or in vector form
 
 \begin{equation}
-\overline{r_i} = a_{i0}\overline{b_0} + a_{i1}\overline{b_1} + ... + a_{i7}\overline{b_7} \\
+\overline{r_i} = a_{i0}\overline{b_0} + a_{i1}\overline{b_1} + \ldots + a_{i7}\overline{b_7} \\
 \end{equation}
 
 Similar expressions can be written for the row with the number $i + 1$:
 
 \begin{equation}
 \begin{cases}
-r_{i+1,0} = a_{i+1,0}b_{00} + a_{i+1,1}b_{10} + ... + a_{i+1,7}b_{70} \\
-... \\
-r_{i+1,7} = a_{i+1,0}b_{07} + a_{i+1,1}b_{17} + ... + a_{i+1,7}b_{77} \\
+r_{i+1,0} = a_{i+1,0}b_{00} + a_{i+1,1}b_{10} + \ldots + a_{i+1,7}b_{70} \\
+\ldots \\
+r_{i+1,7} = a_{i+1,0}b_{07} + a_{i+1,1}b_{17} + \ldots + a_{i+1,7}b_{77} \\
 \end{cases}
 \end{equation}
 
 or in vector form
 
 \begin{equation}
-\overline{r_{i+1}} = a_{i+1,0}\overline{b_0} + a_{i+1,1}\overline{b_1} + ... + a_{i+1,7}\overline{b_7} \\
+\overline{r_{i+1}} = a_{i+1,0}\overline{b_0} + a_{i+1,1}\overline{b_1} + \ldots + a_{i+1,7}\overline{b_7} \\
 \end{equation}
 
-Considering that the zmm registers contain 16 float elements, it is advisable to combine the above formulas into one, written in vector form as follows:
+Considering that the \texttt{zmm} registers contain 16 float elements, it is advisable to combine the above formulas into one, written in vector form as follows:
 
 \begin{equation}
-\left(\vcenter{\hbox{$\overline{r_i}$}\hbox{$\overline{r_{i+1}}$}}\right) =
+\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}
+=
 \left(
-\left(\vcenter{\hbox{$\overline{a_{i0}}$}\hbox{$\overline{a_{i+1,0}}$}}\right) \circ
-\left(\vcenter{\hbox{$\overline{b_0}$}\hbox{$\overline{b_0}$}}\right)
-\right) +
+\begin{pmatrix} \overline{a_{i0}} \\ \overline{a_{i+1,0}} \end{pmatrix}
+\circ
+\begin{pmatrix} \overline{b_0} \\ \overline{b_0} \end{pmatrix}
+\right)
++
 \left(
-\left(\vcenter{\hbox{$\overline{a_{i1}}$}\hbox{$\overline{a_{i+1,1}}$}}\right) \circ
-\left(\vcenter{\hbox{$\overline{b_1}$}\hbox{$\overline{b_1}$}}\right)
-\right) +
+\begin{pmatrix} \overline{a_{i1}} \\ \overline{a_{i+1,1}} \end{pmatrix}
+\circ
+\begin{pmatrix} \overline{b_1} \\ \overline{b_1} \end{pmatrix}
+\right)
++
+\ldots
++
 \left(
-\left(\vcenter{\hbox{$\overline{a_{i7}}$}\hbox{$\overline{a_{i+1,7}}$}}\right) \circ
-\left(\vcenter{\hbox{$\overline{b_7}$}\hbox{$\overline{b_7}$}}\right)
+\begin{pmatrix} \overline{a_{i7}} \\ \overline{a_{i+1,7}} \end{pmatrix}
+\circ
+\begin{pmatrix} \overline{b_7} \\ \overline{b_7} \end{pmatrix}
 \right)
 \end{equation}
 
-where $xxx$ denotes the combined vector consisting of the vectors $xxx$ and $xxx$, $xxx$ $xxx$ the combined vector consisting of two copies of the vector $xxx$, and the expression $xxx$ $xxx$ denotes a vector, the first 8 elements of which are equal to $xxx$, and the remaining 8 elements $xxx$ ($xxx$ Hadamard product, or elementwise product of vectors). Note that the combined vector obtained according to this formula ($xxx$ ($xxx$) is located in the memory sequentially, and it can be recorded in memory using the store intrinsic. In this case, we assume that the value of i is even, that is, the vector ($xxx$ $xxx$) is properly aligned in the memory. Other combined vectors in this expression are obtained using the perm instruction (intrinsic permutexvar) applied to the corresponding loaded adjacent rows of the a and b matrices. Thus, the implementation of the above formula does not require the use of slow gather / scatter instructions, since the columns of the matrices are not readable or written (the work is done only with strings). After the required vectors are formed, you need to perform their pairwise elementwise multiplication, and then add them into one vector (8 operations of elementwise multiplication, 7 addition operations). These actions can be performed using combined operations fmadd.
+where $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$ denotes the combined vector consisting of the vectors $\overline{r_i}$ and $\overline{r_{i+1}}$, $\begin{pmatrix} \overline{b_j} \\ \overline{b_j} \end{pmatrix}$ denotes the combined vector consisting of two copies of the vector $\overline{b_j}$, and the expression $\begin{pmatrix} \overline{a_{ij}} \\ \overline{a_{i+1,j}} \end{pmatrix}$ denotes a vector, the first 8 elements of which are equal to $a_{ij}$, and the remaining 8 elements are equal to $a_{i+1,j}$ (``$\circ$'' is Hadamard product, or elementwise product of vectors).
+Note that the combined vector obtained according to this formula $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$ is located in the memory sequentially, and it can be recorded into memory using the \texttt{store} instruction.
+In this case, we assume that the value of $i$ is even, that is, the vector $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$ is properly aligned in the memory.
+Other combined vectors in this expression are obtained using the \texttt{perm} instruction (intrinsic function \texttt{\_mm512\_permutexvar\_ps}) applied to the corresponding loaded adjacent rows of the $A$ and $B$ matrices.
+Thus, the implementation of the above formula does not require the use of slow \texttt{gather}/\texttt{scatter} instructions, since we don't read or write the columns of the matrices (calculations are performes only with rows).
+After the required vectors are formed, we need to perform their pairwise elementwise multiplication, and then add them into one vector (8 operations of elementwise multiplication, 7 addition operations).
+These actions can be performed using combined operations \texttt{fmadd}.
+To calculate the value $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$, we need 8 vector operations (1 operation \texttt{mul} and 7 operations \texttt{fmadd}).
 
-To calculate the value ($xxx$ $xxx$), we need 8 vector operations (1 operation mul and 7 operations fmadd) (see Fig. 2). In this figure, for convenience, a diagram of the sequential addition of multiplied vectors is presented. It is also possible another option that implements the calculation ($xxx$ $xxx$) by balancing the data stream tree. This option would require 4 mul operations, 4 fmadd operations and 3 add operations. In this context of computing, the length of the critical chain does not affect the running time of the code, so we leave the option with the minimum number of instructions (less than 8 instructions cannot be used, since you need to perform at least 8 multiplication operations).
-
-We give the multiplication function of two 8x8 matrices, the mechanism of which was considered in the previous section. To implement, we perform a full load of both matrices a and b. This will require 8 memory operations, since two adjacent rows of the matrix are loaded in one operation. Next, you need to form 8 vectors of the form ($xxx$ $xxx$)), for which you will need 8 more perm operations (for each pair of loaded rows of matrix b, you need to duplicate the first row and duplicate the second row). The formation of index vectors for perm operations does not require computational time, since the indices are static and are calculated at the compilation stage.
-After preparing all the necessary data, the values ​​of the resulting matrix are calculated. The block of operations given below (macro BLOCK) performs the calculation of two adjacent rows of the resulting matrix. The block implementation consists of 8 perm operations, 1 mul operation and 7 fmadd operations, besides, one write operation is performed in memory. A total of four such blocks are performed, which, in sum and taking into account data preparation operations, leads to the following result: 8 simple read operations from memory, 40 perm operations, 4 mul operations, 28 fmadd operations, 4 simple write operations to memory. The final code (without displaying some duplicate sections) is shown in the listing below.
+Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach.
 
 \begin{lstlisting}
 void mul_8x8(float * __restrict a, float * __restrict b,
@@ -388,6 +410,9 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 
 }
 \end{lstlisting}
+
+We give the multiplication function of two 8x8 matrices, the mechanism of which was considered in the previous section. To implement, we perform a full load of both matrices a and b. This will require 8 memory operations, since two adjacent rows of the matrix are loaded in one operation. Next, you need to form 8 vectors of the form ($xxx$ $xxx$)), for which you will need 8 more perm operations (for each pair of loaded rows of matrix b, you need to duplicate the first row and duplicate the second row). The formation of index vectors for perm operations does not require computational time, since the indices are static and are calculated at the compilation stage.
+After preparing all the necessary data, the values ​​of the resulting matrix are calculated. The block of operations given below (macro BLOCK) performs the calculation of two adjacent rows of the resulting matrix. The block implementation consists of 8 perm operations, 1 mul operation and 7 fmadd operations, besides, one write operation is performed in memory. A total of four such blocks are performed, which, in sum and taking into account data preparation operations, leads to the following result: 8 simple read operations from memory, 40 perm operations, 4 mul operations, 28 fmadd operations, 4 simple write operations to memory. The final code (without displaying some duplicate sections) is shown in the listing below.
 
 Note that 28 vector operations fmadd and 4 vector operations mul correspond to (28⋅2 + 4) ⋅16 = 960 scalar operations, which exactly coincides with the number of scalar operations required to perform the multiplication of two 8x8 matrices. Thus, in the proposed implementation there are no unnecessary arithmetic operations, and the result of each performed operation affects the final result.
 When implementing multiplication of 7x7, 6x6, 5x5 matrices, superfluous vector operations are removed (for example, multiplication by a vector, all elements of which are zero), but still there are elements of vectors whose processing is excessive, which leads to a decrease in the efficiency of vectorization in these cases. Below we provide a table with an accurate calculation of the number of scalar operations for non-vectorized functions and the number of vector operations for their vectorized analogues (see Table 1).
