@@ -348,7 +348,7 @@ Considering that the \texttt{zmm} registers contain 16 float elements, it is adv
 where $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$ denotes the combined vector consisting of the vectors $\overline{r_i}$ and $\overline{r_{i+1}}$, $\begin{pmatrix} \overline{b_j} \\ \overline{b_j} \end{pmatrix}$ denotes the combined vector consisting of two copies of the vector $\overline{b_j}$, and the expression $\begin{pmatrix} \overline{a_{ij}} \\ \overline{a_{i+1,j}} \end{pmatrix}$ denotes a vector, the first 8 elements of which are equal to $a_{ij}$, and the remaining 8 elements are equal to $a_{i+1,j}$ (``$\circ$'' is Hadamard product, or elementwise product of vectors).
 Note that the combined vector obtained according to this formula $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$ is located in the memory sequentially, and it can be recorded into memory using the \texttt{store} instruction.
 In this case, we assume that the value of $i$ is even, that is, the vector $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$ is properly aligned in the memory.
-Other combined vectors in this expression are obtained using the \texttt{perm} instruction (intrinsic function \texttt{\_mm512\_permutexvar\_ps}) applied to the corresponding loaded adjacent rows of the $A$ and $B$ matrices.
+Other combined vectors in this expression are obtained using the \texttt{permute} instruction (intrinsic function \texttt{\_mm512\_permutexvar\_ps}) applied to the corresponding loaded adjacent rows of the $A$ and $B$ matrices.
 Thus, the implementation of the above formula does not require the use of slow \texttt{gather}/\texttt{scatter} instructions, since we don't read or write the columns of the matrices (calculations are performes only with rows).
 After the required vectors are formed, we need to perform their pairwise elementwise multiplication, and then add them into one vector (8 operations of elementwise multiplication, 7 addition operations).
 These actions can be performed using combined operations \texttt{fmadd}.
@@ -411,23 +411,36 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 }
 \end{lstlisting}
 
-We give the multiplication function of two 8x8 matrices, the mechanism of which was considered in the previous section. To implement, we perform a full load of both matrices a and b. This will require 8 memory operations, since two adjacent rows of the matrix are loaded in one operation. Next, you need to form 8 vectors of the form ($xxx$ $xxx$)), for which you will need 8 more perm operations (for each pair of loaded rows of matrix b, you need to duplicate the first row and duplicate the second row). The formation of index vectors for perm operations does not require computational time, since the indices are static and are calculated at the compilation stage.
-After preparing all the necessary data, the values ​​of the resulting matrix are calculated. The block of operations given below (macro BLOCK) performs the calculation of two adjacent rows of the resulting matrix. The block implementation consists of 8 perm operations, 1 mul operation and 7 fmadd operations, besides, one write operation is performed in memory. A total of four such blocks are performed, which, in sum and taking into account data preparation operations, leads to the following result: 8 simple read operations from memory, 40 perm operations, 4 mul operations, 28 fmadd operations, 4 simple write operations to memory. The final code (without displaying some duplicate sections) is shown in the listing below.
+To implement the matrices multiplication in this function first we perform a full load of both matrices $A$ and $B$.
+This requires 8 \texttt{load} operations, since two adjacent rows of the matrix are loaded in one operation.
+Next, we need to form 8 vectors of the form $\begin{pmatrix} \overline{b_j} \\ \overline{b_j} \end{pmatrix}, j \in [0, 7]$, for which we will need 8 more \texttt{permute} operations (for each pair of loaded rows of matrix $B$, we need to duplicate the first row and duplicate the second row).
+The formation of index vectors for \texttt{permute} operations does not require computational time, since the indices are static and are calculated at the compilation stage.
+After preparing all the necessary data, the elements of the resulting matrix are calculated.
+The block of operations \texttt{BLOCK} performs the calculation of two adjacent rows of the resulting matrix.
+The block implementation consists of 8 \texttt{permute} operations, 1 \texttt{mul} operation and 7 \texttt{fmadd} operations, besides, one \texttt{store} operation of writing data to the memory.
+A total of four such blocks are performed, which, in sum and taking into account data preparation operations, leads to the following result: 8 simple \texttt{load} operations from memory, 40 \texttt{permute} operations, 4 \texttt{mul} operations, 28 \texttt{fmadd} operations, 4 \texttt{store} operations to memory.
 
-Note that 28 vector operations fmadd and 4 vector operations mul correspond to (28⋅2 + 4) ⋅16 = 960 scalar operations, which exactly coincides with the number of scalar operations required to perform the multiplication of two 8x8 matrices. Thus, in the proposed implementation there are no unnecessary arithmetic operations, and the result of each performed operation affects the final result.
-When implementing multiplication of 7x7, 6x6, 5x5 matrices, superfluous vector operations are removed (for example, multiplication by a vector, all elements of which are zero), but still there are elements of vectors whose processing is excessive, which leads to a decrease in the efficiency of vectorization in these cases. Below we provide a table with an accurate calculation of the number of scalar operations for non-vectorized functions and the number of vector operations for their vectorized analogues (see Table 1).
+Note that 28 vector operations \texttt{fmadd} and 4 vector operations \texttt{mul} correspond to $(28 \cdot 2 + 4) \cdot 16 = 960$ scalar operations, which exactly coincides with the number of scalar operations required to perform the multiplication of two $8 \times 8$ matrices.
+Thus, in the proposed implementation there are no unnecessary arithmetic operations, and the result of each performed operation affects the final result.
+When implementing multiplication of $7 \times 7$, $6 \times 6$, $5 \times 5$ matrices, superfluous vector operations are removed (for example, multiplication by a vector, all elements of which are zero), but still there are elements of vectors whose processing is excessive, which leads to a decrease in the efficiency of vectorization in these cases.
 
-The approaches described in the article to the vectorization of matrix multiplication were tested on the MVS-10P MSC RAS ​​supercomputer, on its computational segment containing Intel Xeon Phi 7290 KNL microprocessors. Four functions were considered: mul8x8, mul7x7, mul6x6, mul5x5, performing the multiplication of matrices of the corresponding sizes. For each function, 3 implementation options were considered. As the first option, the old vectorization method was used with parallel calculation of the sums of vector elements (denoted by VECT OLD), as the second option, direct manual calculation of each element of the resulting matrix was taken, in which all cycles were deleted and for each element multiple copies were written scalar code (denoted by FULL UNROLL), as the third option, the considered approach is taken based on referring only to matrix rows and using combined fmadd operations (denoted VECT NEW).
+The approaches to the vectorization of matrix multiplication described in this secton were tested on the MVS-10P supercomputer placed in JSCC RAS, on its computational segment containing Intel Xeon Phi 7290 KNL microprocessors.
+Four functions were considered: \texttt{mul\_8x8}, \texttt{mul\_7x7}, \texttt{mul\_6x6}, \texttt{mul\_5x5}, performing the multiplication of matrices of the corresponding sizes.
+For each function, 3 implementation options were considered.
+As the first option, the old vectorization method with parallel calculation of the sums of vector elements (denoted by \textit{Vect Old}) was used.
+As the second option, direct manual calculation of each element of the resulting matrix in which all cycles were deleted and for each element multiple copies were written scalar code (denoted by \textit{Full Unroll}) was taken.
+As the third option, the considered approach based on referring only to matrix rows and using combined fmadd operations (denoted \textit{Vect New}) was used.
+All speedup results are collected in Table~\ref{tab:mul_speedup}.
 
 \begin{table}[!h]
 \setcaptionmargin{0mm}
 \onelinecaptionsfalse
 \captionstyle{flushleft}
-\caption{Vectorization speedup for matrix 8x8, 7x7, 6x6, 5x5 operations.}
+\caption{Speedup of \texttt{mul\_8x8}, \texttt{mul\_7x7}, \texttt{mul\_6x6}, \texttt{mul\_5x5} functions for different approaches to optimization.}
 \bigskip
 \begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Matrices Size} & \textbf{Old Vect} & \textbf{Full Unroll} & \textbf{New Vect} \\
+\textbf{Matrices Size} & \textbf{Old Vect} & \textbf{Full Unroll} & \textbf{Vect Old} \\
 \hline
 8x8 & 2.69 & 3.69 & 5.86 \\
 7x7 & 2.04 & 2.74 & 4.66 \\
@@ -435,9 +448,13 @@ The approaches described in the article to the vectorization of matrix multiplic
 5x5 & 0.80 & 1.44 & 2.50 \\
 \hline
 \end{tabular}
+\label{tab:mul_speedup}
 \end{table}
 
-In fig. 3 shows the test results of the described approaches on the machine. It follows from the figure that OLD VECT turned out to be the least efficient approach, its use is even less profitable than the direct writing of a scalar code. For matrices of size 5x5, this optimization method completely slows down the original non-optimized version of the function. The NEW VECT method demonstrates the best results from the described approaches, the acceleration on the 8x8 matrices is almost 6 times faster than the original code. As the matrix dimensions decrease, the vectorization efficiency somewhat decreases, but even for 5x5 matrices, an acceleration of about 2.5 times is observed, which makes it possible to implement this method in an industrial code.
+As can be seen from Table~\ref{tab:mul_speedup}, \textit{Old Vect} turned out to be the least efficient approach, its use is even less profitable than the direct writing of a scalar code.
+For matrices of size $5 \times 5$, this optimization method completely slows down the original non-optimized version of the function.
+The \textit{New Vect} method demonstrates the best results from the described approaches, the vectorized code for $8 \times 8$ matrices multiplication is almost 6 times faster than the original code.
+As the matrix dimensions decrease, the vectorization efficiency decreases too, but even for $5 \times 5$ matrices, an acceleration of about 2.5 times is observed, which makes it possible to implement this method in an industrial code.
 
 \section{Vectorization of loops \protect\\
 with irregular number of iterations}
