@@ -440,7 +440,7 @@ All speedup results are collected in Table~\ref{tab:mul_speedup}.
 \bigskip
 \begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Matrices Size} & \textbf{Old Vect} & \textbf{Full Unroll} & \textbf{Vect Old} \\
+\textbf{Matrices Size} & \textbf{Vect Old} & \textbf{Full Unroll} & \textbf{Vect New} \\
 \hline
 8x8 & 2.69 & 3.69 & 5.86 \\
 7x7 & 2.04 & 2.74 & 4.66 \\
@@ -451,9 +451,9 @@ All speedup results are collected in Table~\ref{tab:mul_speedup}.
 \label{tab:mul_speedup}
 \end{table}
 
-As can be seen from Table~\ref{tab:mul_speedup}, \textit{Old Vect} turned out to be the least efficient approach, its use is even less profitable than the direct writing of a scalar code.
+As can be seen from Table~\ref{tab:mul_speedup}, \textit{Vect Old} turned out to be the least efficient approach, its use is even less profitable than the direct writing of a scalar code.
 For matrices of size $5 \times 5$, this optimization method completely slows down the original non-optimized version of the function.
-The \textit{New Vect} method demonstrates the best results from the described approaches, the vectorized code for $8 \times 8$ matrices multiplication is almost 6 times faster than the original code.
+The \textit{Vect New} method demonstrates the best results from the described approaches, the vectorized code for $8 \times 8$ matrices multiplication is almost 6 times faster than the original code.
 As the matrix dimensions decrease, the vectorization efficiency decreases too, but even for $5 \times 5$ matrices, an acceleration of about 2.5 times is observed, which makes it possible to implement this method in an industrial code.
 
 \section{Vectorization of loops \protect\\
