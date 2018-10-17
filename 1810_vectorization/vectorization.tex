@@ -208,6 +208,7 @@ In particular, it follows from this equation that if the loop body contains a la
 When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
 
 \begin{equation}
+\label{eqn:flat_loop_speedup}
 w\frac{\sum_{i = 0}^{n - 1}{p_it_i}}{\sum_{i = 0}^{n - 1}{t_i(1 - (1 - p_i)^w)}} \ge 1
 \end{equation}
 
@@ -217,6 +218,14 @@ From this we can conclude that the use of vectorized checks before performing ve
 At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations.
 However, one should not forget that vector commands generally execute more slowly than their scalar counterparts.
 Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
+
+If in (\ref{eqn:flat_loop_speedup}) we assume that the probabilities of all branches of execution are equal to $p_i = 1 / n$, and the lengths of all linear sections are the same, then we obtain the following formula for the theoretical acceleration from vectorization:
+
+\begin{equation}
+S(w, n) = w \left( \sum_{i = 1}^{w}{(-1)^{i + 1} C_{w}^{i} n^{1 - i}} \right)^{-1}
+\end{equation}
+
+From this formula, it is clear that $S(w, 1) = w$ and $\lim_{n \to \infty}{S(w, n)} = 1$, which is consistent with the mathematical meaning of vectorization.
 
 \section{Matrix operations vectorization}
 
@@ -412,6 +421,8 @@ To calculate the value $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \en
 
 Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach.
 
+% It is possible to add 5-7 lines to this listing
+% if it will be needed for text alignment.
 \begin{lstlisting}
 void mul_8x8(float * __restrict a, float * __restrict b,
              float * __restrict r)
@@ -448,18 +459,13 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 #define BLOCK(N, A)                           \
     ST(&r[N * V8],                            \
       FMADD(PERMXV(ind_0, A), b0,             \
-        FMADD(PERMXV(ind_1, A), b1,           \
-          FMADD(PERMXV(ind_2, A), b2,         \
-            FMADD(PERMXV(ind_3, A), b3,       \
-              FMADD(PERMXV(ind_4, A), b4,     \
-                FMADD(PERMXV(ind_5, A), b5,   \
+    ........................................
                   FMADD(PERMXV(ind_6, A), b6, \
                     MUL(PERMXV(ind_7, A), b7)))))))));
 
-    // Calculate and store the result.
+    // Calculate and store the result (4 blocks).
     BLOCK(0, a0);
-    BLOCK(2, a2);
-    BLOCK(4, a4);
+    ........................................
     BLOCK(6, a6);
 
 #undef BLOCK
