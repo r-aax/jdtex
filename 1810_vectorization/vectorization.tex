@@ -94,47 +94,74 @@ We will call a loop flat if it has the following properties.
 First, it should not contain inter-iteration dependencies, that is, all loop iterations can be executed in parallel.
 Secondly, within the iteration of the loop with number $i$ there can only be such memory access operations that read or write elements of arrays with indices $i$ (all references to memory can be reduced to the form $a[i]$).
 A trivial example of a flat loop is the addition of two arrays.
-As a rule, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations.
-The situation is more complicated with vectorization of flat cycles containing specifities.
-As examples of the specifities of flat cycles, conditional operators or control transfer commands can be given.
+In the most cases, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations.
+The situation is more complicated with vectorization of flat loops containing specifities.
+As examples of the flat loops specifities, conditional operators or control transfer commands can be given.
 Such loops are also easily vectorized, but in practice the compiler often refuses to build a vector code due to a theoretical estimate of the possible acceleration.
 The presence of a strongly branched control in a flat loop usually leads to the rejection of vectorization, in such cases the vector code must be built manually.
 The more serious specifities that prevent the construction of an effective parallel code is the presence of nested loops or function calls in a flat loop.
 In this case, the compiler is not able to perform vectorization, although using the intrinsic functions, optimization can also be performed in these cases.
 
-Let us analyze in more detail the question of vectorization of flat cycles. Suppose that the vectorization uses vectors capable of containing w primitive data elements, in this case we will call w the vectorization width (AVX-512 vectors can contain 8 double elements or 16 float elements). We will not consider a variant in which the cycle body contains only arithmetic operations due to its triviality. Let the considered flat cycle contain n iterations. Then all iterations of this cycle can be divided into n / w groups by w iterations, and each group can be considered separately (a residual group of iterations containing less than w iterations is also possible; the presence of this group does not affect the optimization efficiency, it can be completed in the original form or vectorized using masks). Thus, for simplicity, we can restrict ourselves to the consideration of flat cycles containing exactly w iterations.
+Let us analyze in more detail the question of vectorization of flat loops.
+Suppose that the vectorization uses vectors capable of containing $w$ primitive data elements, in this case we will call $w$ the vectorization width (AVX-512 vectors can contain 8 double elements or 16 float elements).
+We will not consider a variant in which the loop body contains only arithmetic operations due to its triviality.
+Let the considered flat loop contain $n$ iterations.
+Then all iterations of this loop can be divided into $n / w$ groups by $w$ iterations, and each group can be considered separately (a residual group of iterations containing less than $w$ iterations is also possible; the presence of this group does not affect the optimization efficiency, it can be completed in the original form or vectorized using masks).
+Thus, for simplicity, we can restrict ourselves to the consideration of flat cycles containing exactly $w$ iterations.
 
-As a first example, we consider a planar cycle whose body consists of a single linear section of a block, which is executed under the condition cond with probability p and has a length t (see Fig. N, a). In this case, the length of a linear section is understood to be a characteristic proportional to the execution time of a given linear section (the number of operators, machine instructions or cycles). The total number of operations contained in the cycle is ptw (in this case, we assume that the auxiliary instructions related to the calculation of the condition and the provision of control can be neglected). If the probability that the condition cond is satisfied is low enough, then we can only stop at the vectorization of this condition and perform the whole cycle under this condition vcond. This transformation will be called the vectorization of the condition (see Fig. N, b). Moreover, the probability that the condition vcond turns out to be instinctive is $1 - (1 - p) ^ w$ (corresponds to the fact that at least one of the w elementary conditions is true). The total number of operations in the cycle from this conversion will not change (the cond and vcond conditions are not independent) and will remain equal to ptw, but the number of auxiliary operations and control operations will be reduced. To vectorize the entire cycle, it is necessary to convert the program code into a predicate code, in which each instruction of the linear section block is executed under the predicate cond, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate vcond (see Fig. N, c ). The number of operations of a fully vectorized cycle is simply t. At the same time, it is also not forbidden to use vcond checking for voidness before executing vectorized code in order to avoid executing code blocks with empty masks (see Fig. N, d). In this case, the number of cycle operations will be reduced by $1 - (1 - p) ^ w$ times, since the addition of a condition will cut off the execution of vector operations with an empty mask.
+As a first example, we consider a flat loop whose body consists of a single linear section $block$, which is executed under the condition $cond_i$ with probability $p$ and has a length $t$ (Fig.~\ref{fig:flat_loop_1}, a).
+In this case, the length of a linear section is understood to be a characteristic proportional to the execution time of a given linear section (the number of operators or machine instructions).
+The total number of operations contained in the loop is $ptw$ (in this case, we assume that the auxiliary instructions related to the calculation of the condition and the provision of control can be neglected).
+If the probability that the condition $cond_i$ is satisfied is low enough, then we can only stop at the vectorization of this condition and perform the whole loop under vectorized condition $vcond$.
+This transformation will be called the vectorization of the condition (Fig.~\ref{fig:flat_loop_1}, b).
+Moreover, the probability that the condition $vcond$ turns out to be instinctive is $1 - (1 - p) ^ w$ (corresponds to the fact that at least one of the $w$ elementary conditions is true).
+The total number of operations in the loop from this conversion will not change (the $cond_i$ and $vcond$ conditions are not independent) and will remain equal to $ptw$, but the number of auxiliary operations and control operations will be reduced.
+To vectorize the entire loop, it is necessary to convert the program code into a predicate code, in which each instruction of the linear section $block$ is executed under the predicate $cond_i$, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate $vcond$ (Fig.~\ref{fig:flat_loop_1}, c).
+The number of operations of a fully vectorized loop is simply $t$.
+At the same time, it is also not forbidden to use $vcond$ checking for voidness before executing vectorized code in order to avoid executing code blocks with empty masks (Fig.~\ref{fig:flat_loop_1}, d).
+In this case, the number of loop operations will be reduced by $1 - (1 - p) ^ w$ times, since the addition of a condition will cut off the execution of vector operations with an empty mask.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
+\onelinecaptionstrue
 \includegraphics[width=0.62\textwidth]{pics/if_vectorization.pdf}
-\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
+\captionstyle{normal}\caption{Example of flat loop with single linear section $block$ under condition $cond_i$.}
+\label{fig:flat_loop_1}
 \end{figure}
 
-As another example, consider a planar loop whose body is an if-else construct. Without loss of generality, we assume that the branch executed by the if-condition (block1) is more likely than its alternative (block2), that is, $p> = 1 - p$. The lengths of the linear sections in this example are t1 and t2, respectively (see Fig. N, a). In addition, we will assume that the block1 linear section is suitable for vectorization in any case, and a vector code is constructed for it (otherwise, the optimization of this code loses its meaning). The total number of operations performed during the cycle operation is calculated as the mathematical expectation of the number of operations per iteration multiplied by the number of iterations of the cycle, that is $(pt1 + (1 - p) t2) w$. In real computational problems, it often happens that an unlikely branch in such cycles does not lend itself to vectorization or this requires considerable effort. Such unlikely branches contain processing of extremely rare exceptions or unexpected situations. In such cases, it is natural to vectorize only the probable branch, and leave the alternative under the vectorized condition (Fig. N, b). Such a half vectorized cycle will contain $t1 + (1 - p) t2w$ operations. In the case of a complete vectorization of the cycle body, both linear sections fall under opposite predicates (vcond, ~ vcond) and the cycle body is completely freed from the control transfer commands (Fig. N, c). The number of executed instructions in a loop for a fully vectorized code is $t1 + t2$. As a last action, we apply the addition of checking the condition ~ vcond for an unlikely branch to exclude the execution of operations with empty masks (Fig. N, d). Since the probability of executing an alternative is $1 - p ^ w$, the final number of operations performed for a fully vectorized cycle with checking the vectorized condition for an alternative is $t1 + (1 - p ^ w) t2$.
+As another example, consider a flat loop whose body is an if-else statement.
+Without loss of generality, we assume that the branch executed by the if-condition ($block_1$) is more likely than its alternative ($block_2$), that is $p \ge 1 - p$, or $p \ge \frac{1}{2}$.
+The lengths of the linear sections in this example are $t_1$ and $t_2$, respectively (Fig.~\ref{fig:flat_loop_2}, a).
+In addition, we will assume that the $block_1$ linear section is suitable for vectorization in any case, and a vector code is constructed for it (otherwise, the optimization of this code loses its meaning).
+The total number of operations performed during the loop operation is calculated as the mathematical expectation of the number of operations per iteration multiplied by the number of iterations of the loop, that is $(pt_1 + (1 - p) t_2) w$.
+In real computational problems, it often happens that an unlikely branch in such cycles does not lend itself to vectorization or this requires considerable effort.
+Such unlikely branches contain processing of extremely rare exceptions or unexpected situations.
+In such cases, it is natural to vectorize only the probable branch, and leave the alternative under the vectorized condition (Fig.~\ref{fig:flat_loop_2}, b).
+Such a half vectorized loop will contain $t_1 + (1 - p) t_2w$ operations.
+In the case of a complete vectorization of the loop body, both linear sections fall under opposite predicates ($vcond$, ${\sim}vcond$) and the loop body is completely freed from the control transfer commands (Fig.~\ref{fig:flat_loop_2}, c).
+The number of executed instructions in a loop for a fully vectorized code is $t_1 + t_2$.
+As a last action, we apply the addition of checking the condition $~vcond$ for an unlikely branch to exclude the execution of operations with empty masks (Fig.~\ref{fig:flat_loop_2}, d).
+Since the probability of executing an alternative is $1 - p ^ w$, the final number of operations performed for a fully vectorized cycle with checking the vectorized condition for an alternative is $t_1 + (1 - p ^ w) t_2$.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
+\onelinecaptionstrue
 \includegraphics[width=0.65\textwidth]{pics/if_else_vectorization.pdf}
-\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
+\captionstyle{normal}\caption{Example of flat loop with if-else statement.}
+\label{fig:flat_loop_2}
 \end{figure}
 
-The table contains data on the number of operations performed for the two considered examples of a flat cycle, in which the cycle body consists of one if-condition and one if-else-construction.
+The Table~\ref{tab:flat} contains data on the number of operations performed for the two considered examples of flat loops, in which the loop body consists of one if-condition and one if-else-construction.
 
 \begin{table}[!h]
 \setcaptionmargin{0mm}
 \onelinecaptionsfalse
 \captionstyle{flushleft}
-\caption{Operations count for \textbf{if} and \textbf{if-else} statements vectorization in flat loops.}
+\caption{Operations count for if and if-else statements vectorization in flat loops.}
 \bigskip
 \begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{if} statement & operations count & \textbf{if-else} statement & operations count \\
+if statement & operations count & if-else statement & operations count \\
 \hline
 a) & $ptw$ & a) & $\left( pt_1 + (1 - p)t_2 \right)w$ \\
 b) & $ptw$ & b) & $t_1 + (1 - p)t_2w$ \\
@@ -142,35 +169,54 @@ c) & $t$ & c) & $t_1 + t_2$ \\
 d) & $\left( 1 - (1 - p)^w \right)t$ & d) & $t_1 + (1 - p^w)t_2$ \\
 \hline
 \end{tabular}
+\label{tab:flat}
 \end{table}
 
-We will analyze only the second example from the if-else constructions (the first example is treated similarly). A fully vectorized cycle is more profitable than a cycle with a vectorized condition, if it contains fewer operations, that is, if the condition $t1 + t2 <= t1 + (1 - p) t2w$, or $(1 - p) w >= 1$ is satisfied. Thus, for the benefit of vectorization, either a high vectorization width, or a high probability of an alternative. If we consider the application of checking vectorized conditions for a fully vectorized cycle body, then we obtain the condition $t1 + (1 - p ^ w) t2 <= t1 + (1 - p) t2w$, which translates into $1 - p ^ w <= (1 - p) w$. This condition is disclosed in the following:
+We will analyze only the second example with the if-else statement (the first example is treated similarly).
+A fully vectorized loop is more profitable than a loop with a vectorized condition, if it contains fewer operations, that is, if the condition $t_1 + t_2 <= t_1 + (1 - p) t_2w$, or $(1 - p) w >= 1$ is satisfied.
+Thus, for the benefit of vectorization, either a high vectorization width, or a high probability of an alternative.
+If we consider the application of checking vectorized conditions for a fully vectorized loop body, then we obtain the condition $t_1 + (1 - p ^ w) t_2 <= t_1 + (1 - p) t_2w$, which translates into $1 - p ^ w <= (1 - p) w$.
+This condition is equivalent to the following:
 
 \begin{equation}
 \sum_{i = 0}^{w - 1}{p^i} <= w
 \end{equation}
 
-This condition is obviously satisfied, since $p <= 1$, and the total terms are exactly w. Thus, we have obtained that using a fully vectorized loop body with a preliminary check of a vectorized condition for an unlikely branch is always more beneficial than using the original version of the code or condition vectoring. Note that this conclusion is true only under the assumption that the block1 linear segment is probable, and a vector code is always built for it.
+This condition is obviously satisfied, since $p <= 1$, and the total terms count is exactly $w$.
+Thus, we have obtained that using a fully vectorized loop body with a preliminary check of a vectorized condition for an unlikely branch is always more beneficial than using the original version of the code or condition vectoring.
+Note that this conclusion is true only under the assumption that the $block_1$ linear segment is probable, and a vector code is always built for it.
 
-We can consider the general case of vectorization of a flat cycle containing an arbitrary number of alternatives. Let the loop body contain n alternatives (with numbers from 0 to n - 1), each of which is executed with probability pi. In this case, we can neglect the operations of calculating conditions. It is also known that each alternative has a length ti. It is required to understand the conditions under which the use of vectorization is beneficial, as well as the application of checking vectorized conditions for a vector code. As in the previous examples, you can calculate the total number of running operations for a non-vectorized code; it is equal to the mathematical expectation of the number of operations per iteration of the loop multiplied by the number of iterations.
+We can consider the general case of vectorization of a flat loop containing an arbitrary number of alternatives.
+Let the loop body contain $n$ alternatives (with numbers from 0 to $n - 1$), each of which is executed with probability $p_i$.
+In this case, we can neglect the operations of calculating conditions.
+It is also known that each alternative has a length $t_i$.
+It is required to understand the conditions under which the use of vectorization is beneficial, as well as the application of checking vectorized conditions for a vector code.
+As in the previous examples, you can calculate the total number of running operations for a non-vectorized code; it is equal to the mathematical expectation of the number of operations per iteration of the loop multiplied by the number of iterations.
 
 \begin{equation}
 T = \left( \sum_{i = 0}^{n - 1}{p_it_i} \right) w
 \end{equation}
 
-With a complete cycle vectorization, the number of vector operations is of course equal to the sum of the lengths of all linear sections ti. Thus, the condition of the advantage of vectorization is the following equation:
+With a complete loop vectorization, the number of vector operations is of course equal to the sum of the lengths of all linear sections $t_i$.
+Thus, the condition of the advantage of vectorization is the following equation:
 
 \begin{equation}
 \sum_{i = 0}^{n - 1}{t_i(p_iw - 1)} \ge 0
 \end{equation}
 
-In particular, it follows from this equation that if the loop body contains a large number of alternative execution branches with probabilities less than 1 / w, then vectoring of this loop cannot be beneficial. When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
+In particular, it follows from this equation that if the loop body contains a large number of alternative execution branches with probabilities less than $1 / w$, then vectoring of this loop cannot be beneficial.
+When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
 
 \begin{equation}
 \sum_{i = 0}^{n - 1}{t_i \left( p_iw - 1 + (1 - p_i) ^w \right) } \ge 0
 \end{equation}
 
-Consider this formula more closely. With a large number of alternatives, their probabilities are close to zero, so the term $(1 - pi) ^ w$ is a positive value not much less than one. From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat cycle significantly increase the effect of vectorization. At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations. However, one should not forget that vector commands generally execute more slowly than their scalar counterparts. Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
+Consider this formula more closely.
+With a large number of alternatives, their probabilities are close to zero, so the term $(1 - p_i) ^ w$ is a positive value not much less than one.
+From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat loop significantly increase the effect of vectorization.
+At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations.
+However, one should not forget that vector commands generally execute more slowly than their scalar counterparts.
+Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
 
 \section{Matrix operations vectorization}
 
@@ -187,8 +233,8 @@ For reasons of alignment in memory, these matrices are considered as submatrices
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.85\textwidth]{pics/matrices_8x8_7x7_6x6_5x5.pdf}
-\captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. The number of elements, and the number of addition and multiplication operations required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
+\includegraphics[width=0.95\textwidth]{pics/matrices_8x8_7x7_6x6_5x5.pdf}
+\captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. \\ The number of elements, and the number of addition and multiplication operations \\ required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
 \end{figure}
 
 We will compare the two approaches to implementing the multiplication of matrices of size $8 \times 8$, extend these approaches to smaller matrices and obtain the results of the comparison of the performance of the considered approaches.
@@ -214,8 +260,8 @@ Finally, the resulting 16 values are written into the columns with the $j$ and $
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.9\textwidth]{pics/mmult_1.pdf}
-\captionstyle{normal}\caption{Scheme of two matrices multiplication with direct reading of rows and columns of matrices and parallel computation of their pairwise scalar products.}\label{fig:mmult_1}
+\includegraphics[width=0.95\textwidth]{pics/mmult_1.pdf}
+\captionstyle{normal}\caption{Scheme of two matrices multiplication with direct reading of rows and columns \\ of matrices and parallel computation of their pairwise scalar products.}\label{fig:mmult_1}
 \end{figure}
 
 Let us pay special attention to the parallel calculation of the sums of the \texttt{zmm} vectors halves.
@@ -232,7 +278,6 @@ Below is a listing of the implementation of these macros.
     _mm512_mask_blend_ps(BLEND_MASK,                                   \
                          ADD(X, _mm512_permute4f128_ps(X, PERM_TYPE)), \
                          ADD(Y, _mm512_permute4f128_ps(Y, PERM_TYPE)))
-
 \end{lstlisting}
 
 The \texttt{\_mm512\_swizzle\_ps} intrinsic is designed to rearrange the vector elements inside 128-bit quarters (composed of 4 single-precision floating-point elements), the \texttt{\_mm512\_permute4f128\_ps} command shuffles the 128-bit quarters themselves, and the \texttt{\_mm512\_mask\_blend\_ps} intrinsic performs the merging of two vectors using a mask.
@@ -451,12 +496,12 @@ All speedup results are collected in Table~\ref{tab:mul_speedup}.
 \bigskip
 \begin{tabular}{|c|c|c|c|}
 \hline
-\textbf{Matrices Size} & \textbf{Vect Old} & \textbf{Full Unroll} & \textbf{Vect New} \\
+matrices size & \textit{Vect Old} & \textit{Full Unroll} & \textit{Vect New} \\
 \hline
-8x8 & 2.69 & 3.69 & 5.86 \\
-7x7 & 2.04 & 2.74 & 4.66 \\
-6x6 & 1.38 & 2.29 & 3.68 \\
-5x5 & 0.80 & 1.44 & 2.50 \\
+$8 \times 8$ & 2.69 & 3.69 & 5.86 \\
+$7 \times 7$ & 2.04 & 2.74 & 4.66 \\
+$6 \times 6$ & 1.38 & 2.29 & 3.68 \\
+$5 \times 5$ & 0.80 & 1.44 & 2.50 \\
 \hline
 \end{tabular}
 \label{tab:mul_speedup}
