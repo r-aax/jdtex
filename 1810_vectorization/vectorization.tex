@@ -521,6 +521,17 @@ As the matrix dimensions decrease, the vectorization efficiency decreases too, b
 \section{Vectorization of loops \protect\\
 with irregular number of iterations}
 
+Loop nests with an irregular number of iterations are the most difficult context for code vectorization.
+Such specifics of the program code creates more difficulties for vectorization than even the presence of function calls inside loops (of course, if these are calls without side effects).
+At the same time, cycles with an irregular number of iterations are often encountered in industrial program codes.
+As a matter of fact, implementation of practically any iterative numerical method belongs to such a context.
+It is worth noting that the irregular number of iterations and the non-constant number of iterations are slightly different things.
+In the case of a non-constant number of iterations, we can observe a picture when the number of iterations of a particular cycle changes in time, but the changes themselves are quite small.
+To a greater extent this is typical for physical tasks.
+When we talk about a loop with an irregular number of iterations, we mean that this number can vary in time arbitrarily sharply and unpredictably.
+Such situations can often be observed in problems of discrete mathematics.
+As an example, we will consider the classical implementation of Shell sorting, the number of iterations of the inner loop for which is fundamentally irregular.
+
 \subsection{Vectorization of Shell sorting with AVX-512 instructions}
 
 Consider the possibilities for vectorization of Shell sorting for an array of float type real values (the AVX-512 vector contains 16 such values).
@@ -591,7 +602,7 @@ void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 }
 \end{lstlisting}
 
-\subsection{Theoretical acceleration calculation}
+\subsection{Acceleration measurements}
 
 By theoretical acceleration, we will simply mean the ratio of the number of iterations of the internal loop of the non-vectorized version to the one in the optimized vectorized version of the code.
 Define this acceleration more formally.
