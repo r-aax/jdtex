@@ -201,14 +201,14 @@ With a complete loop vectorization, the number of vector operations is of course
 Thus, the condition of the advantage of vectorization is the following equation:
 
 \begin{equation}
-\sum_{i = 0}^{n - 1}{t_i(p_iw - 1)} \ge 0
+\frac{\sum_{i = 0}^{n - 1}{p_it_iw}}{\sum_{i = 0}^{n - 1}{t_i}} \ge 1
 \end{equation}
 
 In particular, it follows from this equation that if the loop body contains a large number of alternative execution branches with probabilities less than $1 / w$, then vectoring of this loop cannot be beneficial.
 When adding checks of vectorized conditions for each of the cycle alternatives, we obtain the following equation for the advantage of vectorization.
 
 \begin{equation}
-\sum_{i = 0}^{n - 1}{t_i \left( p_iw - 1 + (1 - p_i) ^w \right) } \ge 0
+w\frac{\sum_{i = 0}^{n - 1}{p_it_i}}{\sum_{i = 0}^{n - 1}{t_i(1 - (1 - p_i)^w)}} \ge 1
 \end{equation}
 
 Consider this formula more closely.
