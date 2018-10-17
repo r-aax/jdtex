@@ -173,13 +173,13 @@ d) & $\left( 1 - (1 - p)^w \right)t$ & d) & $t_1 + (1 - p^w)t_2$ \\
 \end{table}
 
 We will analyze only the second example with the if-else statement (the first example is treated similarly).
-A fully vectorized loop is more profitable than a loop with a vectorized condition, if it contains fewer operations, that is, if the condition $t_1 + t_2 <= t_1 + (1 - p) t_2w$, or $(1 - p) w >= 1$ is satisfied.
+A fully vectorized loop is more profitable than a loop with a vectorized condition, if it contains fewer operations, that is, if the condition $t_1 + t_2 \le t_1 + (1 - p) t_2w$, or $(1 - p) w \ge 1$ is satisfied.
 Thus, for the benefit of vectorization, either a high vectorization width, or a high probability of an alternative.
-If we consider the application of checking vectorized conditions for a fully vectorized loop body, then we obtain the condition $t_1 + (1 - p ^ w) t_2 <= t_1 + (1 - p) t_2w$, which translates into $1 - p ^ w <= (1 - p) w$.
+If we consider the application of checking vectorized conditions for a fully vectorized loop body, then we obtain the condition $t_1 + (1 - p ^ w) t_2 \le t_1 + (1 - p) t_2w$, which translates into $1 - p ^ w \le (1 - p) w$.
 This condition is equivalent to the following:
 
 \begin{equation}
-\sum_{i = 0}^{w - 1}{p^i} <= w
+\sum_{i = 0}^{w - 1}{p^i} \le w
 \end{equation}
 
 This condition is obviously satisfied, since $p <= 1$, and the total terms count is exactly $w$.
