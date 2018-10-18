@@ -98,7 +98,7 @@ Each core supports 4 threads, which gives a total of 288 logical processors per 
 Although the frequency of each KNL core is lower than that of Intel Xeon server processors, such a number of execution threads and the presence of 512-bit vector instructions provide impressive peak performance, exceeding 6 TFLOPS on single-precision operations.
 The emergence of such a powerful hardware has opened up new possibilities for optimizing software used in supercomputer calculations. 
 Approaches described in \cite{McDoniel} allowed the usage of vectorization for KNL to speed up the computational cores of the LAMMPS program code up to 12 times compared with the non-vectorized version, which led to a general acceleration of solver runs by 2-3 times. 
-You can note the successful application of vectorization to accelerate operations with sparse matrices of high dimensionality, which resulted in a fivefold acceleration on these operations \cite{Malas}. 
+You can note the successful application of vectorization to accelerate operations with sparse matrices of high dimensionality, which resulted in a 5-fold acceleration on these operations \cite{Malas}. 
 Special features of KNL processors associated with the use of masked vector operations are used to vectorize cycles even with an unknown number of iterations and complex controls, as shown by the example of the vectorization of the Mandelbrot set construction code \cite{Krzikalla}. 
 The work \cite{Cook} describes the achievement of 6-fold acceleration achieved by low-level optimization of computational codes for problems of nuclear physics. 
 In \cite{Rybakov_Optimization}, an example of the application of code vectorization which is performed by removing the unlikely branch of execution from a hot inner loop.
@@ -114,16 +114,16 @@ First, it should not contain inter-iteration dependencies, that is, all loop ite
 Secondly, within the iteration of the loop with number $i$ there can only be such memory access operations that read or write elements of arrays with indices $i$ (all references to memory can be reduced to the form $a[i]$).
 A trivial example of a flat loop is the addition of two arrays.
 In the most cases, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations.
-The situation is more complicated with vectorization of flat loops containing specifities.
-As examples of the flat loops specifities, conditional operators or control transfer commands can be given.
-Such loops are also easily vectorized, but in practice the compiler often refuses to build a vector code due to a theoretical estimate of the possible acceleration.
+The situation is more complicated with vectorization of flat loops containing peculiarities.
+Conditional operators or control transfer commands can be given as examples of the flat loops peculiarities.
+Such loops are also easily vectorized, but in practice the compiler often refuses to build a vector code due to the theoretical estimate of the possible acceleration.
 The presence of a strongly branched control in a flat loop usually leads to the rejection of vectorization, in such cases the vector code must be built manually.
-The more serious specifities that prevent the construction of an effective parallel code is the presence of nested loops or function calls in a flat loop.
+Presence of nested loops or function calls in a flat loop is the more serious property that prevents the construction of effective parallel code.  
 In this case, the compiler is not able to perform vectorization, although using the intrinsic functions, optimization can also be performed in these cases.
 
-Let us analyze in more detail the question of vectorization of flat loops.
+Let us analyze the question of vectorization of flat loops more thorough.
 Suppose that the vectorization uses vectors capable of containing $w$ primitive data elements, in this case we will call $w$ the vectorization width (AVX-512 vectors can contain 8 double elements or 16 float elements).
-We will not consider a variant in which the loop body contains only arithmetic operations due to its triviality.
+We will not consider the option in which the loop body contains only arithmetic operations due to its triviality.
 Let the considered flat loop contain $n$ iterations.
 Then all iterations of this loop can be divided into $n / w$ groups by $w$ iterations, and each group can be considered separately (a residual group of iterations containing less than $w$ iterations is also possible; the presence of this group does not affect the optimization efficiency, it can be completed in the original form or vectorized using masks).
 Thus, for simplicity, we can restrict ourselves to the consideration of flat cycles containing exactly $w$ iterations.
@@ -216,7 +216,7 @@ As in the previous examples, you can calculate the total number of running opera
 T = \left( \sum_{i = 0}^{n - 1}{p_it_i} \right) w
 \end{equation}
 
-With a complete loop vectorization, the number of vector operations is of course equal to the sum of the lengths of all linear sections $t_i$.
+With a complete loop vectorization, the number of vector operations is, of course, equal to the sum of the lengths of all linear sections $t_i$.
 Thus, the condition of the advantage of vectorization is the following equation:
 
 \begin{equation}
