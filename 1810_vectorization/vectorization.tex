@@ -78,14 +78,33 @@ The article is devoted to the issues of vectorization of calculations for the pr
 
 \section{Introduction}
 
-Today, supercomputer technologies are increasingly used in various fields of science, industry and business. The use of simulation modeling using supercomputer calculations allows analyzing various situations and scenarios of interaction of objects of the surrounding world and obtaining results that are unavailable without the use of these tools. At the same time, the amount of data involved in supercomputer calculations is constantly increasing. The size of the calculated grids of hundreds of millions of cells is already common for launches on the supercomputers of the petaflops performance range [1, 2], and gradually there is a need to use grids containing billions of cells. Today, the most powerful supercomputer is the Chinese Sunway TaihuLight machine, which achieves a performance of 93 PFLOPS on the High Performance Linpack (HPL) benchmark [3]. In 2018, the emergence of several supercomputers with a performance in the range of 100-200 PFLOPS is expected, the most powerful of which will be IBM's Summit supercomputer, equipped with a Power9 processor and NVidia graphics processors with Volta architecture. According to some optimistic forecasts, the first exaflops supercomputer capable of performing $10^18$ floating point operations per second is possible by 2024 [4]. Along with increasing the computing power of supercomputers, questions arise about the effectiveness of their use. In particular, work is underway to improve the efficiency of data exchange systems between computing nodes [5, 6], to develop computational grid management technologies and to evenly distribute computations on a cluster [7, 8, 9], actively develop tools of programming languages ​​aimed at facilitating the creation of high-performance parallel code [10, 11].
+Today, supercomputer technologies are increasingly used in various fields of science, industry and business. 
+The use of simulation modeling using supercomputer calculations allows analyzing various situations and interaction scenarios of objects of the surrounding world and obtaining results that are unavailable without the use of these tools. 
+At the same time, the amount of data involved in supercomputer calculations is constantly increasing. 
+The size of the calculated grids of hundreds of millions cells is already common for launches on the supercomputers of the petaflops performance range \cite{Rettinger,Krappel}, and gradually there is a need to use grids containing billions of cells. 
+Today, the most powerful supercomputer is the IBM's Summit supercomputer, equipped with Power9 processor and NVidia graphics processors with Volta architecture, which broke the exascale barrier, achieving a peak throughput of 1.88 exaflops but implementing single and half-precision operations \cite{Hines}.
+According to some optimistic forecasts, the first exaflops supercomputer capable of performing $ 10^{18} $ floating point operations per second is possible by 2024 \cite{Markidis}.
+Along with the increasing of supercomputers computing power, questions about the effectiveness of their use arise. 
+In particular, works aimed to improve the efficiency of data exchange systems between computing nodes \cite{Klenk,Abduljabbar}, to develop computational grid management technologies and to evenly distribute computations on a cluster are carried out \cite{Rybakov,Van,Benderskiy}. 
+Developing tools of programming languages aimed to facilitate the creation of high-performance parallel code are actively developed \cite{Heller,Roganov}.
 
-The lowest-level direction of creating high-performance parallel executable code is vectorization of computations, which allows to directly use the hardware capabilities of calculators [12, 13]. In this paper, we consider the vectorization of small-size matrix operations for Intel Xeon Phi Knights Landing (KNL) processors. These operations are often found in computational problems and can take a significant part of the execution time of the calculation.
+\section{Review of research papers}
 
-The Intel Xeon Phi x200 Knights Landing processor family is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was a co-processor [14]). The first KNL processors were introduced in 2016. Each processor contains up to 36 active tiles, each of which consists of two cores and a L2 cache of 1 MB in size, which is common to the data of the two cores. Each core contains a VPU (Vector Processing Unit) that supports 512-bit vector instructions and a 64 KB L1 cache divided into equal by-size instruction cache and data cache of 32 KB each. Each core supports 4 threads, which gives a total of 288 logical processors per socket [15]. Although the frequency of each KNL core is lower than that of Intel Xeon server processors, such a number of execution threads and the presence of 512-bit vector instructions provide impressive peak performance in excess of 6 TFLOPS on single-precision operations.
-
-The emergence of such a powerful hardware has opened up new possibilities for optimizing software used in supercomputer calculations. In [16], approaches were described that allowed using the vectorization for KNL to speed up the computational cores of the LAMMPS program code by up to 12 times compared to the non-vectorized version, which led to a general acceleration of solver runs by a factor of 2-3. One can note the successful application of vectorization to accelerate operations with sparse matrices of high dimensionality, which resulted in a fivefold acceleration on these operations [17]. Special features of KNL processors associated with the use of masked vector operations are used to vectorize cycles even with an unknown number of iterations and complex controls, as shown by the example of the vectorization of the Mandelbrot set construction code [18]. The work [19] describes the achievement of 6-fold acceleration achieved through the use of low-level optimization of computational codes for problems of nuclear physics. In [20], an example of the application of code vectorization is highlighted by removing the unlikely branch of execution from a hot inner loop.
-However, despite the high potential of KNL, studies show that the acceleration achieved compared to launches on Intel Xeon processors of the Haswell and Broadwell generations rarely exceeds 1.5–2 times [21, 22]. This is partly due to the imbalance between peak bandwidth when working with memory and the intensity of arithmetic operations [23]. Active research is underway on the use of various memory modes and various clustering modes.
+The Intel Xeon Phi x200 Knights Landing processor family is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was co-processor \cite{Dorris}).
+The first KNL processors were introduced in 2016. 
+Each processor contains up to 36 active tiles, each of which consists of two cores and a L2 cache of 1 MB in size, which is common to the data of the two cores. 
+Each core contains a VPU (Vector Processing Unit) that supports 512-bit vector instructions and a 64 KB L1 cache divided into equal by-size instruction cache and data cache of 32 KB each. 
+Each core supports 4 threads, which gives a total of 288 logical processors per socket \cite{Tobin}. 
+Although the frequency of each KNL core is lower than that of Intel Xeon server processors, such a number of execution threads and the presence of 512-bit vector instructions provide impressive peak performance, exceeding 6 TFLOPS on single-precision operations.
+The emergence of such a powerful hardware has opened up new possibilities for optimizing software used in supercomputer calculations. 
+Approaches described in \cite{McDoniel} allowed the usage of vectorization for KNL to speed up the computational cores of the LAMMPS program code up to 12 times compared with the non-vectorized version, which led to a general acceleration of solver runs by 2-3 times. 
+You can note the successful application of vectorization to accelerate operations with sparse matrices of high dimensionality, which resulted in a fivefold acceleration on these operations \cite{Malas}. 
+Special features of KNL processors associated with the use of masked vector operations are used to vectorize cycles even with an unknown number of iterations and complex controls, as shown by the example of the vectorization of the Mandelbrot set construction code \cite{Krzikalla}. 
+The work \cite{Cook} describes the achievement of 6-fold acceleration achieved by low-level optimization of computational codes for problems of nuclear physics. 
+In \cite{Rybakov_Optimization}, an example of the application of code vectorization which is performed by removing the unlikely branch of execution from a hot inner loop.
+However, despite the high potential of KNL, studies show that the acceleration achieved compared to launches on Intel Xeon processors of the Haswell and Broadwell generations rarely exceeds 1.5--2 times \cite{Sengupta,Kronbichler}. 
+Partially it is related to imbalance between peak bandwidth when working with memory and the intensity of arithmetic operations \cite{Doerfler}. 
+Active studies are underway on the use of various memory modes and various clustering modes when launching applications on KNL \cite{Rosales}.
 
 \section{Flat loops vectorization}
 
@@ -532,11 +551,48 @@ When we talk about a loop with an irregular number of iterations, we mean that t
 Such situations can often be observed in problems of discrete mathematics.
 As an example, we will consider the classical implementation of Shell sorting, the number of iterations of the inner loop for which is fundamentally irregular.
 
+\subsection{Shell sorting description}
+
+Shell sorting algorithm, presented in Listing \ref{lst:shellsort}, is an improved version of insertion sort, proposed in 1959 by Donald L. Shell. 
+Unlike the insertion sort, in which the element of the array is moved only by one position each time, which leads to the quadratic complexity of the algorithm, Shell sorting allows you to compare and swap elements that are on a large distance from each other, performing the so-called coarse sort passes. At the beginning of the algorithm, the starting step of $ k_0 $ is selected, after which the subarrays with indexes $ {j | j = j_0 + ik_0} $ for all $ j_0  < k_0 $ are sorted. 
+Further, a similar procedure is performed with the following increments $ k_1  < k_0 $. 
+The number of preliminary rough passes can be arbitrary. In the end, the final pass is performed in increments equal to one, which is the trivial insertion sort. 
+The average running time of the algorithm depends on the choice of pass steps. 
+Listing \ref{lst:shellsort} presents an implementation of Shell sorting in the C with a simple sequence of steps with an initial step equal to half the size of the array with a decrease in the width of the next pass in half (such a sequence was originally used by Shell). 
+
+\begin{lstlisting}[caption={Shell sorting},label={lst:shellsort}]
+
+void shell_sort(float * m, int n)
+{
+	int i, j, k;
+	for (k = n / 2; k > 0; k /= 2) // outer loop
+	{
+		for (i = k; i < n; i++) // intermediate loop
+		{
+			float t = m[i];
+	
+			for (j = i; j >= k; j -= k) // inner loop
+			{
+				if (t < m[j - k])
+				{
+					m[j] = m[j - k];
+				}
+				else
+				{
+					break;
+				}
+			}
+			m[j] = t;
+		}
+	}
+}
+\end{lstlisting}
+
 \subsection{Vectorization of Shell sorting with AVX-512 instructions}
 
 Consider the possibilities for vectorization of Shell sorting for an array of float type real values (the AVX-512 vector contains 16 such values).
 The most nested loop (the loop with the counter $ j $ in Fig.~\ref{pic:decompos}, we will call it simply internal) performs the sorting of one slice consisting of array of elements, with the distance $ k $ between adjacent elements.
-The inner loop cannot be vectorized without making additional code modifications, since there is an inter-iteration dependence between writing the $ m [j] $ element and reading the $ m [j - k] $ element. However, it can be noted that two iterations of the middle nesting cycle (the cycle with the inductive variable $ i $, we will call it intermediate) with the numbers $ i_1 $ and $ i_2 $ do not intersect the data and can be executed in parallel if the condition $ | i_1 - i_2 | < k $ is fulfilled.
+The internal loop cannot be vectorized without making additional code modifications, since there is an inter-iteration dependence between writing the $ m [j] $ element and reading the $ m [j - k] $ element. However, it can be noted that two iterations of the middle nesting cycle (the cycle with the inductive variable $ i $, we will call it intermediate) with the numbers $ i_1 $ and $ i_2 $ do not intersect the data and can be executed in parallel if the condition $ | i_1 - i_2 | < k $ is fulfilled.
 Perform the Shell sorting decomposition so that you can explicitly highlight a kernel that can be vectorized.
 
 In Fig.~\ref{pic:decompos} the decomposition scheme of Shell sort algorithm is presented, also sections with different widths of vectorization are shown.
@@ -552,7 +608,7 @@ The presence of code sections with a vectorization width of less than 16 leads t
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
 \includegraphics[width=0.65\textwidth]{pics/pic_decomposition.pdf}
-\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting \\ for different sequences of steps}\label{pic:decompos}
+\captionstyle{normal}\caption{Shell sorting decomposition with highlighted segments of vectorized code}\label{pic:decompos}
 \end{figure}
 
 The \texttt{shell\_sort\_k\_i\_w} function, which appeared after decomposing the Shell sorting algorithm, contains the implementation of sorting $ w $ adjacent array slices, taken with step k. 
@@ -722,6 +778,86 @@ We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussion
 % References for FLAT CYCLES section.
 
 % References for MATRICES section.
+
+\bibitem{Rettinger}
+Rettinger C., Godenschwager C., Eibl S., et al. Fully Resolved Simulations of Dune Formation in Riverbeds. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 3–-21. DOI: 10.1007/978-3-319-58667-0\_1
+
+\bibitem{Krappel}
+Krappel T., Riedelbauch S. Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations. // W. E. Nagel et al. (Eds.): High Performance Computing in Science and Engineering'16. — 2016. — pp. 499--510. DOI 10.1007/978-3-319-47066-5\_34
+
+\bibitem{Hines}
+Hines J., Genomics Code Exceeds Exaops on Summit Supercomputer. URL: www.olcf.ornl.gov/2018/06/08/genomics-code-exceeds-exaops-on-summit-supercomputer/. (visited on 18.10.2018)
+
+\bibitem{Markidis}
+Markidis S., Peng I. B., Tr\"aff J. L., et al. The EPiGRAM Project: Preparing Parallel Programming Models for Exascale. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 56-–68. DOI: 10.1007/978-3-319-46079-6\_5
+
+\bibitem{Klenk}
+Klenk B., Fröning H. An Overview of MPI Characteristics of Exascale Proxy Applications. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 217-–236. DOI: 10.1007/978-3-319-58667-0\_12
+
+\bibitem{Abduljabbar}
+Abduljabbar M., Markomanolis G. S., Ibeid H., et al. Communication Reducing Algorithms for Distributed Hierarchical N-Body Problems with Boundary Distributions. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 79–-96. DOI: 10.1007/978-3-319-58667-0\_5
+
+\bibitem{Rybakov}
+Rybakov A. Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations, Program systems: Theory and application, 2017, 8:1(32), pp.~121-134. (In russian)
+
+\bibitem{Van}
+Van der Wijngaart R. F., Georganas E., Mattson T. G., et al. A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 256-–274. DOI: 10.1007/978-3-319-58667-0\_14
+
+\bibitem{Benderskiy}
+L.A. Benderskiy, D.A. Lyubimov, A.A. Rybakov Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS / ILES supercomputer using the high resolution method, Trudy SRISA RAS, 2017, Vol. 7, Issue 4, pp.~32-40.
+
+\bibitem{Heller}
+Heller T., Kaiser H., Diehl P. et al. Closing the Performance Gap with Modern C++. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 18-–31. DOI: 10.1007/978-3-319-46079-6\_2
+
+\bibitem{Roganov}
+Roganov V., Osipov V., Matveev G. Solving the
+2D Poisson PDE by Gauss-Seidel method with parallel programming system
+OpenTS. Program systems: theory and applications, 2016, 7:3(30), pp. 99-–107.
+(In Russian). URL: http://psta.psiras.ru/read/psta2016\_3\_99-107.pdf
+
+\bibitem{Dorris}
+Dorris J., Kurzak J., Luszczek P. Task-Based Cholesky Decomposition on Knights Corner Using OpenMP. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 544–-562. DOI: 10.1007/978-3-319-46079-6\_37
+
+\bibitem{Tobin}
+Tobin J., Breuer A., Heinecke A. et al. Accelerating Seismic Simulations Using the Intel Xeon Phi Knights Landing Processor. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 139-–157. DOI: 10.1007/978-3-319-58667-0\_8
+
+\bibitem{McDoniel}
+McDoniel W., Hohnerbach M., Canales R. et al. LAMMPS' PPPM Long-Range Solver for the Second Generation Xeon Phi. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 61-–78. DOI: 10.1007/978-3-319-58667-0\_4
+
+\bibitem{Malas}
+Malas T., Kurth T., Deslippe J. Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 378–-389. DOI: 10.1007/978-3-319-46079-6\_27
+
+\bibitem{Krzikalla}
+Krzikalla O., Wende F., H\"ohnerbach M. Dynamic SIMD Vector Lane Scheduling. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 354-–365. DOI: 10.1007/978-3-319-46079-6\_25
+
+\bibitem{Cook}
+Cook B., Maris P., Shao M. High Performance Optimizations for Nuclear Physics Code MFDn on KNL. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 366-–377. DOI: 10.1007/978-3-319-46079-626
+
+\bibitem{Rybakov_Optimization}
+Rybakov A.A. Optimization of the problem of conflict detection with dangerous aircraft movement areas to execute on Intel Xeon Phi. Programmnye produkty i sistemy [Software \& Systems]. 2017, vol. 30, no. 3, pp.~524–528 (in Russ.). DOI: 10.15827/0236-235X.030.3.524-528.
+
+\bibitem{Sengupta}
+Sengupta D., Wang Y. Sundaram N. et al. High-Performance Incremental SVM Learning on Intel Xeon Phi Processors. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 120–138. DOI: 10.1007/978-3-319-58667-07
+
+\bibitem{Kronbichler}
+Kronbichler M., Kormann K., Pasichnyk I. Fast Matrix-Free Discontinuous Galerkin Kernels on Modern Computer Architectures. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 237–-255. DOI: 10.1007/978-3-319-58667-013
+
+\bibitem{Doerfler}
+Doerfler D., Deslippe J., Williams S. et al. Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 339–-353. DOI: 10.1007/978-3-319-46079-6\_24
+
+\bibitem{Rosales}
+\refitem{article}
+Rosales C., Cazes J., Milfeld K. A Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 307–318. DOI: 10.1007/978-3-319-46079-622
+
+
+\bibitem{Allen}
+Allen R., Kennedy K. Optimizing compilers for modern architectures. SF, Morgan Kaufmann, 2002, 816 p.
+
+\bibitem{Hutton}
+Hutton G. A tutorial on the universality and expressiveness of fold. J. Functional Programming, 1999, vol. 9, no. 4, pp.~355–372.
+
+\bibitem{Knuth}
+Donald E. Knuth. The Art of Computer Programming, Volume 3: (2nd Ed.) Sorting and Searching. Vil'iams, Moscow, 823pp.
 
 \bibitem{Lyub_RANS_ILES}
 \refitem{article}
