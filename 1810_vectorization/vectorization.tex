@@ -88,7 +88,7 @@ Along with the increasing of supercomputers computing power, questions about the
 In particular, works aimed to improve the efficiency of data exchange systems between computing nodes \cite{Klenk,Abduljabbar}, to develop computational grid management technologies and to evenly distribute computations on a cluster are carried out \cite{Rybakov,Van,Benderskiy}. 
 Developing tools of programming languages aimed to facilitate the creation of high-performance parallel code are actively developed \cite{Heller,Roganov}.
 
-\section{Review of research papers}
+\section*{Review of research papers}
 
 The Intel Xeon Phi x200 Knights Landing processor family is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was co-processor \cite{Dorris}).
 The first KNL processors were introduced in 2016. 
@@ -153,9 +153,9 @@ Without loss of generality, we assume that the branch executed by the if-conditi
 The lengths of the linear sections in this example are $t_1$ and $t_2$, respectively (Fig.~\ref{fig:flat_loop_2}, a).
 In addition, we will assume that the $block_1$ linear section is suitable for vectorization in any case, and a vector code is constructed for it (otherwise, the optimization of this code loses its meaning).
 The total number of operations performed during the loop operation is calculated as the mathematical expectation of the number of operations per iteration multiplied by the number of iterations of the loop, that is $(pt_1 + (1 - p) t_2) w$.
-In real computational problems, it often happens that an unlikely branch in such cycles does not lend itself to vectorization or this requires considerable effort.
+In real computational problems, it often happens that an unlikely branch in such cycles is not appropriate for vectorization or this requires some effort.
 Such unlikely branches contain processing of extremely rare exceptions or unexpected situations.
-In such cases, it is natural to vectorize only the probable branch, and leave the alternative under the vectorized condition (Fig.~\ref{fig:flat_loop_2}, b).
+In such cases, it is reasonably to vectorize only the probable branch, and leave the alternative under the vectorized condition (Fig.~\ref{fig:flat_loop_2}, b).
 Such a half vectorized loop will contain $t_1 + (1 - p) t_2w$ operations.
 In the case of a complete vectorization of the loop body, both linear sections fall under opposite predicates ($vcond$, ${\sim}vcond$) and the loop body is completely freed from the control transfer commands (Fig.~\ref{fig:flat_loop_2}, c).
 The number of executed instructions in a loop for a fully vectorized code is $t_1 + t_2$.
@@ -248,12 +248,12 @@ From this formula, it is clear that $S(w, 1) = w$ and $\lim_{n \to \infty}{S(w, 
 
 \section{Matrix operations vectorization}
 
-In modern numerical methods used in high-performance computing, a special place is occupied by operations with vectors and matrices.
+In modern numerical methods used in high-performance computing, special importance is given to operations with vectors and matrices.
 Such operations include calculating the scalar product of two vectors, multiplying the matrix by the vector, finding the inverse matrix, decomposing the matrix, and other operations.
 In particular, the most frequently used operation is the multiplication of two matrices.
-Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take up a significant part of the total program execution time.
+Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take a considerable part of the total program execution time.
 The presence of effective approaches to the implementation of this operation is necessary to ensure the effective operation of program codes using matrix calculations.
-The capabilities of the AVX-512 instruction set allow to create efficient code for implementations of matrix operations, which provides significant acceleration of applications, which use them.
+The capabilities of the AVX-512 instruction set allow to create efficient code for implementations of matrix operations providing significant acceleration of  applications, which use them.
 In this section, we will consider the operations of multiplying small-size matrices (having sizes $8 \times 8$, $7 \times 7$, $6 \times 6$ and $5 \times 5$ elements).
 Operations with such matrices take, for example, up to 40\% of the total operating time of the indigenous Russian RANS/ILES calculation codes used in the modeling of unsteady turbulent flows \cite{Lyub_RANS_ILES, Ben_Lyub_Chest_RANS_ILES}.
 For reasons of alignment in memory, these matrices are considered as submatrices of a matrix of size $8 \times 8$ elements, as shown in Fig.~\ref{fig:matrices_8x8_7x7_6x6_5x5}.
@@ -265,7 +265,7 @@ For reasons of alignment in memory, these matrices are considered as submatrices
 \captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. \\ The number of elements, and the number of addition and multiplication operations \\ required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
 \end{figure}
 
-We will compare the two approaches to implementing the multiplication of matrices of size $8 \times 8$, extend these approaches to smaller matrices and obtain the results of the comparison of the performance of the considered approaches.
+We will compare the two approaches to implementing the multiplication of matrices of size $8 \times 8$, extend these approaches to smaller matrices and obtain the results of comparison of the considered approaches performance.
 The multiplication logic of two matrices is that the results of the pairwise scalar product of all rows of the first matrix and all columns of the second matrix form the elements of the resulting matrix.
 
 First, we consider a direct approach to matrix multiplication, in which we will directly operate with the rows of the first matrix and the columns of the second matrix.
@@ -292,7 +292,7 @@ Finally, the resulting 16 values are written into the columns with the $j$ and $
 \captionstyle{normal}\caption{Scheme of two matrices multiplication with direct reading of rows and columns \\ of matrices and parallel computation of their pairwise scalar products.}\label{fig:mmult_1}
 \end{figure}
 
-Let us pay special attention to the parallel calculation of the sums of the \texttt{zmm} vectors halves.
+Let us drow special attention to the parallel calculation of the sums of the \texttt{zmm} vectors halves.
 AVX-512 instruction set does not contain horizontal operations of vectors elements addition, therefore, these operations have to be emulated by adding a vector with its copy, in which the elements are rearranged as needed.
 For these purposes, we will use specially implemented macros consisting of \texttt{swizzle}, \texttt{permute}, \texttt{blend} and \texttt{add} instructions and allowing to add adjacent vector elements, pairs of adjacent vector elements and fours of adjacent vector elements, depending on the masks submitted.
 Below is a listing of the implementation of these macros.
@@ -363,12 +363,12 @@ void mul_8x8(float * __restrict a, float * __restrict b,
     }
 \end{lstlisting}
 
-The experiments carried out demonstrated the effectiveness of this approach in relation to matrices of size $16 \times 16$.
+The experiments carried out demonstrate the effectiveness of this approach in relation to matrices of size $16 \times 16$.
 However, using smaller matrices, a decrease in performance was observed.
 The main reason for this is the use of slow multiple memory access operations with arbitrary offsets.
 To eliminate this drawback, we consider another approach, in which calls to memory are performed only by sequential addresses.
 At the same time, we note that this approach is applicable only for matrices of size no more than $8 \times 8$, since it requires a large number of \texttt{zmm} registers.
-In the event of a shortage of \texttt{zmm} registers, these registers are immediately dumped into memory, which causes extra store and load commands (so-called spill/fill operations appear) and leads to a catastrophic performance decrease.
+In case of shortage of \texttt{zmm} registers, these registers are immediately dumped into memory, which causes extra store and load commands (so-called spill/fill operations appear) and leads to a catastrophic performance decrease.
 
 So, when forming another approach to the multiplication of small-format matrices, we will consider the removal of multiple memory access operations as well as the use of special combined operations, which allow the expression $\pm a \cdot b \pm c$ to be calculated in one operation, as the main goals.
 We write the formulas for the $i$-th column of the resulting matrix:
