@@ -90,7 +90,7 @@ Along with the increasing of supercomputers computing power, questions about the
 In particular, works aimed to improve the efficiency of data exchange systems between computing nodes \cite{Klenk,Abduljabbar}, to develop computational grid management technologies and to evenly distribute computations on a cluster are carried out \cite{Rybakov,Van,Benderskiy}. 
 Developing tools of programming languages aimed to facilitate the creation of high-performance parallel code are actively developed \cite{Heller,Roganov}.
 
-\section*{Review of research papers}
+\subsection{Review of research papers}
 
 The Intel Xeon Phi x200 Knights Landing processor family is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was co-processor \cite{Dorris}).
 The first KNL processors were introduced in 2016. 
@@ -255,6 +255,7 @@ Such operations include calculating the scalar product of two vectors, multiplyi
 In particular, the most frequently used operation is the multiplication of two matrices.
 Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take a considerable part of the total program execution time.
 The presence of effective approaches to the implementation of this operation is necessary to ensure the effective operation of program codes using matrix calculations.
+
 The capabilities of the AVX-512 instruction set allow to create efficient code for implementations of matrix operations providing significant acceleration of  applications, which use them.
 In this section, we will consider the operations of multiplying small-size matrices (having sizes $8 \times 8$, $7 \times 7$, $6 \times 6$ and $5 \times 5$ elements).
 Operations with such matrices take, for example, up to 40\% of the total operating time of the indigenous Russian RANS/ILES calculation codes used in the modeling of unsteady turbulent flows \cite{Lyub_RANS_ILES, Ben_Lyub_Chest_RANS_ILES}.
@@ -297,9 +298,9 @@ Finally, the resulting 16 values are written into the columns with the $j$ and $
 Let us drow special attention to the parallel calculation of the sums of the \texttt{zmm} vectors halves.
 AVX-512 instruction set does not contain horizontal operations of vectors elements addition, therefore, these operations have to be emulated by adding a vector with its copy, in which the elements are rearranged as needed.
 For these purposes, we will use specially implemented macros consisting of \texttt{swizzle}, \texttt{permute}, \texttt{blend} and \texttt{add} instructions and allowing to add adjacent vector elements, pairs of adjacent vector elements and fours of adjacent vector elements, depending on the masks submitted.
-Below is a listing of the implementation of these macros.
+Below is a listing of the implementation of these macros (Listing~\ref{lst:bundles}).
 
-\begin{lstlisting}
+\begin{lstlisting}[caption={Macros that implement bundles from operations \texttt{swizzle}, \texttt{permute}, \texttt{blend}.},label={lst:bundles}]
 #define SWIZ_2_ADD_2_BLEND_1(X, Y, SWIZ_TYPE, BLEND_MASK)         \
     _mm512_mask_blend_ps(BLEND_MASK,                              \
                          ADD(X, _mm512_swizzle_ps(X, SWIZ_TYPE)), \
@@ -313,9 +314,9 @@ Below is a listing of the implementation of these macros.
 The \texttt{\_mm512\_swizzle\_ps} intrinsic is designed to rearrange the vector elements inside 128-bit quarters (composed of 4 single-precision floating-point elements), the \texttt{\_mm512\_permute4f128\_ps} command shuffles the 128-bit quarters themselves, and the \texttt{\_mm512\_mask\_blend\_ps} intrinsic performs the merging of two vectors using a mask.
 To calculate the elements sums for 16 halves of 8 registers \texttt{zmm}, the use of 7 such macros is required (4 operations for the first level of merging, 2 operations for the second level of merging and the last operation for obtaining the resulting vector $M_2$, as shown on the Fig.~\ref{fig:mmult_1}, 3).
 Since the scheme shown in Fig.~\ref{fig:mmult_1} provides the calculation of two adjacent columns of the resulting matrix, four such iterations are required to obtain the entire matrix.
-Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach.
+Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach (Listing~\ref{lst:mul1}).
 
-\begin{lstlisting}
+\begin{lstlisting}[caption={Direct approach to \texttt{mul\_8x8} implementation.},label={lst:mul1}]
 void mul_8x8(float * __restrict a, float * __restrict b,
              float * __restrict r)
 {
@@ -440,11 +441,11 @@ After the required vectors are formed, we need to perform their pairwise element
 These actions can be performed using combined operations \texttt{fmadd}.
 To calculate the value $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$, we need 8 vector operations (1 operation \texttt{mul} and 7 operations \texttt{fmadd}).
 
-Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach.
+Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach (Listing~\ref{lst:mul2}).
 
 % It is possible to add 5-7 lines to this listing
 % if it will be needed for text alignment.
-\begin{lstlisting}
+\begin{lstlisting}[caption={Approach to \texttt{mul\_8x8} implementation with line-by-line reading of matrixes from memory.},label={lst:mul2}]
 void mul_8x8(float * __restrict a, float * __restrict b,
              float * __restrict r)
 {
@@ -509,6 +510,7 @@ When implementing multiplication of $7 \times 7$, $6 \times 6$, $5 \times 5$ mat
 
 The approaches to the vectorization of matrix multiplication described in this secton were tested on the MVS-10P supercomputer placed in JSCC RAS, on its computational segment containing Intel Xeon Phi 7290 KNL microprocessors.
 Four functions were considered: \texttt{mul\_8x8}, \texttt{mul\_7x7}, \texttt{mul\_6x6}, \texttt{mul\_5x5}, performing the multiplication of matrices of the corresponding sizes.
+
 For each function, 3 implementation options were considered.
 As the first option, the old vectorization method with parallel calculation of the sums of vector elements (denoted by \textit{Vect Old}) was used.
 As the second option, direct manual calculation of each element of the resulting matrix in which all cycles were deleted and for each element multiple copies were written scalar code (denoted by \textit{Full Unroll}) was taken.
@@ -562,31 +564,33 @@ The number of preliminary rough passes can be arbitrary. In the end, the final p
 The average running time of the algorithm depends on the choice of pass steps. 
 Listing \ref{lst:shellsort} presents an implementation of Shell sorting in the C with a simple sequence of steps with an initial step equal to half the size of the array with a decrease in the width of the next pass in half (such a sequence was originally used by Shell). 
 
-\begin{lstlisting}[caption={Shell sorting},label={lst:shellsort}]
+\begin{lstlisting}[caption={Shell sorting.},label={lst:shellsort}]
 
-void shell_sort(float * m, int n)
+void shell_sort(float *m, int n)
 {
-	int i, j, k;
-	for (k = n / 2; k > 0; k /= 2) // outer loop
-	{
-		for (i = k; i < n; i++) // intermediate loop
-		{
-			float t = m[i];
-	
-			for (j = i; j >= k; j -= k) // inner loop
-			{
-				if (t < m[j - k])
-				{
-					m[j] = m[j - k];
-				}
-				else
-				{
-					break;
-				}
-			}
-			m[j] = t;
-		}
-	}
+    int i, j, k;
+
+    for (k = n / 2; k > 0; k /= 2)      // outer loop
+    {
+        for (i = k; i < n; i++)         // intermediate loop
+        {
+            float t = m[i];
+
+            for (j = i; j >= k; j -= k) // inner loop
+            {
+                if (t < m[j - k])
+                {
+                    m[j] = m[j - k];
+                }
+                else
+                {
+                    break;
+                }
+            }
+            
+            m[j] = t;
+        }
+    }
 }
 \end{lstlisting}
 
@@ -610,7 +614,7 @@ The presence of code sections with a vectorization width of less than 16 leads t
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
 \includegraphics[width=0.65\textwidth]{pics/pic_decomposition.pdf}
-\captionstyle{normal}\caption{Shell sorting decomposition with highlighted segments of vectorized code}\label{pic:decompos}
+\captionstyle{normal}\caption{Shell sorting decomposition with highlighted segments of vectorized code.}\label{pic:decompos}
 \end{figure}
 
 The \texttt{shell\_sort\_k\_i\_w} function, which appeared after decomposing the Shell sorting algorithm, contains the implementation of sorting $ w $ adjacent array slices, taken with step k. 
@@ -631,7 +635,7 @@ In addition to the designated scatter command, there are other memory reference 
 These are the usual load and store commands that, generally speaking, must be addressed by aligned addresses in memory.
 In the general case, the addresses given to them are certainly not aligned, however, the use of non-aligned calls instead of them significantly slows down the code, so it was decided to leave these instructions.
 
-\begin{lstlisting}[caption={Vectorized version of Shell sorting kernel},label={lst:vectcode}]
+\begin{lstlisting}[caption={Vectorized version of Shell sorting kernel.},label={lst:vectcode}]
 void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
 {
     int j = i;
@@ -704,14 +708,14 @@ The results were compared with the results of experimental launches on Intel Xeo
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
 \includegraphics[width=0.85\textwidth]{pics/experimental_eff.pdf}
-\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting \\ for different sequences of steps}\label{fig:theor_accel}
+\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting \\ for different sequences of steps.}\label{fig:theor_accel}
 \end{figure}
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
 \includegraphics[width=0.85\textwidth]{pics/theoretical_eff.pdf}
-\captionstyle{normal}\caption{Comparison of experimental acceleration of a vectorized version of Shell sorting \\ for different sequences of steps}\label{experim_accel}
+\captionstyle{normal}\caption{Comparison of experimental acceleration of a vectorized version of Shell sorting \\ for different sequences of steps.}\label{experim_accel}
 \end{figure}
 
 On the Fig.~\ref{fig:theor_accel} and Fig.~\ref{experim_accel} the results of theoretical estimates and experimental launches are presented. 
@@ -793,10 +797,13 @@ As a result of the executed transformations of the source code, the Riemann solv
 
 \section{Conclusion}
 
-conclusion
+The approaches to vectorization of program code considered in the article allow us to conclude about the applicability of the AVX-512 instruction set to loops of almost any kind, used in scientific calculations.
+The features of the AVX-512 instruction set, including the use of vector masks, allow vectoring any program code written in predicate form.
+Thus, loops can be vectorized, containing a complex settlement, function calls and loop nests with an unknown number of iterations.
+All aspects of the program code vectorization considered in the article were implemented in the C programming language and proved to be effective, as demonstrated by the practical results obtained.
 
 \begin{acknowledgments}
-We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussions of the results. We are grateful to C.~C.~Surname3 and the reviewers for careful reading of the manuscript and helpful remarks. Links to grants are also listed here.
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2018-0409 <<Development of architectures, system solutions and methods for creating computing systems and distributed environments of the multi-petaflops performance range, including non-traditional microprocessor architectures>>. The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
