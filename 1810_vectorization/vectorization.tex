@@ -63,9 +63,11 @@ Using AVX-512 Intruction Set}
 
 \received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
 
-
-\begin{abstract} % You shouldn't use formulas and citations in the abstract.
-The article is devoted to the issues of vectorization of calculations for the processor Intel Xeon Phi Knights Landing (KNL). As objects for optimization, operations on low-dimensional matrices are considered. Such operations are common in the calculation codes from various fields of research, for example, when solving problems of gas dynamics. KNL are the newest processors in the Intel Xeon Phi line, they contain up to 72 cores and allow you to run applications using massive parallelism. They have a wide range of capabilities for efficiently performing supercomputer calculations, in particular, they support various memory modes and clustering modes. Often, the compiler does not cope with the task of creating highly efficient parallel vectorized code, which leads to performance losses. One of the reserves for improving code performance is the implementation of manual vectorization of the hottest code sections, which eventually results in the acceleration of the entire application. When using KNL processors, an important step to optimize the program is to enable special 512-bit vector instructions that can significantly speed up the executable code. Using 512-bit vector instructions allows you to process vectors containing 16 floating point elements. The presence of special combined FMA instructions allows combining the componentwise multiplication and addition of such vectors. To facilitate the process of manual vectorization of the program code, special intrinsiki functions are used, which are wrappers over the processor instructions. The use of vectorization of operations on matrices, performed using intrinsic functions, made it possible to reduce the execution time of these operations from 23% to 70% compared to the version built by the icc compiler and indicating the maximum level of optimization. The results obtained demonstrate additional reserves of application performance, which can be obtained using manual code optimization.
+\begin{abstract}
+Modern calculation codes used in supercomputing are very demanding of computing resources.
+For their effective appliance requires the use of parallelization at all levels, starting with the use of multiprocess and multi-threaded programming, and ending with vectorization.
+The AVX-512 instruction set, first introduced in Intel Xeon Phi Knights Landing and Intel Xeon Skylake microprocessors, opens up broad possibilities for vectorizing code and allows to speed up the execution of applications in several times.
+This article discusses some aspects of the application of vectorization in the program code of some kinds, which is found in high-performance scientific computing.
 \end{abstract}
 
 \subclass{68N19} % Enter 2010 Mathematics Subject Classification.
