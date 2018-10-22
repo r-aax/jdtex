@@ -84,7 +84,8 @@ Today, supercomputer technologies are increasingly used in various fields of sci
 The use of simulation modeling using supercomputer calculations allows analyzing various situations and interaction scenarios of objects of the surrounding world and obtaining results that are unavailable without the use of these tools. 
 At the same time, the amount of data involved in supercomputer calculations is constantly increasing. 
 The size of the calculated grids of hundreds of millions cells is already common for launches on the supercomputers of the petaflops performance range \cite{Rettinger,Krappel}, and gradually there is a need to use grids containing billions of cells. 
-Today, the most powerful supercomputer is the IBM's Summit supercomputer, equipped with Power9 processor and NVidia graphics processors with Volta architecture, which broke the exascale barrier, achieving a peak throughput of 1.88 exaflops but implementing single and half-precision operations \cite{Hines}.
+Today, the most powerful supercomputer is the IBM's Summit supercomputer, equipped with Power9 processor and NVidia graphics processors with Volta architecture.
+
 According to some optimistic forecasts, the first exaflops supercomputer capable of performing $ 10^{18} $ floating point operations per second is possible by 2024 \cite{Markidis}.
 Along with the increasing of supercomputers computing power, questions about the effectiveness of their use arise. 
 In particular, works aimed to improve the efficiency of data exchange systems between computing nodes \cite{Klenk,Abduljabbar}, to develop computational grid management technologies and to evenly distribute computations on a cluster are carried out \cite{Rybakov,Van,Benderskiy}. 
@@ -94,7 +95,7 @@ Developing tools of programming languages aimed to facilitate the creation of hi
 
 The Intel Xeon Phi x200 Knights Landing processor family is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was co-processor \cite{Dorris}).
 The first KNL processors were introduced in 2016. 
-Each processor contains up to 36 active tiles, each of which consists of two cores and a L2 cache of 1 MB in size, which is common to the data of the two cores. 
+Each processor contains up to 36 active tiles, each consists of two cores and a L2 cache of 1 MB in size, which is common to the data of the two cores. 
 Each core contains a VPU (Vector Processing Unit) that supports 512-bit vector instructions and a 64 KB L1 cache divided into equal by-size instruction cache and data cache of 32 KB each. 
 Each core supports 4 threads, which gives a total of 288 logical processors per socket \cite{Tobin}. 
 Although the frequency of each KNL core is lower than that of Intel Xeon server processors, such a number of execution threads and the presence of 512-bit vector instructions provide impressive peak performance, exceeding 6 TFLOPS on single-precision operations.
@@ -727,7 +728,7 @@ The experimental results, as was expected, are much lower and, finally, theoreti
 
 In this section, we will consider the application of the described approaches for vectorization of program code to the implementation of physical calculations.
 The object of the study was the Riemann problem of the decay of an arbitrary discontinuity, on the exact or approximate solution of which many numerical methods for modeling gas-dynamic processes are based.
-The core of the program code in which the solution of the Riemann problem is realized is called the Riemann solver.
+The core of the program code in which the solution of the Riemann problem is implemented is called the Riemann solver.
 The implementation of the Riemann solver considered in this article is publicly available on the Internet as part of the NUMERICA library.
 In this case, we will be interested in the one-dimensional case for a single-component medium, implemented as a pure function (function without side effects), which, by the density, velocity and gas pressure values to the left and right of the discontinuity, finds the values of the same quantities on the discontinuity itself at zero time after removal of the septum.
 
@@ -770,7 +771,7 @@ The \texttt{prefun} and \texttt{guesssp} functions contain the usual arithmetic 
 At the same time, the functions do not contain complex control, therefore all calculations can be directly translated from the predicate code and combined into a single branch of execution.
 
 The \texttt{sample} function contains a highly branched control with a nesting level of 4.
-The condition tree constructed for this function contains 10 leaf nodes, in each of which the value of the gas-dynamic quantities $d$, $u$, $p$ is determined.
+The condition tree constructed for this function contains 10 leaf nodes, each contains the determined value of the gas-dynamic quantities $d$, $u$, $p$.
 Direct computation of the vector predicates of all leaf nodes and the execution of their code under these predicates leads to a slowdown of the resulting code, therefore, the following actions were performed when vectoring this function.
 First, it was noted that the 4 linear sections contain the definition of the gas-dynamic parameters $d$, $u$, and $p$, which could be changed to initialization by moving the assignment operations up through the function code.
 Thus, 4 linear sections were deleted.
@@ -785,20 +786,20 @@ The removal of an unlikely branch of execution from the main program context can
 As a result, the vectorized \texttt{sample} function was accelerated more than 10 times.
 
 The \texttt{starpu} function is the most complex because it contains a loop with a variable number of iterations and other functions calls.
-The approach described in the previous section applies to this function.
+The approach described in the previous section is applied to this function.
 In addition, although the loop in this function contains an unknown number of iterations, this value changes slowly, which leads to a high density of masks for executable commands in vectorized code.
 In addition, it can be noted that the average number of loop iterations is equal to 3, which also reduces the number of unnecessary operations in the resulting code.
 As a result, the vectorized version of the function \texttt{starpu} function turns out to be faster than the original version more than 5 times.
 
-The approaches to the vectorization of the Riemann solver functions described in the section were implemented in the C programming language using intrinsic functions and tested on microprocessors Intel Xeon Phi 7290, which are part of the computational segment knl of supercomputer MVS-10P, located in the JSCC RAS.
+The approaches to the vectorization of the Riemann solver functions described in the section were implemented in the C programming language using intrinsic functions and tested on microprocessors Intel Xeon Phi 7290, which are part of the computational segment KNL of supercomputer MVS-10P, located in the JSCC RAS.
 
-Performance testing was performed on the input data arrays collected in solving standard test problems: the Sod problem, the Lax problem, the weak shock wave problem, the Einfeldt problem, the Woodward-Colella problem, the Schu-Osher problem and others.
+Performance testing was performed on the input data arrays collected when solving standard test problems: the Sod problem, the Lax problem, the weak shock wave problem, the Einfeldt problem, the Woodward-Colella problem, the Schu-Osher problem and others.
 As a result of the executed transformations of the source code, the Riemann solver accelerated by 7 times compared to the non-optimized versions.
 
 \section{Conclusion}
 
 The approaches to vectorization of program code considered in the article allow us to conclude about the applicability of the AVX-512 instruction set to loops of almost any kind, used in scientific calculations.
-The features of the AVX-512 instruction set, including the use of vector masks, allow vectoring any program code written in predicate form.
+The features of the AVX-512 instruction set, including the use of vector masks, allow to vectorize any program code written in predicate form.
 Thus, loops can be vectorized, containing a complex settlement, function calls and loop nests with an unknown number of iterations.
 All aspects of the program code vectorization considered in the article were implemented in the C programming language and proved to be effective, as demonstrated by the practical results obtained.
 
@@ -819,9 +820,6 @@ Rettinger C., Godenschwager C., Eibl S., et al. Fully Resolved Simulations of Du
 
 \bibitem{Krappel}
 Krappel T., Riedelbauch S. Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations. // W. E. Nagel et al. (Eds.): High Performance Computing in Science and Engineering'16. — 2016. — pp. 499--510. DOI 10.1007/978-3-319-47066-5\_34
-
-\bibitem{Hines}
-Hines J., Genomics Code Exceeds Exaops on Summit Supercomputer. URL: www.olcf.ornl.gov/2018/06/08/genomics-code-exceeds-exaops-on-summit-supercomputer/. (visited on 18.10.2018)
 
 \bibitem{Markidis}
 Markidis S., Peng I. B., Tr\"aff J. L., et al. The EPiGRAM Project: Preparing Parallel Programming Models for Exascale. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 56-–68. DOI: 10.1007/978-3-319-46079-6\_5
