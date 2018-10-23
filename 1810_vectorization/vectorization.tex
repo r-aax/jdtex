@@ -93,7 +93,7 @@ Developing tools of programming languages aimed to facilitate the creation of hi
 
 \subsection{Review of research papers}
 
-The Intel Xeon Phi x200 Knights Landing processor family is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was co-processor \cite{Dorris}).
+The Intel Xeon Phi x200 Knights Landing processor family \cite{Jeffers_KNL} is the second generation of the Intel Xeon Phi line and the first generation of solvers that act as a standalone processor (the first generation of the Knights Corner was co-processor \cite{Jeffers_KNC,Dorris}).
 The first KNL processors were introduced in 2016. 
 Each processor contains up to 36 active tiles, each consists of two cores and a L2 cache of 1 MB in size, which is common to the data of the two cores. 
 Each core contains a VPU (Vector Processing Unit) that supports 512-bit vector instructions and a 64 KB L1 cache divided into equal by-size instruction cache and data cache of 32 KB each. 
@@ -811,220 +811,174 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 
 % References for INTRODUCTION section.
 
+\bibitem{Rettinger}
+\refitem{article}
+C.~Rettinger, C.~Godenschwager, S.~Eibl et al, \textquotedblleft Fully Resolved Simulations of Dune Formation in Riverbeds\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~3--21 (2017).
+
+\bibitem{Krappel}
+\refitem{article}
+T.~Krappel, S.~Riedelbauch, \textquotedblleft Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations\textquotedblright, W.~E.~Nagel et al. (Eds.): High Performance Computing in Science and Engineering'16, pp.~499--510 (2016).
+
+\bibitem{Markidis}
+\refitem{article}
+S.~Markidis, I.~B.~Peng, J.~L.~Tr\"aff et al, \textquotedblleft The EPiGRAM Project: Preparing Parallel Programming Models for Exascale\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~56--68 (2016).
+
+\bibitem{Klenk}
+\refitem{article}
+B.~Klenk, H.~Fr\"oning, \textquotedblleft An Overview of MPI Characteristics of Exascale Proxy Applications\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~217--236 (2017).
+
+\bibitem{Abduljabbar}
+\refitem{article}
+M.~Abduljabbar, G.~S.~Markomanolis, H.~Ibeid, et al, \textquotedblleft Communication Reducing Algorithms for Distributed Hierarchical N-Body Problems with Boundary Distributions\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~79--96 (2017).
+
+\bibitem{Rybakov}
+\refitem{article}
+A.~A.~Rybakov, \textquotedblleft Inner Respresentation and Crossprocess Exchange Mechanism for Block-Structured Grid for Supercomputer Calculations\textquotedblright, Program systems: Theory and Application, No.~8:1(32), pp.~121--134 (2017) [In Russian].
+
+\bibitem{Van}
+\refitem{article}
+R.~F.~Van der Wijngaart, E.~Georganas, T.~G.~Mattson et al, \textquotedblleft A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~256--274 (2017).
+
+\bibitem{Benderskiy}
+\refitem{article}
+L.~A.~Benderskiy, D.~A.~Lyubimov, A.~A.~Rybakov, \textquotedblleft Scaling of Fluid Dynamics Calculations Using the RANS/ILES Method on Supercomputer\textquotedblright, Trudy SRISA RAS, Vol.~7, No.~\textbf{4}, pp.~32--40 (2017) [In Russian].
+
+\bibitem{Heller}
+\refitem{article}
+T.~Heller, H.~Kaiser, P.~Diehl et al,\textquotedblleft Closing the Performance Gap with Modern C++\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~18--31 (2016).
+
+\bibitem{Roganov}
+\refitem{article}
+V.~Roganov, V.~Osipov, G.~Matveev, \textquotedblleft Solving the
+2D Poisson PDE by Gauss-Seidel Method with Parallel Programming System OpenTS\textquotedblright, Program Systems: Theory and Applications, No.~7:3(30), pp.~99--107 (2016) [In Russian].
+
+% References for REVIEW OF RESEARCH PAPERS section.
+
+\bibitem{Jeffers_KNL}
+\refitem{book}
+J.~Jeffers, J.~Reinders, A.~Sodani, \emph{Intel Xeon Phi Processor High Performance Programming, Knights Landing Edition}, (Morgan Kaufmann, 2016).
+
+\bibitem{Jeffers_KNC}
+\refitem{book}
+J.~Jeffers, J.~Reinders, \emph{Intel Xeon Phi Coprocessor Processor High Performance Programming}, (Morgan Kaufmann, 2013).
+
+\bibitem{Dorris}
+\refitem{article}
+J.~Dorris, J.~Kurzak, P.~Luszczek, \textquotedblleft Task-Based Cholesky Decomposition on Knights Corner Using OpenMP\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~544--562 (2016).
+
+\bibitem{Tobin}
+\refitem{article}
+J.~Tobin, A.~Breuer, A.~Heinecke et al, \textquotedblleft Accelerating Seismic Simulations Using the Intel Xeon Phi Knights Landing Processor\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~139--157 (2017).
+
+\bibitem{McDoniel}
+\refitem{article}
+W.~McDoniel, M.~Hohnerbach, R.~Canales et al, \textquotedblleft LAMMPS' PPPM Long-Range Solver for the Second Generation Xeon Phi\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~61--78 (2017).
+
+\bibitem{Malas}
+\refitem{article}
+T.~Malas, T.~Kurth, J.~Deslippe, \textquotedblleft Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~378--389 (2016).
+
+\bibitem{Krzikalla}
+\refitem{article}
+O.~Krzikalla, F.~Wende, M.~H\"ohnerbach, \textquotedblleft Dynamic SIMD Vector Lane Scheduling\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~354--365 (2016).
+
+\bibitem{Cook}
+\refitem{article}
+B.~Cook, P.~Maris, M.~Shao, \textquotedblleft High Performance Optimizations for Nuclear Physics Code MFDn on KNL\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~366--377 (2016).
+
+\bibitem{Rybakov_Optimization}
+\refitem{article}
+A.~A.~Rybakov, \textquotedblleft Optimization of the Problem of Conflict Detection with Dangerous Aircraft Movement Areas to Execute on Intel Xeon Phi\textquotedblright, Software \& Systems, Vol.~30, No.~\textbf{3}, pp.~524--528 (2017) [In Russian].
+
+\bibitem{Sengupta}
+\refitem{article}
+D.~Sengupta, Y.~Wang, N.~Sundaram et al, \textquotedblleft High-Performance Incremental SVM Learning on Intel Xeon Phi Processors\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~120--138 (2017).
+
+\bibitem{Kronbichler}
+\refitem{article}
+M.~Kronbichler, K.~Kormann, I.~Pasichnyk, \textquotedblleft Fast Matrix-Free Discontinuous Galerkin Kernels on Modern Computer Architectures\textquotedblright, J.~M.~Kunkel et al. (Eds.): ISC High Performance 2017, LNCS, Vol.~10266, pp.~237--255 (2017).
+
+\bibitem{Doerfler}
+\refitem{article}
+D.~Doerfler, J.~Deslippe, S.~Williams et al, \textquotedblleft Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~339--353 (2016).
+
+\bibitem{Rosales}
+\refitem{article}
+C.~Rosales, J.~Cazes, K.~Milfeld, \textquotedblleft A Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor\textquotedblright, M.~Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS, Vol.~9945, pp.~307--318 (2016).
+
 % References for FLAT CYCLES section.
 
 % References for MATRICES section.
 
-\bibitem{Rettinger}
-Rettinger C., Godenschwager C., Eibl S., et al. Fully Resolved Simulations of Dune Formation in Riverbeds. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 3–-21. DOI: 10.1007/978-3-319-58667-0\_1
-
-\bibitem{Krappel}
-Krappel T., Riedelbauch S. Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations. // W. E. Nagel et al. (Eds.): High Performance Computing in Science and Engineering'16. — 2016. — pp. 499--510. DOI 10.1007/978-3-319-47066-5\_34
-
-\bibitem{Markidis}
-Markidis S., Peng I. B., Tr\"aff J. L., et al. The EPiGRAM Project: Preparing Parallel Programming Models for Exascale. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 56-–68. DOI: 10.1007/978-3-319-46079-6\_5
-
-\bibitem{Klenk}
-Klenk B., Fröning H. An Overview of MPI Characteristics of Exascale Proxy Applications. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 217-–236. DOI: 10.1007/978-3-319-58667-0\_12
-
-\bibitem{Abduljabbar}
-Abduljabbar M., Markomanolis G. S., Ibeid H., et al. Communication Reducing Algorithms for Distributed Hierarchical N-Body Problems with Boundary Distributions. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 79–-96. DOI: 10.1007/978-3-319-58667-0\_5
-
-\bibitem{Rybakov}
-Rybakov A. Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations, Program systems: Theory and application, 2017, 8:1(32), pp.~121-134. (In russian)
-
-\bibitem{Van}
-Van der Wijngaart R. F., Georganas E., Mattson T. G., et al. A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 256-–274. DOI: 10.1007/978-3-319-58667-0\_14
-
-\bibitem{Benderskiy}
-L.A. Benderskiy, D.A. Lyubimov, A.A. Rybakov Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS / ILES supercomputer using the high resolution method, Trudy SRISA RAS, 2017, Vol. 7, Issue 4, pp.~32-40.
-
-\bibitem{Heller}
-Heller T., Kaiser H., Diehl P. et al. Closing the Performance Gap with Modern C++. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 18-–31. DOI: 10.1007/978-3-319-46079-6\_2
-
-\bibitem{Roganov}
-Roganov V., Osipov V., Matveev G. Solving the
-2D Poisson PDE by Gauss-Seidel method with parallel programming system
-OpenTS. Program systems: theory and applications, 2016, 7:3(30), pp. 99-–107.
-(In Russian). URL: http://psta.psiras.ru/read/psta2016\_3\_99-107.pdf
-
-\bibitem{Dorris}
-Dorris J., Kurzak J., Luszczek P. Task-Based Cholesky Decomposition on Knights Corner Using OpenMP. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 544–-562. DOI: 10.1007/978-3-319-46079-6\_37
-
-\bibitem{Tobin}
-Tobin J., Breuer A., Heinecke A. et al. Accelerating Seismic Simulations Using the Intel Xeon Phi Knights Landing Processor. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 139-–157. DOI: 10.1007/978-3-319-58667-0\_8
-
-\bibitem{McDoniel}
-McDoniel W., Hohnerbach M., Canales R. et al. LAMMPS' PPPM Long-Range Solver for the Second Generation Xeon Phi. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 61-–78. DOI: 10.1007/978-3-319-58667-0\_4
-
-\bibitem{Malas}
-Malas T., Kurth T., Deslippe J. Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 378–-389. DOI: 10.1007/978-3-319-46079-6\_27
-
-\bibitem{Krzikalla}
-Krzikalla O., Wende F., H\"ohnerbach M. Dynamic SIMD Vector Lane Scheduling. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 354-–365. DOI: 10.1007/978-3-319-46079-6\_25
-
-\bibitem{Cook}
-Cook B., Maris P., Shao M. High Performance Optimizations for Nuclear Physics Code MFDn on KNL. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 366-–377. DOI: 10.1007/978-3-319-46079-626
-
-\bibitem{Rybakov_Optimization}
-Rybakov A.A. Optimization of the problem of conflict detection with dangerous aircraft movement areas to execute on Intel Xeon Phi. Programmnye produkty i sistemy [Software \& Systems]. 2017, vol. 30, no. 3, pp.~524–528 (in Russ.). DOI: 10.15827/0236-235X.030.3.524-528.
-
-\bibitem{Sengupta}
-Sengupta D., Wang Y. Sundaram N. et al. High-Performance Incremental SVM Learning on Intel Xeon Phi Processors. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 120–138. DOI: 10.1007/978-3-319-58667-07
-
-\bibitem{Kronbichler}
-Kronbichler M., Kormann K., Pasichnyk I. Fast Matrix-Free Discontinuous Galerkin Kernels on Modern Computer Architectures. // J. M. Kunkel et al. (Eds.): ISC High Performance 2017, LNCS. — 2017. — vol. 10266. — pp. 237–-255. DOI: 10.1007/978-3-319-58667-013
-
-\bibitem{Doerfler}
-Doerfler D., Deslippe J., Williams S. et al. Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 339–-353. DOI: 10.1007/978-3-319-46079-6\_24
-
-\bibitem{Rosales}
+\bibitem{Zhang}
 \refitem{article}
-Rosales C., Cazes J., Milfeld K. A Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor. // M. Taufer et al. (Eds.): ISC High Performance Workshops 2016, LNCS. — 2016. — vol. 9945. — pp. 307–318. DOI: 10.1007/978-3-319-46079-622
+Hong Zhang, Richard T. Mills, Karl Rupp, and Barry F. Smith. 2018. Vectorized Parallel Sparse Matrix-Vector Multiplication in PETSc Using AVX-512. In Proceedings of the 47th International Conference on Parallel Processing (ICPP 2018). ACM, New York, NY, USA, Article 55, 10 pages. DOI: https://doi.org/10.1145/3225058.3225100.
 
+\bibitem{Lyub_RANS_ILES}
+\refitem{article}
+D.~A.~Lyubimov, \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420--436 (2012).
 
-\bibitem{Allen}
-Allen R., Kennedy K. Optimizing compilers for modern architectures. SF, Morgan Kaufmann, 2002, 816 p.
+\bibitem{Ben_Lyub_Chest_RANS_ILES}
+\refitem{article}
+L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247--254 (2018).
 
-\bibitem{Hutton}
-Hutton G. A tutorial on the universality and expressiveness of fold. J. Functional Programming, 1999, vol. 9, no. 4, pp.~355–372.
+% References for IRREGULAR ITERATIONS LOOPS section.
 
 \bibitem{Knuth}
 Donald E. Knuth. The Art of Computer Programming, Volume 3: (2nd Ed.) Sorting and Searching. Vil'iams, Moscow, 823pp.
 
-\bibitem{Lyub_RANS_ILES}
-\refitem{article}
-D.~A.~Lyubimov, \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420-436 (2012).
-
-\bibitem{Ben_Lyub_Chest_RANS_ILES}
-\refitem{article}
-L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247-254 (2018).
-
-% References for IRREGULAR ITERATIONS LOOPS section.
-
-% References for PHYSICAL CALCULATIONS section.
-
-\bibitem{ex}
-\refitem{article}
-Rosales C. et al. (2016) A Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Newburn C.J., Sukha J., Sharapov I., Nguyen A.D., Miao CC. (2016) Application Suitability Assessment for Many-Core Targets. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Doerfler D. et al. (2016) Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Krzikalla O., Wende F., Hohnerbach M. (2016) Dynamic SIMD Vector Lane Scheduling. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Malas T., Kurth T., Deslippe J. (2016) Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Walden A., Khan S., Joó B., Ranjan D., Zubair M. (2016) Optimizing a Multiple Right-Hand Side Dslash Kernel for Intel Knights Corner. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Deslippe J. et al. (2016) Optimizing Excited-State Electronic-Structure Codes for Intel Knights Landing: A Case Study on the BerkeleyGW Software. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Joó B., Kalamkar D.D., Kurth T., Vaidyanathan K., Walden A. (2016) Optimizing Wilson-Dirac Operator and Linear Solvers for Intel® KNL. In: Taufer M., Mohr B., Kunkel J. (eds) High Performance Computing. ISC High Performance 2016. Lecture Notes in Computer Science, vol 9945. Springer, Cham
-
-\bibitem{ex}
-\refitem{article}
-Al Hasib, A., Cebrian, J.M. \& Natvig, L. J Supercomput (2018) 74: 2705. https://doi.org/10.1007/s11227-018-2310-0.
-
-\bibitem{ex}
+\bibitem{Fast_Sort}
 \refitem{article}
 Bramas, B. Fast sorting algorithms using AVX-512 on Intel Knights Landing. arXiv: 1704.08579 [cs. MS]. URL: https://arxiv.org/abs/1704.08579 (visited on 10.11.2018).
 
-\bibitem{ex}
-\refitem{article}
-Watanabe H., Nakagawa K. M. SIMD Vectorization for the Lennard-Jones Potential with AVX2 and AVX-512 instructions. arXiv:1806.05713 [cs. MS]. URL: https://arxiv.org/abs/1806.05713 (visited on 12.10.2018).
-
-\bibitem{ex}
-\refitem{article}
-Bramas, B. A Novel Hybrid Quicksort Algorithm Vectorized using AVX-512 on Intel Skylake In: International Journal of Advanced Computer Science and Applications(IJACSA), Vol. 8 No. 10 2017.
-
-\bibitem{ex}
-\refitem{article}
-Bramas, B. Increasing the Degree of Parallelism Using Speculative Execution in Task-based Runtime Systems. arXiv:1803.04211 [cs.DC]. URL: https://arxiv.org/abs/1803.04211 (visited on 12.10.2018).
-
-\bibitem{ex}
-\refitem{article}
-Bramas B, Kus P. (2018) Computing the sparse matrix vector product using block-based kernels without zero padding on processors with AVX-512 instructions. PeerJ Computer Science 4:e151 https://doi.org/10.7717/peerj-cs.151
-
-\bibitem{ex}
-\refitem{article}
-Messner, M., Bramas, B., Coulaud, O., Darve E. Optimized M2L Kernels for the Chebyshev Interpolation based Fast Multipole Method. arXiv:1210.7292 [cs.NA]. URL: https://arxiv.org/abs/1210.7292 (visited on 12.10.2018).
-
-\bibitem{ex}
-\refitem{article}
-Hong Zhang, Richard T. Mills, Karl Rupp, and Barry F. Smith. 2018. Vectorized Parallel Sparse Matrix-Vector Multiplication in PETSc Using AVX-512. In Proceedings of the 47th International Conference on Parallel Processing (ICPP 2018). ACM, New York, NY, USA, Article 55, 10 pages. DOI: https://doi.org/10.1145/3225058.3225100.
-
-\bibitem{ex}
-\refitem{article}
-Kulikov, I.M., Chernykh, I.G., Glinskiy, B.M. et al. Lobachevskii J Math (2018) 39: 543. https://doi.org/10.1134/S1995080218040091
-
-\bibitem{ex}
-\refitem{article}
-Lim, R., Lee, Y., Kim, R. et al. Cluster Comput (2018). https://doi.org/10.1007/s10586-018-2810-y
-
-\bibitem{ex}
+\bibitem{Quick_Sort}
 \refitem{article}
 Shay Gueron, Vlad Krasnov; Fast Quicksort Implementation Using AVX Instructions, The Computer Journal, Volume 59, Issue 1, 1 January 2016, Pages 83–90, https://doi.org/10.1093/comjnl/bxv063
 
-\bibitem{ex}
+\bibitem{Quick_Sort_2}
 \refitem{article}
-Ungethum, A., Pietrzyk, J., Damme, P., Habich, D., Lehner, W. (2018). Conflict detection-based run-length encoding - AVX-512 CD instruction set in action. Paper presented at the Proceedings - IEEE 34th International Conference on Data Engineering Workshops, ICDEW 2018, 96--101.
+Bramas, B. A Novel Hybrid Quicksort Algorithm Vectorized using AVX-512 on Intel Skylake In: International Journal of Advanced Computer Science and Applications(IJACSA), Vol. 8 No. 10 2017.
 
-\bibitem{ex}
-\refitem{article}
-Aleen, F., Zakharin, V. P., Krishnaiyer, R., Gupta, G., Kreitzer, D., and Lin, C. -., Jr. (2018). Automated compiler optimization of multiple vector Loads/Stores. International Journal of Parallel Programming, 46(2), 471-503. doi:10.1007/s10766-016-0485-7
-
-\bibitem{ex}
-\refitem{article}
-Jubertie, S., Dupros, F., and De Martin, F. (2018). Vectorization of a spectral finite-element numerical kernel. Paper presented at the WPMVP 2018 - Proceedings of the 2018 4th Workshop on Programming Models for SIMD/Vector Processing, Co-Located with PPoPP 2018, doi:10.1145/3178433.3178441
-
-\bibitem{ex}
-\refitem{article}
-Jeffers J., Reinders J., Sodani A. Intel Xeon Phi processor high performance programming. Knights Land-ing Edition. Morgan Kaufmann Publ., 2016, 632 p.
-
-\bibitem{ex}
-\refitem{article}
-Intel C++ Compiler 16.0 User and Reference Guide. Intel Corporation. 2015. URL: https://software.intel.com/en-us/articles/intel-c-compiler-160-for-windows-release-notes-for-intel-parallel-studio-xe-2016 (visited on 11.10.2018).
-
-\bibitem{ex}
-\refitem{article}
-Intel Intrinsics Guide. URL: https://software.intel.com/sites/landingpage/IntrinsicsGuide (visited on 11.10.2018).
-
-\bibitem{ex}
-\refitem{article}
-Krzikalla O., Wende F., Hohnerbach M. Dynamic SIMD Vector Lane Scheduling. In: ISC High Perfor-mance Workshops 2016, M. Taufer et al. (eds.), LNCS, 2016, vol. 9945, pp. 354 –- 365.
-
-\bibitem{ex}
-\refitem{article}
-Cook B., Maris P., Shao M. High Performance Optimizations for Nuclear Physics Code MFDn on KNL. In: ISC High Performance Workshops 2016, M. Taufer et al. (eds.), LNCS, 2016, vol. 9945, pp. 366 -- 377.
-
-\bibitem{ex}
-\refitem{article}
-Deslippe J., da Jornada F.H., Vigil-Fowler D. et al. Optimizing Excited-State Electronic-Structure Codes for Intel Knights Landing: A Case Study on the BerkeleyGW Software. In: ISC High Performance Workshops 2016, M. Taufer et al. (eds.), LNCS, 2016, vol. 9945, pp. 402 -- 414.
-
-\bibitem{ex}
-\refitem{article}
-Maleki S., Gao Ya., Garzaram M.J., Wong T., Padua D.A. An evaluation of vectorizing compilers // Proc. Int. Conf. on Parallel Architectures and Compilation Techniques (PACT'11), 2011, pp. 372 -- 382.
-
-\bibitem{ex}
-\refitem{article}
-LINKS TO https://oeis.org/A102549 FOR INTEGER SEQUENCES
+% References for PHYSICAL CALCULATIONS section.
 
 
+
+
+
+
+%\bibitem{Allen}
+%Allen R., Kennedy K. Optimizing compilers for modern architectures. SF, Morgan Kaufmann, %2002, 816 p.
+
+
+%\bibitem{ex}
+%\refitem{article}
+%Bramas, B. Increasing the Degree of Parallelism Using Speculative Execution in Task-based Runtime Systems. arXiv:1803.04211 [cs.DC]. URL: https://arxiv.org/abs/1803.04211 (visited on 12.10.2018).
+
+
+
+
+
+
+
+
+
+%\bibitem{ex}
+%\refitem{article}
+%Aleen, F., Zakharin, V. P., Krishnaiyer, R., Gupta, G., Kreitzer, D., and Lin, C. -., Jr. (2018). Automated compiler optimization of multiple vector Loads/Stores. International Journal of Parallel Programming, 46(2), 471-503. doi:10.1007/s10766-016-0485-7
+
+%\bibitem{ex}
+%\refitem{article}
+%Jubertie, S., Dupros, F., and De Martin, F. (2018). Vectorization of a spectral finite-element numerical kernel. Paper presented at the WPMVP 2018 - Proceedings of the 2018 4th Workshop on Programming Models for SIMD/Vector Processing, Co-Located with PPoPP 2018, doi:10.1145/3178433.3178441
+
+
+
+%\bibitem{ex}
+%\refitem{article}
+%Intel C++ Compiler 16.0 User and Reference Guide. Intel Corporation. 2015. URL: https://software.intel.com/en-us/articles/intel-c-compiler-160-for-windows-release-notes-for-intel-parallel-studio-xe-2016 (visited on 11.10.2018).
+
+%\bibitem{ex}
+%\refitem{article}
+%Intel Intrinsics Guide. URL: https://software.intel.com/sites/landingpage/IntrinsicsGuide (visited on 11.10.2018).
 
 
 \end{thebibliography}
