@@ -58,7 +58,7 @@ Using AVX-512 Intruction Set}
 \affiliation{Joint Supercomputer Center of the Russian Academy of Sciences - branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 %\noaffiliation % If the author does not specify a place of work.
 
-\firstcollaboration{(Submitted by G.~I.~Savin)} % Add if you know submitter.
+\firstcollaboration{(Submitted by S.~S.~Submitter)} % Add if you know submitter.
 %\lastcollaboration{ }
 
 \received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
@@ -116,13 +116,13 @@ We will call a loop flat if it has the following properties.
 First, it should not contain inter-iteration dependencies, that is, all loop iterations can be executed in parallel.
 Secondly, within the iteration of the loop with number $i$ there can only be such memory access operations that read or write elements of arrays with indices $i$ (all references to memory can be reduced to the form $a[i]$).
 A trivial example of a flat loop is the addition of two arrays.
-In the most cases, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations.
+In the most cases, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations \cite{Intel_SDM}.
 The situation is more complicated with vectorization of flat loops containing peculiarities.
 Conditional operators or control transfer commands can be given as examples of the flat loops peculiarities.
 Such loops are also easily vectorized, but in practice the compiler often refuses to build a vector code due to the theoretical estimate of the possible acceleration.
 The presence of a strongly branched control in a flat loop usually leads to the rejection of vectorization, in such cases the vector code must be built manually.
 Presence of nested loops or function calls in a flat loop is the more serious property that prevents the construction of effective parallel code.  
-In this case, the compiler is not able to perform vectorization, although using the intrinsic functions, optimization can also be performed in these cases.
+In this case, the compiler is not able to perform vectorization, although using the intrinsic functions \cite{Intel_C,Intel_Intr}, optimization can also be performed in these cases.
 
 Let us analyze the question of vectorization of flat loops more thorough.
 Suppose that the vectorization uses vectors capable of containing $w$ primitive data elements, in this case we will call $w$ the vectorization width (AVX-512 vectors can contain 8 double elements or 16 float elements).
@@ -138,7 +138,7 @@ If the probability that the condition $cond_i$ is satisfied is low enough, then 
 This transformation will be called the vectorization of the condition (Fig.~\ref{fig:flat_loop_1}, b).
 Moreover, the probability that the condition $vcond$ turns out to be instinctive is $1 - (1 - p) ^ w$ (corresponds to the fact that at least one of the $w$ elementary conditions is true).
 The total number of operations in the loop from this conversion will not change (the $cond_i$ and $vcond$ conditions are not independent) and will remain equal to $ptw$, but the number of auxiliary operations and control operations will be reduced.
-To vectorize the entire loop, it is necessary to convert the program code into a predicate code, in which each instruction of the linear section $block$ is executed under the predicate $cond_i$, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate $vcond$ (Fig.~\ref{fig:flat_loop_1}, c).
+To vectorize the entire loop, it is necessary to convert the program code into a predicate code \cite{Scott_Predct,Hwu_Predct}, in which each instruction of the linear section $block$ is executed under the predicate $cond_i$, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate $vcond$ (Fig.~\ref{fig:flat_loop_1}, c).
 The number of operations of a fully vectorized loop is simply $t$.
 At the same time, it is also not forbidden to use $vcond$ checking for voidness before executing vectorized code in order to avoid executing code blocks with empty masks (Fig.~\ref{fig:flat_loop_1}, d).
 In this case, the number of loop operations will be reduced by $1 - (1 - p) ^ w$ times, since the addition of a condition will cut off the execution of vector operations with an empty mask.
@@ -204,7 +204,7 @@ This condition is equivalent to the following:
 \sum_{i = 0}^{w - 1}{p^i} \le w
 \end{equation}
 
-This condition is obviously satisfied, since $p <= 1$, and the total terms count is exactly $w$.
+This condition is obviously satisfied, since $p \le 1$, and the total terms count is exactly $w$.
 Thus, we have obtained that using a fully vectorized loop body with a preliminary check of a vectorized condition for an unlikely branch is always more beneficial than using the original version of the code or condition vectoring.
 Note that this conclusion is true only under the assumption that the $block_1$ linear segment is probable, and a vector code is always built for it.
 
@@ -251,7 +251,7 @@ From this formula, it is clear that $S(w, 1) = w$ and $\lim_{n \to \infty}{S(w, 
 
 \section{Matrix operations vectorization}
 
-In modern numerical methods used in high-performance computing, special importance is given to operations with vectors and matrices.
+In modern numerical methods used in high-performance computing, special importance is given to operations with vectors and matrices \cite{Golub,Zhang}.
 Such operations include calculating the scalar product of two vectors, multiplying the matrix by the vector, finding the inverse matrix, decomposing the matrix, and other operations.
 In particular, the most frequently used operation is the multiplication of two matrices.
 Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take a considerable part of the total program execution time.
@@ -369,7 +369,7 @@ void mul_8x8(float * __restrict a, float * __restrict b,
 
 The experiments carried out demonstrate the effectiveness of this approach in relation to matrices of size $16 \times 16$.
 However, using smaller matrices, a decrease in performance was observed.
-The main reason for this is the use of slow multiple memory access operations with arbitrary offsets.
+The main reason for this is the use of slow multiple memory access operations with arbitrary offsets \cite{Aleen}.
 To eliminate this drawback, we consider another approach, in which calls to memory are performed only by sequential addresses.
 At the same time, we note that this approach is applicable only for matrices of size no more than $8 \times 8$, since it requires a large number of \texttt{zmm} registers.
 In case of shortage of \texttt{zmm} registers, these registers are immediately dumped into memory, which causes extra store and load commands (so-called spill/fill operations appear) and leads to a catastrophic performance decrease.
@@ -553,8 +553,8 @@ It is worth noting that the irregular number of iterations and the non-constant 
 In the case of a non-constant number of iterations, we can observe a picture when the number of iterations of a particular cycle changes in time, but the changes themselves are quite small.
 To a greater extent this is typical for physical tasks.
 When we talk about a loop with an irregular number of iterations, we mean that this number can vary in time arbitrarily sharply and unpredictably.
-Such situations can often be observed in problems of discrete mathematics.
-As an example, we will consider the classical implementation of Shell sorting, the number of iterations of the inner loop for which is fundamentally irregular.
+Such situations can often be observed in problems of discrete mathematics (for example in sorting algorithms \cite{Fast_Sort,Quick_Sort,Quick_Sort_2}).
+As an example, we will consider the classical implementation of Shell sorting \cite{Knuth}, the number of iterations of the inner loop for which is fundamentally irregular.
 
 \subsection{Shell sorting description}
 
@@ -727,9 +727,9 @@ The experimental results, as was expected, are much lower and, finally, theoreti
 \section{Physical calculations vectorization}
 
 In this section, we will consider the application of the described approaches for vectorization of program code to the implementation of physical calculations.
-The object of the study was the Riemann problem of the decay of an arbitrary discontinuity, on the exact or approximate solution of which many numerical methods for modeling gas-dynamic processes are based.
+The object of the study was the Riemann problem of the decay of an arbitrary discontinuity, on the exact or approximate solution of which many numerical methods for modeling gas-dynamic processes are based \cite{Toro}.
 The core of the program code in which the solution of the Riemann problem is implemented is called the Riemann solver.
-The implementation of the Riemann solver considered in this article is publicly available on the Internet as part of the NUMERICA library.
+The implementation of the Riemann solver considered in this article is publicly available on the Internet as part of the NUMERICA library \cite{Numerica}.
 In this case, we will be interested in the one-dimensional case for a single-component medium, implemented as a pure function (function without side effects), which, by the density, velocity and gas pressure values to the left and right of the discontinuity, finds the values of the same quantities on the discontinuity itself at zero time after removal of the septum.
 
 \begin{equation}\label{eq:riemann}
@@ -908,11 +908,35 @@ C.~Rosales, J.~Cazes, K.~Milfeld, \textquotedblleft A Comparative Study of Appli
 
 % References for FLAT CYCLES section.
 
+\bibitem{Intel_SDM}
+\refitem{manual}
+Intel 64 and IA-32 Architectures Software Developer's Manual, Combined Volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2017).
+
+\bibitem{Intel_C}
+\refitem{manual}
+Intel C++ Compiler 16.0 User and Reference Guide, Intel Corporation (2016).
+
+\bibitem{Intel_Intr}
+\refitem{misc}
+Intel Intrinsics Guide. \url{https://software.intel.com/sites/landingpage/IntrinsicsGuide/}. Accessed 2018.
+
+\bibitem{Scott_Predct}
+\refitem{article}
+S.~A.~Mahlke, D.~C.~Lin, W.~Y.~Chen, R.~E.~Hank, R.~A.~Bringmann, \textquotedblleft Effective Compiler Support for Predicated Execution Using the Hyperblock\textquotedblright, Proceedings of the 25th International Symposium on Microarchitecture, pp.~45--54 (1992).
+
+\bibitem{Hwu_Predct}
+\refitem{article}
+W.~W.~Hwu, \textquotedblleft The Superblock: an Effective Technique for VLIW and Superscalar Compilation\textquotedblright, The Journal of Supercomputing, 7, 1/2, pp.~229--248 (1993).
+
 % References for MATRICES section.
+
+\bibitem{Golub}
+\refitem{book}
+G.~H.~Golub, C.~F.~Van Loan, \emph{Matrix Computations}, (The John Hopkins University Press, 1989).
 
 \bibitem{Zhang}
 \refitem{article}
-Hong Zhang, Richard T. Mills, Karl Rupp, and Barry F. Smith. 2018. Vectorized Parallel Sparse Matrix-Vector Multiplication in PETSc Using AVX-512. In Proceedings of the 47th International Conference on Parallel Processing (ICPP 2018). ACM, New York, NY, USA, Article 55, 10 pages. DOI: https://doi.org/10.1145/3225058.3225100.
+H.~Zhang, R.~T.~Mills, K.~Rupp, B.~F.~Smith, \textquotedblleft Vectorized Parallel Sparse Matrix-Vector Multiplication in PETSc Using AVX-512\textquotedblright, Proceedings of the 47th International Conference on Parallel Processing (ICPP 2018), ACM, New York, NY, USA, Article 55, 10 pages (2018).
 
 \bibitem{Lyub_RANS_ILES}
 \refitem{article}
@@ -922,64 +946,38 @@ D.~A.~Lyubimov, \textquotedblleft Development and Application of a High-Resoluti
 \refitem{article}
 L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247--254 (2018).
 
-% References for IRREGULAR ITERATIONS LOOPS section.
+\bibitem{Aleen}
+\refitem{article}
+F.~Aleen, V.~P.~Zakharin, R.~Krishnaiyer, G.~Gupta, D.~Kreitzer, C.-S.~Lin, \textquotedblleft Automated Compiler Optimization of Multiple Vector Loads/Stores\textquotedblright, International Journal of Parallel Programming, No.~\textbf{46(2)}, pp.~471--503 (2018).
 
-\bibitem{Knuth}
-Donald E. Knuth. The Art of Computer Programming, Volume 3: (2nd Ed.) Sorting and Searching. Vil'iams, Moscow, 823pp.
+% References for IRREGULAR ITERATIONS LOOPS section.
 
 \bibitem{Fast_Sort}
 \refitem{article}
-Bramas, B. Fast sorting algorithms using AVX-512 on Intel Knights Landing. arXiv: 1704.08579 [cs. MS]. URL: https://arxiv.org/abs/1704.08579 (visited on 10.11.2018).
+B.~Bramas, \textquotedblleft Fast Sorting Algorithms Using AVX-512 on Intel Knights Landing\textquotedblright, arXiv: 1704.08579, \url{https://arxiv.org/abs/1704.08579}, Accessed 2018.
 
 \bibitem{Quick_Sort}
 \refitem{article}
-Shay Gueron, Vlad Krasnov; Fast Quicksort Implementation Using AVX Instructions, The Computer Journal, Volume 59, Issue 1, 1 January 2016, Pages 83–90, https://doi.org/10.1093/comjnl/bxv063
+S.~Gueron, V.~Krasnov, \textquotedblleft Fast Quicksort Implementation Using AVX Instructions\textquotedblright, The Computer Journal, Vol.~59, Issue~1, pp.~83--90 (2016).
 
 \bibitem{Quick_Sort_2}
 \refitem{article}
-Bramas, B. A Novel Hybrid Quicksort Algorithm Vectorized using AVX-512 on Intel Skylake In: International Journal of Advanced Computer Science and Applications(IJACSA), Vol. 8 No. 10 2017.
+B.~Bramas, \textquotedblleft A Novel Hybrid Quicksort Algorithm Vectorized Using AVX-512 on Intel Skylake\textquotedblright, International Journal of Advanced Computer Science and Applications (IJACSA), Vol.~8 No.~\textbf{10} (2017).
+
+\bibitem{Knuth}
+\refitem{book}
+D.~E.~Knuth, \emph{The Art of Computer Programming: Volume 3: Sorting and Searching (2nd Edition)}, (Addison-Wesley Professional, 1998).
 
 % References for PHYSICAL CALCULATIONS section.
 
+\bibitem{Toro}
+\refitem{book}
+E.~F.~Toro, \emph{Riemann Solvers and Numerical Methods for Fluid Dynamics:
+A Practical Introduction, 2nd Edition}, (Springer,1999).
 
-
-
-
-
-%\bibitem{Allen}
-%Allen R., Kennedy K. Optimizing compilers for modern architectures. SF, Morgan Kaufmann, %2002, 816 p.
-
-
-%\bibitem{ex}
-%\refitem{article}
-%Bramas, B. Increasing the Degree of Parallelism Using Speculative Execution in Task-based Runtime Systems. arXiv:1803.04211 [cs.DC]. URL: https://arxiv.org/abs/1803.04211 (visited on 12.10.2018).
-
-
-
-
-
-
-
-
-
-%\bibitem{ex}
-%\refitem{article}
-%Aleen, F., Zakharin, V. P., Krishnaiyer, R., Gupta, G., Kreitzer, D., and Lin, C. -., Jr. (2018). Automated compiler optimization of multiple vector Loads/Stores. International Journal of Parallel Programming, 46(2), 471-503. doi:10.1007/s10766-016-0485-7
-
-%\bibitem{ex}
-%\refitem{article}
-%Jubertie, S., Dupros, F., and De Martin, F. (2018). Vectorization of a spectral finite-element numerical kernel. Paper presented at the WPMVP 2018 - Proceedings of the 2018 4th Workshop on Programming Models for SIMD/Vector Processing, Co-Located with PPoPP 2018, doi:10.1145/3178433.3178441
-
-
-
-%\bibitem{ex}
-%\refitem{article}
-%Intel C++ Compiler 16.0 User and Reference Guide. Intel Corporation. 2015. URL: https://software.intel.com/en-us/articles/intel-c-compiler-160-for-windows-release-notes-for-intel-parallel-studio-xe-2016 (visited on 11.10.2018).
-
-%\bibitem{ex}
-%\refitem{article}
-%Intel Intrinsics Guide. URL: https://software.intel.com/sites/landingpage/IntrinsicsGuide (visited on 11.10.2018).
-
+\bibitem{Numerica}
+\refitem{misc}
+NUMERICA, A Library of Sources for Teaching, Research and Applications, by E.~F.~Toro. \url{https://github.com/dasikasunder/NUMERICA}. Accessed 2018.
 
 \end{thebibliography}
 
