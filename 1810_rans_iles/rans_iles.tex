@@ -135,15 +135,18 @@ TODO
 \captionstyle{flushleft}
 \caption{Characteristics of computational grids.}
 \bigskip
-\begin{tabular}{|c|c|c|c|c|c|}
+\begin{tabular}{|c|c|c|c|c|}
 \hline
-grid description & blocks/scopes & interfaces & cells (mln) & border conditions & linked border cond. \\
+grid description & blocks/scopes & interfaces & border conditions & linked border cond. \\
 \hline
-360 deg. & 300 & 1 796 & 94.3 & 1 643 & 0 \\
-36 deg. & 30 & 152 & 10.7 & 204 & 14 \\
-36 deg., cut for 16 proc. (10\% dev.) & 39 & 224 & 10.7 & 218 & 14 \\
-36 deg., cut for 32 proc. (5\% dev.) & 95 & 586 & 10.7 & 313 & 17 \\
-36 deg., cut for 64 proc. (1\% dev.) & 383 & 2 356 & 10.7 & 682 & 34 \\
+360 deg. (94.3 mln cells) & 300 & 1 796 & 1 643 & 0 \\
+36 deg. (10.7 mln cells) & 30 & 152 & 204 & 14 \\
+\hline
+36 deg., cut for 16 proc. (10\% dev.) & 39 & 224 & 218 & 14 \\
+36 deg., cut for 32 proc. (10\% dev.) & 54 & 340 & 248 & 14 \\
+36 deg., cut for 64 proc. (10\% dev.) & 170 & 982 & 429 & 23 \\
+\hline
+36 deg., cut for 64 proc. (1\% dev.) & 383 & 2 356 & 682 & 34 \\
 \hline
 \end{tabular}
 \label{tab:grids}
@@ -154,9 +157,9 @@ TODO
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
-\includegraphics[width=0.95\textwidth]{pics/g_36.pdf}
-\captionstyle{normal}\caption{Borders adjacency graphs for differenct cases of computational grid cutting: \\ a - no cutting, b - cutting for 16 processes (10\% deviation), c - cutting for 32 processes (5\% deviaton), \\ d - cutting for 64 processes (1\% deviation).}
-\label{fig:g_36}
+\includegraphics[width=0.95\textwidth]{pics/g_36_2.pdf}
+\captionstyle{normal}\caption{Borders adjacency graphs for different cases of computational grid cutting: \\ a - cutting for 16 processes (10\% deviation), b - cutting for 32 processes (10\% deviation), \\ c - cutting for 64 processes (10\% deviaton), d - cutting for 64 processes (1\% deviation).}
+\label{fig:g_36_2}
 \end{figure}
 
 TODO
@@ -164,9 +167,9 @@ TODO
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
-\includegraphics[width=0.95\textwidth]{pics/plot_36_scaling.pdf}
+\includegraphics[width=0.95\textwidth]{pics/plot_36_scaling_2.pdf}
 \captionstyle{normal}\caption{Graph scaling calculations when using different options for cutting the grid.}
-\label{fig:plot_36_scaling}
+\label{fig:plot_36_scaling_2}
 \end{figure}
 
 \section{Conclusion}
