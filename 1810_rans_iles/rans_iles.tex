@@ -92,7 +92,28 @@ TODO
 
 \section{Realization of linked border conditions}
 
-TODO
+The RANS / ILES method works with block-structured grids, which consist of separate blocks interconnected by interfaces.
+Each block of the computational grid is an ordered three-dimensional array of cells, which can be accessed by indices.
+This greatly simplifies the work with the grid within one block.
+Associated with each cell is a set of gas-dynamic parameters.
+Each block of the computational grid has its own three-dimensional curvilinear coordinate system, the axes of which are directed along the edges of the block.
+Interfaces describing the contact of blocks with each other contain information about the coordinates of the touch of sections of both blocks (in terms of nodes of the computational grid), as well as information about the coordination of coordinate systems of the related blocks.
+Some faces of the grid blocks do not touch other blocks, but are the boundary of the computational domain.
+In this case, it is necessary to describe the boundary conditions.
+This is done with the help of special objects that describe the boundary conditions on a given rectangular section of the block boundary.
+
+When carrying out calculations, calculation grids consisting of identical sectors are often used.
+That is, in essence, such a grid is a grid with a smaller number of cells, duplicated several times and rotated relative to the original one around a given straight line.
+To obtain a solution to the gas-dynamic problem, it is sufficient to perform calculations for only one such sector.
+However, during the calculations it is necessary to observe additional conditions.
+When calculating a separate sector, it is necessary to take into account that the output flows at the individual block boundaries must coincide with the input flows at the boundaries of other blocks, and these boundaries are spaced apart.
+Such boundary conditions will be called bound.
+To increase the efficiency of the account using the RANS / ILES method, this type of boundary conditions was implemented.
+
+One of the main operations performed on the associated boundary conditions is to determine whether they correspond to each other.
+With automatic marking of the associated boundary conditions of the selected sector of the computational grid, a compliance check is performed, with which pairs of the associated boundary conditions are found.
+Two types of search for connections between boundary conditions are implemented: boundary conditions combined by parallel transfer and rotation around a given axis.
+To determine whether the two boundary conditions are consistent with each other, you need to combine them with the help of a given type of movement so that their centers coincide, and then check whether their corner nodes coincide (Fig.~\ref{fig:match3}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -103,7 +124,7 @@ TODO
 \label{fig:match3}
 \end{figure}
 
-TODO
+Checking the coincidence of the corner nodes of two potentially related boundary conditions is determined by considering four possible cases, taking into account the renaming of vertices: the figure $A_0B_0C_0D_0$ can coincide with one of the figures $ABCD$, $DABC$, $CDAB$, $BCDA$ (Fig.~\ref{fig:match}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -113,7 +134,10 @@ TODO
 \label{fig:match}
 \end{figure}
 
-TODO
+The order of checking the correspondence of the corner nodes $A_0B_0C_0D_0$ and $ABCD$ of the two boundary conditions is presented in Fig.~\ref{fig:match2}.
+In addition to the fact that the angular nodes of a pair of boundary conditions coincide, a correspondence between their coordinate systems is also established.
+This allows for any cell of a single boundary condition to find the corresponding cell from the associated boundary condition.
+All further transformations of the associated boundary conditions (renaming, splitting the boundary condition or parent blocks) are performed only simultaneously.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -123,11 +147,27 @@ TODO
 \label{fig:match2}
 \end{figure}
 
-TODO
-        
 \section{Scalability of calculations investigation \protect\\ when cutting the computational grid}
 
-TODO
+In this section, we describe the experimental launches and analyze the scalability results obtained using the mechanisms of coupled boundary conditions and fragmentation of the computational grid.
+
+For testing, we used a computational grid describing the combustion chamber and containing 94,3 million cells (we will call it a complete grid).
+The mechanism of coupled boundary conditions allowed us to replace the calculations on this large grid with calculations made on a sector representing the $1/10$ part of the original grid (36 degrees relative to the $OX$ axis).
+The computational grid describing one sector contains 10,,7 million cells, which is 9 times smaller than the initial grid.
+At the same time, the calculation time is also reduced by 9 times.
+
+The experiments were performed on a segment of the MVS-10P supercomputer located at the JSCC RAS.
+This segment consists of computing nodes based on Intel Xeon Phi Knights Landing 7290 microprocessors.
+From 1 to 32 computing nodes were used for launches.
+
+First, calculations were carried out on a full grid.
+This grid contains 300 calculation blocks, calculations on it are scaled to 32 nodes linearly (the execution time of calculations at 32 nodes is less than the calculation time on one node by almost 32 times).
+
+The computational grid describing one sector contains only 30 nodes, so the calculations on it are much worse scaled.
+To analyze the scalability, crushing of this grid was performed by dividing the largest block in half.
+In this algorithm, at each iteration, a block is selected that contains the largest number of cells and is divided in half.
+The algorithm finishes its work when the resulting blocks can be distributed between the specified number of processes in such a way that the maximum deviation from the average value does not exceed the specified threshold.
+The Table~\ref{tab:grids} shows examples of crushing, for which calculations were subsequently made.
 
 \begin{table}[!h]
 \setcaptionmargin{0mm}
@@ -152,7 +192,9 @@ grid description & blocks/scopes & interfaces & border conditions & linked borde
 \label{tab:grids}
 \end{table}
 
-TODO
+In Fig.~\ref{fig:g_36_2} graphs of adjacency of blocks of computational grids obtained as a result of crushing are presented.
+The nodes of the adjacency graph of the computational grid blocks are the centers of the design blocks.
+Two nodes of the graph are connected by an edge if the two corresponding blocks are adjacent.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -177,7 +219,7 @@ TODO
 TODO
 
 \begin{acknowledgments}
-TODO
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2018-0409 <<Development of architectures, system solutions and methods for creating computing systems and distributed environments of the multi-petaflops performance range, including non-traditional microprocessor architectures>>. The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
