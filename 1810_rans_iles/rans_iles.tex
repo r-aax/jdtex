@@ -153,7 +153,7 @@ In this section, we describe the experimental launches and analyze the scalabili
 
 For testing, we used a computational grid describing the combustion chamber and containing 94,3 million cells (we will call it a complete grid).
 The mechanism of coupled boundary conditions allowed us to replace the calculations on this large grid with calculations made on a sector representing the $1/10$ part of the original grid (36 degrees relative to the $OX$ axis).
-The computational grid describing one sector contains 10,,7 million cells, which is 9 times smaller than the initial grid.
+The computational grid describing one sector contains 10,7 million cells, which is 9 times smaller than the initial grid.
 At the same time, the calculation time is also reduced by 9 times.
 
 The experiments were performed on a segment of the MVS-10P supercomputer located at the JSCC RAS.
@@ -204,7 +204,12 @@ Two nodes of the graph are connected by an edge if the two corresponding blocks 
 \label{fig:g_36_2}
 \end{figure}
 
-TODO
+Fig.~\ref{fig:plot_36_scaling_2} shows the data of calculation runs performed on the same sector (small grid) with various parameters of the grid refinement.
+It can be seen that the acceleration of calculations on the initial grid reaches approximately 4-5, and then all the dependencies on the number of nodes used do not change.
+This indicates that there is a large block in the grid, so the processing speed of the entire grid is limited from below by the processing speed of this block by one process.
+When grinding the grid for distribution by 16 processes (with a maximum deviation of 10\%), the scaling of the calculations improves, but with an increase in the number of computing nodes to 16 or more, the same effect is observed.
+When grinding the grid for distribution to 32 or 64 processes (with a maximum deviation of 10\%), the results of scaling are much better.
+The dependence of the acceleration on the number of nodes used becomes almost linear, although with a large number of computational nodes, some fluctuations are observed.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -214,9 +219,19 @@ TODO
 \label{fig:plot_36_scaling_2}
 \end{figure}
 
+Also in Fig.~\ref{fig:plot_36_scaling_2} the data of the launches performed on the grid, which is fragmented very finely.
+The grid was crushed for distribution to 64 processes, while the maximum allowable deviation from the average computational load was taken as 1%.
+The graph shows a very serious drawdown of scaling in the range from 10 to 20 computing nodes.
+This is due to the fact that unnecessarily fine crushing leads to the appearance of a huge number of computational blocks and inter-processes between them.
+In some cases, blocks can be distributed so inter-computing processes that the amount of data involved in inter-process exchanges between them, becomes critical.
+In such situations it is necessary to take into account the factor of interprocess exchanges or not to resort to excessive fragmentation of the grid.
+
 \section{Conclusion}
 
-TODO
+The results of practical experiments have shown that the mechanisms for preparing the block-structured computational grid for the RANS / ILES method help to achieve multiple acceleration of calculations when performing calculations on a supercomputer.
+In particular, the calculations on the grid considered in the article, containing 94,3 million cells, were replaced by calculations on a smaller grid using the mechanism of coupled boundary conditions.
+This fine grid was fragmented to achieve linear scaling when running on 32 nodes of the supercomputer.
+The total decrease in the counting rate achieved using the two mechanisms described above exceeded 2 orders of magnitude when using 32 compute nodes.
 
 \begin{acknowledgments}
 The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2018-0409 <<Development of architectures, system solutions and methods for creating computing systems and distributed environments of the multi-petaflops performance range, including non-traditional microprocessor architectures>>. The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
