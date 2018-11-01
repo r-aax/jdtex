@@ -67,10 +67,11 @@ for Effective Calculations on Supercomuter}
 \received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
 
 \begin{abstract}
-TODO
+The article discusses the use of the RANS/ILES method for modeling gas-dynamic processes in a combustion chamber, described using an axisymmetric block-structured computational grid.
+For these calculations, the approaches of the linked border conditions and the fragmentation of the computational grid are used, which allows to effectively calculate this problem on a supercomputer, achieving acceleration by more than two orders of magnitude, using a total of 32 computing nodes.
 \end{abstract}
 
-\subclass{68N19} % Enter 2010 Mathematics Subject Classification.
+\subclass{76Nxx, 76Fxx, 68N19} % Enter 2010 Mathematics Subject Classification.
 
 \keywords{Computation fluid dynamics, RANS/ILES, calculation grid, grid crushing, linked border conditions.} % Include keywords separeted by comma.
 
@@ -79,6 +80,46 @@ TODO
 % Text of article starts here.
 
 \section{Introduction}
+
+The RANS/ILES (Reynolds Averaged Navier-Stokes -- RANS, Implicit Large Eddy Simulation -- ILES) method is based on Navier-Stokes equations describing the flow of a compressible gas.
+The transport equation for turbulence model is written in conservative form for curvilinear coordinate system.
+The grid lines coincide with the boundaries of computational domain, the nozzle surface.
+Hybrid RANS/ILES method \cite{i1,Ben_Lyub_Chest_RANS_ILES} is used to solve equations.
+The RANS method is used near walls and ILES is used in the rest of the computational domain.
+Scheme viscosity plays a role of a subgrid scale (SGS) model.
+The Roe method was applied to calculate non-viscous flux on cell faces.
+The high resolution of this method is provided by using a monotone difference scheme MP9 \cite{i2} with upwind 9th-order approximation to calculate flow parameters on cell faces.
+This approach has been successfully used in \cite{i3}.
+Diffusion fluxes are calculated on cell faces with second-order approximation by central differences.
+The time discretization is made with second order by implicit scheme and with integration by double time method.
+The Spalart-Allmaras turbulence model is used in RANS region.
+The WENO-5 scheme \cite{i2} is used to calculate convective flows on cell faces in the difference analog of turbulence model equation.
+In LES region, the Spalart-Allmaras turbulence model is modified so that the turbulent viscosity is equated to zero.
+This is achieved by changing the distance in dissipative term of turbulence model equation. The modified distance $\tilde{d}$ is calculated by the formula (\ref{eqn:d}).
+
+\begin{equation}
+\label{eqn:d}
+\tilde{d} = 
+\begin{cases}
+d, d \le C_{ILES}\Delta_{MAX},\\
+0, d > C_{ILES}\Delta_{MAX}
+\end{cases}
+\end{equation}
+
+where $d$ is the distance from the wall to the cell center, $\Delta_{MAX}$ is the maximum size of the cell, $C_{ILES}$ is constant defining position of transition from RANS to ILES and equal 0,65.
+
+\section{Computational grids and simulation parameters}
+
+The complex geometry of the combustion chamber and the different scale of the flame tube and fuel supply devices requires the use of computational grid with a very large number of cells for adequately describe all the features of the flow, even when using high-resolution methods.
+On the other hand, the geometry of the front device has a structure that is periodic in the azimuthal direction.
+This formally allows us to calculate only the sector of the flame tube with the conditions of periodicity on its lateral sides.
+However, it is known that separated flows in annular diffusers can have azimuthal inhomogeneity with axisymmetric distribution of flow parameters at the inlet \cite{Lyub_Diffusers}.
+This effect can only be detected when calculating the entire flame tube but not its sector.
+
+The computational grid of the full-size flame tube is obtained by cloning and rotating the grid of the flame tube sector.
+The size of the grid for the sector is $9,4 \times 10^6$ cells, for a full-size flame tube there is $94 \times 10^6$ cells.
+The supply of passive impurity, simulating fuel, is made through the holes on the stabilizer, as well as through the holes on the ends of the pylons located above and below the stabilizer.
+The general view of the front device, as well as a grid on its surface, are shown in Fig.~\ref{fig:p1}, Fig.~\ref{fig:p2} and Fig.~\ref{fig:p3}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -104,11 +145,27 @@ TODO
 \label{fig:p3}
 \end{figure}
 
+Total temperature and pressure is 300 K and $10^5$ Pa at the inlet of the flame tube.
+The twist angle of flow is $40^{\circ}$.
+Static pressure at the end of flame tube is 89560 Pa.
+The velocity of flow between pylons compose 100-120 m/s the inlet velocity is 32 m/s for this pressure ratio.
+The velocity vector and the total temperature is fixed at the hole on pylons end.
+Velocity of passive impurity on pylons end is 32 m/s and twist angle is $40^{\circ}$.
+Velocity of passive impurity on front device is 42 m/s and angle is a normal to the end of front device.
+The total temperature of passive impurity is 300 K.
+
+In Fig.~\ref{fig:p4} shows the fields of instantaneous distribution of axial velocity in sections passing through the holes on the hole on the stabilizer.
+The essentially unsteady nature of the flow is seen.
+The zone with a reverse flow is formed behind the stabilizer.
+The flow is accelerated above and below the stabilizer due to section load.
+The same can be seen in the Fig.~\ref{fig:p5} where the isosurfaces of the concentration of a passive impurity are shown.
+Due to the recirculation zone formation the jet of passive impurity from the holes on the stabilizer propagates almost along the surface of the front device.
+
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=0.85\textwidth]{pics/p4.png}
-\captionstyle{normal}\caption{Instantaneous axial velocity at longitudinal cut of flame tube ($h$ – inlet height of flame tube).}
+\captionstyle{normal}\caption{Instantaneous axial velocity at longitudinal cut of flame tube ($h$ is inlet height of flame tube).}
 \label{fig:p4}
 \end{figure}
 
@@ -117,16 +174,26 @@ TODO
 \onelinecaptionstrue
 \includegraphics[width=0.85\textwidth]{pics/p5.png}
 \captionstyle{normal}\caption{Instantaneous isosurface and time average isosurface of passive impurity for concentration 0,1.}
-\label{fig:p4}
+\label{fig:p5}
 \end{figure}
+
+The calculation results show a slight difference in the numerical simulation of the flame tube for sector of $36^{\circ}$ and full $360^{\circ}$.
+The recovery coefficient of the total pressure in the outlet of flame tube is 6\% and 6,13\%.
+The difference in the averaged flow parameters in the outlet is small and amounts to less than 1\% for the distribution of the total and static pressure and about 13\% for the distribution of the concentration of a passive impurity.
+The greatest differences are observed in the distribution of the pulsating characteristics of the flow, so the pressure pulsations differ by 5-17\%, the energy of turbulence by 5-12\%.
+In this case, the level of pulsations is about 0,2\% and 14-15\% of the values of the averaged pressure and velocity in this section.
+The rate of increase in the mixing completeness whole combustion chamber is slightly lower (Fig.~6), however, the $\eta$ level at the exit of the flame tube is almost the same for both cases.
+The mixing completeness is determined by the ratio $\eta = \frac{1 - C_{max}}{1 - C_{av}}$, where $C_{max}$ is maximum concentration in the section and $C_{av}$ is averaging in cross-section value of passive impurity concentration.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=0.65\textwidth]{pics/p6.png}
 \captionstyle{normal}\caption{Distribution of the completeness of mixing along the length of the combustion chamber.}
-\label{fig:p4}
+\label{fig:p6}
 \end{figure}
+
+The calculation results show a slight difference in the numerical simulation of the flame tube for sector of $36^{\circ}$ and full $360^{\circ}$.
 
 \section{Realization of linked border conditions}
 
@@ -189,7 +256,7 @@ All further transformations of the associated border conditions (renaming, split
 
 In this section, we describe the experimental launches and analyze the scalability results obtained using the mechanisms of coupled border conditions and fragmentation of the computational grid.
 
-For testing, we used a computational grid describing the flame tube and containing 94,3 million cells (we will call it a complete grid).
+For testing, we used a computational grid describing the flame tube and containing 94 million cells (we will call it a complete grid).
 The mechanism of linked border conditions allowed us to replace the calculations on this complete grid with calculations made on a sector representing the $1/10$ part of the original grid (36 degrees relative to the $OX$ axis).
 The computational grid describing one sector contains 10,7 million cells, which is 9 times smaller than the initial grid.
 At the same time, the calculation time is also reduced by 9 times.
@@ -217,8 +284,8 @@ The Table~\ref{tab:grids} shows examples of crushing, for which calculations wer
 \hline
 grid description & blocks/scopes & interfaces & border conditions & linked border cond. \\
 \hline
-360 deg. (94.3 mln cells) & 300 & 1 796 & 1 643 & 0 \\
-36 deg. (10.7 mln cells) & 30 & 152 & 204 & 14 \\
+360 deg. (94 mln cells) & 300 & 1 796 & 1 643 & 0 \\
+36 deg. (10,7 mln cells) & 30 & 152 & 204 & 14 \\
 \hline
 36 deg., cut for 16 proc. (10\% dev.) & 39 & 224 & 218 & 14 \\
 36 deg., cut for 32 proc. (10\% dev.) & 54 & 340 & 248 & 14 \\
@@ -267,7 +334,7 @@ In such situations it is necessary to take into account the factor of interproce
 \section{Conclusion}
 
 The results of practical experiments have shown that the mechanisms for preparing the block-structured computational grid for the RANS/ILES method help to achieve multiple acceleration of calculations when performing calculations on a supercomputer.
-In particular, the calculations on the grid considered in the article, containing 94,3 million cells, were replaced by calculations on a smaller grid using the mechanism of linked border conditions.
+In particular, the calculations on the grid considered in the article, containing 94 million cells, were replaced by calculations on a smaller grid using the mechanism of linked border conditions.
 This small grid was fragmented to achieve linear scaling when running on 32 nodes of the supercomputer.
 The total decrease in the counting time achieved using the two mechanisms described above exceeded 2 hundred times when using 32 compute nodes.
 
@@ -277,23 +344,29 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 
 \begin{thebibliography}{99}
 
-% Bibs for CFD and RANS/ILES sections.
+% Bibs for introduction sections.
 
-\bibitem{Krappel}
+\bibitem{i1}
 \refitem{article}
-T. Krappel, S. Riedelbauch, {\it ``Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations"}, High Performance Computing in Science and Engineering'16, 499--510 (2016).
-
-\bibitem{Lyub_RANS_ILES}
-\refitem{article}
-D.~A.~Lyubimov, {\it ``Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation"}, High Temperature~{\bf 50}(3),~420--436 (2012).
+D.~A.~Lyubimov, {\it ``Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation"}, High Temperature, {\bf 50}(3), pp.~420--436 (2012).
 
 \bibitem{Ben_Lyub_Chest_RANS_ILES}
 \refitem{article}
-L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, {\it ``The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector"}, High Temperature~{\bf 56}(2),~247--254 (2018).
+L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, {\it ``The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector"}, High Temperature~{\bf 56}(2), pp.~247--254 (2018).
 
-\bibitem{Blazek}
-\refitem{book}
-J.~Blazek, \emph{Computational Fluid Dynamics: Principles and Applications}, (Elsevier, 2001).
+\bibitem{i2}
+\refitem{article}
+A.~Suresh, H.~T.~Huynh, {\it ``Accurate Monotonicity-Preserving Schemes with Runge–Kutta Time Step-ping"}, J. Comput. Phys., {\bf 136}(1), pp.~83–-99, (1997).
+
+\bibitem{i3}
+\refitem{article}
+F.~F.~Grinstein, L.~G.~Margolin, W.~J.~Rider, {\it ``Implicit Large Eddy Simulation: Computing Turbulent Fluid Dynamics"}, Cambridge University Press (2007).
+
+% Bibs for grids and simulations.
+
+\bibitem{Lyub_Diffusers}
+\refitem{article}
+D.~A.~Lyubimov, {\it ``The Use of the Hybrid RANS/ILES Approach for the Investigation of Three-Dimensional Separated Turbulent Flows in Curvilinear Diffusers"}, High Temperature, V.~48, I.~2, pp.~261–-271 (2010).
 
 % Bibs for other. 
 
