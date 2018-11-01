@@ -80,15 +80,53 @@ TODO
 
 \section{Introduction}
 
-TODO
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.85\textwidth]{pics/p1.png}
+\captionstyle{normal}\caption{The general view of the computational model for sector of flame tube.}
+\label{fig:p1}
+\end{figure}
 
-\section{Section 1}
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.65\textwidth]{pics/p2.png}
+\captionstyle{normal}\caption{general view of the computational model for full geometry of flame tube.}
+\label{fig:p2}
+\end{figure}
 
-TODO
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.85\textwidth]{pics/p3.png}
+\captionstyle{normal}\caption{The computational grid on front device and pylons.}
+\label{fig:p3}
+\end{figure}
 
-\section{Section 2}
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.85\textwidth]{pics/p4.png}
+\captionstyle{normal}\caption{Instantaneous axial velocity at longitudinal cut of flame tube ($h$ – inlet height of flame tube).}
+\label{fig:p4}
+\end{figure}
 
-TODO
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.85\textwidth]{pics/p5.png}
+\captionstyle{normal}\caption{Instantaneous isosurface and time average isosurface of passive impurity for concentration 0,1.}
+\label{fig:p4}
+\end{figure}
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.65\textwidth]{pics/p6.png}
+\captionstyle{normal}\caption{Distribution of the completeness of mixing along the length of the combustion chamber.}
+\label{fig:p4}
+\end{figure}
 
 \section{Realization of linked border conditions}
 
@@ -124,7 +162,7 @@ To determine whether the two border conditions are consistent with each other, i
 \label{fig:match3}
 \end{figure}
 
-Checking the coincidence of the corner nodes of two potentially linked boundary conditions is determined by considering four possible cases, taking into account the renaming of vertices: the quadrangle $A_0B_0C_0D_0$ can coincide with one of the quadrangles $ABCD$, $DABC$, $CDAB$, $BCDA$ (Fig.~\ref{fig:match}).
+Checking the coincidence of the corner nodes of two potentially linked border conditions is determined by considering four possible cases, taking into account the renaming of vertices: the quadrangle $A_0B_0C_0D_0$ can coincide with one of the quadrangles $ABCD$, $DABC$, $CDAB$, $BCDA$ (Fig.~\ref{fig:match}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -135,7 +173,7 @@ Checking the coincidence of the corner nodes of two potentially linked boundary 
 \end{figure}
 
 The order of checking the correspondence of the corner nodes $A_0B_0C_0D_0$ and $ABCD$ of the two border conditions is presented in Fig.~\ref{fig:match2}.
-In addition to the fact that the angular nodes of a pair of border conditions coincide, a correspondence between their coordinate systems is also established.
+In addition to the fact that the corner nodes of a pair of border conditions coincide, a correspondence between their coordinate systems is also established.
 This allows for any cell of a single border condition to find the corresponding cell from the associated border condition.
 All further transformations of the associated border conditions (renaming, splitting the border condition or parent blocks) are performed only simultaneously.
 
@@ -151,7 +189,7 @@ All further transformations of the associated border conditions (renaming, split
 
 In this section, we describe the experimental launches and analyze the scalability results obtained using the mechanisms of coupled border conditions and fragmentation of the computational grid.
 
-For testing, we used a computational grid describing the combustion chamber and containing 94,3 million cells (we will call it a complete grid).
+For testing, we used a computational grid describing the flame tube and containing 94,3 million cells (we will call it a complete grid).
 The mechanism of linked border conditions allowed us to replace the calculations on this complete grid with calculations made on a sector representing the $1/10$ part of the original grid (36 degrees relative to the $OX$ axis).
 The computational grid describing one sector contains 10,7 million cells, which is 9 times smaller than the initial grid.
 At the same time, the calculation time is also reduced by 9 times.
@@ -243,15 +281,15 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 
 \bibitem{Krappel}
 \refitem{article}
-T.~Krappel, S.~Riedelbauch, \textquotedblleft Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations\textquotedblright, W.~E.~Nagel et al. (Eds.): High Performance Computing in Science and Engineering'16, pp.~499--510 (2016).
+T. Krappel, S. Riedelbauch, {\it ``Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations"}, High Performance Computing in Science and Engineering'16, 499--510 (2016).
 
 \bibitem{Lyub_RANS_ILES}
 \refitem{article}
-D.~A.~Lyubimov, \textquotedblleft Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation \textquotedblright, High Temperature, Vol.~50, No.~\textbf{3}, pp.~420--436 (2012).
+D.~A.~Lyubimov, {\it ``Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation"}, High Temperature~{\bf 50}(3),~420--436 (2012).
 
 \bibitem{Ben_Lyub_Chest_RANS_ILES}
 \refitem{article}
-L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, \textquotedblleft The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector \textquotedblright, High Temperature, Vol.~56, No.~\textbf{2}, pp.~247--254 (2018).
+L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, {\it ``The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector"}, High Temperature~{\bf 56}(2),~247--254 (2018).
 
 \bibitem{Blazek}
 \refitem{book}
@@ -269,11 +307,11 @@ V.~Liseikin, \emph{Grid Generation Methods}, (Springer, 2010).
 
 \bibitem{Rybakov}
 \refitem{article}
-A.~A.~Rybakov, \textquotedblleft Inner Respresentation and Crossprocess Exchange Mechanism for Block-Structured Grid for Supercomputer Calculations\textquotedblright, Program systems: Theory and Application, No.~8:1(32), pp.~121--134 (2017) [In Russian].
+A.~A.~Rybakov, {\it ``Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations"}, Program systems: Theory and Application~{\bf 32}(8:1), 121--134 (2017).
 
 \bibitem{Jeffers_KNL}
 \refitem{book}
-J.~Jeffers, J.~Reinders, A.~Sodani, \emph{Intel Xeon Phi Processor High Performance Programming, Knights Landing Edition}, (Morgan Kaufmann, 2016).
+J.~Jeffers, J.~Reinders, A.~Sodani, \emph{Intel Xeon Phi Processor High Performance Programming, Knights Landing Edition} (Morgan Kaufmann, 2016).
 
 \bibitem{Queen}
 \refitem{book}
