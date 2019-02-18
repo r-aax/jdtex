@@ -1,0 +1,1131 @@
+%%
+%% ****** ljmsamp.tex 13.06.2018 ******
+%%
+\documentclass[
+11pt,%
+tightenlines,%
+twoside,%
+onecolumn,%
+nofloats,%
+nobibnotes,%
+nofootinbib,%
+superscriptaddress,%
+noshowpacs,%
+centertags]%
+{revtex4}
+\usepackage{ljm}
+\usepackage{listings}
+
+\lstset{
+language=C++,
+basewidth=0.5em,
+xleftmargin=45pt,
+xrightmargin=45pt,
+basicstyle=\small\ttfamily,
+keywordstyle=\bfseries\underbar,
+numbers=left,
+numberstyle=\tiny,
+stepnumber=1,
+numbersep=10pt,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=trBL,
+tabsize=2,
+captionpos=t,
+breaklines=true,
+breakatwhitespace=false,
+escapeinside={\%*}{*)}
+}
+
+\begin{document}
+
+\titlerunning{Vectorization with AVX-512 instructions} % for running heads
+\authorrunning{A.~A.~Rybakov and S.~S.~Shumilin} % for running heads
+%\authorrunning{First-Author, Second-Author} % for running heads
+
+\title{Vectorization of High-performance Scientific Calculations\\
+Using AVX-512 Intruction Set}
+% Splitting into lines is performed by the command \\
+% The title is written in accordance with the rules of capitalization.
+
+\author{\firstname{A.~A.}~\surname{Rybakov}}
+\email[E-mail: ]{rybakov.aax@gmail.com} \affiliation{Joint
+Supercomputer Center of the Russian Academy of Sciences (JSCC RAS)
+-- Branch of Scientific Research Institute of System Analysis of the
+Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334,
+Russia}
+
+\author{\firstname{S.~S.}~\surname{Shumilin}}
+\email[E-mail: ]{shumilin@jscc.ru} \affiliation{Joint Supercomputer
+Center of the Russian Academy of Sciences (JSCC RAS) -- Branch of
+Scientific Research Institute of System Analysis of the Russian
+Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
+%\noaffiliation % If the author does not specify a place of work.
+
+\firstcollaboration{(Submitted by A.~M.~Elizarov)} % Add if you know submitter.
+%\lastcollaboration{ }
+
+\received{November 07, 2018} % The date of receipt to the editor, i.e. December 06, 2017
+
+\begin{abstract}
+Modern calculation codes used in supercomputing are very demanding of computing resources.
+For their effective appliance requires the use of parallelization at all levels, starting with the use of multiprocess and multi-threaded programming, and ending with vectorization.
+The AVX-512 instruction set, first introduced in Intel Xeon Phi Knights Landing and Intel Xeon Skylake microprocessors, opens up broad possibilities for vectorizing code and allows to speed up the execution of applications in several times.
+This article discusses some aspects of the application of vectorization in the program code of some kinds, which is found in high-performance scientific computing.
+\end{abstract}
+
+\subclass{68N19} % Enter 2010 Mathematics Subject Classification.
+
+\keywords{optimization, vectorization, AVX-512, predicated execution, intrinsics, application performance.} % Include keywords separeted by comma.
+
+\maketitle
+
+% Text of article starts here.
+
+\section{Introduction}
+
+Today, supercomputer technologies are increasingly used in various fields of science, industry and business.
+The use of simulation modeling using supercomputer calculations allows analyzing various situations and interaction scenarios of objects of the surrounding world and obtaining results that are unavailable without the use of these tools.
+At the same time, the amount of data involved in supercomputer calculations is constantly increasing.
+The size of the calculated grids of hundreds of millions cells is already common for launches on the supercomputers of the petaflops performance range \cite{Rettinger,Krappel}, and gradually there is a need to use grids containing billions of cells.
+Today, the most powerful supercomputer is the IBM's Summit supercomputer, equipped with Power9 processor and NVidia graphics processors with Volta architecture.
+
+According to some optimistic forecasts, the first exaflops supercomputer capable of performing $ 10^{18} $ floating point operations per second is possible by 2024 \cite{Markidis}.
+Along with the increasing of supercomputers computing power, questions about the effectiveness of their use arise.
+In particular, works aimed to improve the efficiency of data exchange systems between computing nodes \cite{Klenk,Abduljabbar}, to develop computational grid management technologies and to evenly distribute computations on a cluster are carried out \cite{Rybakov,Van,Benderskiy}.
+Developing tools of programming languages aimed to facilitate the creation of high-performance parallel code are actively developed \cite{Heller,Roganov}.
+
+\subsection{Review of research papers}
+
+The Intel Xeon Phi x200 Knights Landing processor family
+\cite{Jeffers_KNL} is the second generation of the Intel Xeon Phi
+line and the first generation of solvers that act as a standalone
+processor (the first generation of the Knights Corner was
+co-processor \cite{Jeffers_KNC,Dorris}). The first KNL processors
+were introduced in 2016. Each processor contains up to 36 active
+tiles, each consists of two cores and a L2 cache of 1 MB in size,
+which is common to the data of the two cores. Each core contains a
+VPU (Vector Processing Unit) that supports 512-bit vector
+instructions and a 64 KB L1 cache divided into equal by-size
+instruction cache and data cache of 32 KB each. Each core supports 4
+threads, which gives a total of 288 logical processors per socket
+\cite{Tobin}. Although the frequency of each KNL core is lower than
+that of Intel Xeon server processors, such a number of execution
+threads and the presence of 512-bit vector instructions provide
+impressive peak performance, exceeding 6 TFLOPS on single-precision
+operations. The emergence of such a powerful hardware has opened up
+new possibilities for optimizing software used in supercomputer
+calculations. Approaches described in \cite{McDoniel} allowed the
+usage of vectorization for KNL to speed up the computational  cores
+of the LAMMPS program code up to 12 times compared with the
+non-vectorized version, which led to a general acceleration of
+solver runs by 2--3 times. You can note the successful application
+of vectorization to accelerate operations with sparse matrices of
+high dimensionality, which resulted in a 5-fold acceleration on
+these operations \cite{Malas}. Special features of KNL processors
+associated with the use of masked vector operations are used to
+vectorize cycles even with an unknown number of iterations and
+complex controls, as shown by the example of the vectorization of
+the Mandelbrot set construction code \cite{Krzikalla}. The work
+\cite{Cook} describes the achievement of 6-fold acceleration
+achieved by low-level optimization of computational codes for
+problems of nuclear physics. In \cite{Rybakov_Optimization}, an
+example of the application of code vectorization which is performed
+by removing the unlikely branch of execution from a hot inner loop.
+However, despite the high potential of KNL, studies show that the
+acceleration achieved compared to launches on Intel Xeon processors
+of the Haswell and Broadwell generations rarely exceeds 1.5--2 times
+\cite{Sengupta,Kronbichler}. Partially it is related to imbalance
+between peak bandwidth when working with memory and the intensity of
+arithmetic operations \cite{Doerfler}. Active studies are underway
+on the use of various memory modes and various clustering modes when
+launching applications on KNL \cite{Rosales}.
+
+\section{Flat loops vectorization}
+
+The simplest context for vectorization is a flat loop.
+We will call a loop flat if it has the following properties.
+First, it should not contain inter-iteration dependencies, that is, all loop iterations can be executed in parallel.
+Secondly, within the iteration of the loop with number $i$ there can only be such memory access operations that read or write elements of arrays with indices $i$ (all references to memory can be reduced to the form $a[i]$).
+A trivial example of a flat loop is the addition of two arrays.
+In the most cases, flat loops containing only arithmetic operations are automatically compiled by the compiler and demonstrate multiple acceleration, since the AVX-512 instruction set contains vector analogues of all arithmetic operations \cite{Intel_SDM}.
+The situation is more complicated with vectorization of flat loops containing peculiarities.
+Conditional operators or control transfer commands can be given as examples of the flat loops peculiarities.
+Such loops are also easily vectorized, but in practice the compiler often refuses to build a vector code due to the theoretical estimate of the possible acceleration.
+The presence of a strongly branched control in a flat loop usually leads to the rejection of vectorization, in such cases the vector code must be built manually.
+Presence of nested loops or function calls in a flat loop is the more serious property that prevents the construction of effective parallel code.
+In this case, the compiler is not able to perform vectorization, although using the intrinsic functions \cite{Intel_C,Intel_Intr}, optimization can also be performed in these cases.
+
+Let us analyze the question of vectorization of flat loops more thorough.
+Suppose that the vectorization uses vectors capable of containing $w$ primitive data elements, in this case we will call $w$ the vectorization width (AVX-512 vectors can contain 8 double elements or 16 float elements).
+We will not consider the option in which the loop body contains only arithmetic operations due to its triviality.
+Let the considered flat loop contain $n$ iterations.
+Then all iterations of this loop can be divided into $n / w$ groups by $w$ iterations, and each group can be considered separately (a residual group of iterations containing less than $w$ iterations is also possible; the presence of this group does not affect the optimization efficiency, it can be completed in the original form or vectorized using masks).
+Thus, for simplicity, we can restrict ourselves to the consideration of flat cycles containing exactly $w$ iterations.
+
+As a first example, we consider a flat loop whose body consists of a single linear section $block$, which is executed under the condition $cond_i$ with probability $p$ and has a length $t$ (Fig.~\ref{fig:flat_loop_1}, a).
+In this case, the length of a linear section is understood to be a characteristic proportional to the execution time of a given linear section (the number of operators or machine instructions).
+The total number of operations contained in the loop is $ptw$ (in this case, we assume that the auxiliary instructions related to the calculation of the condition and the provision of control can be neglected).
+If the probability that the condition $cond_i$ is satisfied is low enough, then we can only stop at the vectorization of this condition and perform the whole loop under vectorized condition $vcond$.
+This transformation will be called the vectorization of the condition (Fig.~\ref{fig:flat_loop_1}, b).
+Moreover, the probability that the condition $vcond$ turns out to be instinctive is $1 - (1 - p) ^ w$ (corresponds to the fact that at least one of the $w$ elementary conditions is true).
+The total number of operations in the loop from this conversion will not change (the $cond_i$ and $vcond$ conditions are not independent) and will remain equal to $ptw$, but the number of auxiliary operations and control operations will be reduced.
+To vectorize the entire loop, it is necessary to convert the program code into a predicate code \cite{Scott_Predct,Hwu_Predct}, in which each instruction of the linear section $block$ is executed under the predicate $cond_i$, then all the instructions of the linear section can be replaced by vector analogs executed under the vector predicate $vcond$ (Fig.~\ref{fig:flat_loop_1}, c).
+The number of operations of a fully vectorized loop is simply $t$.
+At the same time, it is also not forbidden to use $vcond$ checking for voidness before executing vectorized code in order to avoid executing code blocks with empty masks (Fig.~\ref{fig:flat_loop_1}, d).
+In this case, the number of loop operations will be reduced by $1 - (1 - p) ^ w$ times, since the addition of a condition will cut off the execution of vector operations with an empty mask.
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.62\textwidth]{pics/if_vectorization.pdf}
+\captionstyle{normal}\caption{Example of flat loop with single linear section $block$ under condition $cond_i$.}
+\label{fig:flat_loop_1}
+\end{figure}
+
+As another example, consider a flat loop whose body is an if-else
+statement. Without loss of generality, we assume that the branch
+executed by the if-condition ($block_1$) is more likely than its
+alternative ($block_2$), that is $p \ge 1 - p$, or $p \ge 1/2$. The
+lengths of the linear sections in this example are $t_1$ and $t_2$,
+respectively (Fig.~\ref{fig:flat_loop_2}, a). In addition, we will
+assume that the $block_1$ linear section is suitable for
+vectorization in any case, and a vector code is constructed for it
+(otherwise, the optimization of this code loses its meaning). The
+total number of operations performed during the loop operation is
+calculated as the mathematical expectation of the number of
+operations per iteration multiplied by the number of iterations of
+the loop, that is $(pt_1 + (1 - p) t_2) w$. In real computational
+problems, it often happens that an unlikely branch in such cycles is
+not appropriate for vectorization or this requires some effort. Such
+unlikely branches contain processing of extremely rare exceptions or
+unexpected situations. In such cases, it is reasonably to vectorize
+only the probable branch, and leave the alternative under the
+vectorized condition (Fig.~\ref{fig:flat_loop_2}, b). Such a half
+vectorized loop will contain $t_1 + (1 - p) t_2w$ operations. In the
+case of a complete vectorization of the loop body, both linear
+sections fall under opposite predicates ($vcond$, ${\sim}vcond$) and
+the loop body is completely freed from the control transfer commands
+(Fig.~\ref{fig:flat_loop_2}, c). The number of executed instructions
+in a loop for a fully vectorized code is $t_1 + t_2$. As a last
+action, we apply the addition of checking the condition $~vcond$ for
+an unlikely branch to exclude the execution of operations with empty
+masks (Fig.~\ref{fig:flat_loop_2}, d). Since the probability of
+executing an alternative is $1 - p ^ w$, the final number of
+operations performed for a fully vectorized cycle with checking the
+vectorized condition for an alternative is $t_1 + (1 - p ^ w) t_2$.
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.65\textwidth]{pics/if_else_vectorization.pdf}
+\captionstyle{normal}\caption{Example of flat loop with if-else statement.}
+\label{fig:flat_loop_2}
+\end{figure}
+
+The Table~\ref{tab:flat} contains data on the number of operations performed for the two considered examples of flat loops, in which the loop body consists of one if-condition and one if-else-construction.
+
+\begin{table}[!h]
+\setcaptionmargin{0mm}
+\onelinecaptionsfalse
+\captionstyle{flushleft}
+\caption{Operations count for if and if-else statements vectorization in flat loops.}
+\bigskip
+\begin{tabular}{|c|c|c|c|}
+\hline
+if statement & operations count & if-else statement & operations count \\
+\hline
+a) & $ptw$ & a) & $\left( pt_1 + (1 - p)t_2 \right)w$ \\
+b) & $ptw$ & b) & $t_1 + (1 - p)t_2w$ \\
+c) & $t$ & c) & $t_1 + t_2$ \\
+d) & $\left( 1 - (1 - p)^w \right)t$ & d) & $t_1 + (1 - p^w)t_2$ \\
+\hline
+\end{tabular}
+\label{tab:flat}
+\end{table}
+
+We will analyze only the second example with the if-else statement (the first example is treated similarly).
+A fully vectorized loop is more profitable than a loop with a vectorized condition, if it contains fewer operations, that is, if the condition $t_1 + t_2 \le t_1 + (1 - p) t_2w$, or $(1 - p) w \ge 1$ is satisfied.
+Thus, for the benefit of vectorization, either a high vectorization width, or a high probability of an alternative.
+If we consider the application of checking vectorized conditions for a fully vectorized loop body, then we obtain the condition $t_1 + (1 - p ^ w) t_2 \le t_1 + (1 - p) t_2w$, which translates into $1 - p ^ w \le (1 - p) w$.
+This condition is equivalent to the following:
+
+\begin{equation}
+\sum_{i = 0}^{w - 1}{p^i} \le w.
+\end{equation}
+This condition is obviously satisfied, since $p \le 1$, and the
+total terms count is exactly $w$. Thus, we have obtained that using
+a fully vectorized loop body with a preliminary check of a
+vectorized condition for an unlikely branch is always more
+beneficial than using the original version of the code or condition
+vectoring. Note that this conclusion is true only under the
+assumption that the $block_1$ linear segment is probable, and a
+vector code is always built for it.
+
+We can consider the general case of vectorization of a flat loop containing an arbitrary number of alternatives.
+Let the loop body contain $n$ alternatives (with numbers from 0 to $n - 1$), each of which is executed with probability $p_i$.
+In this case, we can neglect the operations of calculating conditions.
+It is also known that each alternative has a length $t_i$.
+It is required to understand the conditions under which the use of vectorization is beneficial, as well as the application of checking vectorized conditions for a vector code.
+As in the previous examples, you can calculate the total number of running operations for a non-vectorized code; it is equal to the mathematical expectation of the number of operations per iteration of the loop multiplied by the number of iterations.
+
+\begin{equation}
+T = \left( \sum_{i = 0}^{n - 1}{p_it_i} \right) w.
+\end{equation}
+With a complete loop vectorization, the number of vector operations
+is, of course, equal to the sum of the lengths of all linear
+sections $t_i$. Thus, the condition of the advantage of
+vectorization is the following equation:
+
+\begin{equation}
+\left[\sum_{i = 0}^{n - 1}{p_it_iw}\right]/\left[\sum_{i = 0}^{n -
+1}{t_i}\right] \ge 1.
+\end{equation}
+In particular, it follows from this equation that if the loop body
+contains a large number of alternative execution branches with
+probabilities less than $1 / w$, then vectoring of this loop cannot
+be beneficial. When adding checks of vectorized conditions for each
+of the cycle alternatives, we obtain the following equation for the
+advantage of vectorization:
+
+\begin{equation}
+\label{eqn:flat_loop_speedup} w\left[\sum_{i = 0}^{n -
+1}{p_it_i}\right]/\left[\sum_{i = 0}^{n - 1}{t_i(1 - (1 -
+p_i)^w)}\right] \ge 1.
+\end{equation}
+
+Consider this formula more closely.
+With a large number of alternatives, their probabilities are close to zero, so the term $(1 - p_i) ^ w$ is a positive value not much less than one.
+From this we can conclude that the use of vectorized checks before performing vector versions of alternatives in the body of a flat loop significantly increase the effect of vectorization.
+At least the theoretical estimates made in our assumptions indicate the benefits of applying such transformations.
+However, one should not forget that vector commands generally execute more slowly than their scalar counterparts.
+Moreover, the derivation of theoretical estimates did not take into account the influence of management operations and preparation of conditions, did not take into account the fact of the presence of possible dependencies between the calculation of conditions for various alternatives.
+
+If in (\ref{eqn:flat_loop_speedup}) we assume that the probabilities of all branches of execution are equal to $p_i = 1 / n$, and the lengths of all linear sections are the same, then we obtain the following formula for the theoretical acceleration from vectorization:
+
+\begin{equation}
+S(w, n) = w \left( \sum_{i = 1}^{w}{(-1)^{i + 1} C_{w}^{i} n^{1 -
+i}} \right)^{-1}.
+\end{equation}
+From this formula, it is clear that $S(w, 1) = w$ and $\lim_{n \to
+\infty}{S(w, n)} = 1$, which is consistent with the mathematical
+meaning of vectorization.
+
+\section{Matrix operations vectorization}
+
+In modern numerical methods used in high-performance computing, special importance is given to operations with vectors and matrices \cite{Golub,Zhang}.
+Such operations include calculating the scalar product of two vectors, multiplying the matrix by the vector, finding the inverse matrix, decomposing the matrix, and other operations.
+In particular, the most frequently used operation is the multiplication of two matrices.
+Obtaining the product of two matrices, in which the scalar product of each row of the first matrix and each column of the second matrix is calculated, is a rather difficult operation that can take a considerable part of the total program execution time.
+The presence of effective approaches to the implementation of this operation is necessary to ensure the effective operation of program codes using matrix calculations.
+
+The capabilities of the AVX-512 instruction set allow to create
+efficient code for implementations of matrix operations providing
+significant acceleration of  applications, which use them. In this
+section, we will consider the operations of multiplying small-size
+matrices (having sizes $8 \times 8$, $7 \times 7$, $6 \times 6$ and
+$5 \times 5$ elements). Operations with such matrices take, for
+example, up to 40\% of the total operating time of the indigenous
+Russian RANS/ILES calculation codes used in the modeling of unsteady
+turbulent flows \cite{Lyub_RANS_ILES, Ben_Lyub_Chest_RANS_ILES}. For
+reasons of alignment in memory, these matrices are considered as
+submatrices of a matrix of size $8 \times 8$ elements, as shown in
+Fig.~\ref{fig:matrices_8x8_7x7_6x6_5x5}.
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse % if the caption is multiline
+\includegraphics[width=0.95\textwidth]{pics/matrices_8x8_7x7_6x6_5x5.pdf}
+\captionstyle{normal}\caption{Matrices of size $8 \times 8$, $7 \times 7$, $6 \times 6$, $5 \times 5$ located inside the matrix of size $8 \times 8$. \\ The number of elements, and the number of addition and multiplication operations \\ required to perform the multiplication of two matrices of a given size.}\label{fig:matrices_8x8_7x7_6x6_5x5}
+\end{figure}
+
+We will compare the two approaches to implementing the
+multiplication  of matrices of size $8 \times 8$, extend these
+approaches to smaller matrices and obtain the results of comparison
+of the considered approaches performance. The multiplication logic
+of two matrices is that the results of the pairwise scalar product
+of all rows of the first matrix and all columns of the second matrix
+form the elements of the resulting matrix.
+
+First, we consider a direct approach to matrix multiplication, in
+which we will directly operate with the rows of the first matrix and
+the columns of the second matrix. The matrices in programming
+language C, represented as multidimentional arrays, are located in
+memory row by row, so for reading matrix row it is needed to use the
+operation of consequential loading from memory (\texttt{load}), and
+for reading matrix column it is needed to use operation of loading
+data elements with arbitrary offsets from base address
+(\texttt{gather}). We consider matrices whose elements are real
+single-precision values, therefore one \texttt{zmm} register with
+which commands from the instruction set AVX-512 operate, contains 16
+elements of such matrix. Thus, the AVX-512 allows to load two rows
+or two columns of a matrix using one command.
+
+Fig.~\ref{fig:mmult_1} illustrates the implementation of this
+approach. First of all, we note that the left matrix (matrix $A$) is
+completely loaded into 4 vectors $A_1$, $A_2$, $A_3$, $A_4$ (each
+vector contains two adjacent rows of the matrix). This can be done
+using the usual instructions for reading sequentially located data
+from the memory (\texttt{load}). Next, we present a scheme for
+calculating two adjacent columns of the resulting matrix (columns
+numbered $j$ and $h = j + 1$). Two adjacent columns of the right
+matrix (matrix $B$) are loaded in the forward and reverse order into
+the vectors $B_j$ and $B_h$ (using the instructions \texttt{gather}
+for reading data from the memory and \texttt{permute} for placing
+\texttt{zmm} vector halves in reverse order, Fig.~\ref{fig:mmult_1},
+1). Next, the operations of the elementwise multiplication of the
+vectors $B_j$ and $B_h$ by all the vectors,  in which the matrix $A$
+is loaded, are performed. The results of these multiplications are 8
+vectors $M_0$--$M_7$ (Fig.~\ref{fig:mmult_1}, 2). Each half of the
+$M_i, i \in [0, 7]$ vector (lower or high) contains elements, the
+sum of which forms one of the elements of the resulting matrix. The
+calculation of the sum of the halves of all 8 vectors can be
+performed in parallel, with the result that all 16 required
+resulting values will be located in one vector
+(Fig.~\ref{fig:mmult_1}, 3). Finally, the resulting 16 values are
+written into the columns with the $j$ and $h$ numbers of the
+resulting matrix, using command \texttt{scatter}
+(Fig.~\ref{fig:mmult_1}, 4).
+
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse % if the caption is multiline
+\includegraphics[width=0.95\textwidth]{pics/mmult_1.pdf}
+\captionstyle{normal}\caption{Scheme of two matrices multiplication with direct reading of rows and columns \\ of matrices and parallel computation of their pairwise scalar products.}\label{fig:mmult_1}
+\end{figure}
+
+Let us drow special attention to the parallel calculation of the
+sums of the \texttt{zmm} vectors halves. AVX-512 instruction set
+does not contain horizontal operations of vectors elements addition,
+therefore, these operations have to be emulated by adding a vector
+with its copy, in which the elements are rearranged as needed. For
+these purposes, we will use specially implemented macros consisting
+of \texttt{swizzle}, \texttt{permute}, \texttt{blend} and
+\texttt{add} instructions and allowing to add adjacent vector
+elements, pairs of adjacent vector elements and fours of adjacent
+vector elements, depending on the masks submitted. Below is a
+listing of the implementation of these macros
+(Listing~\ref{lst:bundles}).
+
+\begin{lstlisting}[caption={Macros that implement bundles from operations \texttt{swizzle}, \texttt{permute}, \texttt{blend}.},label={lst:bundles}]
+#define SWIZ_2_ADD_2_BLEND_1(X, Y, SWIZ_TYPE, BLEND_MASK)         \
+    _mm512_mask_blend_ps(BLEND_MASK,                              \
+                         ADD(X, _mm512_swizzle_ps(X, SWIZ_TYPE)), \
+                         ADD(Y, _mm512_swizzle_ps(Y, SWIZ_TYPE)))
+#define PERM_2_ADD_2_BLEND_1(X, Y, PERM_TYPE, BLEND_MASK)              \
+    _mm512_mask_blend_ps(BLEND_MASK,                                   \
+                         ADD(X, _mm512_permute4f128_ps(X, PERM_TYPE)), \
+                         ADD(Y, _mm512_permute4f128_ps(Y, PERM_TYPE)))
+\end{lstlisting}
+
+The \texttt{\_mm512\_swizzle\_ps} intrinsic is designed to rearrange the vector elements inside 128-bit quarters (composed of 4 single-precision floating-point elements), the \texttt{\_mm512\_permute4f128\_ps} command shuffles the 128-bit quarters themselves, and the \texttt{\_mm512\_mask\_blend\_ps} intrinsic performs the merging of two vectors using a mask.
+To calculate the elements sums for 16 halves of 8 registers \texttt{zmm}, the use of 7 such macros is required (4 operations for the first level of merging, 2 operations for the second level of merging and the last operation for obtaining the resulting vector $M_2$, as shown on the Fig.~\ref{fig:mmult_1}, 3).
+Since the scheme shown in Fig.~\ref{fig:mmult_1} provides the calculation of two adjacent columns of the resulting matrix, four such iterations are required to obtain the entire matrix.
+Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach (Listing~\ref{lst:mul1}).
+
+\begin{lstlisting}[caption={Direct approach to \texttt{mul\_8x8} implementation.},label={lst:mul1}]
+void mul_8x8(float * __restrict a, float * __restrict b,
+             float * __restrict r)
+{
+    ........................................
+    __m512 bj, bj2,
+           m0, m1, m2, m3, m4, m5, m6, m7;
+
+    // Indices for matrix columns.
+    __m512i ind_cc = _mm512_set_epi32(7*V8+1, 6*V8+1, 5*V8+1, 4*V8+1,
+                                      3*V8+1, 2*V8+1,   V8+1,      1,
+                                      7*V8  , 6*V8  , 5*V8  , 4*V8  ,
+                                      3*V8  , 2*V8  ,   V8  ,      0);
+    __m512i ind_st = _mm512_set_epi32(7*V8  , 7*V8+1, 5*V8  , 5*V8+1,
+                                      3*V8  , 3*V8+1,   V8  ,   V8+1,
+                                      6*V8+1, 6*V8  , 4*V8+1, 4*V8  ,
+                                      2*V8+1, 2*V8  ,      1,      0);
+
+    // Load the rows of matrix "a".
+    __m512 a0 = LD(&a[0]);
+    ........................................
+    __m512 a3 = LD(&a[6 * V8]);
+
+    // Matrix "b" columns loop.
+    for (int j = 0; j < V8; j += 2)
+    {
+        bj = _mm512_i32gather_ps(ind_cc, &b[j], _MM_SCALE_4);
+        bj2 = _mm512_permute4f128_ps(bj, _MM_PERM_BADC);
+
+        // Matrix "a" rows on matrix "b" columns multiplication.
+        m0 = MUL(a0, bj);
+        m1 = MUL(a0, bj2);
+        ........................................
+        m6 = MUL(a3, bj);
+        m7 = MUL(a3, bj2);
+
+        // Parallel calculation of vectors sums of elements.
+        m0 = SWIZ_2_ADD_2_BLEND_1(m0, m1, _MM_SWIZ_REG_CDAB, 0xAAAA);
+        m1 = SWIZ_2_ADD_2_BLEND_1(m2, m3, _MM_SWIZ_REG_CDAB, 0xAAAA);
+        m2 = SWIZ_2_ADD_2_BLEND_1(m4, m5, _MM_SWIZ_REG_CDAB, 0xAAAA);
+        m3 = SWIZ_2_ADD_2_BLEND_1(m6, m7, _MM_SWIZ_REG_CDAB, 0xAAAA);
+        m0 = SWIZ_2_ADD_2_BLEND_1(m0, m1, _MM_SWIZ_REG_BADC, 0xCCCC);
+        m1 = SWIZ_2_ADD_2_BLEND_1(m2, m3, _MM_SWIZ_REG_BADC, 0xCCCC);
+        m2 = PERM_2_ADD_2_BLEND_1(m0, m1, _MM_PERM_CDAB, 0xF0F0);
+
+        // Store the result.
+        _mm512_i32scatter_ps(&r[j], ind_st, m2, _MM_SCALE_4);
+    }
+\end{lstlisting}
+
+The experiments carried out demonstrate the effectiveness of this approach in relation to matrices of size $16 \times 16$.
+However, using smaller matrices, a decrease in performance was observed.
+The main reason for this is the use of slow multiple memory access operations with arbitrary offsets \cite{Aleen}.
+To eliminate this drawback, we consider another approach, in which calls to memory are performed only by sequential addresses.
+At the same time, we note that this approach is applicable only for matrices of size no more than $8 \times 8$, since it requires a large number of \texttt{zmm} registers.
+In case of shortage of \texttt{zmm} registers, these registers are immediately dumped into memory, which causes extra store and load commands (so-called spill/fill operations appear) and leads to a catastrophic performance decrease.
+
+So, when forming another approach to the multiplication of
+small-format matrices,  we will consider the removal of multiple
+memory access operations as well as the use of special combined
+operations, which allow the expression $\pm a \cdot b \pm c$ to be
+calculated in one operation, as the main goals. We write the
+formulas for the $i$-th column of the resulting matrix:
+\begin{equation}
+\begin{cases}
+r_{i0} = a_{i0}b_{00} + a_{i1}b_{10} + \ldots + a_{i7}b_{70} \\
+\ldots, \\
+r_{i7} = a_{i0}b_{07} + a_{i1}b_{17} + \ldots + a_{i7}b_{77} \\
+\end{cases}
+\end{equation}
+or in vector form
+\begin{equation}
+\overline{r_i} = a_{i0}\overline{b_0} + a_{i1}\overline{b_1} +
+\ldots + a_{i7}\overline{b_7}.
+\end{equation}
+Similar expressions can be written for the row with the number $i +
+1$:
+
+\begin{equation}
+\begin{cases}
+r_{i+1,0} = a_{i+1,0}b_{00} + a_{i+1,1}b_{10} + \ldots + a_{i+1,7}b_{70}, \\
+\ldots \\
+r_{i+1,7} = a_{i+1,0}b_{07} + a_{i+1,1}b_{17} + \ldots + a_{i+1,7}b_{77} \\
+\end{cases}
+\end{equation}
+or in vector form
+\begin{equation}
+\overline{r_{i+1}} = a_{i+1,0}\overline{b_0} +
+a_{i+1,1}\overline{b_1} + \ldots + a_{i+1,7}\overline{b_7}.
+\end{equation}
+
+Considering that the \texttt{zmm} registers contain 16 float elements, it is advisable to combine the above formulas into one, written in vector form as follows:
+
+\begin{equation}
+\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}
+=
+\left(
+\begin{pmatrix} \overline{a_{i0}} \\ \overline{a_{i+1,0}} \end{pmatrix}
+\circ
+\begin{pmatrix} \overline{b_0} \\ \overline{b_0} \end{pmatrix}
+\right)
++
+\left(
+\begin{pmatrix} \overline{a_{i1}} \\ \overline{a_{i+1,1}} \end{pmatrix}
+\circ
+\begin{pmatrix} \overline{b_1} \\ \overline{b_1} \end{pmatrix}
+\right)
++
+\ldots
++
+\left(
+\begin{pmatrix} \overline{a_{i7}} \\ \overline{a_{i+1,7}} \end{pmatrix}
+\circ
+\begin{pmatrix} \overline{b_7} \\ \overline{b_7} \end{pmatrix}
+\right),
+\end{equation}
+where $\begin{pmatrix} \overline{r_i} \\ \overline{r_{i+1}}
+\end{pmatrix}$ denotes the combined vector consisting of the vectors
+$\overline{r_i}$ and $\overline{r_{i+1}}$, $\begin{pmatrix}
+\overline{b_j} \\ \overline{b_j} \end{pmatrix}$ denotes the combined
+vector consisting of two copies of the vector $\overline{b_j}$, and
+the expression $\begin{pmatrix} \overline{a_{ij}} \\
+\overline{a_{i+1,j}} \end{pmatrix}$ denotes a vector, the first 8
+elements of which are equal to $a_{ij}$, and the remaining 8
+elements are equal to $a_{i+1,j}$ (``$\circ$'' is Hadamard product,
+or elementwise product of vectors). Note that the combined vector
+obtained according to this formula $\begin{pmatrix} \overline{r_i}
+\\ \overline{r_{i+1}} \end{pmatrix}$ is located in the memory
+sequentially, and it can be recorded into memory using the
+\texttt{store} instruction. In this case, we assume that the value
+of $i$ is even, that is, the vector $\begin{pmatrix} \overline{r_i}
+\\ \overline{r_{i+1}} \end{pmatrix}$ is properly aligned in the
+memory. Other combined vectors in this expression are obtained using
+the \texttt{permute} instruction (intrinsic function
+\texttt{\_mm512\_permutexvar\_ps}) applied to the corresponding
+loaded adjacent rows of the $A$ and $B$ matrices. Thus, the
+implementation of the above formula does not require the use of slow
+\texttt{gather}/\texttt{scatter} instructions, since we don't read
+or write the columns of the matrices (calculations are performes
+only with rows). After the required vectors are formed, we need to
+perform their pairwise elementwise multiplication, and then add them
+into one vector (8 operations of elementwise multiplication, 7
+addition operations). These actions can be performed using combined
+operations \texttt{fmadd}. To calculate the value $\begin{pmatrix}
+\overline{r_i} \\ \overline{r_{i+1}} \end{pmatrix}$, we need 8
+vector operations (1 operation \texttt{mul} and 7 operations
+\texttt{fmadd}).
+
+Below is a complete source code listing of the function \texttt{mul\_8x8}, implementating matrices multiplication in accordance with the described approach (Listing~\ref{lst:mul2}).
+
+% It is possible to add 5-7 lines to this listing
+% if it will be needed for text alignment.
+\begin{lstlisting}[caption={Approach to \texttt{mul\_8x8} implementation with line-by-line reading of matrixes from memory.},label={lst:mul2}]
+void mul_8x8(float * __restrict a, float * __restrict b,
+             float * __restrict r)
+{
+    ........................................
+    // Vector duplication indices.
+    __m512i ind_df = _mm512_set_epi32( 7,  6,  5,  4,  3,  2, 1, 0,
+                                       7,  6,  5,  4,  3,  2, 1, 0);
+    __m512i ind_ds = _mm512_set_epi32(15, 14, 13, 12, 11, 10, 9, 8,
+                                      15, 14, 13, 12, 11, 10, 9, 8);
+
+    // Load and duplicate all rows of the matrix "b".
+    __m512 b0 = LD(&b[0]);
+    __m512 b1 = _mm512_permutexvar_ps(ind_ds, b0);
+    b0 = _mm512_permutexvar_ps(ind_df, b0);
+    ........................................
+    __m512 b6 = LD(&b[6 * V8]);
+    __m512 b7 = _mm512_permutexvar_ps(ind_ds, b6);
+    b6 = _mm512_permutexvar_ps(ind_df, b6);
+
+    // Load all rows of the matrix "a".
+    __m512 a0 = LD(&a[0]);
+    ........................................
+    __m512 a6 = LD(&a[6 * V8]);
+
+    // 8 indices for select elements from matrix "a".
+    __m512i ind_0 = _mm512_set_epi32( 8,  8,  8,  8,  8,  8,  8,  8,
+                                      0,  0,  0,  0,  0,  0,  0,  0);
+    ........................................
+    __m512i ind_7 = _mm512_set_epi32(15, 15, 15, 15, 15, 15, 15, 15,
+                                      7,  7,  7,  7,  7,  7,  7,  7);
+
+// Main block of operations.
+#define BLOCK(N, A)                           \
+    ST(&r[N * V8],                            \
+      FMADD(PERMXV(ind_0, A), b0,             \
+    ........................................
+                  FMADD(PERMXV(ind_6, A), b6, \
+                    MUL(PERMXV(ind_7, A), b7)))))))));
+
+    // Calculate and store the result (4 blocks).
+    BLOCK(0, a0);
+    ........................................
+    BLOCK(6, a6);
+
+#undef BLOCK
+
+}
+\end{lstlisting}
+
+To implement the matrices multiplication in this function first we perform a full load of both matrices $A$ and $B$.
+This requires 8 \texttt{load} operations, since two adjacent rows of the matrix are loaded in one operation.
+Next, we need to form 8 vectors of the form $\begin{pmatrix} \overline{b_j} \\ \overline{b_j} \end{pmatrix}, j \in [0, 7]$, for which we will need 8 more \texttt{permute} operations (for each pair of loaded rows of matrix $B$, we need to duplicate the first row and duplicate the second row).
+The formation of index vectors for \texttt{permute} operations does not require computational time, since the indices are static and are calculated at the compilation stage.
+After preparing all the necessary data, the elements of the resulting matrix are calculated.
+The block of operations \texttt{BLOCK} performs the calculation of two adjacent rows of the resulting matrix.
+The block implementation consists of 8 \texttt{permute} operations, 1 \texttt{mul} operation and 7 \texttt{fmadd} operations, besides, one \texttt{store} operation of writing data to the memory.
+A total of four such blocks are performed, which, in sum and taking into account data preparation operations, leads to the following result: 8 simple \texttt{load} operations from memory, 40 \texttt{permute} operations, 4 \texttt{mul} operations, 28 \texttt{fmadd} operations, 4 \texttt{store} operations to memory.
+
+Note that 28 vector operations \texttt{fmadd} and 4 vector operations \texttt{mul} correspond to $(28 \cdot 2 + 4) \cdot 16 = 960$ scalar operations, which exactly coincides with the number of scalar operations required to perform the multiplication of two $8 \times 8$ matrices.
+Thus, in the proposed implementation there are no unnecessary arithmetic operations, and the result of each performed operation affects the final result.
+When implementing multiplication of $7 \times 7$, $6 \times 6$, $5 \times 5$ matrices, superfluous vector operations are removed (for example, multiplication by a vector, all elements of which are zero), but still there are elements of vectors whose processing is excessive, which leads to a decrease in the efficiency of vectorization in these cases.
+
+The approaches to the vectorization of matrix multiplication described in this secton were tested on the MVS-10P supercomputer placed in JSCC RAS, on its computational segment containing Intel Xeon Phi 7290 KNL microprocessors.
+Four functions were considered: \texttt{mul\_8x8}, \texttt{mul\_7x7}, \texttt{mul\_6x6}, \texttt{mul\_5x5}, performing the multiplication of matrices of the corresponding sizes.
+
+For each function, 3 implementation options were considered.
+As the first option, the old vectorization method with parallel calculation of the sums of vector elements (denoted by \textit{Vect Old}) was used.
+As the second option, direct manual calculation of each element of the resulting matrix in which all cycles were deleted and for each element multiple copies were written scalar code (denoted by \textit{Full Unroll}) was taken.
+As the third option, the considered approach based on referring only to matrix rows and using combined fmadd operations (denoted \textit{Vect New}) was used.
+All speedup results are collected in Table~\ref{tab:mul_speedup}.
+
+\begin{table}[!ht]
+\setcaptionmargin{0mm}
+\onelinecaptionsfalse
+\captionstyle{flushleft}
+\caption{Speedup of \texttt{mul\_8x8}, \texttt{mul\_7x7}, \texttt{mul\_6x6}, \texttt{mul\_5x5} functions for different approaches to optimization.}
+\bigskip
+\begin{tabular}{|c|c|c|c|}
+\hline
+matrices size & \textit{Vect Old} & \textit{Full Unroll} & \textit{Vect New} \\
+\hline
+$8 \times 8$ & 2.69 & 3.69 & 5.86 \\
+$7 \times 7$ & 2.04 & 2.74 & 4.66 \\
+$6 \times 6$ & 1.38 & 2.29 & 3.68 \\
+$5 \times 5$ & 0.80 & 1.44 & 2.50 \\
+\hline
+\end{tabular}
+\label{tab:mul_speedup}
+\end{table}
+
+As can be seen from Table~\ref{tab:mul_speedup}, \textit{Vect Old} turned out to be the least efficient approach, its use is even less profitable than the direct writing of a scalar code.
+For matrices of size $5 \times 5$, this optimization method completely slows down the original non-optimized version of the function.
+The \textit{Vect New} method demonstrates the best results from the described approaches, the vectorized code for $8 \times 8$ matrices multiplication is almost 6 times faster than the original code.
+As the matrix dimensions decrease, the vectorization efficiency decreases too, but even for $5 \times 5$ matrices, an acceleration of about 2.5 times is observed, which makes it possible to implement this method in an industrial code.
+
+\section{Vectorization of loops with irregular number of iterations}
+
+Loop nests with an irregular number of iterations are the most difficult context for code vectorization.
+Such specifics of the program code creates more difficulties for vectorization than even the presence of function calls inside loops (of course, if these are calls without side effects).
+At the same time, cycles with an irregular number of iterations are often encountered in industrial program codes.
+As a matter of fact, implementation of practically any iterative numerical method belongs to such a context.
+It is worth noting that the irregular number of iterations and the non-constant number of iterations are slightly different things.
+In the case of a non-constant number of iterations, we can observe a picture when the number of iterations of a particular cycle changes in time, but the changes themselves are quite small.
+To a greater extent this is typical for physical tasks.
+When we talk about a loop with an irregular number of iterations, we mean that this number can vary in time arbitrarily sharply and unpredictably.
+Such situations can often be observed in problems of discrete mathematics (for example in sorting algorithms \cite{Fast_Sort,Quick_Sort,Quick_Sort_2}).
+As an example, we will consider the classical implementation of Shell sorting \cite{Knuth}, the number of iterations of the inner loop for which is fundamentally irregular.
+
+\subsection{Shell sorting description}
+
+Shell sorting algorithm, presented in Listing \ref{lst:shellsort}, is an improved version of insertion sort, proposed in 1959 by Donald L. Shell.
+Unlike the insertion sort, in which the element of the array is moved only by one position each time, which leads to the quadratic complexity of the algorithm, Shell sorting allows you to compare and swap elements that are on a large distance from each other, performing the so-called coarse sort passes. At the beginning of the algorithm, the starting step of $ k_0 $ is selected, after which the subarrays with indexes $ {j | j = j_0 + ik_0} $ for all $ j_0  < k_0 $ are sorted.
+Further, a similar procedure is performed with the following increments $ k_1  < k_0 $.
+The number of preliminary rough passes can be arbitrary. In the end, the final pass is performed in increments equal to one, which is the trivial insertion sort.
+The average running time of the algorithm depends on the choice of pass steps.
+Listing \ref{lst:shellsort} presents an implementation of Shell sorting in the C with a simple sequence of steps with an initial step equal to half the size of the array with a decrease in the width of the next pass in half (such a sequence was originally used by Shell).
+
+\begin{lstlisting}[caption={Shell sorting.},label={lst:shellsort}]
+
+void shell_sort(float *m, int n)
+{
+    int i, j, k;
+
+    for (k = n / 2; k > 0; k /= 2)      // outer loop
+    {
+        for (i = k; i < n; i++)         // intermediate loop
+        {
+            float t = m[i];
+
+            for (j = i; j >= k; j -= k) // inner loop
+            {
+                if (t < m[j - k])
+                {
+                    m[j] = m[j - k];
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            m[j] = t;
+        }
+    }
+}
+\end{lstlisting}
+
+\subsection{Vectorization of Shell sorting with AVX-512 instructions}
+
+Consider the possibilities for vectorization of Shell sorting for an array of float type real values (the AVX-512 vector contains 16 such values).
+The most nested loop (the loop with the counter $ j $ in Fig.~\ref{pic:decompos}, we will call it simply internal) performs the sorting of one slice consisting of array of elements, with the distance $ k $ between adjacent elements.
+The internal loop cannot be vectorized without making additional code modifications, since there is an inter-iteration dependence between writing the $ m [j] $ element and reading the $ m [j - k] $ element. However, it can be noted that two iterations of the middle nesting cycle (the cycle with the inductive variable $ i $, we will call it intermediate) with the numbers $ i_1 $ and $ i_2 $ do not intersect the data and can be executed in parallel if the condition $ | i_1 - i_2 | < k $ is fulfilled.
+Perform the Shell sorting decomposition so that you can explicitly highlight a kernel that can be vectorized.
+
+In Fig.~\ref{pic:decompos} the decomposition scheme of Shell sort algorithm is presented, also sections with different widths of vectorization are shown.
+First, the block for steps $ k \ge 16 $ is depicted.
+For these values of steps, it is possible to perform 16 adjacent iterations of the intermediate loop in parallel, while achieving the maximum vectorization density (shown in dark grey in the figure).
+All iterations of the intermediate loop are divided into groups of 16 adjacent iterations and the remainder, which is vectorized with a width of less than 16 (shown in shaded grey, and if the remainder consists of just one iteration, then no vectorization is required, which is shown in light grey in the figure).
+Next, the block of step values $ 1 < k < 16 $ is considered.
+With these values, the width of the vectorization is always less than 16, moreover, as in the previous block, a non-vectorizable remainder may appear.
+The last to be considered is the non-vectorizable final insertion sort for $ k = 1 $.
+The presence of code sections with a vectorization width of less than 16 leads to a non-optimal result code, but there is a more dangerous reason for the low efficiency of vectorization.
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse
+\includegraphics[width=0.65\textwidth]{pics/pic_decomposition.pdf}
+\captionstyle{normal}\caption{Shell sorting decomposition with highlighted segments of vectorized code.}\label{pic:decompos}
+\end{figure}
+
+The \texttt{shell\_sort\_k\_i\_w} function, which appeared after decomposing the Shell sorting algorithm, contains the implementation of sorting $ w $ adjacent array slices, taken with step k.
+At the same time, the number of iterations of the inner loop of this function is unknown.
+Moreover, the number of iterations of the inner loop when sorting one slice is in no way connected with the number of iterations of the inner loop when sorting the next slice.
+This is a significant problem when attempting to merge the code for sorting adjacent slices using vector instructions.
+For such a union, it is necessary to rewrite the slice sorting code in predicate form, then replace all instructions with vector analogs, and predicates with vector masks.
+Moreover, if, prior to vectorization, the internal loop terminated when the predicate is false, then, after vectorization, the internal loop will terminate only if all elements of the corresponding vector mask are reset.
+Thus, the number of iterations of the vectorized inner loop is equal to the maximum number of iterations of all $ w $ combined cycles.
+If the values of the number of iterations of adjacent merged cycles differ greatly (and for Shell sorting this statement is true), then we get a loss of vectorization efficiency due to the low density of vector instruction masks (that is, a small percentage of vector elements is actually processed when performing vector operation).
+
+Vectorized version of Shell sorting kernel presented in Listing~\ref{lst:vectcode}.
+Also worth paying attention to the scatter operation, which appeared in the vector code, writing multiple data into memory with arbitrary offsets relative to the base address.
+This command appeared as a vector analogue of a write operation to memory from the original code due to the same reason - the irregularity of the number of iterations of the internal loop.
+It is worth noting that the scatter commands are extremely slow, which also causes a decrease in the efficiency of vectorization.
+
+In addition to the designated scatter command, there are other memory reference commands in the vectorized code (Listing~\ref{lst:vectcode}, lines 10, 16, 19).
+These are the usual load and store commands that, generally speaking, must be addressed by aligned addresses in memory.
+In the general case, the addresses given to them are certainly not aligned, however, the use of non-aligned calls instead of them significantly slows down the code, so it was decided to leave these instructions.
+
+\begin{lstlisting}[caption={Vectorized version of Shell sorting kernel.},label={lst:vectcode}]
+void shell_sort_k_i_w(float *m, int n, int k, int i, int w)
+{
+    int j = i;
+    __mmask16 ini_mask = ((unsigned int)0xFFFF) >> (16 - w);
+    __mmask16 mask = ini_mask;
+    __m512i ind_j = _mm512_add_epi32(_mm512_set1+epi32(i),
+                                     ind_straight);
+    __m512 t, q;
+
+    t = _mm512_mask_load_ps(t, mask, &m[j]);
+
+    do
+    {
+        mask = mask & _mm512_mask_cmp_epi32_mask(mask, ind_j, ind_k,
+                                                 __MM_CMPINT_GE);
+        q = _mm512_mask_load_ps(q, mask, &m[j - k]);
+        mask = mask & _mm512_mask_cmp_ps_mask(mask, t, q,
+                                              __MM_CMPINT_LT);
+        _mm512_mask_store_ps(&m[j], mask, q);
+        ind_j = _mm512_mask_sub_epi32(ind_j, mask, ind_j, ind_k);
+        j -= k;
+    }
+    while (mask != 0x0);
+
+    _mm512_mask_i32scatter_ps(m, ini_mask, ind_j, t, _MM_SCALE_4);
+}
+\end{lstlisting}
+
+\subsection{Acceleration measurements}
+
+By theoretical acceleration, we will simply mean the ratio of the number of iterations of the internal loop of the non-vectorized version to the one in the optimized vectorized version of the code.
+Define this acceleration more formally.
+
+First consider the non-vectorized code. Denote by $ I (k, i) $ the
+number of iterations of the inner loop with fixed $ k $ and $ i $.
+Then it is not difficult to calculate the total number of iterations
+of the inner loop when performing sorting (we denote this value as
+$T$)
+\begin{equation}
+T = \sum_{k \in ks}{\sum_{i = k}^{n - 1}{I(k, i)}}.
+\end{equation}
+Now consider the vectorized version of the code. We also denote by $
+I_v (k, i') $ the number of iterations of the inner loop with fixed
+$ k $ and $ i' $. We know that the vectorization width cannot exceed
+$ k $ (due to dependencies on accessing the array), and 16 (vector
+size), that is, $ w (k) = \min \{k, 16\} $. Moreover, the entire
+range of $ i $ values from $ k $ to $ n - 1 $, whose length is $ n -
+k $ is divided into $ \lfloor \frac {n - k} {w (k)} \rfloor $ groups
+in $ w $ elements in each, and the number of iterations in the
+vectorized cycle for each group is equal to the maximum value of the
+iterations of the non-vectorized cycles combined into this
+vectorized loop
+\begin{equation}
+I_v(k, i') = \max_{i = i'}^{\min(i' + w(k) - 1, n - 1)}{I(k, i)}.
+\end{equation}
+Taking into account the vectorization of the tail part of the loop,
+we obtain the following formula for the total number of iterations
+of a vectorized inner loop
+\begin{equation}
+T_v = \sum_{k \in ks} { \left( \left( \sum_{g = 0}^{G(k) -
+1}{\max_{i = k + w(k)g}^{k + w(k)(g + 1) - 1}{I(k, i)}} \right) +
+\max_{i = k + w(k)G(k)}^{n - 1}{I(k, i)} \right), }
+\end{equation}
+where $ w (k) = \min \{k, 16\} $, $ G (k) = \lfloor \frac {n - k} {w
+(k)} \rfloor $. The values of $ T = T (n) $ and $ T_v = T_v (n) $
+were calculated when sorting pseudo-random arrays with the number of
+elements from 10 thousand to 2 million for each of the sequences of
+steps of Shell, Hibbard, Pratt and Sedgewick. Based on this, the
+theoretical acceleration $ s (n) = T (n) / T_v (n) $ was calculated.
+In addition, similar characteristics were calculated without taking
+into account the step $ k = 1 $ (these values are denoted $ T '(n)
+$, $ T'_v (n) $ and $ s' (n) $, respectively). The results were
+compared with the results of experimental launches on Intel Xeon Phi
+7290 KNL microprocessor.
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse
+\includegraphics[width=0.85\textwidth]{pics/theoretical_eff.pdf}
+\captionstyle{normal}\caption{Comparison of the theoretical acceleration of a vectorized version of Shell sorting \\ for different sequences of steps.}\label{fig:theor_accel}
+\end{figure}
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse
+\includegraphics[width=0.85\textwidth]{pics/experimental_eff.pdf}
+\captionstyle{normal}\caption{Comparison of experimental acceleration of a vectorized version of Shell sorting \\ for different sequences of steps.}\label{experim_accel}
+\end{figure}
+
+On the Fig.~\ref{fig:theor_accel} and Fig.~\ref{experim_accel} the results of theoretical estimates and experimental launches are presented.
+The figures show the dependence of vectorization efficiency on number of elements for Sedgwick, Pratt and Hibbard step sequences.
+It can be seen from the figures that even theoretical acceleration is far from ideal upper limit (which is equal to 16) of the acceleration achieved when vectorizing nested loops with a regular number of iterations.
+The experimental results, as was expected, are much lower and, finally, acceleration of Shell sorting barely exceeds the 2 mark.
+
+\section{Physical calculations vectorization}
+
+In this section, we will consider the application of the described approaches for vectorization of program code to the implementation of physical calculations.
+The object of the study was the Riemann problem of the decay of an arbitrary discontinuity, on the exact or approximate solution of which many numerical methods for modeling gas-dynamic processes are based \cite{Toro}.
+The core of the program code in which the solution of the Riemann problem is implemented is called the Riemann solver.
+The implementation of the Riemann solver considered in this article is publicly available on the Internet as part of the NUMERICA library \cite{Numerica}.
+In this case, we will be interested in the one-dimensional case for a single-component medium, implemented as a pure function (function without side effects), which, by the density, velocity and gas pressure values to the left and right of the discontinuity, finds the values of the same quantities on the discontinuity itself at zero time after removal of the septum.
+
+\begin{equation}\label{eq:riemann}
+U_l = \left( \begin{array}{ccc} d_l \\ u_l \\ p_l \end{array}
+\right), U_r = \left( \begin{array}{ccc} d_r \\ u_r \\ p_r
+\end{array} \right), U = \left( \begin{array}{ccc} d \\ u \\ p
+\end{array} \right) = riemann(U_l, U_r).
+\end{equation}
+
+The NUMERICA library is implemented in the FORTRAN programming language, therefore the vectorization of this code using intrinsic functions is not directly possible, so the version of the code ported to the C programming language was used.
+
+\begin{figure}[ht]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.6\textwidth]{pics/riemann.pdf}
+\captionstyle{normal}\caption{Riemann solver scheme.}\label{fig:riemann_scheme}
+\end{figure}
+
+In Fig.~\ref{fig:riemann_scheme} the scheme of work of the Riemann solver with the indicated data streams and calls of all functions included in the implementation is shown.
+The \texttt{riemann} function calculates the speed of sound on the right and left, performs a vacuum test and successively calls the \texttt{starpu} and \texttt{sample} functions.
+The \texttt{starpu} function calculates the velocity and pressure values in the middle region between the left and right waves (star region), and the function contains a cycle with an unknown number of iterations to solve a nonlinear equation using the Newton iterative method, inside which there are calls to other functions (\texttt{prefun}).
+The \texttt{guessp} and \texttt{prefun} functions contain only arithmetic calculations and simple conditions and are the simplest from the point of view of vectorization.
+Finally, the last \texttt{sample} function determines the final configuration of the discontinuity by calculating a set of conditions.
+This function contains a very extensive control, the nesting of conditions in it reaches four, which makes it difficult to use vectorization.
+
+In the counting process, numerous \texttt{riemann} function calls
+are made with different input data sets using numerical methods
+based on the Riemann solver (each call iteration makes one call for
+each face of each cell of the computational grid). Since the riemann
+function is pure, calls for different input data sets ($d_l$, $u_l$,
+$p_l$, $d_r$, $u_r$, $p_r$) are independent and there is a desire to
+combine calls with the goal of effectively using vector (element)
+instructions. As such a combined call, we will consider a function
+into which, instead of atomic data of the float type, the
+corresponding vectors containing 16 elements each are fed
+\begin{equation}\label{eq:riemann_16}
+\overline{U_l} = \left( \begin{array}{ccc} U_l^1 \\ \ldots \\
+U_l^{16} \end{array} \right), \overline{U_r} = \left(
+\begin{array}{ccc} U_r^1 \\ \ldots \\ U_r^{16} \end{array} \right),
+\overline{U} = \left( \begin{array}{ccc} U^1 \\ \ldots \\ U^{16}
+\end{array} \right) = riemann^{16}(\overline{U_l}, \overline{U_r}).
+\end{equation}
+At the same time, it is possible to perform the same actions with
+vector data as with basic types -- perform calculations, transfer to
+functions, and return as a result. In the process of optimization,
+for clarity, it will avoid substitution of the function body into
+the call point. Thus, as a result of vectorization, our goal is to
+obtain the vector analogs of all the functions described above used
+in the Riemann solver.
+
+The \texttt{prefun} and \texttt{guesssp} functions contain the usual arithmetic calculations and are vectorised by direct replacement of all instructions with vector analogs.
+At the same time, the functions do not contain complex control, therefore all calculations can be directly translated from the predicate code and combined into a single branch of execution.
+
+The \texttt{sample} function contains a highly branched control with a nesting level of 4.
+The condition tree constructed for this function contains 10 leaf nodes, each contains the determined value of the gas-dynamic quantities $d$, $u$, $p$.
+Direct computation of the vector predicates of all leaf nodes and the execution of their code under these predicates leads to a slowdown of the resulting code, therefore, the following actions were performed when vectoring this function.
+First, it was noted that the 4 linear sections contain the definition of the gas-dynamic parameters $d$, $u$, and $p$, which could be changed to initialization by moving the assignment operations up through the function code.
+Thus, 4 linear sections were deleted.
+At the same time, this initialization of the $d$, $u$, $p$ parameters does not contain arithmetic operations (the parameters are initialized by the arguments of the function $d_l$, $u_l$, $p_l$ or $d_r$, $u_r$, $p_r$), which means it can be performed using the vector merge \texttt{blend} operations.
+It was further noted that the \texttt{sample} function processes the right and left profiles of the breakup decay in the same way with minor changes.
+Using a simple change of variables, which consists in changing the sign of the velocity value, we merged the code for two subtrees based on the condition $p_m \le p_l$, which reduced the amount of the calculation code by half and expectedly reduced the execution time by 45\%.
+After the reduction of the code, the number of leaf nodes in the conditions tree was reduced to three.
+However, even in this case, direct merging of the code using vector predicates turned out to be ineffective.
+This was due to the unlikely part of the code, heavy operations, among which there are calls to the function of raising to a power.
+The vector predicate of this code segment in more than 95 percent of cases has a value of 0x0, therefore, before executing this code section, it is advisable to check this predicate for emptiness (which corresponds to removing the unlikely branch of execution from the function body).
+The removal of an unlikely branch of execution from the main program context can significantly speed up the executable code, since the presence of a large number of such rare computations can serve as a reason for refusing vectorization.
+As a result, the vectorized \texttt{sample} function was accelerated more than 10 times.
+
+The \texttt{starpu} function is the most complex because it contains a loop with a variable number of iterations and other functions calls.
+The approach described in the previous section is applied to this function.
+In addition, although the loop in this function contains an unknown number of iterations, this value changes slowly, which leads to a high density of masks for executable commands in vectorized code.
+In addition, it can be noted that the average number of loop iterations is equal to 3, which also reduces the number of unnecessary operations in the resulting code.
+As a result, the vectorized version of the function \texttt{starpu} function turns out to be faster than the original version more than 5 times.
+
+The approaches to the vectorization of the Riemann solver functions described in the section were implemented in the C programming language using intrinsic functions and tested on microprocessors Intel Xeon Phi 7290, which are part of the computational segment KNL of supercomputer MVS-10P, located in the JSCC RAS.
+
+Performance testing was performed on the input data arrays collected when solving standard test problems: the Sod problem, the Lax problem, the weak shock wave problem, the Einfeldt problem, the Woodward-Colella problem, the Schu-Osher problem and others.
+As a result of the executed transformations of the source code, the Riemann solver accelerated by 7 times compared to the non-optimized versions.
+
+\section{Conclusion}
+
+The approaches to vectorization of program code considered in the article allow us to conclude about the applicability of the AVX-512 instruction set to loops of almost any kind, used in scientific calculations.
+The features of the AVX-512 instruction set, including the use of vector masks, allow to vectorize any program code written in predicate form.
+Thus, loops can be vectorized, containing a complex settlement, function calls and loop nests with an unknown number of iterations.
+All aspects of the program code vectorization considered in the article were implemented in the C programming language and proved to be effective, as demonstrated by the practical results obtained.
+
+\begin{acknowledgments}
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+\end{acknowledgments}
+
+\begin{thebibliography}{99}
+
+% References for INTRODUCTION section.
+
+\bibitem{Rettinger}
+\refitem{article}
+C. Rettinger, C. Godenschwager, S. Eibl, et al., {\it ``Fully Resolved Simulations of Dune Formation in Riverbeds"}, ISC High Performance , LNCS~{\bf 10266}, 3--21 (2017).
+
+\bibitem{Krappel}
+\refitem{article}
+T. Krappel, S. Riedelbauch, {\it ``Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations"}, High Performance Computing in Science and Engineering'16, 499--510 (2016).
+
+\bibitem{Markidis}
+\refitem{article}
+S. Markidis, I. B. Peng, J. L. Tr\"aff, et al.,{\it ``The EPiGRAM Project: Preparing Parallel Programming Models for Exascale"}, ISC High Performance Workshops, LNCS~{\bf 9945}, 56--68  (2016).
+
+\bibitem{Klenk}
+\refitem{article}
+B.~Klenk, H.~Fr\"oning, {\it ``An Overview of MPI Characteristics of Exascale Proxy Applications"}, ISC High Performance, LNCS~{\bf 10266}, 217--236  (2016).
+
+\bibitem{Abduljabbar}
+\refitem{article}
+M.~Abduljabbar, G.~S.~Markomanolis, H.~Ibeid, et al., {\it ``An Overview of MPI Characteristics of Exascale Proxy Applications"}, ISC High Performance, LNCS~{\bf 10266}, 79--96 (2017).
+
+\bibitem{Rybakov}
+\refitem{article}
+A.~A.~Rybakov, {\it ``Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations"}, Program systems: Theory and Application~{\bf 32}(8:1), 121--134 (2017).
+
+\bibitem{Van}
+\refitem{article}
+R.~F.~Van der Wijngaart, E.~Georganas,~T.~G.~Mattson, et al., {\it ``A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities"}, ISC High Performance, LNCS~{\bf 10266}, 256--274 (2017).
+
+\bibitem{Benderskiy}
+\refitem{article}
+L.~A.~Benderskiy, D.~A.~Lyubimov, A.~A.~Rybakov, {\it ``Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS / ILES supercomputer using the high resolution method"}, Trudy SRISA RAS~{\bf 7}(4), 32--40 (2017).
+
+\bibitem{Heller}
+\refitem{article}
+T.~Heller, H.~Kaiser, P.~Diehl et al., {\it ``Closing the Performance Gap with Modern C++"}, ISC High Performance, LNCS~{\bf 9945}, 18--31 (2016).
+
+\bibitem{Roganov}
+\refitem{article}
+Roganov V., Osipov V., Matveev G., {\it ``Solving the 2D Poisson PDE by Gauss-Seidel method with parallel programming system"}, Program systems: theory and applications~{\bf 30}(7:3), 99--107 (2016).
+
+% References for REVIEW OF RESEARCH PAPERS section.
+
+\bibitem{Jeffers_KNL}
+\refitem{book}
+J.~Jeffers, J.~Reinders, A.~Sodani, \emph{Intel Xeon Phi Processor High Performance Programming, Knights Landing Edition} (Morgan Kaufmann, 2016).
+
+\bibitem{Jeffers_KNC}
+\refitem{book}
+J.~Jeffers, J.~Reinders, \emph{Intel Xeon Phi Coprocessor Processor High Performance Programming} (Morgan Kaufmann, 2013).
+
+\bibitem{Dorris}
+\refitem{article}
+J.~Dorris, J.~Kurzak , P.~Luszczek, {\it ``Task-Based Cholesky Decomposition on Knights Corner Using OpenMP"}, ISC High Performance, LNCS~{\bf 9945}, 544--562 (2016).
+
+\bibitem{Tobin}
+\refitem{article}
+J.~Tobin, A.~Breuer, A.~Heinecke et al., {\it ``Accelerating Seismic Simulations Using the Intel Xeon Phi Knights Landing Processor"}, ISC High Performance, LNCS~{\bf 10266}, 139--157 (2017).
+
+\bibitem{McDoniel}
+\refitem{article}
+W.~McDoniel, M.~Hohnerbach, R.~Canales et al., {\it ``LAMMPS' PPPM Long-Range Solver for the Second Generation Xeon Phi"}, ISC High Performance, LNCS~{\bf 10266}, 61--78 (2017).
+
+\bibitem{Malas}
+\refitem{article}
+T.~Malas, T.~Kurth, J.~Deslippe, {\it ``Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor"}, ISC High Performance, LNCS~{\bf 9945}, 378--389 (2016).
+
+\bibitem{Krzikalla}
+\refitem{article}
+O.~Krzikalla, F.~Wende, M.~H\"ohnerbach, {\it ``Dynamic SIMD Vector Lane Scheduling"}, ISC High Performance, LNCS~{\bf 9945}, 354--365 (2016).
+
+\bibitem{Cook}
+\refitem{article}
+B.~Cook, P.~Maris,M.~Shao, {\it ``High Performance Optimizations for Nuclear Physics Code MFDn on KNL"}, ISC High Performance, LNCS~{\bf 9945}, 366--377 (2016).
+
+\bibitem{Rybakov_Optimization}
+\refitem{article}
+A.~A.~Rybakov,{\it ``Optimization of the problem of conflict detection with dangerous aircraft movement areas to execute on Intel Xeon Phi"}, Programmnye produkty i sistemy [Software \& Systems]~{\bf 30}(3), 524--528 (2017).
+
+\bibitem{Sengupta}
+\refitem{article}
+D.~Sengupta,~Y.~Wang,~N.~Sundaram et al., {\it ``Performance Incremental SVM Learning on Intel Xeon Phi Processors"}, ISC High Performance, LNCS~{\bf 10266}, 120--138 (2017).
+
+\bibitem{Kronbichler}
+\refitem{article}
+M.~Kronbichler,~K.~Kormann ,~I.~Pasichnyk, {\it ``Fast Matrix-Free Discontinuous Galerkin Kernels on Modern Computer Architectures"}, ISC High Performance, LNCS~{\bf 10266}, 237--255 (2017).
+
+\bibitem{Doerfler}
+\refitem{article}
+D.~Doerfler,~J.~Deslippe ,~S.~Williams, {\it `Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor"}, ISC High Performance, LNCS~{\bf 9945}, 339--353 (2016).
+
+\bibitem{Rosales}
+\refitem{article}
+C.~Rosales, J.~Cazes, K.~Milfeld, {\it ``Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor"}, ISC High Performance, LNCS~{\bf 9945}, 307--318 (2016).
+
+% References for FLAT CYCLES section.
+
+\bibitem{Intel_SDM}
+\refitem{manual}
+Intel 64 and IA-32 Architectures Software Developer's Manual, Combined Volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2017).
+
+\bibitem{Intel_C}
+\refitem{manual}
+Intel C++ Compiler 16.0 User and Reference Guide, Intel Corporation (2016).
+
+\bibitem{Intel_Intr}
+\refitem{misc}
+Intel Intrinsics Guide. \url{https://software.intel.com/sites/landingpage/IntrinsicsGuide/}. Accessed 2018.
+
+\bibitem{Scott_Predct}
+\refitem{article}
+S.~A.~Mahlke, D.~C.~Lin, W.~Y.~Chen, R.~E.~Hank, {\it ``Effective Compiler Support for Predicated Execution Using the Hyperblock"}, Proceedings of the 25th International Symposium on Microarchitecture, ~45--54 (1992).
+
+\bibitem{Hwu_Predct}
+\refitem{article}
+W.~W.~Hwu, {\it ``The Superblock: an Effective Technique for VLIW and Superscalar Compilation"}, The Journal of Supercomputing~{\bf 7}(1/2), ~229--248 (1993).
+
+\bibitem{Golub}
+\refitem{book}
+G.~H.~Golub, C.~F.~Van Loan, {\it ``Matrix Computations"}, (The John Hopkins University Press, 1989).
+
+\bibitem{Zhang}
+\refitem{article}
+H.~Zhang, R.~T.~Mills, K.~Rupp, B.~F.~Smith, {\it ``Vectorized Parallel Sparse Matrix-Vector Multiplication in PETSc Using AVX-512"}, Proceedings of the 47th International Conference on Parallel Processing (ICPP 2018), ACM, Article 55, 10 pages (2018).
+
+\bibitem{Lyub_RANS_ILES}
+\refitem{article}
+D.~A.~Lyubimov, {\it ``Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation"}, High Temperature~{\bf 50}(3),~420--436 (2012).
+
+\bibitem{Ben_Lyub_Chest_RANS_ILES}
+\refitem{article}
+L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, {\it ``The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector"}, High Temperature~{\bf 56}(2),~247--254 (2018).
+
+\bibitem{Aleen}
+\refitem{article}
+F.~Aleen, V.~P.~Zakharin, R.~Krishnaiyer, G.~Gupta, D.~Kreitzer, C.-S.~Lin, {\it ``Automated Compiler Optimization of Multiple Vector Loads/Stores"}, International Journal of Parallel Programming~{\bf 46}(2),~471--503 (2018).
+
+% References for IRREGULAR ITERATIONS LOOPS section.
+
+\bibitem{Fast_Sort}
+\refitem{article}
+B.~Bramas, {\it ``Fast Sorting Algorithms Using AVX-512 on Intel Knights Landing"}, arXiv: 1704.08579, Accessed 2018.
+
+\bibitem{Quick_Sort}
+\refitem{article}
+S.~Gueron, V.~Krasnov, {\it ``Fast Quicksort Implementation Using AVX Instructions"}, The Computer Journal,~{\bf 59}(1),~83--90 (2016).
+
+\bibitem{Quick_Sort_2}
+\refitem{article}
+B.~Bramas, {\it ``A Novel Hybrid Quicksort Algorithm Vectorized Using AVX-512 on Intel Skylake"}, International Journal of Advanced Computer Science and Applications (IJACSA)~{\bf 8}(10), (2017).
+
+\bibitem{Knuth}
+\refitem{book}
+D.~E.~Knuth, {\it ``The Art of Computer Programming: Volume 3: Sorting and Searching (2nd Edition)"}, (Addison-Wesley Professional, 1998).
+
+% References for PHYSICAL CALCULATIONS section.
+
+\bibitem{Toro}
+\refitem{book}
+E.~F.~Toro, {\it ``Riemann Solvers and Numerical Methods for Fluid Dynamics:
+A Practical Introduction, 2nd Edition"}, (Springer,1999).
+
+\bibitem{Numerica}
+\refitem{misc}
+NUMERICA, A Library of Sources for Teaching, Research and Applications, by E.~F.~Toro. \url{https://github.com/dasikasunder/NUMERICA}. Accessed 2018.
+
+\end{thebibliography}
+
+\end{document}
