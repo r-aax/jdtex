@@ -1,0 +1,95 @@
+\documentclass[koi8-r]{psta}% 
+% Пожалуйста, уточните классификация Вашей статьи согласно УДК, ББК и MSC
+\subjclass[UDC]{519.68}
+\subjclass[BBC]{32.973.202-018.2}
+\subjclass[2010]{97P30; 97P20, 97R40}
+
+% Заглавие работы
+\title[кратко]{Здесь должно быть заглавие}
+%\title[]{} % или с коротким вариантом для колонтитула
+
+% Фамилия, запятая, имя отчество автора 
+\author{Фамилия, Имя Отчество}
+% Организация, в которой выполнена статья или её часть автором
+\address{Университет}
+% Электронный адрес автора
+\email{}
+% Какими грантами поддержана работа автора
+\thanks{}
+%  краткая информация, в свободной форме  презентующая официальный статус автора, его научные интересы и достижения. 
+\info{}
+% фотография, позволяющая узнать автора в толпе участников любой конференции
+%\image{}
+\image{nobody}
+\orcid{}    
+% Аналогично для каждого из остальных авторов
+
+% Пару строчек ключевых слов и фраз для поиска
+\keywords{}
+\begin{abstract}
+   Здесь должна быть аннотация на русском языке
+\end{abstract}
+
+% Все метаданные должны также присутствовать на английском языке, 
+% заключённые в  \selectlanguage{english}...,\selectlanguage{russian}: 
+
+\selectlanguage{english} 
+% All the same in English 
+\title[Short title]{The Full Engish Title}
+% Last name, coma other names 
+\author{Family Name,Other Names}
+% Organisation, where the work done
+\address{University}
+% author email
+\email{}
+% support notes
+\thanks{}
+% Other information about author only on paper language 
+%\info{} %
+% author photo
+%\image{}
+%\orcid{}
+% Repeat the same fore each of other authors
+%
+\begin{abstract}
+The abstract in English should come here.
+\end{abstract}
+\selectlanguage{russian} % Не забывайте отметить возврат на русский язык
+% Для локального переключения на другой язык используйте команду 
+% \foreignlanguage{english}{Text in English}
+
+\begin{document}           
+\maketitle   
+%%%%%% Текст статьи может использовать 
+\section*{Введение}
+Проверяйте, пожалуйста (URL) в списке литературы \cite{PSTAmanual}!% ссылка на источник литературы
+\section{}
+\subsection{}
+%\citеs{,,} % ссылка на несколько источников
+
+%\begin{figure} % Never fix the place!
+%\includegraphics{pic} % Без расширения, должно быть jpg, png или pdf
+%%\includegraphics[width=10cm]{pic} % Если по ширине страницы
+%\caption{}
+%\label{}
+%\end{figure}
+
+%%%%% Нумерация библиографии в порядке цитирования, инициалы перд фамилией. 
+% 
+\begin{thebibliography}{30}
+%
+%\bibitem{Voss2006} H.~Vo\ss. ``Math mode, 2006. Extensive summary describing various mathematical constructions, both with and without the amsmath package''.
+% {\scriptsize \textsf{URL:} }\url{http://mirror.ctan.org/info/math/voss/mathmode/Mathmode.pdf}
+%
+%% Допускается стандартный bibtex, рекомендуется форматирование AMSBIB:
+%
+\RBibitem{PSTAmanual} 
+\by С.В. Знаменский
+\preprint Руководство по стилю PSTA для авторов, подготавливающих статьи в \LaTeX
+\yr 2018 
+\totalpages 9
+\URL http://psta.psiras.ru/read/psta-man.pdf
+
+\end{thebibliography}
+\end{document}
+

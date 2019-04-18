@@ -1,0 +1,87 @@
+\documentclass[utf8,english]{psta}% 
+% look at psta-man.tex, please!
+% Refine, please, UDC and MSC Classification indexеs for Your paper
+\subjclass[UDC]{519.68}
+\subjclass[BBC]{32.973.202-018.2}
+\subjclass[2010]{97P30; 97P20, 97R40}
+% data in Russian comes inside the Russian section(s) which is already here
+%\selectlanguage{russian}
+\title{Русское заглавие статьи}
+% Last name, comma, other names 
+\author{Фамилия, Имя Отчество}
+% Organisation, where the work done
+\address{Университет}
+% author email
+\email{}
+% support notes
+\thanks{}
+% Other information about author is needed only on language of main text
+% author photo
+%\image{}
+%\orcid{}
+% Repeat the same fore each of other authors
+
+% Two lines of key words
+\keywords{}
+\begin{abstract} 
+   Здесь должна быть аннотация на русском языке
+  % You can use proper computer translation tools for first version of abstract in Russian 
+  % At the end of the Russian abstact add
+\end{abstract}
+
+\selectlanguage{english}
+% All the same in English 
+\title[a (shorter) version of title]{The Full Engish Title}
+% Last name, coma other names 
+\author{Family Name,Other Names}
+% Organisation, where the work done
+\address{University}
+% author email
+\email{}
+% support notes
+\thanks{}
+% Other information about author only on paper language 
+\info{} %
+% author photo, no extension
+\image{nobody}
+\orcid{}
+% Repeat the same fore each of other authors
+
+\keywords{}
+\begin{abstract} 
+The abstract in English should come here.
+\end{abstract}
+
+\begin{document}          
+\maketitle 
+\section*{Introduction}
+Check links (URL) in references, please \cite{PSTAmanual}!
+\section{}
+\subsection{}
+%\begin{figure} % Never fix the place by [Ht]!
+%\includegraphics[width=10cm]{pic} % No explicit extention, we use jpg, png or pdf
+%\caption{}
+%\label{}
+%\end{figure}
+
+%%%%% You can use numbered in the academic style LaTeX references with or without bibtex.
+
+\begin{thebibliography}{30}
+%% Initials before the family name!
+% 
+%  \bibitem{Voss2006} H.~Vo\ss. ``Math mode, 2006. Extensive summary describing various mathematical constructions, both with and without the amsmath package''.
+% {\scriptsize \textsf{URL:} }\url{http://mirror.ctan.org/info/math/voss/mathmode/Mathmode.pdf}
+%    
+%% The AMSBIB  formatting is prefered:
+\bibitem{PSTAmanual} 
+\by Sergej Znamenskij
+\preprint A Short Author Guige for PSTA authors preparing papers in \LaTeX
+\yr 2018 
+\totalpages 9
+\lang Russian
+\URL http://psta.psiras.ru/read/psta-man.pdf
+
+\end{thebibliography}
+% look at psta-man, please!
+\end{document}
+

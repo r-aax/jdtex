@@ -1,0 +1,19 @@
+For English authors
+
+main-en.tex     - sample article source
+psta.cls        - file necessary  for assembling  
+psta-utf8.sty   - file necessary  for assembling   
+nobody.pdf      - anonymous photo for assembling with pdflatex
+nobody.eps      - anonymous photo for assembling with latex  
+
+Для русских авторов (utf8)
+Esli eto nerazborchivo, 
+     to chitaite README.win ili README.koi8.
+
+main-ru.tex     - заготовка статьи
+psta.cls        - необходим для обработки 
+psta-utf8.sty   - необходим для обработки   
+nobody.pdf      - фото для сборки в pdflatex
+nobody.eps      - фото для сборки в latex  
+
+
