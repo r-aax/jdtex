@@ -79,9 +79,13 @@ The AVX-512 instruction set has a number of unique features that you to apply ve
 В данном методе на каждой итерации вычислений задача Римана решается на каждой грани каждой ячейки расчетной сетки для определения потоков через эти грани.
 Ввиду того, что размеры расчетных сеток, которые используются в наши дни для проведения вычислений, составляют десятки, сотни миллионов ячеек и более, то для эффективного использования численных методов с римановскими решателями необходимо использование суперкомпьютеров и применение всего спектра подходов по распараллеливанию вычислений.
 Для повышения эффективности суперкомпьютерных вычислений используются такие инструменты, как MPI, OpenMP, OpenACC и другие.
+
 Наиболее низкоуровневым подходом, применяемым для повышения производительности суперкомпьютерных приложений, является векторизация кода.
 Использование специального набора инструкций AVX-512 обладает уникальными возможностями, благодаря которым возможно создание эффективного параллельного кода, что приводит к кратному ускорению суперкомпьютерных приложений.
-Векторизация с использованием набора инструкций AVX-512 применима в частности и к римановскому решателю, однако для этого требуется разработка специальных подходов, которые рассмотрены в данной статье. 
+
+Повышение эффективности работы римановских решателей на параллельных архитектурах является предметом многих исследований, которые продолжаются до сих пор, так как постоянно появляются новые архитектуры, обладающие новыми особенностями. В работе \cite{Shumlak} продемонстрирован алгоритм распараллеливания численных методов, использующих приближенный римановский решатель для задач магнитогидродинамики, приводящий к параллельной работе на многопроцессорной машине с эффективностью распараллеливания, близкой к единице. В работе \cite{Schive} приведено комплексное исследование по распараллеливанию вычислительных методов, базирующихся на римановском решателе, с использованием MPI, OpenMP и графических ускорителей. В результате продемонстрированы хорошие результаты по масштабируемости, в частности, показатель сильной масштабируемости на отметке 85\%. Работа \cite{Mandli} освещает использование инструмента PyClaw, позволяющего применять численные методы на базе римановского решателя на нескольких тысячах вычислительных процессов с эффективностью распараллеливания, близкой к единице. В работах \cite{Kulikov}, \cite{Kulikov2} освещены вопросы использования векторизации приближенного римановского решателя для численного моделирования астрофизических течений на гибридных суперкомпьютерах. В частности показано, что использование векторизации позволяет достичь почти 50\% от пиковой производительности сопроцессоров Intel Xeon Phi KNC. В качестве одного из самых подробных исследований по векторизации римановских решателей можно отметить работу \cite{BaderSWEVect}, в которой рассматриваются вопросы оптимизации приближенного римановского решателя для решения уравнений мелкой воды. Примененные подходы позволили добиться ускорения в 6-7 раз на сопросессорах Intel Xeon Phi KNC на вещественных операциях с одинарной точностью. В дальнейшем это исследование получило продолжение и в работе \cite{FerreiraSWEVect} описаны методы, в помощью которых было получено ускорение в диапазоне 2.4-6.5 раз для операций с двойной точностью (вычисления проводились на микропроцессорах Intel Xeon Phi KNL).
+
+В данной статье рассматривается векторизация точного римановского решателя, содержащего сложные конструкции, в том числе решение нелинейного уравнения и сложное управление. В статье показано, что использование особенностей набора инструкций AVX-512 позволяет успешно векторизовать данный программный контекст.
 
 \section{Особенности набора инструкций AVX-512}
 
@@ -287,7 +291,7 @@ U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
 
 Отдельно на диаграмме выделен эффект от применения оптимизации замены переменных, позволившей в 1.8 раз ускорить функцию \texttt{sample} путем слияния двух поддеревьев графа потока управления (то есть было выполнено удаление дублирующих линейных участков).
 
-В результате применения всех описанных оптимизаций удалось достигнуть ускорения отдельных участков выполнения программы в 10 и более раз, а суммарное ускорение всего римановского решателя составило 7 раз (отмечено красной линией на Рис.~\ref{pic:perf}).
+В результате применения всех описанных оптимизаций удалось достичь ускорения отдельных участков выполнения программы в 10 и более раз, а суммарное ускорение всего римановского решателя составило 7 раз (отмечено красной линией на Рис.~\ref{pic:perf}).
 
 \section*{Заключение}
 
@@ -325,21 +329,12 @@ U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
 \publaddr М.
 \totalpages 400
 
-\RBibitem{BaderSWEVect}
-\by M. Bader, A. Breuer, W. H{\"o}ltz, S. Rettenberger
-\paper Vectorization of an augmented Riemann solver for the shallow water equations
-\jour Proceedings of the 2014 International Conference on High Performance Computing and Simulation, HPCS 2014
-\yr 2014
-\pages 193-201
-\crossref{http://dx.doi.org/10.1109/HPCSim.2014.6903686}
-
-\RBibitem{FerreiraSWEVect}
-\by C. R. Ferreira, K. T. Mandli, M. Bader
-\paper Vectorization of Riemann solvers for the single- ans multi-layer shallow water equations
-\jour Proceedings of the 2018 International Conference on High Performance Computing and Simulation, HPCS 2018
-\yr 2018
-\pages 415-422
-\crossref{http://dx.doi.org/10.1109/hpcs.2018.00073}
+\RBibitem{Shumlak}
+\by U. Shumlak, B. Udrea
+\paper An approximate Riemann solver for MHD computations on parallel architectures
+\jour Proceedings of the 15th AIAA Computational Fluid Dynamics Conference
+\yr 2001
+\crossref{http://dx.doi.org/10.2514/6.2001-2591}
 
 \RBibitem{Schive}
 \by H.-Y. Schive, U.-H. Zhang, T. Chiueh
@@ -348,13 +343,6 @@ U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
 \yr 2011
 \pages 367-377
 \crossref{http://dx.doi.org/10.1177/1094342011428146}
-
-\RBibitem{Shumlak}
-\by U. Shumlak, B. Udrea
-\paper An approximate Riemann solver for MHD computations on parallel architectures
-\jour Proceedings of the 15th AIAA Computational Fluid Dynamics Conference
-\yr 2001
-\crossref{http://dx.doi.org/10.2514/6.2001-2591}
 
 \RBibitem{Mandli}
 \by K. T. Mandly, A. Alghamdi, A. Ahmadia, D. I. Ketcheson, W. Scullin
@@ -378,6 +366,22 @@ U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
 \paper The parallel hydrodynamic code for astrophysical flow with stellar equation of state
 \jour Proceedings of Russian Supercomputing Days 2018
 \pages 612-624
+
+\RBibitem{BaderSWEVect}
+\by M. Bader, A. Breuer, W. H{\"o}ltz, S. Rettenberger
+\paper Vectorization of an augmented Riemann solver for the shallow water equations
+\jour Proceedings of the 2014 International Conference on High Performance Computing and Simulation, HPCS 2014
+\yr 2014
+\pages 193-201
+\crossref{http://dx.doi.org/10.1109/HPCSim.2014.6903686}
+
+\RBibitem{FerreiraSWEVect}
+\by C. R. Ferreira, K. T. Mandli, M. Bader
+\paper Vectorization of Riemann solvers for the single- ans multi-layer shallow water equations
+\jour Proceedings of the 2018 International Conference on High Performance Computing and Simulation, HPCS 2018
+\yr 2018
+\pages 415-422
+\crossref{http://dx.doi.org/10.1109/hpcs.2018.00073}
 
 \RBibitem{VolOkuPred}
 \by В. Ю. Волконский, С. К. Окунев
