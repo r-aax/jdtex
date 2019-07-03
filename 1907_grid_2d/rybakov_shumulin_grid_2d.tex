@@ -15,6 +15,10 @@ centertags]%
 {revtex4}
 \usepackage{ljm}
 \usepackage{listings}
+\usepackage{amsmath,amsthm,amscd,amsfonts,amssymb}
+\usepackage{textcomp}
+\usepackage{graphicx}
+\usepackage{esvect}
 
 \lstset{
 language=C++,
@@ -83,17 +87,81 @@ TODO : ABSTRACT
 
 TODO : INTRODUCTION
 
-\section{TODO : SECTION 1}
+\section{Решение задачи о перестроении двумерной поверхности}
 
-TODO : SECTION 1
+Рассмотрим геометрическую задачу о перестроении двумерной поверхности в общем виде.
+Пусть даны $n$ ячеек двумерной поверхностной сетки, каждая из которых представлена отрезком длины $l_i$ (то есть общее количество узлов равно $n + 1$).
+Известно направление изменения поверхности каждой ячейки (направление нормали к отрезку), а также направление движения каждого узла (совпадает с направлением суммы единичных нормалей, проведенных к инцидентным ячейкам) (Fig.~\ref{fig:grid_normals}).
 
-\section{TODO : SECTION 2}
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.8\textwidth]{pics/grid_normals.pdf}
+\captionstyle{normal}\caption{Двумерная поверхностная сетка с обозначенными направлениями движения узлов.}
+\label{fig:grid_normals}
+\end{figure}
 
-TODO : SECTION 2
+Также известны локальные сдвиги поверхности для каждой ячейки (они задаются значениями $H_i$).
+Требуется найти такие значения локальных сдвигов узлов сетки $h_i$, чтобы охватывающая площадь между старой поверхностью и новой поверхностью как можно меньше отличалась от требуемого значения $\Delta S = \sum_{i = 0}^{n - 1}l_iH_i$.
 
-\section{TODO : SECTION 3}
+Для решения данной задачи сначала требуется вычислить охватывающую площадь для каждой отдельной ячейки.
+
+\subsection{Задача о вычислении охватывающей площади при движении узлов отдельной ячейки}
+
+Рассматривается ячейка, представленная на плоскости отрезком $AB$ длины $l$.
+При перемещении точек $A$ и $B$ в новые точки $A_1$ и $B_1$ соответственно образуется четырехугольник $AA_1B_1B$.
+Требуется найти его площадь, выраженную явно через параметры $a = \overline{AA_1}$ и $b = \overline{BB_1}$ (Fig.~\ref{fig:local}).
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.8\textwidth]{pics/local.pdf}
+\captionstyle{normal}\caption{Вычисление охватывающей площади при передвижении узлов ячейки.}
+\label{fig:local}
+\end{figure}
+
+Для решения задачи опустим перпендикуляры из точек $A_1$ и $B_1$ на прямую $AB$.
+Их основаниями будут точки $A_2$ и $B_2$ соответственно.
+Искомая площадь может быть представлена в следующем виде:
+
+\begin{equation}
+S_{AA_1B_1B} = S_{A_2A_1B_1B_2} - S_{AA_1A_2} - S_{BB_1B_2}
+\end{equation}
+
+Обозначим угол между векторами $\overline{AA_1}$ и $\overline{AB}$ через $\alpha$, а угол между векторами $\overline{BB_1}$ и $\overline{BA}$ через $\beta$.
+Тогда искомая площадь вычисляется явно в следующем виде:
+
+\begin{equation}
+S_{AA_1B_1B} = \frac{1}{2}(l - a \cos \alpha - b \cos \beta)(a \sin \alpha + b \sin \beta) + \frac{1}{2}a^2 \sin \alpha \cos \alpha + \frac{1}{2}b^2 \sin \beta \cos \beta
+\end{equation}
+
+\begin{equation}
+S_{AA_1B_1B} = \frac{1}{2}\big(l(a \sin \alpha + b \sin \beta) - ab \sin(\alpha + \beta)\big)
+\end{equation}
+
+\section{Схемы приближенного решения}
 
 TODO : SECTION 3
+
+\subsection{Решение методом прямоугольников}
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.8\textwidth]{pics/grid_rectangles.pdf}
+\captionstyle{normal}\caption{Перестроение поверхности методом прямоугольников.}
+\label{fig:grid_rectangles}
+\end{figure}
+
+\subsection{Решение методом трапеций}
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionstrue
+\includegraphics[width=0.8\textwidth]{pics/grid_trapeziums.pdf}
+\captionstyle{normal}\caption{Перестроение поверхности методом трапеций.}
+\label{fig:grid_trapeziums}
+\end{figure}
 
 \section{Conclusion}
 
