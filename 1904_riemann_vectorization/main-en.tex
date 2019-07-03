@@ -7,29 +7,29 @@
 
 % data in Russian comes inside the Russian section(s) which is already here
 %\selectlanguage{russian}
-\title{Векторизация римановского решателя с использованием набора инструкций AVX-512}
+%\title{Векторизация римановского решателя с использованием набора инструкций AVX-512}
 % Last name, coma other names 
-\author{Рыбаков, Алексей}
+%\author{Рыбаков, Алексей}
 % Organisation, where the work done
-\address{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences (JSCC RAS -- branch of SRISA), 119334, Moscow, Leninsky prospect, 32a.}
+%\address{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences (JSCC RAS -- branch of SRISA), 119334, Moscow, Leninsky prospect, 32a.}
 % author email
-\email{rybakov@jscc.ru}
+%\email{rybakov@jscc.ru}
 
 % Last name, coma other names 
-\author{Шумилин, Сергей}
+%\author{Шумилин, Сергей}
 % Organisation, where the work done
-\address{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences (JSCC RAS -- branch of SRISA), 119334, Moscow, Leninsky prospect, 32a.}
+%\address{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences (JSCC RAS -- branch of SRISA), 119334, Moscow, Leninsky prospect, 32a.}
 % author email
-\email{shumilin@jscc.ru}
+%\email{shumilin@jscc.ru}
 
 % Two lines of key words
-\keywords{}
-\begin{abstract} 
-Численные методы, базирующиеся на решении задачи Римана о распаде произвольного разрыва, крайне требовательны к вычислительным ресурсам.
-Для применения данных численных методов на современных расчетных сетках требуется использование суперкомпьютера.
-Среди различных инструментов повышения производительности суперкомпьютерных приложений можно выделить векторизацию программного кода.
-Набор инструкций AVX-512 обладает рядом уникальных возможностей, позволяющих применить векторизацию к программному контексту римановского решателя, что ведет значительному ускорению решателя.
-\end{abstract}
+%\keywords{}
+%\begin{abstract} 
+%Численные методы, базирующиеся на решении задачи Римана о распаде произвольного разрыва, крайне требовательны к вычислительным ресурсам.
+%Для применения данных численных методов на современных расчетных сетках требуется использование суперкомпьютера.
+%Среди различных инструментов повышения производительности суперкомпьютерных приложений можно выделить векторизацию программного кода.
+%Набор инструкций AVX-512 обладает рядом уникальных возможностей, позволяющих применить векторизацию к программному контексту римановского решателя, что ведет значительному ускорению решателя.
+%\end{abstract}
 
 \selectlanguage{english}
 % All the same in English 
@@ -41,7 +41,7 @@
 % author email
 \email{rybakov@jscc.ru}
 % support notes
-\thanks{TODO}
+%\thanks{TODO}
 % Other information about author only on paper language 
 \info{Rybakov Alexey Anatolyevich - candidate of Physico-Mathematical Sciences, leader researcher of JSCC RAS - Branch of the Federal State Institution NIISI RAS. Research interests include mathematical modelling of gas dynamics problems using supercomputers, methods for constructing and managing computational grids, discrete mathematics, graph theory, random graph models, parallel programming, and functional programming.}
 \image{pics/rybakov}
@@ -288,7 +288,7 @@ The remaining time is divided between the three other functions \texttt{guessp} 
 The diagram Fig.~\ref{pic:perf} shows the effect of applying various optimizations to each of the functions in question, as well as the total acceleration obtained as a result of vectorization.
 
 \begin{figure}
-\includegraphics[width=12cm]{pics/pic_perf}
+\includegraphics[width=12cm]{pics/pic_perf_eng}
 \caption{The acceleration diagram of individual functions and the total acceleration of the Riemann solver}
 \label{pic:perf}
 \end{figure}
@@ -308,7 +308,7 @@ The approaches to the vectorization of the Riemann solver functions described in
 Performance testing was carried out on the input data arrays collected in solving standard test problems: the Soda problem, the Lax problem, the weak shock wave problem, the Einfeldt problem, the Woodward-Colella problem, the Schu-Osher problem and others \cite{BulVolTest}.
 As a result of the transformations of the source code, the Riemann solver accelerated 7 times faster than the non-optimized versions.
 
-The work was done at the JSCC RAS as part of the state assignment on the topic 0065-2019-0016 (registration number AAAA-A19-119011590098-8) and with the support of the RFBR grant No.18-07-00638.
+The work was done at the JSCC RAS as part of the state assignment on the topic 0065-2019-0016 (registration number AAAA-A19-119011590098-8).
 
 \begin{thebibliography}{30}
 
