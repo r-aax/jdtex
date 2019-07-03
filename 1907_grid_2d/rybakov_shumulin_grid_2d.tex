@@ -142,6 +142,31 @@ S_{AA_1B_1B} = \frac{1}{2}\big(l(a \sin \alpha + b \sin \beta) - ab \sin(\alpha 
 
 \subsection{Решение методом градиентного спуска}
 
+Метод градиентного спуска является наиболее простым методом оптимизации.
+При условии, что в любой точки функции можно вычислить ее градиент, то начиная с некоторого начального приближения $x_0$ строится итерационная последовательность~\cite{Polyak}:
+
+\begin{equation}
+x^{k+1} = x^k - \gamma _k \nabla f(x_k)
+\end{equation}
+
+где $\gamma _k \geq 0$ задает длину шага и, соответственно, скорость градиентного спуска.
+Градиентный метод находит свое основное применение в задаче поиска минимума или максимума функции.
+Направление антиградиента является направлением наискорейшего убывания функции.
+В процессе выполнения операций критериями останова являются сходимость по аргументу, по значению функции или по норме вектора градиента.
+
+\begin{equation}
+|x^{k+1} - x^k| \leq \varepsilon,
+\end{equation}
+
+\begin{equation}
+|f(x^{k+1})- f(x^k)| \leq \varepsilon,
+\end{equation}
+
+\begin{equation}
+||\nabla f(x^{k+1})|| \leq \varepsilon
+\end{equation}
+
+
 Рассмотрим решение поставленной задачи методом градиентного спуска.
 Неизвестными параметрами являются величины сдвигов узлов сетки $h_i$.
 Опираясь на решение локальной задачи об определении охватывающей площади можно записать охватывающую площадь при движении отдельной ячейки:
@@ -209,6 +234,9 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 \bibitem{Rettinger}
 \refitem{article}
 C. Rettinger, C. Godenschwager, S. Eibl, et al., {\it ``Fully Resolved Simulations of Dune Formation in Riverbeds"}, ISC High Performance , LNCS~{\bf 10266}, 3--21 (2017).
+\bibitem{Polyak}
+\refitem{book}
+Polyak B.T. Vvedenie v optimizaciyu. Moscow, Nauka, 1983, 384 p.
 
 \end{thebibliography}
 
