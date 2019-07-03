@@ -19,6 +19,7 @@ centertags]%
 \usepackage{textcomp}
 \usepackage{graphicx}
 \usepackage{esvect}
+\usepackage{physics}
 
 \lstset{
 language=C++,
@@ -102,7 +103,7 @@ TODO : INTRODUCTION
 \end{figure}
 
 Также известны локальные сдвиги поверхности для каждой ячейки (они задаются значениями $H_i$).
-Требуется найти такие значения локальных сдвигов узлов сетки $h_i$, чтобы охватывающая площадь между старой поверхностью и новой поверхностью как можно меньше отличалась от требуемого значения $\Delta S = \sum_{i = 0}^{n - 1}l_iH_i$.
+Требуется найти такие значения локальных сдвигов узлов сетки $h_i$, чтобы охватывающая площадь между старой поверхностью и новой поверхностью для каждой ячейки сетки ($S_i$) как можно меньше отличалась от требуемого значения $T_i = l_iH_i$.
 
 Для решения данной задачи сначала требуется вычислить охватывающую площадь для каждой отдельной ячейки.
 
@@ -137,6 +138,36 @@ S_{AA_1B_1B} = \frac{1}{2}(l - a \cos \alpha - b \cos \beta)(a \sin \alpha + b \
 
 \begin{equation}
 S_{AA_1B_1B} = \frac{1}{2}\big(l(a \sin \alpha + b \sin \beta) - ab \sin(\alpha + \beta)\big)
+\end{equation}
+
+\subsection{Решение методом градиентного спуска}
+
+Рассмотрим решение поставленной задачи методом градиентного спуска.
+Неизвестными параметрами являются величины сдвигов узлов сетки $h_i$.
+Опираясь на решение локальной задачи об определении охватывающей площади можно записать охватывающую площадь при движении отдельной ячейки:
+
+\begin{equation}
+S_i = \frac{1}{2}\big(l_i(h_i \sin \alpha_i + h_{i + 1} \sin \beta_i) - h_ih_{i + 1} \sin(\alpha_i + \beta_i)\big) 
+\end{equation}
+
+Тогда ошибку определения охватывающей площади в ячейке будем определять как $\delta_i = (S_i - T_i)^2$.
+Общая ошибка при перестроении поверхности задается как среднее значение ошибок для всех ячеек:
+
+\begin{equation}
+\epsilon = \frac{1}{n}\sum_{i = 0}^{n - 1}{\delta_i}
+\end{equation}
+
+\begin{equation}
+\frac{\partial \epsilon}{\partial h_i} = \frac{1}{n}\big(\frac{\partial \delta_{i - 1}}{\partial h_i} + \frac{\partial \delta_i}{\partial h_i}\big)
+\end{equation}
+
+где
+
+\begin{equation}
+\begin{cases}
+\frac{\partial \delta_{i - 1}}{\partial h_i} = (S_{i - 1} - T_{i - 1})(l_{i - 1} \sin \beta_{i - 1} - h_{i - 1} \sin(\alpha_{i - 1} + \beta_{i - 1})) \\
+\frac{\partial \delta_i}{\partial h_i} = (S_i - T_i)(l_i \sin \alpha_i - h_{i + 1} \sin(\alpha_i + \beta_i))
+\end{cases}
 \end{equation}
 
 \section{Схемы приближенного решения}
