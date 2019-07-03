@@ -1,0 +1,116 @@
+%%
+%% ****** ljmsamp.tex 13.06.2018 ******
+%%
+\documentclass[
+11pt,%
+tightenlines,%
+twoside,%
+onecolumn,%
+nofloats,%
+nobibnotes,%
+nofootinbib,%
+superscriptaddress,%
+noshowpacs,%
+centertags]%
+{revtex4}
+\usepackage{ljm}
+\usepackage{listings}
+
+\lstset{
+language=C++,
+basewidth=0.5em,
+xleftmargin=45pt,
+xrightmargin=45pt,
+basicstyle=\small\ttfamily,
+keywordstyle=\bfseries\underbar,
+numbers=left,
+numberstyle=\tiny,
+stepnumber=1,
+numbersep=10pt,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=trBL,
+tabsize=2,
+captionpos=t,
+breaklines=true,
+breakatwhitespace=false,
+escapeinside={\%*}{*)}
+}
+
+\begin{document}
+
+\titlerunning{TODO : RUNNING TITLE} % for running heads
+\authorrunning{A.~A.~Rybakov and S.~S.~Shumilin} % for running heads
+%\authorrunning{First-Author, Second-Author} % for running heads
+
+\title{TODO : FULL TITLE}
+% Splitting into lines is performed by the command \\
+% The title is written in accordance with the rules of capitalization.
+
+\author{\firstname{A.~A.}~\surname{Rybakov}}
+\email[E-mail: ]{rybakov.aax@gmail.com} \affiliation{Joint
+Supercomputer Center of the Russian Academy of Sciences (JSCC RAS)
+-- Branch of Scientific Research Institute of System Analysis of the
+Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334,
+Russia}
+
+\author{\firstname{S.~S.}~\surname{Shumilin}}
+\email[E-mail: ]{shumilin@jscc.ru} \affiliation{Joint Supercomputer
+Center of the Russian Academy of Sciences (JSCC RAS) -- Branch of
+Scientific Research Institute of System Analysis of the Russian
+Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
+%\noaffiliation % If the author does not specify a place of work.
+
+\firstcollaboration{(Submitted by TODO : SUBMITTER)} % Add if you know submitter.
+%\lastcollaboration{ }
+
+\received{TODO : DATE} % The date of receipt to the editor, i.e. December 06, 2017
+
+\begin{abstract}
+TODO : ABSTRACT
+\end{abstract}
+
+\subclass{TODO : CODE} % Enter 2010 Mathematics Subject Classification.
+
+\keywords{TODO : KEYWORDS} % Include keywords separeted by comma.
+
+\maketitle
+
+% Text of article starts here.
+
+\section{Introduction}
+
+TODO : INTRODUCTION
+
+\section{TODO : SECTION 1}
+
+TODO : SECTION 1
+
+\section{TODO : SECTION 2}
+
+TODO : SECTION 2
+
+\section{TODO : SECTION 3}
+
+TODO : SECTION 3
+
+\section{Conclusion}
+
+TODO : CONCLUSION
+
+\begin{acknowledgments}
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+\end{acknowledgments}
+
+\begin{thebibliography}{99}
+
+% References for INTRODUCTION section.
+
+\bibitem{Rettinger}
+\refitem{article}
+C. Rettinger, C. Godenschwager, S. Eibl, et al., {\it ``Fully Resolved Simulations of Dune Formation in Riverbeds"}, ISC High Performance , LNCS~{\bf 10266}, 3--21 (2017).
+
+\end{thebibliography}
+
+\end{document}
