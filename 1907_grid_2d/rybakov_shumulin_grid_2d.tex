@@ -45,11 +45,11 @@ escapeinside={\%*}{*)}
 
 \begin{document}
 
-\titlerunning{Деформирование поверхностной сетки в двумерном случае} % for running heads
+\titlerunning{Deformation of the surface mesh in the two-dimensional case} % for running heads
 \authorrunning{A.~A.~Rybakov and S.~S.~Shumilin} % for running heads
 %\authorrunning{First-Author, Second-Author} % for running heads
 
-\title{Сравнение приближенных методов деформирования поверхностной сетки в двумерном случае}
+\title{Approximate methods of deformation of the surface mesh in the two-dimensional case}
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
@@ -73,16 +73,16 @@ Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 \received{TODO : DATE} % The date of receipt to the editor, i.e. December 06, 2017
 
 \begin{abstract}
-Численное моделирование процесса обледенения поверхности включает в себя работу разных решателей, выполняющихся итерационно и обменивающихся между собой расчетными данными.
-Цепочка выполнения расчетов состоит из работы газодинамического решателя, расчета жидкой фазы, вычисления толщины ледяного нароста на поверхностной сетке и перестроения поверхности.
-После выполнения перестроения поверхности процесс моделирования уходит на следующую итерацию в газодинамический решатель.
-Таким образом выполнение качественного перестроения поверхностной расчетной сетки с учетом наросшего льда влияет на все дальнейшие вычисления.
-В статье рассмотрены приближенные методы перестроения поверхностной сетки по данным нароста льда в каждой ячейке для двумерного случая и оценена их точность.
+Numerical simulation of the surface ice accretion includes the work of various solvers that are performed iteratively and exchange data with each other.
+The calculation execution chain consists of the work of the gas-dynamic solver, the calculation of the liquid phase, the calculation of the thickness of the accreted ice on the surface grid and the rebuilding of the surface.
+After rebuilding is done, the modelling process goes to the next iteration in the gas-dynamic solver.
+Thus, the performance of a qualitative rebuilding of the surface computational grid taking into account the accumulated ice affects all further calculations.
+The article discusses approximate methods of rebuilding the surface mesh according to the ice accretion in each cell for the two-dimensional case and estimates their accuracy.
 \end{abstract}
 
 \subclass{TODO : CODE} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{TODO : KEYWORDS} % Include keywords separeted by comma.
+\keywords{Mesh deformation, displaced areas, gradient descend} % Include keywords separeted by comma.
 
 \maketitle
 
@@ -90,64 +90,63 @@ Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 
 \section{Introduction}
 
-Задача расчета обледенения аэродинамических поверхностей является крайне актуальной на сегодняшний день.
-Из наиболее известных программных продуктов, реализующих данный функционал, можно прежде всего выделить такие пакеты как FENSAP-ICE \cite{Bourgault_FENSAP}, LEWICE \cite{Bidwell_LEWICE}, CANICE \cite{Pueyo_CANICE}, CHT2D \cite{Pueyo_CHT2D} и многие другие.
-Как правило эти пакеты являются многошаговыми и предусматривают итерационное перестроение поверхностной сетки по мере нарастания льда.
-Такое перестроение требуется выполнять, так как по мере нарастания льда необходимо повторно запускать аэродинамический решатель для получения актульных данных о движении среды вокруг нового деформированного тела \cite{Ozgen, Beaugendre}.
-Для получения более точного профиля ледяного нароста требуется производить перестроение поверхностной сетки как можно чаще, поэтому скорость работы алгоритмов перестроения сетки также существенна.
+The task of calculating the ice accretion of aerodynamic surfaces is extremely relevant today.
+Of the most well-known software products that implement this functionality, we can emphasize such packages as FENSAP-ICE \cite{Bourgault_FENSAP}, LEWICE \cite{Bidwell_LEWICE}, CANICE \cite{Pueyo_CANICE}, CHT2D \cite{Pueyo_CHT2D} and many others.
+As a rule, these packages are multi-step and provide for iterative rebuilding of the surface mesh as the ice increases.
+Such rebuilding is required to be performed, as with the growth of ice, it is necessary to re-launch the aerodynamic solver to obtain actual data on the motion of the medium around the new deformed body. \cite{Ozgen, Beaugendre}.
+To obtain a more accurate profile of accreted ice, it is required to rebuild the surface mesh as often as possible, therefore, the speed of the mesh rebuilding algorithms is also significant.
 
-Наиболее острый интерес представляет разработка алгоритмов перестроения поверхностных сеток в трехмерном пространстве.
-Среди таких можно отметить алгоритм перестроения с локальным сохранением объема ячеек \cite{Jiao}, нашедший свою реализацию в инструменте iceSurf \cite{Thompson}.
-Однако работы по разработке алгоритмов перестроения поверхностей в двумерном пространстве также ведутся, и результаты данных исследований в той или иной мере переносятся на работу в трехмерное пространство, как это продемонстрировано в работе \cite{Pueyo}.
+Of particular interest is the development of algorithms for rebuilding surface grids in three-dimensional space.
+Among them there is a rebuilding algorithm with local saving of the cell volume \cite{Jiao}, which found its implementation in the iceSurf tool \cite{Thompson}.
+However, work on the development of algorithms for rebuilding surfaces in two-dimensional space is also under way, and the results of these studies are more-less transferred to work in three-dimensional space, as demonstrated in \cite{Pueyo}.
 
-В данной работе проанализированы приближенные методы перестроения поверхностной сетки только для двумерного случая, однако они могут быть обобщены и на трехмерные объекты.
-В дальнейшем задача перестроения поверхностной сетки рассматривается в абстрактном виде без привязки к проблематике обледенения поверхностей.
+In this paper, we have analyzed approximate methods for rebuilding a surface mesh only for the two-dimensional case; however, they can be generalized to three-dimensional objects.
+Further, the task of rebuilding the surface mesh is considered in an abstract form without reference to the problems of ice accretion.
 
-\section{Решение задачи о перестроении поверхности в двумерном пространстве}
+\section{Problem of rebuilding the surface in two-dimensional space}
 
-Рассмотрим геометрическую задачу о перестроении поверхности в двумерном пространстве в общем виде.
-Пусть даны $n$ ячеек поверхностной сетки, каждая из которых представлена отрезком длины $l_i$ (то есть общее количество узлов равно $n + 1$).
-Известно направление изменения поверхности каждой ячейки (направление нормали к отрезку), а также направление движения каждого узла $\overline{g_i}$, $|\overline{g_i}| = 1$.
-Оно совпадает с направлением суммы единичных нормалей, проведенных к инцидентным ячейкам.
-К тому же для двумерного случая данное направление лежит на биссектрисе угла, образованного двумя инцидентными ячейками \cite{Fortin} (Fig.~\ref{fig:grid_normals}).
+Consider the geometric problem of rebuilding a surface in two-dimensional space in general form.
+Let $n$ cells of the surface grid be given, each of which is represented by a segment of length $l_i$ (that is, the total number of nodes is $n+1$).
+The direction of change of the surface of each cell is known (the direction of the normal to the segment), as well as the direction of movement of each node $\overline{g_i}$, $|\overline{g_i}| = 1$.
+It coincides with the direction of the sum of the unit normals drawn to the incident cells.
+Moreover, for a two-dimensional case, this direction lies on the bisector of the angle formed by two incident cells \cite{Fortin} (Fig.~\ref{fig:grid_normals}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=0.8\textwidth]{pics/grid_normals.pdf}
-\captionstyle{normal}\caption{Поверхностная сетка с обозначенными направлениями движения узлов.}
+\captionstyle{normal}\caption{Surface mesh with designated direction of movement of the nodes.}
 \label{fig:grid_normals}
 \end{figure}
 
-Также известны локальные сдвиги поверхности для каждой ячейки (они задаются значениями $H_i$).
-Требуется найти такие значения локальных сдвигов узлов сетки $h_i$, чтобы охватывающая площадь между старой поверхностью и новой поверхностью для каждой ячейки сетки ($S_i$) как можно меньше отличалась от требуемого значения $T_i = l_iH_i$.
+It is required to find such values of local shifts of grid nodes $h_i$ that the covering area between the old surface and the new surface for each grid cell ($S_i$) differ as small as possible from the required value a $T_i = l_iH_i$.
 
-Для решения данной задачи сначала требуется вычислить охватывающую площадь для каждой отдельной ячейки.
+To solve this problem, first, it's needed to calculate the covering area for each individual cell.
 
-\subsection{Задача о вычислении охватывающей площади при движении узлов отдельной ячейки}
+\subsection{The task of calculating the covering area when moving nodes of a single cell}
 
-Рассматривается ячейка, представленная на плоскости отрезком $AB$ длины $l$.
-При перемещении точек $A$ и $B$ в новые точки $A_1$ и $B_1$ соответственно образуется четырехугольник $AA_1B_1B$.
-Требуется найти его площадь, выраженную явно через параметры $a = \overline{AA_1}$ и $b = \overline{BB_1}$ (Fig.~\ref{fig:local}).
+Consider a cell represented on a plane by a segment $AB$ of length $l$.
+When moving $A$ and $B$ to the new points $A_1$ and $B_1$ respectively quadrangle $AA_1B_1B$ is formed.
+It is required to find its area expressed explicitly through parameters $a = \overline{AA_1}$ и $b = \overline{BB_1}$ (Fig.~\ref{fig:local}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=0.8\textwidth]{pics/local.pdf}
-\captionstyle{normal}\caption{Вычисление охватывающей площади при передвижении узлов ячейки.}
+\captionstyle{normal}\caption{Calculation of the covering area when moving the nodes of the cell.}
 \label{fig:local}
 \end{figure}
 
-Для решения задачи опустим перпендикуляры из точек $A_1$ и $B_1$ на прямую $AB$.
-Их основаниями будут точки $A_2$ и $B_2$ соответственно.
-Искомая площадь может быть представлена в следующем виде:
+To solve the problem, we drop perpendiculars from the points $A_1$ and $B_1$ to a straight $AB$.
+Their projections will be points $A_2$ and $B_2$ respectively.
+The required area can be represented as follows:
 
 \begin{equation}
 S_{AA_1B_1B} = S_{A_2A_1B_1B_2} - S_{AA_1A_2} - S_{BB_1B_2}
 \end{equation}
 
-Обозначим угол между векторами $\overline{AA_1}$ и $\overline{AB}$ через $\alpha$, а угол между векторами $\overline{BB_1}$ и $\overline{BA}$ через $\beta$.
-Тогда искомая площадь вычисляется явно в следующем виде:
+Denote the angle between the vectors $\overline{AA_1}$ and $\overline{AB}$ as $\alpha$, and the angle between the vectors $\overline{BB_1}$ and $\overline{BA}$ as $\beta$.
+Then the required area is calculated explicitly in the following form:
 
 \begin{equation}
 S_{AA_1B_1B} = \frac{1}{2}(l - a \cos \alpha - b \cos \beta)(a \sin \alpha + b \sin \beta) + \frac{1}{2}a^2 \sin \alpha \cos \alpha + \frac{1}{2}b^2 \sin \beta \cos \beta
@@ -157,47 +156,47 @@ S_{AA_1B_1B} = \frac{1}{2}(l - a \cos \alpha - b \cos \beta)(a \sin \alpha + b \
 S_{AA_1B_1B} = \frac{1}{2}\big(l(a \sin \alpha + b \sin \beta) - ab \sin(\alpha + \beta)\big)
 \end{equation}
 
-\subsection{Решение методом градиентного спуска}
+\subsection{Gradient Descent Solution}
 
-Метод градиентного спуска является одним из наиболее простых методом оптимизации для нахождения локального минимума функции.
-При условии, что в любой точки функции можно вычислить ее градиент, то начиная с некоторого начального приближения $x_0$ строится итерационная последовательность~\cite{Kantorovich}:
+The gradient descent method is one of the simplest optimization method for finding the local minimum of a function.
+Provided that at any point of the function it is possible to calculate its gradient, then an iteration sequence is constructed starting from some initial approximation $x_0$.~\cite{Kantorovich}:
 
 \begin{equation}
 x^{k+1} = x^k - \gamma _k \nabla f(x_k)
 \end{equation}
 
-где $\gamma _k \geq 0$ задает длину шага и, соответственно, скорость градиентного спуска.
+where $\gamma _k \geq 0$ sets the step length and, respectively, the rate of gradient descend.
 
-Градиентный метод находит свое основное применение в задаче поиска минимума или максимума функции.
-Направление антиградиента является направлением наискорейшего убывания функции.
-Основная проблема метода заключается в выборе шага $\gamma$.
-При больших значениях шага существует вероятность "перепрыгнуть" через минимум функции.
-К тому же, метод не гарантирует нахождение глобального минимума.
+The gradient method finds its main application in the task of finding the minimum or maximum of a function.
+The direction of the anti-gradient is the direction of the fastest decreasing of the function.
+The main problem of the method is to choose the step $\gamma$.
+For large values of the step, there is a chance to "jump over" the minimum of the function.
+In addition, the method does not guarantee finding a global minimum.
 
-Рассмотрим решение поставленной задачи методом градиентного спуска.
-Неизвестными параметрами являются величины сдвигов узлов сетки $h_i$.
-Опираясь на решение локальной задачи об определении охватывающей площади, можно записать охватывающую площадь при движении отдельной ячейки:
+Consider the solution of the problem by the method of gradient descent.
+The unknown parameters are the magnitudes of the shifts of the nodes of the grid $h_i$.
+Based on the solution of the local problem of determining the covering area, we can define the covering area when a separate cell moves as:
 
 \begin{equation}
 S_i = \frac{1}{2}\big(l_i(h_i \sin \alpha_i + h_{i + 1} \sin \beta_i) - h_ih_{i + 1} \sin(\alpha_i + \beta_i)\big) 
 \end{equation}
 
-Отклонением охватывающей площади в ячейке от истинного значения будем называть величину $\delta_i = S_i - T_i$, а ошибкой -- ее квадрат $d_i = \delta_i^2$.
-Общая ошибка при перестроении поверхности задается как сумма ошибок для всех ячеек:
+The deviation of the covering area in the cell from the true value will be called the value $\delta_i = S_i - T_i$, and its error is its square $d_i = \delta_i^2$.
+The total error when rebuilding the surface is defined as the sum of errors for all cells:
 
 \begin{equation}
 D = \sum_{i = 0}^{n - 1}{d_i}
 \end{equation}
 
-При нахождении оптимального решения требуется минимизировать общую ошибку.
-Для нахождения градиента требуется вычислить частные производные функции $D$ по всем неизвестным $h_i$.
-Данные производные можно записать в явном виде.
+When finding the optimal solution, it is required to minimize the total error.
+To find the gradient, it is required to calculate the partial derivatives of the function $D$ over all unknowns $h_i$.
+These derivatives can be written explicitly.
 
 \begin{equation}
 \frac{\partial D}{\partial h_i} = \frac{\partial d_{i - 1}}{\partial h_i} + \frac{\partial d_i}{\partial h_i}
 \end{equation}
 
-где
+where
 
 \begin{equation}
 \begin{cases}
@@ -206,72 +205,72 @@ D = \sum_{i = 0}^{n - 1}{d_i}
 \end{cases}
 \end{equation}
 
-Также при осуществлении метода градиентного спуска требуется следить за соблюдением дополнительных условий, которые накладываются на неизвестные $h_i$.
-Например, очевидным условием является выполнение соотношения $h_i \ge 0$, что запрещает движение сетки в отрицательном направлении.
-В данной работе использовались более строгие условия $min(H_{i - 1}, H_i) \le h_i \le max(H_{i - 1}, H_i)$, которые не позволят величинам смещения узлов сетки выходить за пределы смещений инцидентных им ячеек сетки.
+Also, when implementing the gradient descent method, it is required to monitor the compliance of additional conditions that are imposed on the unknown $h_i$.
+For example, an obvious condition is that $h_i \ge 0$ is satisfied, which prevents the grid from moving in a negative direction.
+In this work, more stringent conditions $min(H_{i - 1}, H_i) \le h_i \le max(H_{i - 1}, H_i)$ were used, which do not allow the values of the displacement of the grid nodes to go beyond the limits of the displacements of the grid cells incident to them.
 
-\section{Схемы приближенного решения}
+\section{Approximate solution schemes}
 
-Решение задачи о перестроении сетки методом градиентного спуска оказывается слишком требовательной к ресурсам задачей при увеличении размера сетки.
-К тому же качество решения зачастую оказывается неудовлетворительным, особенно при попадании в локальные минимумы.
-Поэтому для решения поставленной задачи были предложены методы приближенного решения, основанные на аппроксимации решения в каждой ячейке с помощью примитивных геометрических фигур.
+Solving the problem of rebuilding the grid using the gradient descent method is too resource-demanding as the grid size increases.
+In addition, the quality of the solution is often unsatisfactory, especially when hit in local minima.
+Therefore, to solve the problem, methods of approximate solution were proposed, based on approximation of the solution in each cell using primitive geometric shapes.
 
-\subsection{Решение методом прямоугольников}
+\subsection{Solution by rectangles method}
 
-В качестве первого метода рассмотрим приближение, при котором каждый узел сетки сдвигается на вектор $\frac{1}{2}(H_{i - 1} + H_i)\overline{g_i}$.
-Данный метод соответствует приближению решения в каждой ячейке прямоугольником по сторонами $l_i$ и $H_i$, а затем усреднения, как показано на Fig.~\ref{fig:grid_rectangles}.
+As a first method, we consider an approximation in which each grid node is shifted by a vector $\frac{1}{2}(H_{i - 1} + H_i)\overline{g_i}$.
+This method corresponds to the approximation of the solution in each cell with a rectangle on the sides of $l_i$ and $H_i$, and then averaging, as shown in Fig.~\ref{fig:grid_rectangles}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=0.8\textwidth]{pics/grid_rectangles.pdf}
-\captionstyle{normal}\caption{Перестроение поверхности методом прямоугольников.}
+\captionstyle{normal}\caption{Surface rebuilding using the rectangle method.}
 \label{fig:grid_rectangles}
 \end{figure}
 
-Стоит отметить возможное развитие данного подхода с помощью применения многослойного приближения, как это описано в работе \cite{Bourgault_Cote}, однако в данной работе эта возможность не рассматривалась.
+It is worth noting the possible development of this approach through the use of multilayer approximation, as described in \cite{Bourgault_Cote}, however, this opportunity was not considered in this paper.
 
-\subsection{Решение методом трапеций}
+\subsection{Solution by trapezoid method}
 
-В методе трапеций решение в каждой ячейке приближается трапецией с площадью $T_i$, боковые стороны которой лежат на направлениях роста двух узлов, относящихся к рассматриваемой ячейке.
-После построения трапеций для всех ячеек сетки у каждого внутреннего узла появляется две новые потенциальные позиции для сдвига (образованные ячейкой слева и ячейкой справа).
-В качестве финальной новой позиции выбирается их среднее значение (Fig.~\ref{fig:grid_trapeziums}).
+In the trapezoid method, the solution in each cell is approached by a trapezoid with an area of $T_i$, the sides of which lie on the growth directions of two nodes belonging to the considered cell.
+After constructing the trapezoid for all grid cells, each internal node has two new potential positions for the shift (formed by the cell on the left and the cell on the right).
+Their average value is chosen as the final position. (Fig.~\ref{fig:grid_trapeziums}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=0.8\textwidth]{pics/grid_trapeziums.pdf}
-\captionstyle{normal}\caption{Перестроение поверхности методом трапеций.}
+\captionstyle{normal}\caption{Surface rebuilding by trapezoid method.}
 \label{fig:grid_trapeziums}
 \end{figure}
 
-\subsection{Сравнение точности решений}
+\subsection{Comparison of solution accuracy}
 
-Для сравнения точности решений, полученных с помощью описанных методов была использована модельная двумерная поверхностная сетка, представленная одним периодом синусоиды ($x \in [0, 2 \pi]$).
-В качестве набора смещений ячеек ($H_i$) использовались одинаковые смещения на величину, равную половине размера ячейки.
-При увеличении количества узлов оба приближенных метода продемонстрировали стремление к нулю величины $\frac{D}{\sum_i{T_i}}$ с незначительными отклонениями друг от друга и от метода градиентного спуска, который использовался для верификации.
-Также было проведено сравнение величин $\delta_i$ для всех ячеек для предложенных приближенных методов.
-Результаты сравнения на модельной сетке при количестве узлов $n = 1000$ приведены на Fig.~\ref{fig:graphic}.
+To compare the accuracy of the solutions obtained using the methods described, we used a model two-dimensional surface grid represented by a single sinusoid period ($x \in [0, 2 \pi]$).
+As a set of cell shifts ($ H_i $), the same shifts equal to half of cell size were used.
+With an increase in the number of nodes, both approximate methods demonstrated values $\frac{D}{\sum_i{T_i}}$ tending to zero with minor deviations from each other and from the gradient descent method that was used for verification.
+A comparison of the values of $\delta_i$ for all cells for the proposed approximate methods was also carried out.
+The results of the comparison on the model grid with the number of nodes $n = 1000$ are shown Fig.~\ref{fig:graphic}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionstrue
 \includegraphics[width=1.0\textwidth]{pics/graphic.pdf}
-\captionstyle{normal}\caption{Сравнение точности решений методом прямоугольников и методом трапеций.}
+\captionstyle{normal}\caption{Comparison of the accuracy of solutions using the rectangle method and the trapezoid method.}
 \label{fig:graphic}
 \end{figure}
 
-Из данного графика видно, что более простой метод прямоугольников является в то же время и более точным, так как обеспечивает меньшие отклонения от точного решения на сильно выпуклых и сильно вогнутых участках сетки.
+It can be seen from this graph that the simpler method of rectangles is at the same time more accurate, since it provides smaller deviations from the exact solution on strongly convex and strongly concave sections of the grid.
 
 \section{Conclusion}
 
-Были рассмотрены два простых приближенных метода перестроения поверхностной сетки в двумерном пространстве.
-Сравнение результаты их работы с локально-оптимальным решением, полученным с помощью итерационного метода градиентного спуска показал нецелесообразность использования последнего для промышленного счета.
-Из двух приближенных методов перестроения метод прямоугольников продемонстрировал меньшие отклонения решения для отдельных ячеек сетки в местах сильной кривизны сетки.
-Рассмотренные приближенные методы могут быть распространены на трехмерный случай, однако это выходит за рамки данной статьи.
+Two simple approximate methods for rebuilding a surface mesh in two-dimensional space were considered.
+Comparison of the results of their work with a locally optimal solution obtained using the iterative gradient descent method showed the inexpediency of using the latter for industrial calculations.
+Of the two approximate rebuilding methods, the rectangle method demonstrated smaller deviations of the solution for individual grid cells in places of strong grid curvature.
+The considered approximate methods can be extended to the three-dimensional case, but this is beyond the scope of this article.
 
 \begin{acknowledgments}
-The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+The work was done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
