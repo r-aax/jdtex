@@ -1,1 +1,37 @@
-stability 1 TODO
+Taking into account that the initial data: the fractal dimension, the energy of the wavelet spectrum and the maximum eigenvalue generated for the DO type identification algorithm are sufficient statistics, here we will show that they and the algorithms for their formation are stable.
+
+To that end, in the statistical approach, we use the law of large numbers and the central limit theorem as a theoretical basis \cite{bib_11} for determining stability and algorithms for estimating sufficient statistics for DO type identification algorithm, and the statistics itself.
+The validity of the approach comes from the fact that
+
+-- OED measurement sample for each coordinate of the DO detected position is a set of realizations of a sufficiently large volume of independent equally distributed random variables according to the same law, a priori unknown;
+
+-- sufficient statistics for each particular algorithm of DO type identification are estimates of the expectation for the fractal dimension, the energy of the wavelet spectrum and the maximum eigenvalue.
+They are determined by empirical variances.
+The evaluation of the third and fourth moments are not affected, since they are completely and unambiguously determined by empirical estimates of the expectation and variance for the beta distribution.
+
+Now, to determine the stability index of the first two moments for sufficient statistics, we use the fundamental theory of confidence estimation of the expectation and variance, which asserts a unique functional relationship among the sample size, the number of observations, the accuracy of the estimated parameter as a measure of the minimum length of the confidence interval of the parameter estimate and the acceptable (required) confidence level proximity parameter estimates to the true (unknown) value.
+
+The measure of localization of the estimated parameter by the confidence interval at a given confidence level and the final sample size is an indicator of the stability of the assessment.
+
+In the problem of estimating the first moment -- the mathematical expectation with unknown true variance $l$ -- the measure of localization of the estimate by the confidence interval, the confidence probability -- $\beta$, the estimate of the standard deviation $s$ and the sample size -- $n$ are related by the expression $l = 2sC_{\beta}/\sqrt{n}$, where $C_{\beta}$ is the required (admissible given) confidence probability $\beta$ from the condition: Laplace function $\Phi_n(C_{\beta}) = \beta$ with a sufficiently large sample $n$ \cite{bib_13,bib_14}.
+
+In the problem of estimating the second moment -- the standard deviation with an unknown expectation, $l_{\sigma} = |s - \sigma|$ -- the localization measure -- $s$ the standard deviation, the sample size -- $n$ and the confidence level -- $\beta$ are related $l_{\sigma} = st_{\beta}/\sqrt{n}$, where $t_{\beta}$ is the value $\beta$ of the condition that (for large $n$) the Laplace function $\Phi_n(t_{\beta})$.
+
+So, in the case $C_{\beta} = 1.6$, defined in \cite{bib_01} by the "no-overrunning" condition of selective sufficient statistics beyond the unit interval and corresponding to a confidence level of $0.89$ when approximating the probability distribution law of the deviation of the expectation estimate from the true value by a normal law \cite{bib_13}, the localization measure $l = 2sC_{\beta}/\sqrt{n} = 2 \cdot 0.36 \cdot 1.6 / 10 = 0.1192$ for $n = 100$ and estimate of standard deviation $s = 0.36$.
+ 
+It can be seen that in this case there is a very good approximation of the value of the estimated parameter -- the mathematical expectation to the true one, and the estimate can be considered consistent, that is, stable.
+The algorithm for generating an estimate as sufficient statistics is also stable.
+Similar holds for estimating standard deviation.
+
+Additionally, under conditions of a priori uncertainty, the adoption of a normal approximation of an unknown law is also based on the well-known \cite{bib_16} property of a normal law: the entropy of a random variable has the largest value with the same standard deviation if the probability distribution of a random variable is normal.
+
+Thus, sufficient statistics: the estimates of the first two moments of the fractal dimension, the energy of the wavelet spectrum, and the maximum eigenvalue, which are generated for particular DO type indefication algorithms, and the algorithms for cal-culating them are stable.
+At the same time, $l$ and $l_{\sigma}$ are measures of localization of estimates in the vicinity of their true values were found as the least favorable -- guaranteed for an acceptable level of confidence probability: without performing the operation of minimizing the interval.
+
+If we now take into account \cite{bib_01} that the mentioned sufficient statistics take only positive values and only from finite intervals of their values, then the following becomes true: the initial sufficient statistics for (\ref{eqn:eqn_1} are subject to probability distributions from the class of beta distributions.
+The latter, as is known \cite{bib_12}, are uniquely determined by only two parameters $p_j > 0$, $q_j > 0$ -- the DO type index.
+These parameters, as noted, in turn, are uniquely determined by estimates of mathematical expectations -- $m_{j}^{*}$ and variances -- $s^2 = {\sigma_{j}^{*}}^2$ sufficient statistics (in this case, guaranteed estimates): the parameters are one-to-one associated with these estimates by rational functions of the form $p_j = (m_{j}^{*} - {\sigma_{j}^{*}}^2) / [({\sigma_{j}^{*}}^2 / m_{j}^{*}) - m_{j}^{*}]$ and $q_j = (p_j / m_{j}^{*}) - p_j$.
+
+With such communication functions, the parameters, $p_j$, $q_j$, by virtue of the stability $m_{j}^{*}$ and ${\sigma_{j}^{*}}^2$ and assurance of their values, are stable \cite{bib_16}.
+From this it follows that in this sense, the beta laws of the probability distribution of sufficient statistics of the fractal dimension, the energy of the wavelet spectrum, and the maximum eigenvalue are stable as laws that are completely determined by their stable parameters $p_j > 0$, $q_j > 0$.
+The laws are represented by power functions from sufficient statistics and are determined from samples of a sufficiently large amount of measurements of the coordinates of the position of the de-tected DO by OED with different features of the flight trajectory, sighting DO and background conditions (Fig.~\ref{fig:fig_1_option_1}, Fig.~\ref{fig:fig_1_option_2}, Fig.~\ref{fig:fig_1_option_3}).

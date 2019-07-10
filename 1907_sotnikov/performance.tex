@@ -1,1 +1,33 @@
-performance TODO
+The randomness of the sufficient statistics obtained in (\ref{eqn:eqn_2}) can lead to correct and incorrect recognition of DO type for each particular algorithm, and as a whole by the team of DO type identification algorithms.
+
+The quantitative measure of the identification result is the probability of correct and incorrect recognition of DO type ofthe performance indicators for each particular algorithm and the algorithm as a whole.
+
+Due to the impossibility of recovering analytical expressions of the probability distribution laws of sufficient statistics for DO type identification, private algorithms for evaluating, their performance indicators are obtained here by modeling under various conditions of functioning OED (Fig.~\ref{fig:fig_1_option_1}, Fig.~\ref{fig:fig_1_option_2}, Fig.~\ref{fig:fig_1_option_3} illustrate such conditions).
+
+Private algorithms operate independently of one another.
+The output of each of them is represented in the form $\delta_j = 1$ or $\delta_j = 0$, respectively, when recognizing DO type $j$ or making a decision on recognizing DO of another type.
+At the same time, the performance indicators in general of the DO type recognition algorithm $j$ will be determined by the binomial distribution, which describes that, of the full team of private algorithms, "voted" at least to private algorithms "for" DO type.
+
+Estimates of the probability of correct identification of DO type by a particular algorithm are obtained by modeling for each sufficiently separately considered statistics; their values $P(s_j | s_j) \cong 0.67$, $j = 1, 2, \dots, 9$, ($s_j$ -- DO type notation $j$, $P(s_j | s_j)$ -- is the probability that the private algorithm makes decisions about the detection of the DO of type $s_j$, when the DO of $s_j$ type really does exist in the control zone of the OED).
+
+The performance indicators of the team of recognition algorithms of the type of detectable DO by OED: probability of correct recognition of DO type 
+
+\begin{equation}
+P(s_j) = \sum_{l = 6}^{l = 9}{C_{9}^{l}P^l(s_j | s_j)(1 - P(s_j | s_j))^{9 - l}} \cong 0.6
+\end{equation}
+
+where $P(s_j | s_j) \cong 0.67$, $j = 1, 2, \dots, 9$, and the threshold level of making the right decision by a team of algorithms, as established in \cite{bib_01}, is equal to $6$; 
+
+probability of type confusion for DO type $P(s_j) = 1 - P(s_j | s_j) \cong 0.4$
+
+The probability value $P(s_j)$, as noted above, can be increased either by using a priori information about the current phono-target situation in the zone of control of the OED, but only by relatively simple stationary conditions, or by accumulating the results of "voting" by the team of private algorithms at regular time intervals of DO type indefication, implementation of the recognition criterion "at least once $k$ from $l$" for $n$ intervals \cite{bib_20,bib_21} in any in real phono-target conditions.
+
+Here, the second approach and the "$k = 3$ from $l = 5$" criterion are adopted, as the closest to the optimal "$3$ out of $4$" \cite{bib_22}; it is implemented by the authors in \cite{bib_01}.
+
+The decision on DO type is estimated by cumulative probability by the recurrent expression \cite{bib_22} $P(3, 5; n) = P(3, 5; n - 1) + f(3, 5; n)$, where $P(3, 5; n)$ is the probability of the "$3$ out of $5$" criterion at least once at consecutive intervals, $P(3, 5; n - 1)$ -- the same probability over $(n - 1)$ the intervals, $f(3, 5; n)$ the probability of the $3$ out of $5$ criterion execution for the first time on n time interval.
+
+The calculation $P(\cdot)$ and $f(3, 5; n)$ is performed on guaranteed values of the probabilities $P(s_j) \triangleq p_n = P_{pr.rasp} = 0.6$ and $P(s_j) \triangleq q_n = P_{per} = 0.4$ at successive intervals, starting with the first, $n = 1$ , then for $n = 2, 3, 4, \dots$.
+  
+The results are as follows: with $n = 1$ probability $P(3, 5; n = 1) = 0$, with $n = 2$ $P(3, 5; n = 2) = P_{pr.rasp} \cdot P_{pr.pasr} = 0$, with $n = 3$ $P(3, 5; n = 3) = 0.6^3$, with $n = 4$ $P(3, 5; n = 4) = 0.64$, with $n = 5$ $P(3, 5; n = 5) = 0.84$, with $n > 5$ $P(3, 5; n > 5) > 0.9$ and $P_{per} < 0.1$.
+ 
+Estimates of the probability of correct recognition of DO type are lower guaranteed, the probability of entanglement is upper guaranteed. Note that in \cite{bib_22} the value of the probability of correct recognition of DO type was obtained in the range of $0.708$ -- $0.976$ with the introduction of a priori formed standards of the contours of the detected DO with a simple background.
