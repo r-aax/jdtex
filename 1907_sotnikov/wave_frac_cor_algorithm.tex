@@ -1,1 +1,54 @@
-algorithm TODO
+The structure and computational operations of VFKA are completely determined by expressions of DO type identification criteria based on sufficient statistics: fractal dimensions -- $d(\cdot)$, wavelet spectral energies -- $u(\cdot)$ and maximum eigenvalues -- $\lambda(\cdot)$ for shifted correlation matrices of samples of elevation coordinates measurements for elevation angle -- $\theta$, azimuth -- $\phi$ and elevation angle -- $D$ of DO locating OED (the dot $\cdot$ is a measured coordinate, three types of DO have nine statistics).
+ 
+The sufficiency of each of these statistics is physically determined by the fact that they are calculated directly from samples of DO coordinate measurements as minimal sufficient statistics, and formally it is established by the well-known Rao-Blequella-Kolmogorov theorem: optimal estimates (subject to their existence) are functions of sufficient statistics \cite{bib_07}.
+In this case, the validity of the application of the theorem is obvious.
+Additionally, we note that in \cite{bib_01}, the authors confirmed the sufficiency property based on the analysis of the likelihood functions of obtaining measurement samples under the condition that they are located in the zone of control of the OED for DO corresponding type which we should recognize (as an option it is considered transport aircraft, fighter and helicopter \cite{bib_08}).
+Identification criteria are written as \cite{bib_01} 
+
+\begin{equation}\label{eqn:eqn_1}
+\begin{gathered}
+\frac{f_d(d(\theta) | p_j, q_j, d(\theta_j), s_j)}{f_d(d(\theta) | p_i, q_i, d(\theta_i), s_i)} \ge 1,
+\frac{f_d(d(\phi) | p_j, q_j, d(\phi_j), s_j)}{f_d(d(\phi) | p_i, q_i, d(\phi_i), s_i)} \ge 1,
+\frac{f_d(d(D) | p_j, q_j, d(D_j), s_j)}{f_d(d(D) | p_i, q_i, d(D_i), s_i)} \ge 1, \\
+\frac{f_u(u(w(\theta)) | p_j, q_j, u(w_j), s_j)}{f_u(u(w(\theta)) | p_i, q_i, u(w_i), s_i)} \ge 1,
+\frac{f_u(u(w(\phi)) | p_j, q_j, u(w_j), s_j)}{f_u(u(w(\phi)) | p_i, q_i, u(w_i), s_i)} \ge 1,
+\frac{f_u(u(w(D)) | p_j, q_j, u(w_j), s_j)}{f_u(u(w(D)) | p_i, q_i, u(w_i), s_i)} \ge 1, \\
+\frac{f_{\lambda}(\lambda(\theta) | p_j, q_j, \lambda(\theta_j), s_j)}{f_{\lambda}(\lambda(\theta) | p_i, q_i, \lambda(\theta_i), s_i)} \ge 1,
+\frac{f_{\lambda}(\lambda(\phi) | p_j, q_j, \lambda(\phi_j), s_j)}{f_{\lambda}(\lambda(\phi) | p_i, q_i, \lambda(\phi_i), s_i)} \ge 1,
+\frac{f_{\lambda}(\lambda(D) | p_j, q_j, \lambda(D_j), s_j)}{f_{\lambda}(\lambda(D) | p_i, q_i, \lambda(D_i), s_i)} \ge 1,
+\end{gathered}
+\end{equation}
+ 
+where $f_d(\cdot | \cdot)$, $f_u(\cdot | \cdot)$, $f_{\lambda}(\cdot | \cdot)$ are beta-likelihood functions of samples, provided that they are in the control zone of OED for DO type $s_j$, $j,i = 1,2, \dots, M$, $j \ne i$, $p_j > 0$, $q_i > 0$ -- beta-functions parameters.
+ 
+Criteria (\ref{eqn:eqn_1}) is a vector of independent subtests (independence is determined by the independence of the statistics $d(\theta)$, $d(\phi)$, $d(D)$, $u(w(\theta))$, $u(w(\phi))$, $u(w(D))$, $\lambda(\theta)$, $\lambda(\phi)$, $\lambda(D)$).
+ 
+Directly from (1\ref{eqn:eqn_1} it follows that the structures of the criteria are similar, trans-form after logarithmation to the same type of computational expression and completely determine the sequence of computational operations of the algorithm of DO type identification.
+
+Write this expression, for example, for an algorithm that implements the first criterion from (\ref{eqn:eqn_1}):
+
+\begin{equation}\label{eqn:eqn_2}
+\begin{gathered}
+(p_j - 1) \ln(u(w(\theta)) - \mu_{j0}) + (q_j - 1) \ln(\mu_{j1} - u(w(\theta))) \\
+- (p_i - 1) \ln(u(w(\theta)) - \mu_{i0}) - (q_i - 1) \ln(\mu_{i1} - u(w(\theta))) \ge \\
+\ge -\ln{\frac{1}{\mu_{j1} - \mu_{j0}}} - \ln{\frac{\Gamma(p_j + q_j)}{\Gamma(p_j)\Gamma(q_j)}} + (p_j - 1) \ln(\mu_{j1} - \mu_{j0}) + (q_j - 1) \ln(\mu_{j1} - \mu_{j0}) \\
++ \ln{\frac{1}{\mu_{i1} - \mu_{i0}}} + \ln{\frac{\Gamma(p_i + q_i)}{\Gamma(p_i)\Gamma(q_i)}} - (p_i - 1) \ln(\mu_{i1} - \mu_{i0}) + (q_i - 1) \ln(\mu_{i1} - \mu_{i0})
+\end{gathered}
+\end{equation}
+
+where $\mu_{j0} \le u(w(\theta)) \le \mu_{j1}$, $j,i = 1,2, \dots, M$, $j \ne i$, $\mu_{j0}$, $\mu_{j1}$ are left and right limits of range for values of sample sufficient statistics for identification algorithm.
+They are given in \cite{bib_01}.
+
+In this inequality expression, the right-hand side is the threshold level of decision making based on subset DO type identification criterion, and the left side is the recognition statistics as a function of a random variable -- sufficient statistics -- on the wavelet-spectrum energy of a measurements sample for the elevation angle of detecting DO in the current time interval.
+
+From (\ref{eqn:eqn_2}) it can be seen that the recognition statistics is represented by a linear combination of logarithmic functions of sufficient statistics $u(w(\theta))$.
+ 
+Such functions are monotonous, they do not distort the sufficiency of the transformed statistics $u(w(\theta))$ \cite{bib_09,bib_10}.
+This means that each component of a linear combination is sufficient statistics as a function of sufficient statistics $u(w(\theta))$ and that a linear combination as a whole as statistics of DO type identification for a particular criterion is sufficient statistics, naturally, random, since the sample is finite.
+At the same time, we also note that the sufficiency of statistics is a consequence of the sufficiency properties of each initially considered likelihood ratio \cite{bib_09} and that with a sufficiently large sample, the likelihood ratio statistics are consistent and robust \cite{bib_10}.
+
+The established properties of the statistics of the left-hand side of (\ref{eqn:eqn_2}) are sufficient conditions for assessing the stability of a particular DO type identification algorithm.
+
+The necessary conditions are the stability of each initial sufficient statistics for the algorithm: fractal dimension -- $d(\cdot)$ , energy of the wavelet spectrum -- $u(\cdot)$, maximum eigenvalue -- $\lambda(\cdot)$ as a function of a sample of OED measurements of position for identifying DO, otherwise, as functions of minimal sufficient statistics obtained from the DO detection time interval. 
+
+The stability of private algorithms and the initial sufficient statistics for them together determine the stability property of DO type identification algorithm that implements a vector of criteria (\ref{eqn:eqn_1}).
