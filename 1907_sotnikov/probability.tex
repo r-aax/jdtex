@@ -146,7 +146,7 @@ and note that the laws obtained $\psi (y|{{s}_{j}})$ and $\psi (\nu |{{s}_{j}})$
 
 and establishing the properties of the distribution laws of these statistics for ${{\mu }_{j0}}=0,\text{ }{{\mu }_{j1}}=1$.
 
-It can be seen that the probability densities of differences of equally distributed random variables should be calculated, compared with (1) for the alternative DO types of  ${{s}_{j}}$ and ${{s}_{i}}$. To do this, we use the formula of the composition of the laws of the distribution of independent random variables. $\left| {{p}_{j}}-1 \right|\ln u(w(\theta ))$ и $\left| {{p}_{i}}-1 \right|\ln u(w(\theta ))$.
+It can be seen that the probability densities of differences of equally distributed random variables should be calculated, compared with (1) for the alternative DO types of  ${{s}_{j}}$ and ${{s}_{i}}$. To do this, we use the formula of the composition of the laws of the distribution of independent random variables. $\left| {{p}_{j}}-1 \right|\ln u(w(\theta ))$ and $\left| {{p}_{i}}-1 \right|\ln u(w(\theta ))$.
 
 The desired density is
 
@@ -173,14 +173,15 @@ where
 Convolutions of the same type of distribution. It is known (for example, \cite{bib_18}) that such convolutions lead to the same type of distribution. 
 
 Due to the complexity of the expression for ${{\psi }_{Y}}(y|{{s}_{j}}){{\psi }_{\nu }}((y-{{z}_{1}})|{{s}_{i}})$ obtaining an analytical solution, convolutions are practically difficult. The Laplace transform is also difficult to compute for the analytical expression of the desired law. Therefore, we use numerical integration using the MatLab trapz function.
-In Fig.~\ref{fig:fig_2}, Fig.~\ref{fig:fig_3}, Fig.~\ref{fig:fig_4}, a graphic representation of the laws numerically obtained for different pairs of parameters are given $\left\{ {{p}_{j}},{{q}_{j}} \right\}$; the latter are given in table 1 [1]. 
-
-
+In Fig.~\ref{fig:fig_2}, Fig.~\ref{fig:fig_3}, Fig.~\ref{fig:fig_4}, a graphic representation of the laws numerically obtained for different pairs of parameters are given $\left\{ {{p}_{j}},{{q}_{j}} \right\}$; the latter are given in table \ref{tab:table_1} [1]. 
 
 \begin{table}[]
-\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\centering
+\caption{Parameter values $\left\{ {{p}_{j}},{{q}_{j}} \right\}$}
+\label{tab:table_1}
+\begin{tabular}{|c|c|C{0.1\textwidth}|C{0.1\textwidth}|C{0.1\textwidth}|C{0.1\textwidth}|C{0.12\textwidth}|C{0.1\textwidth}|}
 \hline
-\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Measured\\ coordinates\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}DO\\ type\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Parameters for the β\\ - distribution\\ of fractal dimension\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Parameters for the β\\  - distribution of\\ maximum eigenvalue\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Parameters for the β\\  - distribution of\\ energy of wavelet spectrum\end{tabular}} \\ \cline{3-8} 
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Measured\\ coordinates\end{tabular}} & \multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}DO\\ type\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Parameters for the $ \beta $\\ - distribution\\ of fractal dimension\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Parameters for the $ \beta $\\  - distribution of\\ maximum eigenvalue\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Parameters for the $ \beta $\\  - distribution of\\ energy of wavelet spectrum\end{tabular}} \\ \cline{3-8} 
  &  & p & q & p & q & p & q \\ \hline
 \multirow{3}{*}{Range} & 1 & 0.64 & 0.88 & 0.64 & 0.64 & 0.73 & 1.47 \\ \cline{2-8} 
  & 2 & 0.73 & 1.47 & 1.08 & 4.32 & 0.46 & 0.46 \\ \cline{2-8} 
@@ -256,9 +257,9 @@ So, for the sum $z={{z}_{1}}+{{z}_{2}}$, in which with ${{\mu }_{j0}}=0,\ {{\mu 
 {{g}_{{{z}_{1}}+{{z}_{2}}}}(z|{{s}_{j}},{{s}_{i}})=\int\limits_{\min \{{{z}_{1}}\}}^{\max \{{{z}_{1}}\}}{{{\psi }_{{{z}_{1}}}}({{z}_{1}}|{{s}_{j}},{{s}_{i}}){{\psi }_{{{z}_{2}}}}(z-{{z}_{1}}|{{s}_{j}},{{s}_{i}})d{{z}_{1}}}
 \end{equation*}
 
-where the type of laws ${{\psi }_{{{z}_{1}}}}({{z}_{1}}|{{s}_{j}},{{s}_{i}})$ and ${{\psi }_{{{z}_{2}}}}(z-{{z}_{1}}|{{s}_{j}},{{s}_{i}})$ is defined in subparagraph 4 and presented in Fig.~\ref{fig:fig_1_option_1}, Fig.~\ref{fig:fig_1_option_2}, Fig.~\ref{fig:fig_1_option_3}, and the limits of integration can be calculated by the intervals of values  ,   of random variables, as indicated in the figures.
+where the type of laws ${{\psi }_{{{z}_{1}}}}({{z}_{1}}|{{s}_{j}},{{s}_{i}})$ and ${{\psi }_{{{z}_{2}}}}(z-{{z}_{1}}|{{s}_{j}},{{s}_{i}})$ is defined in subparagraph 4 and presented in Fig.~\ref{fig:fig_2}, and the limits of integration can be calculated by the intervals of values  ,   of random variables, as indicated in the figures.
 
-The laws of the form ${{g}_{{{z}_{1}}+{{z}_{2}}}}(z|{{s}_{j}},{{s}_{i}})$ are convolutions of stable single-type distributions (Fig.~\ref{fig:fig_1_option_1}, Fig.~\ref{fig:fig_1_option_2}, Fig.~\ref{fig:fig_1_option_3}), they are reduced to the same form and have the same properties as the laws of random variables ${{z}_{1}}$ and ${{z}_{2}}$. 
+The laws of the form ${{g}_{{{z}_{1}}+{{z}_{2}}}}(z|{{s}_{j}},{{s}_{i}})$ are convolutions of stable single-type distributions (Fig.~\ref{fig:fig_2}), they are reduced to the same form and have the same properties as the laws of random variables ${{z}_{1}}$ and ${{z}_{2}}$. 
 
 Hence the conclusion: the law of probability distribution of recognition statistics of DO type according to the rule of the form (2), which implements the corresponding particular algorithm (1), has the properties of stable distributions. 
 

@@ -21,6 +21,8 @@ centertags]%
 \usepackage{esvect}
 \usepackage{physics}
 \usepackage{multirow}
+\usepackage{tabularx}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
 
 \lstset{
 language=C++,
@@ -45,6 +47,7 @@ escapeinside={\%*}{*)}
 }
 
 \begin{document}
+
 
 \titlerunning{Dynamic objects type identification algorithm robustness} % for running heads
 \authorrunning{A.~N.~Katulev, A.~N.~Sotnikov, V.~K.~Kemaikin, I.~V.~Kozhukhin} % for running heads
