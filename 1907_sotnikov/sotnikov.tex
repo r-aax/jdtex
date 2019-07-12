@@ -23,6 +23,7 @@ centertags]%
 \usepackage{multirow}
 \usepackage{tabularx}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+\newcommand*{\mybox}[1]{\framebox{#1}}
 
 \lstset{
 language=C++,
@@ -50,7 +51,7 @@ escapeinside={\%*}{*)}
 
 
 \titlerunning{Dynamic objects type identification algorithm robustness} % for running heads
-\authorrunning{A.~N.~Katulev, A.~N.~Sotnikov, V.~K.~Kemaikin, I.~V.~Kozhukhin} % for running heads
+\authorrunning{ \framebox{A.~N.~Katulev}, A.~N.~Sotnikov, V.~K.~Kemaikin, I.~V.~Kozhukhin} % for running heads
 %\authorrunning{First-Author, Second-Author} % for running heads
 
 \title{Robustness of the algorithm of identification of the type of dynamic object found at the finite sequence of 2D background frames of the optoelectron device}
@@ -58,9 +59,8 @@ escapeinside={\%*}{*)}
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
-\author{\firstname{A.~N.}~\surname{Katulev}}
-\email[E-mail: ]{katuleva@mail.ru}
-\affiliation{Central Research Institute of Aerospace Defense Forces of Ministry of Defense of the Russian Federation, Afanasiy Nikitin Embankment, building 32, Tver, 170026, Russia}
+\author{\framebox{\firstname{A.~N.}~\surname{Katulev}}}
+\affiliation{State Technical University, Lenin Avenue, building 25, Tver, 170023, Russia}
 
 \author{\firstname{A.~N.}~\surname{Sotnikov}}
 \email[E-mail: ]{asotnikov@jscc.ru}
