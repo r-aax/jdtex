@@ -1,0 +1,9 @@
+\backcite {intel_manual}{{1}{(document)}{Doc-Start}}
+\backcite {Jeffers}{{1}{(document)}{Doc-Start}}
+\backcite {compiler_guide}{{2}{(document)}{Doc-Start}}
+\backcite {intrinsic_guide}{{2}{(document)}{Doc-Start}}
+\backcite {Knuth}{{3}{1}{section.1}}
+\backcite {Volkonskyi}{{6}{2}{figure.3}}
+\backcite {Pratt_seq}{{8}{3}{equation.3.2}}
+\backcite {Hib_seq}{{8}{3}{equation.3.2}}
+\backcite {Sedjw_seq}{{8}{3}{equation.3.2}}
