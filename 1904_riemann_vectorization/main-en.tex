@@ -98,6 +98,13 @@ Later this study was continued and the work \cite{FerreiraSWEVect} describes met
 This article discusses the vectorization of the exact Riemann solver containing complex structures, including solving a nonlinear equation and complex control.
 The article shows that using the features of the AVX-512 instruction set allows you to successfully vectorize this software context.
 
+The main contribution of this article is the development of approaches to vectorization of complex programm context using a unique set of instructions AVX-512.
+The exact Riemann solver is very suitable for this purpose, as it has a compact implementation and at the same time contains a number of features of the programm context that require their own techniques during vectorization.
+
+The first section of the article provides a brief description of the features of the AVX-512 instruction set, which allow vectorization of a complex programm context using a predicate code representation.
+The second section presents the general scheme of the exact Riemann solver, and sections 3-5 reveal the features of the vectorization of its individual parts (simple linear context, sections with complex controls and a nested loop).
+Section 6 presents the results of numerical experiments on the Intel Xeon Phi KNL microprocessor, and section 7 presents a comparison with related works.
+
 \section{Features of the AVX-512 instruction set}
 
 The AVX-512 instruction set is an extension of the 256-bit AVX instruction of the Intel x86 architecture.
