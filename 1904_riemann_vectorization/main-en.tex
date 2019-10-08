@@ -307,6 +307,38 @@ Separately, the diagram emphasizes the effect of applying variable optimization,
 
 As a result of applying all the described optimizations, it was possible to achieve acceleration of individual sections of the program execution 10 or more times, and the total acceleration of the entire Riemann solver was 7 times (marked with a red line in Figure~\ref{pic:perf}).
 
+\section{Related works}
+
+Here is a brief comparison of the results obtained in this article with the results of other works aimed at improving the efficiency of the Riemann solvers on parallel architectures.
+At the same time, we note that although the work did not consider the parallelization of numerical methods based on the Riemann solver using MPI, OpenMP, as well as using graphics accelerators, it would be wrong not to mention the works concerning these aspects of parallelization.
+
+The work \cite{Shumlak} considers an algorithm for numerically solving the equations of magnetohydrodynamics based on the approximate Riemann solver, developed by Roe.
+In this case, the calculations are carried out on a block-structured computational grid, and for parallelization using MPI, the blocks of the grid are decomposed (cutting along one or several directions).
+The results of measuring the indicator of weak scalability when using up to 16 processors are presented.
+This indicator is close to unity and even in some cases exceeds it.
+Such a phenomenon, called superlinear scalability, can also be found in other works devoted to the parallelization of numerical methods of gas dynamics, for example, in \cite{Benderskij}.
+
+The work \cite{Schive} is devoted to parallelizing numerical methods based on various approximate Riemann solvers for execution on NVIDIA Tesla C2050 graphics accelerators.
+In addition to the Roe solver, the HLLE and HLLC \cite{Kong} solvers are also used.
+Methods are demonstrated that allow achieving acceleration on a graphics accelerator compared to the Intel Xeon E5530 processor by 101 times using a uniform grid.
+The indicators of weak and strong scalability of a parallelized application using 32 GPUs are also given, they amounted to 98.8\% and 85.0\%, respectively.
+
+The work \cite{Mandli} presents the results of using the PetClaw tool (a Python shell integrating the Clawpack computing core written in Fortran and the PETSc library into a single parallel application) for parallelizing hydrodynamic calculations using MPI to a large number of cores, up to 16 thousand.
+At the same time, a parallelization efficiency indicator close to unity was demonstrated.
+
+The works \cite{Kulikov}, \cite{Kulikov2} describe approaches to parallelizing computations for modeling astrophysical flows on hybrid supercomputers equipped with Intel Xeon Phi accelerators.
+In particular, 134-fold acceleration of computational codes on one accelerator was demonstrated using multi-threaded parallelization, as well as 75\% scalability when using up to 224 accelerators.
+The article notes that to further accelerate the application, a vectorization of the computing core is needed and a forecast is given to achieve 80\% peak performance provided that vectorization is applied.
+
+Closest to this work are \cite{BaderSWEVect}, \cite{FerreiraSWEVect}, in which special attention is paid to the vectorization of the Riemann solver for the numerical solution of shallow water equations.
+The work \cite{BaderSWEVect} presents results on acceleration of 6-7 times when vectorizing a Riemann solver for a given single precision on Intel Xeon Phi KNC accelerators.
+In \cite{FerreiraSWEVect}, the vectorization method was improved and the effect was already 2.4-6.5 in double-precision operations on Intel Xeon Phi KNL microprocessors.
+However, these works use a specially developed approximate Riemann solver for shallow water equations \cite{George}.
+The implementation of this solver contains a simpler computational context compared to the exact solver, whose vectorization is considered in the current work.
+The approximate solver from \cite{George} contains only arithmetic operations and can be automatically vectorized after special preparation of input parameters (grouping several solver calls into one call with vector parameters).
+
+Based on a comparison of current work with related work in this area, it can be noted that the acceleration rate of the exact Riemann solver, equal to 7 and achieved by vectorizing the program code using the AVX-512 instruction set, can be considered acceptable.
+
 \section*{Conclusion}
 
 The approaches to the vectorization of the Riemann solver functions described in the article were implemented in the C programming language using the intrinsics functions and tested on the Intel Xeon Phi 7290 microprocessors that are part of the computing segment knl of the MVS-10P supercomputer located in JSCC RAS.
@@ -449,6 +481,32 @@ The work was done at the JSCC RAS as part of the state assignment on the topic 0
 \pages 1-11
 \URL http://swsys-web.ru/problems-of-vectorization-of-cycle-nests-using-avx-512-instructions.html
 \crossref{http://dx.doi.org/10.15827/2311-6749.28.314}
+
+\RBibitem{Benderskij}
+\by L. A. Benderskij, D. A. Lyubimov, A. A. Rybakov
+\paper Analiz effektivnosti masshtabirovaniya pri raschetax vysokoskorostnyx turbulentnyx techenij na superkomp'yutere RANS/ILES metodom vysokogo razresheniya
+\jour Trudy NIISI RAN
+\yr 2017
+\vol 7
+\issue 4
+\pages 32-40
+\URL https://www.niisi.ru/tr/2017_T7_N4.pdf
+\crossref{http://dx.doi.org/10.25682/NIISI.2018.4.9975}
+
+\RBibitem{Kong}
+\by C. Kong
+\thesis Comparison of Approximate Riemann Solvers
+\thesisinfo A dissertation of the degree of Master of Science in Mathematical and Numerical Modeling of the Atmoshere and Oceans, Department of Mathematics, University of Reading
+\yr 2011
+
+\RBibitem{George}
+\by D. L. George
+\paper Augmented Riemann solvers for the shallow water equations over variable topography with steady states and inundation
+\jour Journal of Computational Physics
+\yr 2008
+\issue 227
+\pages 3089-3113
+\crossref{http://dx.doi.org/10.1016/j.jcp.2007.10.027}
 
 \bibitem{BulVolTest}
 \by P. V. Bulat, K. N. Volkov
