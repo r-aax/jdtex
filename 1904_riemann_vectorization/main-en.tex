@@ -353,6 +353,22 @@ Based on a comparison of current work with related work in this area, it can be 
 
 \section*{Conclusion}
 
+The paper examined approaches to vectorizing complex programm contexts using the AVX-512 instruction set.
+This instruction set appeared in Intel microprocessors starting with Intel Xeon Phi KNC accelerators, and then entered Intel Xeon Phi KNL microprocessors, Intel Xeon Phi Skylake and beyond.
+The AVX-512 instructions support predicate processing of data elements, which allows you vectorize complex, branched program code with them.
+
+The exact Riemann solver was used as the target task, since it has a compact implementation but at the same time contains features that prevent automatic vectorization by means of the compiler (function calls, complex control, nested loops).
+For vectorization, an approach was used in which several consecutive calls to the solver function were replaced with one call with vector parameters (and with corresponding changes to the function body).
+This allowed several instances of the task to be performed simultaneously on the same processor core (the number of instances equals the width of the vector, in this case 16).
+
+The components of the Riemann solver were analyzed, their features were highlighted, and a method of effective vectorization was proposed for each of them.
+As a result of vectorization, acceleration was achieved more than 10 times in individual sections of the solver, and the final acceleration was 7 times on the data with single precision.
+
+The developed methods of vectorization of a complex program context can be used to optimize other computational problems.
+In particular, at present, a team of authors of this article is developing a library aimed at vectorization of arbitrary flat cycles, that is, cycles in which there are no inter-iteration dependencies.
+In this case, the body of the loop can include elements such as complex control, loop sockets, calls to pure functions, goto statements, and others.
+The implementation of such a tool will significantly improve the performance of calculation codes, the automatic vectorization of which by the compiler is impossible.
+
 The work was done at the JSCC RAS as part of the state assignment on the topic 0065-2019-0016 (registration number AAAA-A19-119011590098-8). 
 
 \begin{thebibliography}{30}
