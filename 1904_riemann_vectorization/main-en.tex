@@ -301,7 +301,6 @@ The remaining time is divided between the three other functions \texttt{guessp} 
 The approaches to the vectorization of the Riemann solver functions described in the article were implemented in the C programming language using the intrinsics functions and tested on the Intel Xeon Phi 7290 microprocessors that are part of the computing segment knl of the MVS-10P supercomputer located in JSCC RAS.
 
 Performance testing was carried out on the input data arrays collected in solving standard test problems: the Soda problem, the Lax problem, the weak shock wave problem, the Einfeldt problem, the Woodward-Colella problem, the Schu-Osher problem and others \cite{BulVolTest}.
-As a result of the transformations of the source code, the Riemann solver accelerated 7 times faster than the non-optimized versions.
 
 The diagram Fig.~\ref{pic:perf} shows the effect of applying various optimizations to each of the functions in question, as well as the total acceleration obtained as a result of vectorization.
 
