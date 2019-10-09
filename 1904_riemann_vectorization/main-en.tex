@@ -65,7 +65,7 @@ Among the various tools for improving the performance of supercomputer applicati
 The AVX-512 instruction set has a number of unique features allowing to apply vectorization to the Riemann solver software context, which results in a significant acceleration of the solver.
 Using the exact Riemann solver as an example, the article discusses practical approach to vectorizing a various program contexts, including simple linear blocks, regions with complex control, and nested loops.
 The basis of the approach under consideration is the possibility of simultaneously executing several instances of some pure function on the same processor core.
-This feature is acheved by translating the program code into the predicate form and using AVX-512 vector instructions.
+This feature is achieved by translating the program code into the predicate form and using AVX-512 vector instructions.
 In this case the number of simultaneously running instances is equal to the width of the vector.
 It is shown that using the features of the AVX-512 instruction set allows to successfully vectorize the considered program context.
 The proposed approach can be applied to vectorize a wide range of applications.
@@ -85,10 +85,10 @@ The most low-level approach used to improve the performance of supercomputer app
 The use of a special instruction set AVX-512 has unique features that make it possible to create an effective parallel code, which leads to a multiple acceleration of supercomputer applications.
 
 Improving the performance of Riemann solvers on parallel architectures has been the subject of much research, which continues to this day, as new architectures constantly emerge with new features.
-The \cite{Shumlak} demonstrated an algorithm for parallelizing numerical methods using an approximate Riemannian solver for problems of magnetohydrodynamics, leading to parallel operation on a multiprocessor machine with parallelization efficiency close to unity.
+The \cite{Shumlak} demonstrated an algorithm for parallelizing numerical methods using an approximate Riemann solver for problems of magnetohydrodynamics, leading to parallel operation on a multiprocessor machine with parallelization efficiency close to unity.
 The work \cite{Schive} provides a comprehensive study on the parallelization of computational methods based on the Riemann solver using MPI, OpenMP and graphics accelerators.
 As a result, good performance in terms of scalability was demonstrated, in particular, a strong scalability indicator at around 85\%.
-The \cite{Mandli} work highlights the use of the PetClaw tool, which allows to apply numerical methods based on the Riemannian solver on several thousand computational processes with a parallelization efficiency close to unity.
+The \cite{Mandli} work highlights the use of the PetClaw tool, which allows to apply numerical methods based on the Riemann solver on several thousand computational processes with a parallelization efficiency close to unity.
 The works \cite{Kulikov}, \cite{Kulikov2} highlighted the issues of parallel implementation of the AstroPhi program for modeling astrophysical flows.
 It is shown that the current implementation allows achieving almost 50\% of the scalar peak performance of the Intel Xeon Phi KNC coprocessors and provides the estimate of the expected effect of future vectorization (more than 80\% of the total peak performance).
 As one of the most detailed studies on the vectorization of Riemann solvers, we can mention the work \cite{BaderSWEVect}, which deals with the optimization of an approximate Riemann solver for solving shallow water equations.
@@ -98,10 +98,10 @@ Later this study was continued and the work \cite{FerreiraSWEVect} describes met
 This article discusses the vectorization of the exact Riemann solver containing complex structures, including solving a nonlinear equation and complex control.
 The article shows that using the features of the AVX-512 instruction set allows you to successfully vectorize this software context.
 
-The main contribution of this article is the development of approaches to vectorization of complex programm context using a unique set of instructions AVX-512.
-The exact Riemann solver is very suitable for this purpose, as it has a compact implementation and at the same time contains a number of features of the programm context that require their own techniques during vectorization.
+The main contribution of this article is the development of approaches to vectorization of complex program context using a unique set of instructions AVX-512.
+The exact Riemann solver is very suitable for this purpose, as it has a compact implementation and at the same time contains a number of features of the program context that require their own techniques during vectorization.
 
-The first section of the article provides a brief description of the features of the AVX-512 instruction set, which allow vectorization of a complex programm context using a predicate code representation.
+The first section of the article provides a brief description of the features of the AVX-512 instruction set, which allow vectorization of a complex program context using a predicate code representation.
 The second section presents the general scheme of the exact Riemann solver, and sections 3-5 reveal the features of the vectorization of its individual parts (simple linear context, sections with complex controls and a nested loop).
 Section 6 presents the results of numerical experiments on the Intel Xeon Phi KNL microprocessor, and section 7 presents a comparison with related works.
 
@@ -151,17 +151,17 @@ The NUMERICA library is implemented in the FORTRAN programming language, therefo
 
 \begin{figure}
 \includegraphics[width=8cm]{pics/pic_functions}
-\caption{Data flow diagram in Riemannian solver}
+\caption{Data flow diagram in Riemann solver}
 \label{pic:functions}
 \end{figure}
 
-Fig.~\ref{pic:functions} shows a diagram of the work of the Riemannian solver with the indicated data streams and calls of all the functions involved in the implementation. The \texttt{riemann} function calculates the speed of sound on the right and left, performs a vacuum test, and subsequently calls the \texttt{starpu} and \texttt{sample} functions.
+Fig.~\ref{pic:functions} shows a diagram of the work of the Riemann solver with the indicated data streams and calls of all the functions involved in the implementation. The \texttt{riemann} function calculates the speed of sound on the right and left, performs a vacuum test, and subsequently calls the \texttt{starpu} and \texttt{sample} functions.
 The \texttt{starpu} function calculates the velocity and pressure values in the middle region between the left and right waves (star region), and the function contains a cycle with an unknown number of iterations to solve a non-linear equation by the iterative Newton method, inside which there are calls to other functions (\texttt{prefun}).
 The \texttt{guessp} and \texttt{prefun} functions contain only arithmetic calculations and simple conditions and are the simplest from the point of view of vectorization.
 Finally, the last \texttt{sample} function determines the final gap configuration by calculating a set of conditions.
 This function contains a very branched control, the nesting of conditions in it reaches four, which makes it difficult to use vectorization.
 
-In the counting process, a number of calls to the \texttt{riemann} function with different sets of input data are made using numerical methods based on the Riemannian solver (during each counting iteration, one call is made for each face of each cell of the computational grid).
+In the counting process, a number of calls to the \texttt{riemann} function with different sets of input data are made using numerical methods based on the Riemann solver (during each counting iteration, one call is made for each face of each cell of the computational grid).
 Since the riemann function is pure, calls for different input data sets (\texttt{dl}, \texttt{ul}, \texttt{pl}, \texttt{dr}, \texttt{ur}, \texttt{pr}) are independent and there is a desire to merge calls for the purpose of effective use of vector (element-wise) instructions.
 As such a combined call, we will consider a function in which, instead of atomic data of the type \texttt{float}, the corresponding vectors containing 16 elements each are passed.
 
@@ -177,7 +177,7 @@ This also applies to other variables.
 
 At the same time, it is possible to perform the same actions with vector data as with basic types - perform calculations, pass to functions, and return as a result.
 In the process of optimization, for clarity, we will avoid substitution of the function body into the call point.
-Thus, as a result of vectorization, our goal is to obtain vector analogs of all the functions used in the Riemannian solver which were described above.
+Thus, as a result of vectorization, our goal is to obtain vector analogs of all the functions used in the Riemann solver which were described above.
 
 \section{Simple context vectorization}
 
@@ -353,7 +353,7 @@ Based on a comparison of current work with related work in this area, it can be 
 
 \section*{Conclusion}
 
-The paper examined approaches to vectorizing complex programm contexts using the AVX-512 instruction set.
+The paper examined approaches to vectorizing complex program contexts using the AVX-512 instruction set.
 This instruction set appeared in Intel microprocessors starting with Intel Xeon Phi KNC accelerators, and then entered Intel Xeon Phi KNL microprocessors, Intel Xeon Phi Skylake and beyond.
 The AVX-512 instructions support predicate processing of data elements, which allows you vectorize complex, branched program code with them.
 
