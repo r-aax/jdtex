@@ -353,7 +353,7 @@ Based on a comparison of current work with related work in this area, it can be 
 \section*{Conclusion}
 
 The paper examined approaches to vectorizing complex program contexts using the AVX-512 instruction set.
-This instruction set appeared in Intel microprocessors starting with Intel Xeon Phi KNC accelerators, and then entered Intel Xeon Phi KNL microprocessors, Intel Xeon Phi Skylake and beyond.
+This instruction set appeared in Intel microprocessors starting with Intel Xeon Phi KNC accelerators, and then entered Intel Xeon Phi KNL microprocessors, Intel Xeon Skylake and beyond.
 The AVX-512 instructions support predicate processing of data elements, which allows you vectorize complex, branched program code with them.
 
 The exact Riemann solver was used as the target task, since it has a compact implementation but at the same time contains features that prevent automatic vectorization by means of the compiler (function calls, complex control, nested loops).
