@@ -12,6 +12,7 @@ centertags]%
 {revtex4}
 \usepackage{ljm}
 \usepackage{listings}
+%\usepackage{mathacent}
 
 \lstset{
 language=C++,
@@ -37,10 +38,10 @@ escapeinside={\%*}{*)}
 
 \begin{document}
 
-\titlerunning{short name}
+\titlerunning{Flat Loops Vectorization}
 \authorrunning{A.~A.~Rybakov and ...}
 
-\title{Title\\Title}
+\title{Vectorization of Flat Loops of Arbitrary Structure\\Using Instructions AVX-512}
 
 \author{\firstname{A.~A.}~\surname{Rybakov}}
 \email[E-mail: ]{rybakov.aax@gmail.com}
@@ -64,13 +65,49 @@ Abstract.
 
 Introduction.
 
-\section{Section1}
+\section{AVX-512 instruction set}
 
-Section1.
-     
-\section{Section2}
+AVX-512 instruction set.
+    
+\begin{table}[!h]
+\setcaptionmargin{0mm}
+\onelinecaptionsfalse
+\captionstyle{flushleft}
+\caption{AVX-512 vector single precision float instructions for flat loops vectorization and their semantic.}
+\bigskip
+\begin{tabular}{|c|c|}
+\hline
+\textit{instruction name} & \textit{instrucition semantic} \\
+\hline
+\parbox{10cm}{VMOVAPS, VMOVUPS, VSQRTPS, VGETEXPPS, VGETMANTPS, VRCP14PS, VREDUCEPS, VRNDSCALEPS, VRSQRT14PS, VSCALEFPS} & $\begin{matrix} R = (op \ A) \\ R = \check{P} \ ? \ (op \ A) : R \\ R = \check{P} \ ? \ (op \ A) : 0 \end{matrix}$ \\
+\hline
+\parbox{10cm}{VADDPS, VANDPS, VANDNPS, VDIVPS, VMAXPS, VMINPS, VMULPS, VORPS, VSUBPS, VRANGEPS} & $\begin{matrix} R = op \ A, B \\ R = \check{P} \ ? \ (op \ A, B) : R \\ R = \check{P} \ ? \ (op \ A, B) : 0 \end{matrix}$ \\
+\hline
+\parbox{10cm}{VFMADD132PS, VFMADD213PS, VFMADD231PS, VFMSUB132PS, VFMSUB213PS, VFMSUB231PS, VFNMADD132PS, VFNMADD213PS, VFNMADD231PS, VFNMSUB132PS, VFNMSUB213PS, VFNMSUB231PS} & $\begin{matrix} R = (op \ A, B, C) \\ R = \check{P} \ ? \ (op \ R, A, B) : R \\ R = \check{P} \ ? \ (op \ R, A, B) : 0 \end{matrix}$ \\
+\hline
+\parbox{10cm}{VCMPPS (all variety of compare instructions)} & $\begin{matrix} \check{P} = op \ A, B \\ \check{P} = \check{Q} \ ? \ (op \ A, B) : 0 \end{matrix}$ \\
+\hline
+\parbox{10cm}{VBLENDMPS} & $\begin{matrix} R = \check{P} \ ? \ A : B \end{matrix}$ \\
+\hline
+\end{tabular}
+\label{tab:avx512instructions}
+\end{table}   
+    
+\section{Flat loops vectorization techniques}
 
-Section2.
+Flat loops vectorization techniques.
+
+\section{Flat loops vectorization practical examples}
+
+Flat loops vectorization practical examples.
+
+\subsection{Riemann solver vectorization}
+
+Riemann solver vectorization.
+
+\subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
+
+Vectorization of cells classification in the implementation of the immersed boundary method.
 
 \section{Conclusion}
 
