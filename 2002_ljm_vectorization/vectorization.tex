@@ -83,7 +83,7 @@ AVX-512 instruction set.
 \hline
 \parbox{10cm}{VADDPS, VANDPS, VANDNPS, VDIVPS, VMAXPS, VMINPS, VMULPS, VORPS, VSUBPS, VRANGEPS} & $\begin{matrix} R = op \ A, B \\ R = \check{P} \ ? \ (op \ A, B) : R \\ R = \check{P} \ ? \ (op \ A, B) : 0 \end{matrix}$ \\
 \hline
-\parbox{10cm}{VFMADD132PS, VFMADD213PS, VFMADD231PS, VFMSUB132PS, VFMSUB213PS, VFMSUB231PS, VFNMADD132PS, VFNMADD213PS, VFNMADD231PS, VFNMSUB132PS, VFNMSUB213PS, VFNMSUB231PS} & $\begin{matrix} R = (op \ A, B, C) \\ R = \check{P} \ ? \ (op \ R, A, B) : R \\ R = \check{P} \ ? \ (op \ R, A, B) : 0 \end{matrix}$ \\
+\parbox{10cm}{VFMADD132PS, VFMADD213PS, VFMADD231PS, VFMSUB132PS, VFMSUB213PS, VFMSUB231PS, VFNMADD132PS, VFNMADD213PS, VFNMADD231PS, VFNMSUB132PS, VFNMSUB213PS, VFNMSUB231PS} & $\begin{matrix} R = (op \ R, A, B) \\ R = \check{P} \ ? \ (op \ R, A, B) : R \\ R = \check{P} \ ? \ (op \ R, A, B) : 0 \end{matrix}$ \\
 \hline
 \parbox{10cm}{VCMPPS (all variety of compare instructions)} & $\begin{matrix} \check{P} = op \ A, B \\ \check{P} = \check{Q} \ ? \ (op \ A, B) : 0 \end{matrix}$ \\
 \hline
