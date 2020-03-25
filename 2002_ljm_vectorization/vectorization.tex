@@ -493,7 +493,152 @@ X = VBLENDM(<COND>, F(<COND>, A), B)
 
 \subsection{Riemann solver vectorization}
 
-Riemann solver vectorization.
+Рассматриваемая в данном разделе реализация римановского решателя находится в открытом доступе в сети Интернет в составе библиотеки NUMERICA \cite{Numerica}.
+Нас в данном случае будет интересовать одномерный случай для однокомпонентной среды, реализованный в виде чистой функции (функции без побочных эффектов, результат работы функции зависит только от значений входных параметров), которая по значениям плотности, скорости и давления газа слева и справа от разрыва, находит значения этих же величин на самом разрыве в нулевой момент времени после устранения перегородки.
+
+\begin{equation}\label{eq:riemann}
+U_l = \left( \begin{array}{ccc} d_l \\ u_l \\ p_l \end{array} \right),
+U_r = \left( \begin{array}{ccc} d_r \\ u_r \\ p_r \end{array} \right),
+U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
+\end{equation}
+
+В формуле (\ref{eq:riemann}) через $d_l$, $u_l$, $p_l$ обозначены плотность, скорость и давление газа слева от разрыва (они объединены в структуру  $U_l$ -- состояние газа слева от разрыва).
+Аналогично через $d_r$, $u_r$, $p_r$ обозначены плотность, скорость и давление газа справа от разрыва, объединенные в состояние газа $U_r$.
+Переменными $d$, $u$, $p$ обозначены плотность, скорость и давление газа, полученные в результате решения задачи Римана.
+
+Библиотека NUMERICA реализована на языке программирования FORTRAN, поэтому векторизация данного кода с использованием функций-интринсиков напрямую невозможна, поэтому использовалась портированная на язык программирования C версия кода.
+
+В процессе счета с помощью численных методов, базирующихся на римановском решателе, выполняется множество вызовов функции \texttt{riemann} с различными наборами входных данных (на каждой итерации счета выполняется один вызов для каждой грани каждой ячейки расчетной сетки).
+Так как функция riemann является чистой, то вызовы для разных наборов входных данных (\texttt{dl}, \texttt{ul}, \texttt{pl}, \texttt{dr}, \texttt{ur}, \texttt{pr}) являются независимыми и возникает желание объединения вызовов с целью эффективного задействования векторных (поэлементных) инструкций.
+В качестве такого объединенного вызова будем рассматривать функцию, в которую вместо атомарных данных типа \texttt{float} будут подаваться соответствующие векторы, содержащие по $WIDTH$ элементов.
+
+\begin{equation}\label{eq:riemann_16}
+\overline{U_l} = \left( \begin{array}{ccc} \overline{d_l} \\ \overline{u_l} \\ \overline{p_l} \end{array} \right),
+\overline{U_r} = \left( \begin{array}{ccc} \overline{d_r} \\ \overline{u_r} \\ \overline{p_r} \end{array} \right),
+\overline{U} = \left( \begin{array}{ccc} \overline{d} \\ \overline{u} \\ \overline{p} \end{array} \right) = riem(\overline{U_l}, \overline{U_r})
+\end{equation}
+
+В формуле (\ref{eq:riemann_16}) все переменные $\overline{d_l}$, $\overline{u_l}$, $\overline{p_l}$, $\overline{d_r}$, $\overline{u_r}$, $\overline{p_r}$, $\overline{d}$, $\overline{u}$, $\overline{p}$ являются векторами длины 16.
+Например, вектор $\overline{d}$ содержит 16 значений плотности газа, полученных при решении 16 задач Римана, объединенных в один вызов.
+Аналогично с другими переменными.
+
+При этом с векторными данными можно производить те же действия, что и с базовыми типами -- выполнять вычисления, передавать в функции, возвращать в качестве результата.
+
+Римановский решатель обладает сложной программной структурой и состоит из нескольких функций, каждая из которых может быть векторизована с использованием специальных подходов.
+Однако мы рассмотрим только одну из этих функций $starpu$, обладающую наиболее интересной особенностью -- при объединении нескольких ее вызовов в одну функцию она порождает плоский цикл, телом которого является цикл с неизвестным количеством итераций.
+
+\begin{lstlisting}[caption={Оригинальная версия функции \texttt{starpu}.},label={lst:prac_riemann_starpu_orig}]
+void starpu(float dl, float ul, float pl, float cl,
+            float dr, float ur, float pr, float cr,
+            float &p, float &u)
+{
+    const int nriter = 20;
+    const float tolpre = 1.0e-6;
+    float change, fl, fld, fr, frd, pold, pstart, udiff;
+
+    guessp(dl, ul, pl, cl, dr, ur, pr, cr, pstart);
+    pold = pstart;
+    udiff = ur - ul;
+
+    int i = 1;
+
+    for ( ; i <= nriter; i++)
+    {
+        prefun(fl, fld, pold, dl, pl, cl);
+        prefun(fr, frd, pold, dr, pr, cr);
+        p = pold - (fl + fr + udiff) / (fld + frd);
+        change = 2.0 * abs((p - pold) / (p + pold));
+
+        if (change <= tolpre)
+        {
+            break;
+        }
+
+        if (p < 0.0)
+        {
+            p = tolpre;
+        }
+
+        pold = p;
+    }
+
+    if (i > nriter)
+    {
+        cout << "divergence in Newton-Raphson iteration" << endl;
+        exit(1);
+    }
+
+    u = 0.5 * (ul + ur + fr - fl);
+}
+\end{lstlisting}
+
+\ \\
+
+Цикл, расположенный в данной функции, кроме неизвестного количества итераций содержит также условные переходы (\texttt{if, break}) и вызовы функций prefun, что также усложняет его векторизацию.
+Перед выполнением векторизации данный цикл необходимо преобразовать в предикатную форму, в которой тело не должно содержать операций перехода.
+Все инструкции цикла выполняются под своими предикатами, а выполнение цикла прерывается при условии обнуления всех предикатов.
+При этом стоит заметить, что вызовы функций prefun также должны обладать соответствующими предикатами.
+После преобразования тела цикла в предикатную форму, он может быть векторизован, после чего предикаты инструкций заменятся на векторные регистры-маски (именно в этом месте появляется дополнительный параметр векторизованной функции \texttt{prefun} в виде маски).
+Результат векторизации функции \texttt{starpu} представлен на листинге ниже.
+
+\begin{lstlisting}[caption={Векторизованная версия функции \texttt{starpu}.},label={lst:prac_riemann_starpu_vec}]
+void starpu_16(__m512 dl, __m512 ul, __m512 pl, __m512 cl,
+               __m512 dr, __m512 ur, __m512 pr, __m512 cr,
+               __m512 *p, __m512 *u)
+{
+    __m512 two, tolpre, tolpre2, udiff, pold, fl, fld, fr, frd, change;
+    __mmask16 cond_break, cond_neg, m;
+    const int nriter = 20;
+    int iter = 1;
+
+    two = SET1(2.0);
+    tolpre = SET1(1.0e-6);
+    tolpre2 = SET1(5.0e-7);
+    udiff = SUB(ur, ul);
+
+    guessp_16(dl, ul, pl, cl, dr, ur, pr, cr, &pold);
+
+    // Start with full mask.
+    m = 0xFFFF;
+
+    for (; (iter <= nriter) && (m != 0x0); iter++)
+    {
+        prefun_16(&fl, &fld, pold, dl, pl, cl, m);
+        prefun_16(&fr, &frd, pold, dr, pr, cr, m);
+        *p = _mm512_mask_sub_ps(*p, m, pold,
+                                _mm512_mask_div_ps(z, m,
+                                                   ADD(ADD(fl, fr), udiff),
+                                                   ADD(fld, frd)));
+        change = ABS(_mm512_mask_div_ps(z, m, SUB(*p, pold),
+                                        ADD(*p, pold)));
+        cond_break = _mm512_mask_cmp_ps_mask(m, change,
+                                             tolpre2, _MM_CMPINT_LE);
+        m &= ~cond_break;
+        cond_neg = _mm512_mask_cmp_ps_mask(m, *p, z, _MM_CMPINT_LT);
+        *p = _mm512_mask_mov_ps(*p, cond_neg, tolpre);
+        pold = _mm512_mask_mov_ps(pold, m, *p);
+    }
+
+    // Check for divergence.
+    if (iter > nriter)
+    {
+        cout << "divergence in Newton-Raphson iteration" << endl;
+        exit(1);
+    }
+
+    *u = MUL(SET1(0.5), ADD(ADD(ul, ur), SUB(fr, fl)));
+}
+\end{lstlisting}
+
+\ \\
+
+На листинге видна изначальная инициализация полной маски выполнения векторизованных итераций цикла. По мере работы цикла маска истощается, и при полном ее обнулении цикл завершает работу.
+
+Стоит отметить, что векторизация цикла с неизвестным числом итераций может быть довольно опасной, так как количество итераций векторизованного цикла равно максимуму из количеств итераций циклов из 16 объединяемых вызовов оригинальной невекторизованной функции.
+При большой разнице в количестве итераций оригинального кода возникает падение эффективности.
+
+В результате применения векторизации для всех функций римановского решателя удалось достичь суммарного ускорения решателя в 7 раз.
+%Можно также отметить работы \cite{BaderSWEVect,FerreiraSWEVect} по данному направлению.
 
 \subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
 
@@ -799,6 +944,9 @@ A.~A.~Rybakov,{\it ``Optimization of the problem of conflict detection with dang
 \refitem{misc}
 Intel Intrinsics Guide. \url{https://software.intel.com/sites/landingpage/IntrinsicsGuide/}. Accessed 2020.
 
+\bibitem{Numerica}
+\refitem{misc}
+NUMERICA, A Library of Sources for Teaching, Research and Applications, by E.~F.~Toro. \url{https://github.com/dasikasunder/NUMERICA}. Accessed 2018.
 
 \end{thebibliography}
 
