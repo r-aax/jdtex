@@ -75,18 +75,19 @@ escapeinside={\%*}{*)}
 
 \section{Introduction}
 
-Имитационное моделирование с использованием суперкомпьютеров в настоящее время играет важную роль в проведении исследований в различных областях науки, промышленности, бизнеса и жизни общества.
+Имитационное моделирование с использованием суперкомпьютеров в настоящее время играет важную роль в проведении исследований в различных областях науки, промышленности, бизнеса и жизни общества \cite{FadeevWheather, HuSeismic, JonesFluid}.
+
 Суперкомпьютерное моделирование позволяет выполнять анализ и многокритериальную оптимизацию процессов взаимодействия объектов окружающего мира и извлекать информацию, недоступную без использования данных средств.
 При проведении высокопроизводительных вычислений рассматриваются модели, использующие расчетные сетки, состоящие из десятков и сотен миллионов отдельных узлов или ячеек.
 Такие размеры сеток уже являются обыденностью, и со временем требования по точности и комплексности моделей только ужесточаются.
 В таких условиях повышение производительности суперкомпьютерных расчетов является актуальной задачей.
-Наряду с повышением пиковой производительности самих вычислительных систем ведутся исследования по повышению эффективности систем обмена данными между вычислительными узлами, по развитию технологий управления расчетными сетками и равномерного распределения вычислений на кластере, активно развиваются инструменты языков программирования, направленные на облегчение создания высокопроизводительного параллельного кода.
+Наряду с повышением пиковой производительности самих вычислительных систем ведутся исследования по повышению эффективности систем обмена данными между вычислительными узлами \cite{KalantzisMPI}, по развитию технологий управления расчетными сетками \cite{Rybakov} и равномерного распределения вычислений на кластере \cite{BaranovWorkload}, активно развиваются инструменты языков программирования и компиляторы, направленные на облегчение создания высокопроизводительного параллельного кода \cite{DoerfertPar}.
 
 Самым низкоуровневым направлением создания высокопроизводительного параллельного исполняемого кода является векторизация вычислений, позволяющая напрямую задействовать аппаратные возможности вычислителей.
 Набор инструкций AVX-512 является передовым средством повышения производительности современных микропроцессоров Intel.
 В микропроцессорах с поддержкой набора инструкций AVX-512 пиковая производительность вычислителя рассчитывается с учетом использования 512-битных векторных регистров и сдвоенных FMA операций (fused multiply-add).
 Это значит, что без применения векторизации для расчетного кода при использовании вещественных операций одинарной точности даже теоретически не может быть достигнута производительность выше, чем 3,125%% от пиковой.
-Ввиду этого поиск методов и решений для применения векторизации в сложном программном контексте является крайне актуальной задачей.
+Ввиду этого поиск методов и решений для применения векторизации в сложном программном контексте является крайне актуальной задачей \cite{ShabanovVec}.
 
 Несмотря на все разнообразие возможного программного контекста суперкомпьютерных приложений существуют типы программных конструкций, эффективная оптимизация которых способна существенно повысить эффективность приложения целиком.
 В данной статье будет рассмотрен только один тип векторизуемого программного контекста -- плоский цикл, для которого будут предложены методы векторизации с помощью AVX-512.
@@ -145,7 +146,7 @@ for (int w = 0; w < WIDTH; w++)
 
 \section{AVX-512 instruction set}
 
-Набор инструкций AVX-512 является естественным расширением наборов AVX и AVX2.
+Набор инструкций AVX-512 \cite{IntelDev} является естественным расширением наборов AVX и AVX2.
 Он поддержан в микропроцессорах Intel, начиная с Intel Xeon Phi Knights Landing, Intel Xeon Skylake, Intel Xeon Cascade Lake.
 Инструкции AVX-512 в своей работе оперируют с векторными регистрами zmm.
 Всего таких регистров 32 (zmm0 -- zmm31), и они являются расширением регистров ymm (ymm0 -- ymm31 соответственно).
@@ -435,6 +436,8 @@ while (IS_ITER != 0x0)
 Необходимость отслеживать данные предикаты, конечно, привносит трудности при векторизации.
 В некоторых архитектурах (например в архитектуре <<Эльбрус>>) для облегчения выполнения операций, результат которых может не быть востребован (и аргументы которых могут содержать некорректные данные), предусмотрен специальный спекулятивный режим исполнения, который игнорирует исключительные ситуации и помогает эффективно выполнять слияние разных веток программного кода.
 
+В работе \cite{Krzikalla} продемонстрировано применение данного приема для реализации построения множества Мандельброта.
+
 \subsection{Векторизация вызовов функций под условием}
 
 В плоских циклах могут встречаться вызовы функций.
@@ -488,7 +491,7 @@ X = VBLENDM(COND, F(COND, A), B)
 
 Для удобства применения инструкций из набора AVX-512 предусмотрена библиотека специальных функций интринсиков, полный список и описание данных функций доступно на сайте \cite{Intel_Intr}.
 
-Для использования функций-интринсиков в программе нужно подключить заголовочный файл $<immintrin.h>$.
+Для использования функций-интринсиков в программе нужно подключить заголовочный файл $immintrin.h$.
 
 Функции-интринсики покрывают не все инструкции AVX-512, однако избавляют от необходимости вручную писать ассемблерный код и позволяют использовать встроенные типы данных для 512-битных векторов ($\_\_m512$, $\_\_m512i$, $\_\_m512d$).
 Некоторые интринсики соответствуют не отдельной команде, а целой последовательности, как например для операции сложения всех элементов вектора.
@@ -649,13 +652,13 @@ void starpu_16(__m512 dl, __m512 ul, __m512 pl, __m512 cl,
 При большой разнице в количестве итераций оригинального кода возникает падение эффективности.
 
 В результате применения векторизации для всех функций римановского решателя удалось достичь суммарного ускорения решателя в 7 раз.
-%Можно также отметить работы \cite{BaderSWEVect,FerreiraSWEVect} по данному направлению.
+Можно также отметить работы \cite{BaderSWEVect,FerreiraSWEVect} по данному направлению.
 
 \subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
 
 При численном решении задач газовой динамики часто приходится сталкиваться с телами, обладающими сложной геометрией.
 Для таких тел построение согласованной расчетной сетки может быть крайне трудозатратной задачей.
-Альтернативой в данном случае является использование метода погруженной границы.
+Альтернативой в данном случае является использование метода погруженной границы \cite{MittalIBM,TsengIBM}.
 Данный метод позволяет использовать для расчетов несогласованную сетку и даже простую декартову сетку, что сильно упрощает выполнение расчетов.
 В рамках реализации метода погруженной границы требуется решать частную задачу определения пересечения треугольника и прямоугольного параллелепипеда в пространстве для большого количества данных геометрических примитивов.
 
@@ -955,9 +958,49 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 
 \begin{thebibliography}{99}
 
+\bibitem{FadeevWheather}
+\refitem{article}
+R.~Fadeev, K.~Ushakov, M.~Tolstykh, R.~Ibrayev, V.~Shashkin, G.~Goyman, {\it ``Supercomputing the Seasonal Weather Prediction"}, In: Voevodin V., Sobolev S. (eds) Supercomputing. RuSCDays 2019. Communications in Computer and Information Science, vol 1129. Springer, Cham (2019).
+
+\bibitem{HuSeismic}
+\refitem{article}
+Y.~Hu, H.~Yang, Z.~Luan, L.~Gan, G.~Yang and D.~Qian, {\it ``Massively Scaling Seismic Processing on Sunway TaihuLight Supercomputer"}, In IEEE Transactions on Parallel and Distributed Systems, vol. 31, no. 5, pp. 1194--1208 (2020).
+
+\bibitem{JonesFluid}
+\refitem{article}
+K.~E.~Jones, {\it ``Supercomputing Improves Predictions of Fluid Flow in Rock"}, In Computing in Science \& Engineering, vol. 21, no. 6, pp. 74--76 (2019).
+
+\bibitem{KalantzisMPI}
+\refitem{article}
+V.~Kalantzis, {\it ``Data analytics, accelerators, and supercomputing: the challenges and future of MPI"}, XRDS 23, 3, 50–-52 (2017).
+
+\bibitem{Rybakov}
+\refitem{article}
+A.~A.~Rybakov, {\it ``Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations"}, Program systems: Theory and Application~{\bf 32}(8:1), 121--134 (2017).
+
+\bibitem{BaranovWorkload}
+\refitem{article}
+A.~V.~Baranov, G.~I.~Savin, B.~M.~Shabanov et al, {\it ``Methods of Jobs Containerization for Supercomputer Workload Managers"}, Lobachevskii J Math 40, 525-–534 (2019).
+
+\bibitem{DoerfertPar}
+\refitem{article}
+J.~Doerfert, H.~Finkel, {\it ``Compiler Optimizations for Parallel Programs"}, In: Hall M., Sundar H. (eds) Languages and Compilers for Parallel Computing. LCPC 2018. Lecture Notes in Computer Science, vol 11882. Springer, Cham (2019).
+
+\bibitem{ShabanovVec}
+\refitem{article}
+B.~M.~Shabanov, A.~A.~Rybakov, S.~S.~Shumilin, {\it ``Vectorization of High-performance Scientific Calculations Using AVX-512 Intruction Set"}, Lobachevskii J Math 40, 580–-598 (2019).
+
+\bibitem{IntelDev}
+\refitem{misc}
+Intel 64 and IA-32 architectures software developer's manual. Combined volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4. Intel Corporation (2019).
+
 \bibitem{Rybakov_Aircraft}
 \refitem{article}
-A.~A.~Rybakov,{\it ``Optimization of the problem of conflict detection with dangerous aircraft movement areas to execute on Intel Xeon Phi"}, Programmnye produkty i sistemy [Software \& Systems]~{\bf 30}(3), 524--528 (2017).
+A.~A.~Rybakov, {\it ``Optimization of the problem of conflict detection with dangerous aircraft movement areas to execute on Intel Xeon Phi"}, Programmnye produkty i sistemy [Software \& Systems]~{\bf 30}(3), 524--528 (2017).
+
+\bibitem{Krzikalla}
+\refitem{article}
+O.~Krzikalla, F.~Wende, M.~H\"ohnerbach, {\it ``Dynamic SIMD Vector Lane Scheduling"}, ISC High Performance, LNCS~{\bf 9945}, 354--365 (2016).
 
 \bibitem{Intel_Intr}
 \refitem{misc}
@@ -966,6 +1009,22 @@ Intel Intrinsics Guide. \url{https://software.intel.com/sites/landingpage/Intrin
 \bibitem{Numerica}
 \refitem{misc}
 NUMERICA, A Library of Sources for Teaching, Research and Applications, by E.~F.~Toro. \url{https://github.com/dasikasunder/NUMERICA}. Accessed 2018.
+
+\bibitem{BaderSWEVect}
+\refitem{article}
+M.~Bader, A.~Breuer, W.~H{\"o}ltz, S.~Rettenberger, {\it ``Vectorization of an augmented Riemann solver for the shallow water equations"}, Proceedings of the 2014 International Conference on High Performance Computing and Simulation, HPCS 2014, 193--201 (2014).
+
+\bibitem{FerreiraSWEVect}
+\refitem{article}
+C.~R.~Ferreira, K.~T.~Mandli, M.~Bader, {\it ``Vectorization of Riemann solvers for the single- ans multi-layer shallow water equations"}, Proceedings of the 2018 International Conference on High Performance Computing and Simulation, HPCS 2018, 415--422 (2018).
+
+\bibitem{MittalIBM}
+\refitem{article}
+R.~Mittal, G.~Iaccarino, {\it ``Immersed boundary methods"}, Annual. Rev. Fluid Mech., V. 37, P. 239--261 (2005).
+
+\bibitem{TsengIBM}
+\refitem{article}
+Y.-H.~Tseng, J.~H.~Ferziger, {\it ``A ghost-cell immersed boundary method for flow in complex geometry"}, Journal of Computational Physics, V. 192, P. 593--623 (2003).
 
 \end{thebibliography}
 
