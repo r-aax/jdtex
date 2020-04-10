@@ -71,21 +71,21 @@ The article discusses approaches to vectorization of flat loops - a special-purp
 
 \section{Introduction}
 
-Имитационное моделирование с использованием суперкомпьютеров в настоящее время играет важную роль в проведении исследований в различных областях науки, промышленности, бизнеса и жизни общества.
-Суперкомпьютерное моделирование позволяет выполнять анализ и многокритериальную оптимизацию процессов взаимодействия объектов окружающего мира и извлекать информацию, недоступную без использования данных средств.
-При проведении высокопроизводительных вычислений рассматриваются модели, использующие расчетные сетки, состоящие из десятков и сотен миллионов отдельных узлов или ячеек.
-Такие размеры сеток уже являются обыденностью, и со временем требования по точности и комплексности моделей только ужесточаются.
-В таких условиях повышение производительности суперкомпьютерных расчетов является актуальной задачей.
-Наряду с повышением пиковой производительности самих вычислительных систем ведутся исследования по повышению эффективности систем обмена данными между вычислительными узлами, по развитию технологий управления расчетными сетками и равномерного распределения вычислений на кластере, активно развиваются инструменты языков программирования, направленные на облегчение создания высокопроизводительного параллельного кода.
+Simulations using supercomputers currently play an important role in conducting research in various fields of science, industry, business and society.
+Supercomputer modeling allows you to perform analysis and multi-criteria optimization of the processes of object interaction and extract information that is not available without using these tools.
+Conducting high-performance calculations implies using models which use computational grids consisting of tens and hundreds of millions of individual nodes or cells.
+Such mesh sizes are already commonplace, and over time, the requirements for accuracy and complexity of models only become more stringent.
+In such conditions, improving the performance of supercomputer calculations is an urgent task.
+Along with increasing the peak performance of the computing systems themselves, studies are underway to improve the efficiency of data exchange systems between computing nodes. There are studies of technologies for managing computational grids and uniform distribution of computations on a cluster. We also see an active development of programming language tools aimed at facilitating the creation of high-performance parallel code.
 
-Самым низкоуровневым направлением создания высокопроизводительного параллельного исполняемого кода является векторизация вычислений, позволяющая напрямую задействовать аппаратные возможности вычислителей.
-Набор инструкций AVX-512 является является передовым средством повышения производительности современных микропроцессоров Intel.
-В микропроцессорах с поддержкой набора инструкций AVX-512 пиковая производительность вычислителя рассчитывается с учетом использования 512-битных векторных регистров и сдвоенных FMA операций (fused multiply-add).
-Это значит, что без применения векторизации для расчетного кода при использовании вещественных операций одинарной точности даже теоретически не может быть достигнута производительность выше, чем 3,125%% от пиковой.
-Ввиду этого поиск методов и решений для применения векторизации в сложном программном контексте является крайне актуальной задачей.
+The lowest-level direction for creating high-performance parallel executable code is the vectorization of calculations, which allows you to directly use the hardware capabilities of the computers.
+The AVX-512 instruction set is a foremost tool of improving the performance of modern Intel microprocessors.
+In microprocessors with support for the AVX-512 instruction set, the peak performance is calculated taking into account 512-bit vector registers and dual FMA operations (fused multiply-add).
+This means that without vectorization of code when using a single-precision real operations performance higher than 3.125%% of the peak can not be achieved even theoretically.
+In view of this, the search for methods and solutions for applying vectorization in a complex program context is an extremely urgent task.
 
-Несмотря на все разнообразие возможного программного контекста суперкомпьютерных приложений существуют типы программных конструкций, эффективная оптимизация которых способна существенно повысить эффективность приложения целиком.
-В данной статье будет рассмотрен только один тип векторизуемого программного контекста -- плоский цикл, для которого будут предложены методы векторизации с помощью AVX-512.
+Despite the diversity of the possible software context of supercomputer applications, there are types of software constructs whose effective optimization can significantly increase the efficiency of the entire application.
+In this article, only one type of vectorized program context will be considered - a flat loop, for which vectorization methods using AVX-512 will be proposed.
 
 \section{Плоские циклы}
 
