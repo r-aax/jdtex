@@ -87,13 +87,13 @@ In view of this, the search for methods and solutions for applying vectorization
 Despite the diversity of the possible software context of supercomputer applications, there are types of software constructs whose effective optimization can significantly increase the efficiency of the entire application.
 In this article, only one type of vectorized program context will be considered - a flat loop, for which vectorization methods using AVX-512 will be proposed.
 
-\section{Плоские циклы}
+\section{Flat loops}
 
-В рамках данной статьи будем ограничиваться рассмотрением только вычислительных задач, работающих с вещественными числами одинарной точности.
-Определим понятие плоского цикла для таких задач.
-В общем случае без ограничения общности плоским циклом будем называть программную конструкцию вида, показанную в листинге~\ref{lst:flat_loop}.
+In the framework of this article, we will restrict ourselves to considering only computational problems working with real numbers of single precision.
+Let's give the definition of a flat cycle for such problems.
+In general case a flat loop will be called a program construct with the form shown in listing ~\ref{lst:flat_loop}.
 
-\begin{lstlisting}[caption={Общий вид плоского цикла.},label={lst:flat_loop}]
+\begin{lstlisting}[caption={General view of a flat loop.},label={lst:flat_loop}]
 for (int w = 0; w < WIDTH; w++)
 {
     <block(w)>;
@@ -102,19 +102,18 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-При этом будем придерживаться следующих соглашений.
-Во-первых, будем считать, что количество итераций плоского цикла $WIDTH$ в точности равно количеству элементов в векторе.
-В нашем случае мы рассматриваем 512-битные векторы и вещественные данные с одинарной точностью (каждый элемент занимает 32 бита), поэтому $WIDTH = 16$.
-Данное ограничение действительно не нарушает общности, так цикл с любым количеством итераций мы всегда можем разбить на несколько циклов по $WIDTH$ итераций и, возможно на еще один цикл с меньшим числом итераций (эпилог цикла).
+We will follow the following agreements.
+First, we assume that the number of iterations of the flat loop $WIDTH$ is exactly equal to the number of elements in the vector.
+In our case, we consider 512-bit vectors and real data with single precision (each element takes 32 bits), so $WIDTH = 16$.
+This restriction does not really violate generality, so we can always divide a loop with any number of iterations into several loops of $WIDTH$ iterations and, possibly, another loop with a smaller number of iterations (loop epilogue).
 
-Во-вторых, будем считать, что внутри блока кода \texttt{<block(w)>} ведется работа с массивами типа \texttt{float}, обращение к которым возможно только в виде $x[w]$, к тому же все массивы выровнены в памяти на 512 бит.
-Заметим, что может встречаться программный код, не отвечающий данным требованиям, однако в большинстве случаев оказывается более выгодно скорректировать архитектуру программы и добиться выполнения требования по выравниванию данных, чем бороться с негативными эффектами при отсутствии выравнивания (невыровненные операции доступа в память занимают существенно больше времени, чем выровненные).
+Second, we assume that inside the code block \texttt{<block(w)>} there are arrays with only \texttt{float} values, access to which is possible only in the form $x[w]$, in addition, all arrays are 512-bit aligned in memory.
+Note that there may be program code that does not meet these requirements, but in most cases it is more advantageous to adjust the program architecture and achieve the data alignment requirement than to deal with negative effects in the absence of alignment (unaligned memory access operations take significantly more time, than aligned).
 
-В-третьих, будем считать, что внутри цикла отсутствуют межитерационные зависимости.
-Требования на обращения вида $x[w]$ к массивам исключают возможность межитерационных зависимостей в цикле при обращениях к массивам, однако теоретически могут быть конфликты по доступу к другим переменным.
-Например, в листинге~\ref{lst:not_flat_loop} показан цикл, не являющийся плоским, так как в нем есть зависимость по доступу к переменной $s$.
-
-\begin{lstlisting}[caption={Простейший пример неплоского цикла.},label={lst:not_flat_loop}]
+Thirdly, there are no inter-iteration dependences inside the loop.
+Requirements for calls of the form $x[w]$ to arrays exclude the possibility of inter-iteration dependencies in the loop when accessing arrays, but theoretically there may be conflicts over access to other variables.
+For example, the loop shown in listing~\ref{lst:not_flat_loop} is not a flat one, because there is dependency in access to $s$.
+\begin{lstlisting}[caption={Simple example of a non-flat loop.},label={lst:not_flat_loop}]
 for (int w = 0; w < WIDTH; w++)
 {
     s += x[w];
@@ -123,21 +122,21 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-Циклы, удовлетворяющие описанным соглашениям являются крайне удобными в плане векторизации.
-Отсутствие межитерационных зависимостей в таком цикле позволяет выполнять итерации цикла независимо друг от друга, в любом порядке, а значит они могут быть выполнены параллельно.
-Требование на количество итераций в цикле, выровненность в памяти, а также на вид обращений к элементам массивов ($x[w]$) гарантирует, что внутри данного цикла при работе с некоторым массивом $x$ мы обращаемся только к его участку, ограниченному номерами элементов от $0$ до $WIDTH - 1$.
-Таким образом, для доступа к массивам внутри плоского цикла можно использовать векторные команды чтения последовательных участков памяти.
+Loops satisfying the described conventions are extremely convenient in terms of vectorization.
+The absence of inter-iteration dependencies in such a loop allows iterations of the loop to be performed independently of each other, in any order, which means that they can be performed in parallel.
+The requirement for the number of iterations in the loop, the alignment in memory, as well as the type of accesses to the elements of arrays ($x[w]$) ensures that inside this loop, when working with some array $x$, we refer only to its part limited by numbers items from $0$ to $WIDTH-1$.
+Thus, to access arrays inside a flat loop, we can use vector commands to read aligned sections of memory.
 
-Конечно, если тело плоского цикла ограничено только обращениями в память и простейшими арифметическими операциями, то для векторизации такого цикла достаточно оптимизирующего компилятора, который с легкостью заменит внутри цикла скалярные инструкции векторными аналогами.
-Однако интерес представляют такие циклы, тела которых обладают особенностями, препятствующими автоматической векторизации.
-Среди таких особенностей главные проблемы представляют сложное разветвленное управление, наличие вложенных циклов, вызовы функций внутри цикла.
-Все эти проблемы для плоских циклов могут быть решены с помощью инструкций AVX-512.
-Для этого требуется перевести тело цикла в предикатное представление, после чего выполнить замену скалярных предикатных операций на векторные предикатные инструкции.
+Of course, if the body of a flat loop is limited only by memory accesses and simple arithmetic operations, then to optimize such a cycle, an optimizing compiler is enough to easily replace scalar instructions with vector analogues inside the cycle.
+However, we are interested in those loops, whose bodies have features that impede automatic vectorization.
+In such loops, the main problems are complex branched control, the presence of nested loops, and function calls inside the loop.
+All of these issues for flat loops can be resolved using the AVX-512 instruction set.
+This requires translating the body of the loop into the predicate representation, and then replacing scalar predicate operations with vector predicate instructions.
 
-Так как мы условились считать, что плоский цикл всегда управляется индуктивной переменной, изменяющейся в пределах от $0$ до $WIDTH$, то в дальнейшем для анализа будем характеризовать плоский цикл только его телом.
-Например, для цикла из листинга~\ref{lst:flat_loop} будем говорить, что рассматривается плоский цикл \texttt{<block(w)>}.
+Since we assumed that a flat loop is always controlled by an inductive variable, varying from $0$ to $WIDTH$, later we will characterize a flat loop only by its body.
+For example for loop from listing~\ref{lst:flat_loop} we say that we consider flat loop \texttt{<block(w)>}.
 
-Прежде чем перейти к рассмотрению конкретных подходов по векторизации плоских циклов с помощью предикатного представления тела цикла, требуется кратко описать набор инструкций AVX-512, и особенно инструкции, подходящие для векторизации плоских циклов.
+Before we proceed to a discussion of specific approaches for vectorizing flat loops using the predicate representation of the loop body, it is necessary to briefly describe the AVX-512 instruction set, and especially instructions suitable for vectorizing flat loops.
 
 \section{AVX-512 instruction set}
 
