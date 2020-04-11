@@ -171,13 +171,14 @@ Thus we say that $A$ is a vector consisting of $WIDTH$ elements $A[w]$.
 By $R = A + B$ we mean the element-wise sum of the vectors $A$ and $B$ and copying the result into the vector $R$.
 Replacing the addition operation with the arbitrary operation $op$ (not necessarily the operation of two arguments), we obtain the semantics of the vector element-wise operation in the form $R = op A, B$.
 
-Для рассмотрения семантики векторных операций, работающих с масками, нам понадобится представление векторных предикатов.
-Предикаты будем обозначать латинскими буквами в галочкой наверху.
-Использование предиката при выборе одного из двух аргументов будем записывать с помощью тернарного оператора.
-Таким, образом в выражении $r = \check{p} \ ? \ a : b$ элемент $r$ принимает значение $a$ при истинном значении предиката $\check{p}$, в противном случае он принимает значение $b$.
-В векторном аналоге данной записи $R = \check{P} \ ? \ A : B$ данная операция выполняется поэлементно для элементов векторов, находящихся в позиции $w$ ($0 \le w < WIDTH$).
+To consider the semantics of vector operations that work with masks, we need a representation of vector predicates.
+Predicates will be denoted by Latin letters with a checkmark at the top.
+Using the predicate when choosing one of the two arguments will be written using the ternary operator.
+Thus, in $r = \check{p} \ ? \ a : b$ the element $r$ takes the value of $a$ when the predicate $\check{p}$ is true, otherwise it takes the value of $b$.
+The vector analogue of previous notation is $R = \check{P} \ ? \ A : B$.
+This operation is executed elementwise for elements in positions $w$ ($0 \le w < WIDTH$).
 
-После рассмотрения записи семантики векторных инструкций для векторизации плоских циклов рассмотрим основные классы пригодных для этого инструкций (примеры операций и их семантика приведены в таблице~1.
+Now we consider the main classes of instructions suitable for vectorization of flat cycles (examples of operations and their semantics are given in table~1).
 
 \begin{table}[!h]
 \label{tbl:avx512semantic}
@@ -214,34 +215,34 @@ Replacing the addition operation with the arbitrary operation $op$ (not necessar
 \label{tab:avx512instructions}
 \end{table}   
 
-Первым типом рассматриваемых операций являются векторные операции с одним аргументом.
-В этом случае к каждому элементу вектора применяется одна и та же операция (например, получение обратной величины или вычисление квадратного корня), после чего результаты записываются в результирующий вектор.
-С помощью дополнительного предикатного аргумента можно выбрать множество обрабатываемых элементов вектора.
-Если же к элементу вектора не должна быть применена рассматриваемая операция, то соответствующий элемент результирующего вектора может быть либо оставлен без изменения, либо обнулен (это регулируется отдельным флагом в инструкции).
+The first type of operations in question are vector operations with one argument.
+In this case, the same operation is applied to each element of the vector (for example, obtaining the reciprocal of the value or calculating the square root), after which the results are written into the resulting vector.
+With the help of an additional predicate argument, you can select subset of processed elements of the vector.
+If an operation should not be applied to the vector element, then the corresponding element of the resulting vector can either be left unchanged or zeroed (this is regulated by a separate flag in the instruction).
 
-Аналогичным образом записывается семантика арифметических векторных инструкций с двумя и тремя аргументами.
-Операции с двумя аргументами это обычные операции сложения, вычитания, умножения, получения максимума из двух чисел и другие.
-Арифметические операции с тремя аргументами это так называемые сдвоенные, или комбинированные FMA операции, которые позволяют за одну операцию вычислитель значение выражения $\pm a \cdot b \pm c$.
+The semantics of arithmetic vector instructions with two and three arguments are written in the same way.
+Operations with two arguments are the usual operations of addition, subtraction, multiplication, obtaining the maximum of two numbers and others.
+Arithmetic operations with three arguments are the so-called doubled, or combined FMA operations, which allow one to calculate $\pm a \cdot b \pm c$ by one operation.
 
-Следующий большой класс операций это операции сравнения.
-В таблице данный класс представлен единственной операцией VCMP, однако данная операция скрывает в себе все множество различных операций сравнения (VCMPEQ, VCMPLE, VCMPNE и остальные).
-Данные операции выполняют поэлементное сравнение двух векторов и записывают результаты в векторный предикат.
+The next large class of operations is comparison operations.
+In the table, this class is represented by a single VCMP operation, however, this operation hides many different comparison operations (VCMPEQ, VCMPLE, VCMPNE and others).
+These operations perform elementwise comparison of two vectors and write the results into a vector predicate.
 
-Последний рассматриваемый класс векторных инструкций представлен одной инструкцией VBLENDM, которая является реализацией векторного тернарного оператора $R = \check{P} \ ? \ A : B$.
+The last class of vector instructions considered is represented by one VBLENDM instruction, which is an implementation of the vector ternary operator $R = \check{P} \ ? \ A : B$.
 
-На самом деле, глядя на таблицу~1, можно заметить, что описания семантики всех приведенных в ней векторных операций являются просто плоскими циклами в явном виде.
-Верно также и обратное -- если некий плоский цикл можно записать в виде семантики одной или нескольких векторных инструкций, то он может быть реализован с помощью этих инструкций.
+In fact, looking at table~1, one can notice that the descriptions of the semantics of all the vector operations given in it are simply flat loops in explicit form.
+The converse is also true -- if a flat loop can be written in the form of the semantics of one or more vector instructions, then it can be implemented using these instructions.
 
-В общем целью статьи являются методы записи плоских циклов с использованием семантики векторных инструкций, приведенных в таблице~1.
+In general the purpose of the article is the methods of flat loops description using semantics of the vector instructions shown in table~1.
 
 \section{Flat loops vectorization techniques}
 
-\subsection{Векторизация разветвленного управления}
+\subsection{Branched control vectorization}
 
-Разветвленное управление в теле плоского цикла имеет место при наличии операторов передачи управления, например, \texttt{if-else}, \texttt{case}, \texttt{goto} и операторов огранизации циклов \texttt{for}, \texttt{while}, \texttt{do-while}, \texttt{break}, \texttt{continue}.
-Рассмотрим простейший пример, когда тело плоского цикла состоит из одной конструкции \texttt{if-else}, как показано в листинге~\ref{lst:if_else_orig}.
+Branched control in the body of a flat loop takes place in the presence of control transfer operators, for example, \texttt{if-else}, \texttt{case}, \texttt{goto} and loop organization operators \texttt{for}, \texttt{while}, \texttt{do-while}, \texttt{break}, \texttt{continue}.
+Consider simple example when the body of a flat loop consists of one structure \texttt{if-else}, as shown in listing~\ref{lst:if_else_orig}.
 
-\begin{lstlisting}[caption={Тело плоского цикла, состоящее из конструкции \texttt{if-else}.},label={lst:if_else_orig}]
+\begin{lstlisting}[caption={The body of a flat loop, consisting of \texttt{if-else} structure.},label={lst:if_else_orig}]
 for (int w = 0; w < WIDTH; w++)
 {
     if (<cond(w)>)
@@ -257,45 +258,45 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-Прежде всего отметим, что в данной конструкции условие \texttt{<cond(w)>} зависит от $w$.
-В противном случае при константном условии возможно расщепление цикла по условию так, чтобы получилось два отдельных плоских цикла, тела которых не содержат управление.
-В дальнейшем при рассмотрении условий в теле плоского цикла, мы будем предполагать, что они не являются константными.
-Итак, тело плоского цикла состоит из двух блоков \texttt{<block1(w)>} и \texttt{<block2(w)>}, один из которых выполняется в зависимости от условия \texttt{<cond(w)>}.
+First of all, we note that in this structure the condition \texttt {<cond(w)>} depends on $w$.
+Otherwise, under the constant condition, it is possible to split the cycle according to the condition so that two separate planar cycles are obtained whose bodies do not contain control.
+Further, when considering the conditions in the body of a planar cycle, we will assume that they are not constant.
+Thus, the body of a flat loop consists of two blocks \texttt{<block1(w)>} and \texttt{<block2(w)>}, one of which is executed depending on \texttt{<cond(w)>}.
 
-Каждому блоку можно сопоставить его длину, определенную как количество операций в данном блоке.
-Будем называть эту характеристику временем выполнения блока (блоки из листинга~\ref{lst:if_else_orig} имеют время выполнения $t_1$ и $t_2$ соответственно).
-Также каждый из этих двух блоков можно охарактеризовать вероятностью его выполнения.
-Вероятность выполнения блока это отношение количества выполнений блока к общему количеству итераций плоского цикла (блоки из листинга~\ref{lst:if_else_orig} имеют вероятности выполнения $p_1$ и $p_2$ соответственно).
-Тогда можно посчитать общее время выполнения одной итерации плоского цикла как $t_1 p_1 + t_2 p_2$.
-Общее время выполнения плоского цикла равно $T_{orig} = W(t_1 p_1 + t_2 p_2)$, где $W$ это общее количество итераций цикла, которое обозначалось в примерах кода программы через $WIDTH$.
+Each block can be associated with its length, defined as the number of operations in this block.
+We will call this characteristic block execution time (blocks from listing ~\ref{lst:if_else_orig} have $t_1$ and $t_2$ execution times, respectively).
+Also, each of these two blocks can be characterized by the probability of its execution.
+This probability is the ratio of the number of block executions to the total number of iterations of the flat cycle (the blocks from listing~\ref{lst:if_else_orig} have the execution probabilities $p_1$ and $p_2$, respectively).
+Then we can calculate the total execution time of one iteration of a flat loop as $t_1 p_1 + t_2 p_2$.
+The total execution time of a flat loop is $T_ {orig} = W (t_1 p_1 + t_2 p_2)$, where $W$ is the total number of iterations of the loop, which is indicated in the code examples by $WIDTH$.
 
-Для векторизации данного плоского цикла необходимо векторизовать оба блока и выполнить их под противоположными векторными предикатами \texttt{<COND>} и \texttt{~<COND>}, как это показано в листинге~\ref{lst:if_else_vec}.
+To vectorize this flat loop, it is necessary to vectorize both blocks and execute them under opposite vector predicates \texttt{<COND>} and \texttt{~<COND>}, as it is shown in listing~\ref{lst:if_else_vec}.
 
-\begin{lstlisting}[caption={Векторизованная конструкция \texttt{if-else}.},label={lst:if_else_vec}]
+\begin{lstlisting}[caption={Vectorized construction \texttt{if-else}.},label={lst:if_else_vec}]
 <BLOCK1> ? <COND>;
 <BLOCK2> ? ~<COND>;
 \end{lstlisting}
 
 \
 
-Если предположить, что блоки \texttt{<BLOCK1>} и \texttt{<BLOCK2>} векторизованы идеально, то есть их длина (количество векторных операций) равна длине соответствующих исходных блоков \texttt{<block1(w)>} и \texttt{<block2(w)>} (количество скалярных операций), то время работы векторизованного цикла равно $T_{vec} = t_1 + t_2$.
-Ускорение от применения векторизации можно вычислить по формуле
+If we assume that the blocks \texttt{<BLOCK1>} and \texttt{<BLOCK2>} are ideally vectorized, that is, their length (the number of vector operations) is equal to the length of the corresponding original blocks \texttt{<block1(w)>} and \texttt{<block2(w)>} (the number of scalar operations), then the run time of the vectorized cycle is $T_{vec} = t_1 + t_2$.
+The acceleration from the use of vectorization can be calculated by the formula
 
 \begin{equation}
 \frac{T_{orig}}{T_{vec}} = \frac{W(t_1 p_1 + t_2 p_2)}{t_1 + t_2}
 \end{equation}
 
-При наличии только одного блока (например, при $t_2 = 0$, $p_1 = 1$) получаем ожидаемое ускорение от векторизации ровно в $W$ раз.
-Если же рассмотреть два одинаковых блока ($t_1 = t_2$, $p_1 = p_2 = 1/2$), то ожидаемое ускорение от векторизации будет равно уже $W/2$.
-Это связано с тем, что в векторизованном коде появятся команды, выполняющиеся под векторными предикатами, и часть элементов данных предикатов нулевые.
-Таким образом, векторные инструкции по сути будут обрабатывать меньше скалярных элементов, чем позволяет их длина.
-Заметим, что данные вычисления сделаны в предположении, что блоки \texttt{BLOCK1} и \texttt{BLOCK2} векторизованы идеально.
-Однако, в них самих могут содержаться операторы передачи управления, что еще больше понизит эффективность векторизации.
+If there is only one block (for example, with $t_2 = 0$, $p_1 = 1$) we get the expected acceleration from vectorization exactly $W$ times.
+If we consider two identical blocks ($t_1 = t_2$, $p_1 = p_2 = 1/2$), then the expected acceleration from vectorization will be $W / 2$.
+This is due to the fact that in the vectorized code there will appear commands executed under vector predicates, and some of the elements of these predicate data are zero.
+Thus, vector instructions will process fewer scalar elements than their length allows.
+Note that these calculations were made under the assumption that the blocks \texttt{BLOCK1} and \texttt{BLOCK2} are ideally vectorized.
+However, they themselves may contain control transfer operators, which will further reduce the effectiveness of vectorization.
 
-Таким образом полное слияние всех ветвей исполнения не является эффективным способом векторизации плоских циклов.
-В случае, когда одна из ветвей исполнения обладает низкой вероятностью и к тому же большой длиной, то при отсутствии побочных эффектов можно применить вынос маловероятной ветки из цикла.
+Thus, the complete merging of all execution branches is not an effective way of vectorizing flat loops.
+In the case when one of the executed branches has low probability and also a large length, then in the absence of side effects, we can apply the removal of an unlikely branch from the loop.
 
-\begin{lstlisting}[caption={Векторизованная конструкция \texttt{if-else} с маловероятной второй веткой.},label={lst:if_else_vec_sec_lo_prob}]
+\begin{lstlisting}[caption={Vectorization of \texttt{if-else} with unlikely branch.},label={lst:if_else_vec_sec_lo_prob}]
 <BLOCK1> ? <COND>;
 
 if (~<COND>)
@@ -306,19 +307,19 @@ if (~<COND>)
 
 \
 
-В листинге~\ref{lst:if_else_vec_sec_lo_prob} показана модификация векторизованной версии плоского цикла с конструкцией \texttt{if-else} при условии маленькой вероятности второй ветки.
-Теперь выполнение маловероятной ветки происходит под условием \texttt{if (\~{}<COND>)}.
-Заметим, что это не векторное условие, а обычная проверка того факта, что маска \texttt{\~{}<COND>} ненулевая, и имеет смысл выполнять векторные инструкции.
-К тому же при низкой вероятности выполнения второго блока даже нет необходимости его векторизовать, это не повлияет на производительность.
-В реальных приложениях такие маловероятные ветки могут обрабатывать какие-то очень редкие и изощренные ситуации, и код в данных блоках может быть гораздо сложнее, чем код, обрабатывающий штатные случаи \cite{Rybakov_Aircraft}.
+Listing~\ref{lst: if_else_vec_sec_lo_prob} shows a modification of a vectorized version of a flat loop with the construction \texttt{if-else}, provided that the second branch has low probability.
+Now the unlikely branch is executed under the condition \texttt{if (\~{}<COND>)}.
+Note that this is not a vector condition, but a regular check of the fact that the mask \texttt{\~{}<COND>} is non-zero, and it makes sense to execute vector instructions.
+In addition, with a low probability of execution of the second block, there is not even a need to vectorize it, this will not affect performance.
+In real applications, such unlikely branches can handle some very rare and sophisticated situations, and the code in these blocks can be much more complicated than the code that processes regular cases \cite{Rybakov_Aircraft}.
 
-Другим важным приемом векторизации разветвленных условий является использование векторных инструкций, содержащих логику, и применение тождеств на их основе.
-К инструкциям, содержащим логику, можно отнести такие операции, как VBLENDM, VABS (котоая реализована через инструкцию VAND), VMIN, VMAX.
-По сути все эти операции содержат скрытое управление по типу \text{if-else}.
-В реальных приложениях часто встречаются участки кода, логику которых можно переписать с использованием данных операций, тем самым сократив количество различных ветвей исполнения.
-Рассмотрим в качестве примера ограничение значения некоторой переменной с помощью заданной нижней и верхней границ, как это показана на листинге~\ref{lst:bounds_orig}
+Another important technique for vectorizing branched conditions is the use of vector instructions containing logic and the use of identities based on them.
+Instructions containing logic include operations such as VBLENDM, VABS (which is implemented through the VAND instruction), VMIN, VMAX.
+In fact, all these operations contain hidden controls of the type \text{if-else}.
+In real applications, there are often sections of code whose logic can be rewritten using these operations, thereby reducing the number of different branches of execution.
+As an example, consider the limitation of the value of a variable using a given lower and upper bounds, as shown in listing~\ref{lst:bounds_orig}
 
-\begin{lstlisting}[caption={Ограничение значения величины с помощью нижней и верхней границ.},label={lst:bounds_orig}]
+\begin{lstlisting}[caption={Limiting the value using the lower and upper bounds.},label={lst:bounds_orig}]
 for (int w = 0; w < WIDTH; w++)
 {
     if (x[w] < a[w])
@@ -334,8 +335,8 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-Слияние такого участка кода не будет достаточно эффективным (к тому же в совокупности с остальными операциями плоского цикла).
-Однако, применив простые тождества с использованием команд VMIN, VMAX, можно получить эквивалентную и более простую запись того же самого в векторном виде, как это показано в листинге~\ref{lst:bounds_vec}.
+Merging such a section of code will not be efficient enough (in  combination with other operations of a flat loop).
+However, using simple identities using the VMIN, VMAX commands, you can get an equivalent and simpler record of the same section in vector form, as shown in listing~\ref{lst:bounds_vec}.
 
 \begin{lstlisting}[caption={Векторизованная форма ограничения значения величины с помощью нижней и верхней границ.},label={lst:bounds_vec}]
 X = VMAX X, A
@@ -344,9 +345,9 @@ X = VMIN X, B
 
 \
 
-Стоит заметить, что для обеспечения эквивалентности преобразования необходимо выполнение условия $a[w] \le b[w]$ для всех значений $w$.
-Поэтому оптимизирующий компилятор не сможет применить данный шаблон, и он должен быть выполнен программистом вручную.
-Это касается и многих других преобразований, не являющихся эквивалентными в строгом смысле, но являющихся допустимыми с точки зрения логики программы.
+It is worth noting that to ensure equivalence of the transformation, the condition $a[w] \le b[w]$ must be satisfied for all values of $w$.
+Therefore, the optimizing compiler will not be able to apply this template, and it must be performed manually by the programmer.
+This also applies to many other transformations that are not equivalent in the strict sense, but are admissible from the point of view of program logic.
 
 \subsection{Векторизация вложенных циклов}
 
