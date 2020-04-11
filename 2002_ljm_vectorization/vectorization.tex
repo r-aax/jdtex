@@ -140,36 +140,36 @@ Before we proceed to a discussion of specific approaches for vectorizing flat lo
 
 \section{AVX-512 instruction set}
 
-Набор инструкций AVX-512 является естественным расширением наборов AVX и AVX2.
-Он поддержан в микропроцессорах Intel, начиная с Intel Xeon Phi Knights Landing, Intel Xeon Skylake, Intel Xeon Cascade Lake.
-Инструкции AVX-512 в своей работе оперируют с векторными регистрами zmm.
-Всего таких регистров 32 (zmm0 -- zmm31), и они являются расширением регистров ymm (ymm0 -- ymm31 соответственно).
-Каждый 512-битный векторный регистр zmm может оперировать с целочисленными и вещественными типами данных.
-Например, один регистр zmm может содержать 64 целочисленных элемента размером 8 бит (byte), 32 целочисленных элемента размером 16 бит (word), 16 целочисленных элементов размером 32 бита (double), либо 8 целочисленных элементов размером 64 бита (quadro).
-Аналогично, регистр zmm может содержать 16 вещественных значений размером 32 бита (вещественные числа с одинарной точностью), либо 8 вещественных значений размером 64 бита (вещественные числа двойной точности).
-Кроме того, инструкции из набора AVX-512 используют в своей работе 8 специальных масочных регистров (k0 -- k7), с помощью которых обеспечивается выборочное применение операций к отдельным элементам векторов.
+The AVX-512 instruction set is an extension of the AVX and AVX2 sets.
+It is supported on Intel microprocessors, starting with Intel Xeon Phi Knights Landing, Intel Xeon Skylake, Intel Xeon Cascade Lake.
+Instructions AVX-512 in their work operate with vector registers zmm.
+There are 32 such registers (zmm0 -- zmm31), and they are an extension of the ymm registers (ymm0 -- ymm31, respectively).
+Each 512-bit vector register zmm can operate with integer and real data types.
+For example, a single zmm register may contain 64 integer elements of size 8 bits (byte), 32 integer elements of size 16 bits (word), 16 integer elements of size 32 bits (double), or 8 integer elements of size 64 bits (quadro).
+Similarly, the zmm register can contain 16 real values of 32 bits (real numbers with single precision), or 8 real values of 64 bits (real numbers of double precision).
+In addition, the instructions from the AVX-512 set use 8 special mask registers (k0 -- k7) in their work, which help to selectively apply operations to individual elements of vectors.
     
-Набор инструкций AVX-512 постоянно пополняется с выходом новых линеек микропроцессоров.
-Можно выделить основные подмножества инструкций:
-AVX-512 F -- Foundation -- Основные инструкции работающие с 32-битными и 64-битными данными.
-Сюда включаются поэлементные операции над векторами, операции с масками, слияния векторов по маске, сравнение векторов, операции перестановок элементов векторов, операции конвертации и другие.
-AVX-512 CD -- Conflict Detection -- Набор операций, предназначенный для разрешения конфликтов при векторизации циклов. Основная инструкция из этого набора VPCONFLICT позволяет сравнить каждый элемент первого вектора с каждым элементом второго вектора. Данная инструкция применяется для динамической проверки диапазонов адресов на предмет конфликтов.
-AVX-512 ER -- Exponential and Reciprocal -- Набор инструкций для поэлементного вычисления с повышенной точностью функций $2^x$, $1/x$, $1/\sqrt{x}$.
-AVX-512 PF -- Prefetch -- Инструкции предварительной подкачки данных для операций чтения и записи по адресам с произвольными смещениями (VGATHER/VSCATTER).
-AVX-512 VL -- Vector Length -- Расширение многих инструкций на элементы данных размера 128 и 256 бит.
-AVX-512 DQ -- Doubleword and Quadword -- Содержит дополнительные инструкции для работы с элементами данных размера 32 и 64 бита.
-AVX-512 BW -- Byte and Word -- Расширение набора инструкции для работы с данными размера 8 и 16 бит. 
-AVX-512 VNNI -- Vector Neural Network Instructions -- Дополнительные инструкции, введенные для оптимизации алгоритмов машинного обучения.
+The AVX-512 instruction set is constantly updated with the release of new lines of microprocessors.
+The main subsets of instructions can be distinguished:
+AVX-512 F -- Foundation -- Basic instructions working with 32-bit and 64-bit data.
+This includes element-wise operations on vectors, operations with masks, merging vectors by mask, comparison of vectors, operations of permutation of elements of vectors, conversion operations, and others.
+AVX-512 CD -- Conflict Detection -- A set of operations designed to resolve conflicts during loop vectorization. The basic instruction from this set of VPCONFLICT allows you to compare each element of the first vector with each element of the second vector. This instruction is used to dynamically check address ranges for conflicts.
+AVX-512 ER -- Exponential and Reciprocal -- A set of instructions for elementwise calculation with increased accuracy of the functions $2^x$, $1/x$, $1/\sqrt{x}$.
+AVX-512 PF -- Prefetch -- Instructions for pre-paging data for reading and writing to addresses with arbitrary offsets (VGATHER / VSCATTER).
+AVX-512 VL -- Vector Length -- Extension of many instructions on data elements of size 128 and 256 bits.
+AVX-512 DQ -- Doubleword and Quadword -- Contains additional instructions for working with 32 and 64 bit data elements.
+AVX-512 BW -- Byte and Word -- Extension of the set of instructions for working with data sizes of 8 and 16 bits.
+AVX-512 VNNI -- Vector Neural Network Instructions -- Additional instructions introduced to optimize machine learning algorithms.
 
-Наиболее важной отличительной особенностью набора инструкций AVX-512 является наличие в них поддержки векторных предикатов (или масок), которые позволяют применять операцию к отдельным элементам векторов.
+The most important distinguishing feature of the AVX-512 instruction set is the presence in them of support for vector predicates (or masks), which allow you to apply the operation to individual elements of vectors.
 
-Опишем семантику векторных инструкций AVX-512, пригодных для векторизации плоских циклов.
-Условимся обозначать маленькими латинскими буквами элементы данных, с которыми мы оперируем в процессе счета (в данном случае это вещественные элементы данных формата \texttt{float}).
-Арифметические операции будем записывать в естественном виде, например, $r = a + b$ означает вычисление суммы двух элементов данных.
-Векторы, составленные из отдельных элементов будем записывать с помощью заглавных латинских букв.
-То есть будем считать, что $A$ это вектор, состоящий из $WIDTH$ отдельных элементов $A[w]$.
-Под записью $R = A + B$ будем понимать поэлементную сумму векторов $A$ и $B$ и копирование результата в вектор $R$.
-Заменяя операцию сложения произвольной операцией $op$ (не обязательно операцией двух аргументов), получим запись семантики векторной поэлементной операции в виде $R = op A, B$.
+Let's describe the semantics of the AVX-512 vector instructions suitable for vectorizing flat loops.
+We denote in small Latin letters the data elements we operate with in the process of counting (in this case, these are real data elements of the format \texttt{float}).
+We write arithmetic operations in their natural form, for example, $r = a + b$ means the calculation of the sum of two data elements.
+Vectors made up of individual elements will be written using capital Latin letters.
+Thus we say that $A$ is a vector consisting of $WIDTH$ elements $A[w]$.
+By $R = A + B$ we mean the element-wise sum of the vectors $A$ and $B$ and copying the result into the vector $R$.
+Replacing the addition operation with the arbitrary operation $op$ (not necessarily the operation of two arguments), we obtain the semantics of the vector element-wise operation in the form $R = op A, B$.
 
 Для рассмотрения семантики векторных операций, работающих с масками, нам понадобится представление векторных предикатов.
 Предикаты будем обозначать латинскими буквами в галочкой наверху.
