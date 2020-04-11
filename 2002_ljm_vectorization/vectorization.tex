@@ -493,8 +493,9 @@ When considering vector codes of practical problems, the intrinsics functions of
 
 \subsection{Riemann solver vectorization}
 
-Рассматриваемая в данном разделе реализация римановского решателя находится в открытом доступе в сети Интернет в составе библиотеки NUMERICA \cite{Numerica}.
-Нас в данном случае будет интересовать одномерный случай для однокомпонентной среды, реализованный в виде чистой функции (функции без побочных эффектов, результат работы функции зависит только от значений входных параметров), которая по значениям плотности, скорости и давления газа слева и справа от разрыва, находит значения этих же величин на самом разрыве в нулевой момент времени после устранения перегородки.
+The implementation of the Riemann solver considered in this section is publicly available on the Internet as part of the NUMERICA library \cite{Numerica}.
+In this case, we will be interested in the one-dimensional case for a one-component medium, implemented as a pure function (functions without side effects, the result of the function depends only on the values of the input parameters).
+This function from the values of density, velocity and pressure of the gas to the left and right of discontinuity, finds the values of these quantities at the gap at zero time after the elimination of the partition.
 
 \begin{equation}\label{eq:riemann}
 U_l = \left( \begin{array}{ccc} d_l \\ u_l \\ p_l \end{array} \right),
@@ -502,15 +503,15 @@ U_r = \left( \begin{array}{ccc} d_r \\ u_r \\ p_r \end{array} \right),
 U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
 \end{equation}
 
-В формуле (\ref{eq:riemann}) через $d_l$, $u_l$, $p_l$ обозначены плотность, скорость и давление газа слева от разрыва (они объединены в структуру  $U_l$ -- состояние газа слева от разрыва).
-Аналогично через $d_r$, $u_r$, $p_r$ обозначены плотность, скорость и давление газа справа от разрыва, объединенные в состояние газа $U_r$.
-Переменными $d$, $u$, $p$ обозначены плотность, скорость и давление газа, полученные в результате решения задачи Римана.
+In formula (\ref{eq:riemann}) gas density, velocity and pressure to the left of the gap (they are combined in the structure $U_l$ -- state of the gas to the left of discontinuity) denoted by $d_l$, $u_l$, $p_l$.
+Similarly, $d_r$, $u_r$, $p_r$ denote gas density, velocity, and pressure to the right of discontinuity, combined into the gas state $U_r$.
+The variables $d$, $u$, $p$ denote the density, velocity and pressure of the gas obtained as a result of solving the Riemann problem.
 
-Библиотека NUMERICA реализована на языке программирования FORTRAN, поэтому векторизация данного кода с использованием функций-интринсиков напрямую невозможна, поэтому использовалась портированная на язык программирования C версия кода.
+The NUMERICA library is implemented in the FORTRAN programming language, therefore direct vectorization of this code using intrinsics functions is impossible, therefore, the version of the code ported to the C programming language was used.
 
-В процессе счета с помощью численных методов, базирующихся на римановском решателе, выполняется множество вызовов функции \texttt{riemann} с различными наборами входных данных (на каждой итерации счета выполняется один вызов для каждой грани каждой ячейки расчетной сетки).
-Так как функция riemann является чистой, то вызовы для разных наборов входных данных (\texttt{dl}, \texttt{ul}, \texttt{pl}, \texttt{dr}, \texttt{ur}, \texttt{pr}) являются независимыми и возникает желание объединения вызовов с целью эффективного задействования векторных (поэлементных) инструкций.
-В качестве такого объединенного вызова будем рассматривать функцию, в которую вместо атомарных данных типа \texttt{float} будут подаваться соответствующие векторы, содержащие по $WIDTH$ элементов.
+During the calculation, using numerical methods based on the Riemann solver, many calls to the \texttt{riemann} function are made with different sets of input data (at each iteration of the account, one call is made for each face of each cell of the computational grid).
+Since the riemann function is pure, calls for different sets of input data (\texttt{dl}, \texttt{ul}, \texttt{pl}, \texttt{dr}, \texttt{ur}, \texttt{pr}) are independent and it becomes possible to combine calls in order to effectively use vector (element-wise) instructions.
+As such a combined call, we will consider a function in which instead of atomic data of type \texttt{float} corresponding vectors containing $WIDTH$ elements will be passed.
 
 \begin{equation}\label{eq:riemann_16}
 \overline{U_l} = \left( \begin{array}{ccc} \overline{d_l} \\ \overline{u_l} \\ \overline{p_l} \end{array} \right),
@@ -518,16 +519,16 @@ U = \left( \begin{array}{ccc} d \\ u \\ p \end{array} \right) = riem(U_l, U_r)
 \overline{U} = \left( \begin{array}{ccc} \overline{d} \\ \overline{u} \\ \overline{p} \end{array} \right) = riem(\overline{U_l}, \overline{U_r})
 \end{equation}
 
-В формуле (\ref{eq:riemann_16}) все переменные $\overline{d_l}$, $\overline{u_l}$, $\overline{p_l}$, $\overline{d_r}$, $\overline{u_r}$, $\overline{p_r}$, $\overline{d}$, $\overline{u}$, $\overline{p}$ являются векторами длины 16.
-Например, вектор $\overline{d}$ содержит 16 значений плотности газа, полученных при решении 16 задач Римана, объединенных в один вызов.
-Аналогично с другими переменными.
+In formula (\ref{eq:riemann_16}) all variables $\overline{d_l}$, $\overline{u_l}$, $\overline{p_l}$, $\overline{d_r}$, $\overline{u_r}$, $\overline{p_r}$, $\overline{d}$, $\overline{u}$, $\overline{p}$ are vectors of length 16.
+For example, the vector $\overline{d}$ contains 16 gas density values obtained by solving 16 Riemann problems combined into one call.
+Similarly with other variables.
 
-При этом с векторными данными можно производить те же действия, что и с базовыми типами -- выполнять вычисления, передавать в функции, возвращать в качестве результата.
+At the same time, with vector data, you can perform the same actions as with the basic types -- perform calculations, pass to functions, return as a result.
 
-Римановский решатель обладает сложной программной структурой и состоит из нескольких функций, каждая из которых может быть векторизована с использованием специальных подходов.
-Однако мы рассмотрим только одну из этих функций $starpu$, обладающую наиболее интересной особенностью -- при объединении нескольких ее вызовов в одну функцию она порождает плоский цикл, телом которого является цикл с неизвестным количеством итераций.
+The Riemann solver has a complex program structure and consists of several functions, each of which can be vectorized using special approaches.
+However, we will consider only one of these functions $starpu$, which has the most interesting feature -- when combining several of its calls into one function, it generates a flat loop whose body is a loop with an unknown number of iterations.
 
-\begin{lstlisting}[caption={Оригинальная версия функции \texttt{starpu}.},label={lst:prac_riemann_starpu_orig}]
+\begin{lstlisting}[caption={Original version of \texttt{starpu}.},label={lst:prac_riemann_starpu_orig}]
 void starpu(float dl, float ul, float pl, float cl,
             float dr, float ur, float pr, float cr,
             float &p, float &u)
@@ -574,14 +575,14 @@ void starpu(float dl, float ul, float pl, float cl,
 
 \ \\
 
-Цикл, расположенный в данной функции, кроме неизвестного количества итераций содержит также условные переходы (\texttt{if, break}) и вызовы функций prefun, что также усложняет его векторизацию.
-Перед выполнением векторизации данный цикл необходимо преобразовать в предикатную форму, в которой тело не должно содержать операций перехода.
-Все инструкции цикла выполняются под своими предикатами, а выполнение цикла прерывается при условии обнуления всех предикатов.
-При этом стоит заметить, что вызовы функций prefun также должны обладать соответствующими предикатами.
-После преобразования тела цикла в предикатную форму, он может быть векторизован, после чего предикаты инструкций заменятся на векторные регистры-маски (именно в этом месте появляется дополнительный параметр векторизованной функции \texttt{prefun} в виде маски).
-Результат векторизации функции \texttt{starpu} представлен на листинге ниже.
+The loop located in this function, in addition to an unknown number of iterations, also contains conditional transitions (\texttt{if, break}) and calls of \texttt{prefun} functions, which also complicates its vectorization.
+Before vectorizing, this loop must be converted to a predicate form in which the body should not contain transition operations.
+All loop instructions are executed under their own predicates, and loop execution is interrupted if all predicates are zeroed.
+It should be noted that calls to \texttt{prefun} functions must also have corresponding predicates.
+After converting the body of the cycle to the predicate form, it can be vectorized. After that, the predicates of the instructions are replaced by vector register-masks (in this place an additional parameter of the vectorized function \texttt{prefun} appears in the form of a mask).
+The result of vectorizing the \texttt{starpu} function is shown in the listing below.
 
-\begin{lstlisting}[caption={Векторизованная версия функции \texttt{starpu}.},label={lst:prac_riemann_starpu_vec}]
+\begin{lstlisting}[caption={Vectorized version of \texttt{starpu}.},label={lst:prac_riemann_starpu_vec}]
 void starpu_16(__m512 dl, __m512 ul, __m512 pl, __m512 cl,
                __m512 dr, __m512 ur, __m512 pr, __m512 cr,
                __m512 *p, __m512 *u)
@@ -632,12 +633,13 @@ void starpu_16(__m512 dl, __m512 ul, __m512 pl, __m512 cl,
 
 \ \\
 
-На листинге видна изначальная инициализация полной маски выполнения векторизованных итераций цикла. По мере работы цикла маска истощается, и при полном ее обнулении цикл завершает работу.
+The initialization of the full mask for performing vectorized iterations of the loop is visible on the listing.
+As the loop runs, the mask depletes, and when it is completely zeroed, the loop ends.
 
-Стоит отметить, что векторизация цикла с неизвестным числом итераций может быть довольно опасной, так как количество итераций векторизованного цикла равно максимуму из количеств итераций циклов из 16 объединяемых вызовов оригинальной невекторизованной функции.
-При большой разнице в количестве итераций оригинального кода возникает падение эффективности.
+It is worth noting that vectorizing a loop with an unknown number of iterations can be quite dangerous, since the number of iterations of a vectorized loop is equal to the maximum of the number of iterations of the loops from 16 combined calls of the original non-vectorized function.
+With a large difference in the number of iterations of the original code, a drop in efficiency occurs.
 
-В результате применения векторизации для всех функций римановского решателя удалось достичь суммарного ускорения решателя в 7 раз.
+As a result of applying vectorization for all the functions of the Riemann solver, we managed to achieve a total 7 times acceleration.
 %Можно также отметить работы \cite{BaderSWEVect,FerreiraSWEVect} по данному направлению.
 
 \subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
