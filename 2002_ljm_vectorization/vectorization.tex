@@ -349,15 +349,15 @@ It is worth noting that to ensure equivalence of the transformation, the conditi
 Therefore, the optimizing compiler will not be able to apply this template, and it must be performed manually by the programmer.
 This also applies to many other transformations that are not equivalent in the strict sense, but are admissible from the point of view of program logic.
 
-\subsection{Векторизация вложенных циклов}
+\subsection{Vectorization of nested loops}
 
-Тело плоского цикла само по себе может содержать гнезда циклов.
-Если условия выхода из этих вложенных циклов являются константными, то никаких проблем с векторизацией не возникает (в данном случае действует та же аналогия, что и в случае константных условий в разветвленном управлении).
-Поэтому будем считать, что вложенный цикл у нас имеет зависящее от $w$ условие выхода.
-Другими словами, количество итераций такого цикла не является константным.
-Для наглядности рассмотрим простую конструкцию, подходящую под данные требования (листинг~\ref{lst:while_loop}).
+The flat loop body itself may contain cycle nests.
+If the conditions for exiting these nested loops are constant, then no problems with vectorization arise (in this case, the same analogy applies as in the case of constant conditions in a branched control).
+Therefore, we assume that the nested loop has an exit condition depending on $w$.
+In other words, the number of iterations of such a loop is not constant.
+For clarity, consider a simple construction that meets these requirements. (листинг~\ref{lst:while_loop}).
 
-\begin{lstlisting}[caption={Плоский цикл, содержащий цикл с неконстантным числом итераций},label={lst:while_loop}]
+\begin{lstlisting}[caption={Flat loop containing a loop with a non-constant number of iterations},label={lst:while_loop}]
 for (int w = 0; w < WIDTH; w++)
 {
     while (true)
@@ -376,15 +376,15 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-Основная проблема в векторизации данного фрагмента заключается в том, что при разных значениях $w$ может выполниться разное количество итераций внутреннего цикла (может даже оказаться так, что цикл бесконечный).
-Для обеспечения векторизации нужно завести специальный векторный предикат, который будет сигнализировать о том, для каких $w$ требуется продолжить выполнение внутреннего цикла, а для каких его следует прервать.
-Полное прекращение выполнения цикла наступит только в том случае, когда весь векторный предикат станет нулевым.
-Для векторизации указанного гнезда его сначала требуется перевести в предикатную форму.
-При этом важно выделить два предиката: предикат необходимости итерации и предикат выполнения условия выхода.
-Особенностью приведенного фрагмента является то, что в случае выхода из цикла, мы уже не имеем права проверять условие \texttt{sqrt(x[w]) < 1.0}, то есть проверка этого условия должна происходить под предикатом выполнения итерации цикла (для скалярного кода это и так выполняется, а для векторного аналога данное требование должно быть обеспечено явно).
-На листинге~\ref{lst:while_loop_pred} показано представление данного гнезда в предикатной форме. 
+The main problem in vectorizing this fragment is that for different values of $ w $, a different number of iterations of the inner loop can be performed (it may even turn out that the loop is infinite).
+To ensure vectorization, you need to create a special vector predicate that will signal for which $w$ it is necessary to continue the internal loop, and for which it should be interrupted.
+A complete termination of the loop will occur only when the entire vector predicate becomes zero.
+To vectorize the indicated nest, it must first be translated into a predicate form.
+It is important to distinguish two predicates: need for iteration predicate and exit condition predicate.
+The peculiarity of the given fragment is that in the case of exiting the loop, we no longer have the right to check the condition \texttt{sqrt(x[w]) < 1.0}, that is, checking this condition should occur under the predicate of the loop iteration (for scalar code this is already fulfilled, and for a vector analogue this requirement must be explicitly provided).
+Listing~\ref{lst:while_loop_pred} shows a predicate representation of this nest.
 
-\begin{lstlisting}[caption={Предикатная форма плоского цикла, содержащего цикл с неконстантным числом итераций},label={lst:while_loop_pred}]
+\begin{lstlisting}[caption={The predicate form of a flat loop containing a loop with a non-constant number of iterations},label={lst:while_loop_pred}]
 for (int w = 0; w < WIDTH; w++)
 {
     bool is_iter = true;
@@ -403,12 +403,12 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-После приведения гнезда в предикатную форму заметим, что из внутреннего цикла исчезли все управляющие конструкции, а каждая инструкция выполняется под управлением предикатов.
-Все элементы, кроме оператора \texttt{while (is\_iter)} имеют векторные аналоги.
-Но для условия продолжения цикла векторный аналог и не нужен, так как векторизованный цикл должен продолжаться до тех пор, пока маска, составленная из отдельных условий \texttt{is\_iter} не нулевая.
-Таким образом, имеем полностью векторизованный плоский цикл, запись которого приведена на листинге~\ref{lst:while_loop_vec}.
+After reducing the nest to the predicate form, we note that all control structures have disappeared from the internal cycle, and each instruction is executed under the control of predicates.
+All elements except the \texttt{while (is \_iter)} operator have vector analogues.
+But for the condition for the continuation of the loop, the vector analogue is not needed, since the vectorized loop should continue until the mask composed of the individual conditions \texttt{is \_iter} is not zero.
+Thus, we have a fully vectorized flat loop, the record of which is shown in listing~\ref{lst:while_loop_vec}.
 
-\begin{lstlisting}[caption={Векторная форма плоского цикла, содержащего цикл с неконстантным числом итераций},label={lst:while_loop_vec}]
+\begin{lstlisting}[caption={The vector form of a flat loop containing a loop with a non-constant number of iterations},label={lst:while_loop_vec}]
 IS_ITER = 0xFFFF;
 
 while (IS_ITER != 0x0)
@@ -424,12 +424,12 @@ while (IS_ITER != 0x0)
 
 \
 
-На данном листинге V1 -- вектор, состоящий из значений 1.0, V2 -- вектор, состоящий из значений 2.0.
+This listing shows V1 -- vector consisting of values 1.0, V2 -- vector consisting of values 2.0.
 
-При векторизации плоского цикла, телом которого является гнездо циклов, нет ограничение на глубину гнезда.
-Однако, необходимо для каждого цикла из гнезда поддерживать свой предикат, позволяющий выполнять итерацию цикла, чтобы при выполнении векторных инструкций случайно не были обработаны элементы данных, которые не обрабатывались в скалярном коде (иначе это может привести к нежелательным ситуациям, типа исключений вследствие работы с мусорными данными).
-Необходимость отслеживать данные предикаты, конечно, привносит трудности при векторизации.
-В некоторых архитектурах (например в архитектуре <<Эльбрус>>) для облегчения выполнения операций, результат которых может не быть востребован (и аргументы которых могут содержать некорректные данные), предусмотрен специальный спекулятивный режим исполнения, который игнорирует исключительные ситуации и помогает эффективно выполнять слияние разных веток программного кода.
+When vectorizing a flat loop, the body of which is a nest of loops, there is no restriction on the depth of the nest.
+However, it is necessary for each loop from the nest to maintain its own predicate, which allows iteration of the loop so that data elements that were not processed in the scalar code are not accidentally processed when executing vector instructions (otherwise this can lead to undesirable situations, such as exceptions due to work with garbage data).
+The need to keep track of these predicates, of course, introduces difficulties in vectorization.
+In some architectures (for example, in the "Elbrus" architecture), to facilitate the execution of operations whose results may not be needed (and whose arguments may contain incorrect data), a special speculative execution mode is provided that ignores exceptional situations and helps to efficiently merge different code branches.
 
 \subsection{Векторизация вызовов функций под условием}
 
