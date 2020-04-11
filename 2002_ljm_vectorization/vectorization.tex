@@ -475,21 +475,21 @@ And this, in turn, can lead to more serious consequences, such as incorrect writ
 
 \section{Flat loops vectorization practical examples}
 
-\subsection{Использование функций-интринсиков для реализации параллельного кода}
+\subsection{Using intrinsic functions to implement parallel code}
 
-Для удобства применения инструкций из набора AVX-512 предусмотрена библиотека специальных функций интринсиков, полный список и описание данных функций доступно на сайте \cite{Intel_Intr}.
+There is a library of special intrinsic functions that facilitates the use of the AVX-512 set. A complete list and description of these functions is available on the website \cite{Intel_Intr}.
 
-Для использования функций-интринсиков в программе нужно подключить заголовочный файл \texttt{<immintrin.h>}.
+To use intrinsic functions in the program, you need to include a header file \texttt{<immintrin.h>}.
 
-Функции-интринсики покрывают не все инструкции AVX-512, однако избавляют от необходимости вручную писать ассемблерный код и позволяют использовать встроенные типы данных для 512-битных векторов (\texttt{\_\_m512}, \texttt{\_\_m512i}, \texttt{\_\_m512d}).
-Некоторые интринсики соответствуют не отдельной команде, а целой последовательности, как например для операции сложения всех элементов вектора.
-Из множества интринсиков можно выделить следующие группы функций, схожие по структуре.
-Функции swizzle, shuffle, permute и permutevar осуществляют перестановку элементов вектора и раскрываются в последовательность операций, в которой присутвует VSHUF и пересылка по маске.
-Для большего числа операций AVX-512 реализованы соответствующие инстринсики, раскрывающиеся в одну конкретную операцию.
-Среди них арифметические операции, побитовые операции, операции чтения из памяти и записи в память, операции конвертации, слияние двух векторов, нахождение обратных значений, получение минимума и максимума из двух значений, операции сравнения, операции с масками, комбинированные операции и другие.
-Некоторые инстринсики, особенно предназначенные для выполнения упакованных трансцендентных операций, раскрываются просто в вызов библиотечной функции (например \texttt{\_mm512\_log\_ps}, \texttt{\_mm512\_hypot\_ps}, тригонометрические функции).
+Intrinsic functions do not cover all AVX-512 instructions, however, they eliminate the need to manually write assembler code and allow the use of built-in data types for 512-bit vectors (\texttt{\_\_m512}, \texttt{\_\_m512i}, \texttt{\_\_m512d}).
+Some intrinsics do not correspond to a separate command, but to a whole sequence, such as for the operation of adding all the elements of a vector.
+Of the many intrinsics, the following groups of functions can be distinguished, similar in structure.
+The \textit{swizzle}, \textit{shuffle}, \textit{permute} and \textit{permutevar} functions rearrange the elements of a vector and expand into a sequence of operations in which VSHUF and mask forwarding are present.
+For a larger number of operations, the AVX-512 implements instrinsics that expand into one specific operation.
+Among them are arithmetic operations, bitwise operations, operations of reading from memory and writing to memory, conversion operations, merging of two vectors, finding inverse values, obtaining the minimum and maximum of two values, comparison operations, operations with masks, combined operations and others.
+Some instrinsics, especially those designed to perform packed transcendental operations, are expanded simply into a library function call (for example \texttt{\_mm512\_log\_ps}, \texttt{\_mm512\_hypot\_ps}, trigonometrical functions).
 
-При рассмотрении векторных кодов практических задач функции-интринсики векторных команд без использования масок будем записывать в кратком сиде
+When considering vector codes of practical problems, the intrinsics functions of vector commands without using masks will be written in short form.
 
 \subsection{Riemann solver vectorization}
 
