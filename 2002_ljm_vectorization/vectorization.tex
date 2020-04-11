@@ -431,14 +431,14 @@ However, it is necessary for each loop from the nest to maintain its own predica
 The need to keep track of these predicates, of course, introduces difficulties in vectorization.
 In some architectures (for example, in the "Elbrus" architecture), to facilitate the execution of operations whose results may not be needed (and whose arguments may contain incorrect data), a special speculative execution mode is provided that ignores exceptional situations and helps to efficiently merge different code branches.
 
-\subsection{Векторизация вызовов функций под условием}
+\subsection{Vectorization of function calls under the condition}
 
-В плоских циклах могут встречаться вызовы функций.
-Конечно, будем считать, что все вызываемые функции являются чистыми, то есть результат функции зависит только от ее аргументов.
-Проблема возникает в том случае, когда функция должна быть вызвана не для всех итераций плоского цикла, а только для некоторых.
-Рассмотрим простой пример, в котором присутствует такой вызов, он представлен на листинге \ref{lst:call_orig}.
+In flat loops, function calls may occur.
+Of course, we assume that all called functions are pure, that is, the result of the function depends only on its arguments.
+The problem arises when the function should not be called for all iterations of a flat loop, but only for some.
+Consider a simple example in which such a call is present; it is presented in listing~\ref{lst:call_orig}.
 
-\begin{lstlisting}[caption={Пример плоского цикла с вызовом функции под условием},label={lst:call_orig}]
+\begin{lstlisting}[caption={Example of a flat loop with a function call under the condition},label={lst:call_orig}]
 for (int w = 0; w < WIDTH; w++)
 {
     if (<cond(w)>)
@@ -454,24 +454,24 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-В данном примере мы не можем напрямую векторизовать функцию $f()$ заменив в ней скалярный аргумент на векторный.
-Проблема в том, что как и в случае векторизации гнезд циклов, необходимо отслеживать предикат, сигнализирующий о том, к каким элементам данных функция должна быть применена.
-Единственный способ это сделать -- передавать данный предикат прямо внутрь вызываемой функции.
-Таким образом скалярная функция $f(a)$ должна быть расширена до векторной функции $F(P, A)$ в которую кроме векторного аргумента передается также и маска.
+In this example, we cannot directly vectorize the function $f()$ replacing the scalar argument in it with a vector one.
+The problem is that, as in the case of vectorization of loop nests, it is necessary to keep track of the predicate that signals which data elements the function should be applied to.
+The only way to do this is to pass the given predicate directly inside the called function.
+Thus, the scalar function $f(a)$ must be expanded to the vector function $F(P, A)$ into which, in addition to the vector argument, the mask is also passed.
 
-После корректировки вызываемой функции предложенный цикл может быть легко векторизуем путем влияния двух веток исполнения с помощью VBLENDM, как это показано в листинге \ref{lst:call_vec}.
+After adjusting the function being called, the proposed loop can be easily vectorized by merging two execution branches using VBLENDM, as shown in the listing \ref{lst:call_vec}.
 
-\begin{lstlisting}[caption={Векторизация плоского цикла с вызовом функции под условием},label={lst:call_vec}]
+\begin{lstlisting}[caption={Vectorization of a flat loop with a function call under the condition},label={lst:call_vec}]
 X = VBLENDM(<COND>, F(<COND>, A), B)
 
 \end{lstlisting}
 
 \
 
-Заметим, что в данном примере также наблюдается некоторая избыточность в виде повторного применения векторного предиката \texttt{<COND>} (сначала в вызове функции, а затем в операции слияния).
-Эта избыточность присутствует для того, чтобы избежать возникновения исключений при обработке тех элементов данных, которые не должны обрабатываться в скалярном коде.
-В данном случае проблему может представлять даже не исключение в арифметической операции (например, деление на ноль), а потенциальная возможность пойти по другому пути исполнения, который отсутствовал в скалярном коде.
-А это в свою очередь может привести к более тяжелым последствиям, таким как некорректная запись в память или возникновение бесконечного цикла в функции.
+Note that in this example, there is also some redundancy in the form of repeated application of the vector predicate \texttt{<COND>} (first in the function call, and then in the merge operation).
+This redundancy is present in order to avoid exceptions when processing those data elements that should not be processed in scalar code.
+In this case, the problem may not even be an exception in the arithmetic operation (for example, division by zero), but the potential opportunity to go along a different path of execution, which was absent in the scalar code.
+And this, in turn, can lead to more serious consequences, such as incorrect writing to memory or the occurrence of an infinite loop in a function.
 
 \section{Flat loops vectorization practical examples}
 
