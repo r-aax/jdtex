@@ -90,7 +90,7 @@ In this article, only one type of vectorized program context will be considered 
 \section{Flat loops}
 
 In the framework of this article, we will restrict ourselves to considering only computational problems working with real numbers of single precision.
-Let's give the definition of a flat cycle for such problems.
+Let's give the definition of a flat loop for such problems.
 In general case a flat loop will be called a program construct with the form shown in listing ~\ref{lst:flat_loop}.
 
 \begin{lstlisting}[caption={General view of a flat loop.},label={lst:flat_loop}]
@@ -127,7 +127,7 @@ The absence of inter-iteration dependencies in such a loop allows iterations of 
 The requirement for the number of iterations in the loop, the alignment in memory, as well as the type of accesses to the elements of arrays ($x[w]$) ensures that inside this loop, when working with some array $x$, we refer only to its part limited by numbers items from $0$ to $WIDTH-1$.
 Thus, to access arrays inside a flat loop, we can use vector commands to read aligned sections of memory.
 
-Of course, if the body of a flat loop is limited only by memory accesses and simple arithmetic operations, then to optimize such a cycle, an optimizing compiler is enough to easily replace scalar instructions with vector analogues inside the cycle.
+Of course, if the body of a flat loop is limited only by memory accesses and simple arithmetic operations, then to optimize such a loop, an optimizing compiler is enough to easily replace scalar instructions with vector analogues inside the loop.
 However, we are interested in those loops, whose bodies have features that impede automatic vectorization.
 In such loops, the main problems are complex branched control, the presence of nested loops, and function calls inside the loop.
 All of these issues for flat loops can be resolved using the AVX-512 instruction set.
@@ -178,7 +178,7 @@ Thus, in $r = \check{p} \ ? \ a : b$ the element $r$ takes the value of $a$ when
 The vector analogue of previous notation is $R = \check{P} \ ? \ A : B$.
 This operation is executed elementwise for elements in positions $w$ ($0 \le w < WIDTH$).
 
-Now we consider the main classes of instructions suitable for vectorization of flat cycles (examples of operations and their semantics are given in table~1).
+Now we consider the main classes of instructions suitable for vectorization of flat loops (examples of operations and their semantics are given in table~1).
 
 \begin{table}[!h]
 \label{tbl:avx512semantic}
@@ -259,14 +259,14 @@ for (int w = 0; w < WIDTH; w++)
 \
 
 First of all, we note that in this structure the condition \texttt {<cond(w)>} depends on $w$.
-Otherwise, under the constant condition, it is possible to split the cycle according to the condition so that two separate planar cycles are obtained whose bodies do not contain control.
-Further, when considering the conditions in the body of a planar cycle, we will assume that they are not constant.
+Otherwise, under the constant condition, it is possible to split the loop according to the condition so that two separate flat loops are obtained whose bodies do not contain control.
+Further, when considering the conditions in the body of a flat loop, we will assume that they are not constant.
 Thus, the body of a flat loop consists of two blocks \texttt{<block1(w)>} and \texttt{<block2(w)>}, one of which is executed depending on \texttt{<cond(w)>}.
 
 Each block can be associated with its length, defined as the number of operations in this block.
 We will call this characteristic block execution time (blocks from listing ~\ref{lst:if_else_orig} have $t_1$ and $t_2$ execution times, respectively).
 Also, each of these two blocks can be characterized by the probability of its execution.
-This probability is the ratio of the number of block executions to the total number of iterations of the flat cycle (the blocks from listing~\ref{lst:if_else_orig} have the execution probabilities $p_1$ and $p_2$, respectively).
+This probability is the ratio of the number of block executions to the total number of iterations of the flat loop (the blocks from listing~\ref{lst:if_else_orig} have the execution probabilities $p_1$ and $p_2$, respectively).
 Then we can calculate the total execution time of one iteration of a flat loop as $t_1 p_1 + t_2 p_2$.
 The total execution time of a flat loop is $T_ {orig} = W (t_1 p_1 + t_2 p_2)$, where $W$ is the total number of iterations of the loop, which is indicated in the code examples by $WIDTH$.
 
@@ -279,7 +279,7 @@ To vectorize this flat loop, it is necessary to vectorize both blocks and execut
 
 \
 
-If we assume that the blocks \texttt{<BLOCK1>} and \texttt{<BLOCK2>} are ideally vectorized, that is, their length (the number of vector operations) is equal to the length of the corresponding original blocks \texttt{<block1(w)>} and \texttt{<block2(w)>} (the number of scalar operations), then the run time of the vectorized cycle is $T_{vec} = t_1 + t_2$.
+If we assume that the blocks \texttt{<BLOCK1>} and \texttt{<BLOCK2>} are ideally vectorized, that is, their length (the number of vector operations) is equal to the length of the corresponding original blocks \texttt{<block1(w)>} and \texttt{<block2(w)>} (the number of scalar operations), then the run time of the vectorized loop is $T_{vec} = t_1 + t_2$.
 The acceleration from the use of vectorization can be calculated by the formula
 
 \begin{equation}
@@ -351,7 +351,7 @@ This also applies to many other transformations that are not equivalent in the s
 
 \subsection{Vectorization of nested loops}
 
-The flat loop body itself may contain cycle nests.
+The flat loop body itself may contain loop nests.
 If the conditions for exiting these nested loops are constant, then no problems with vectorization arise (in this case, the same analogy applies as in the case of constant conditions in a branched control).
 Therefore, we assume that the nested loop has an exit condition depending on $w$.
 In other words, the number of iterations of such a loop is not constant.
@@ -403,7 +403,7 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-After reducing the nest to the predicate form, we note that all control structures have disappeared from the internal cycle, and each instruction is executed under the control of predicates.
+After reducing the nest to the predicate form, we note that all control structures have disappeared from the internal loop, and each instruction is executed under the control of predicates.
 All elements except the \texttt{while (is \_iter)} operator have vector analogues.
 But for the condition for the continuation of the loop, the vector analogue is not needed, since the vectorized loop should continue until the mask composed of the individual conditions \texttt{is \_iter} is not zero.
 Thus, we have a fully vectorized flat loop, the record of which is shown in listing~\ref{lst:while_loop_vec}.
@@ -579,7 +579,7 @@ The loop located in this function, in addition to an unknown number of iteration
 Before vectorizing, this loop must be converted to a predicate form in which the body should not contain transition operations.
 All loop instructions are executed under their own predicates, and loop execution is interrupted if all predicates are zeroed.
 It should be noted that calls to \texttt{prefun} functions must also have corresponding predicates.
-After converting the body of the cycle to the predicate form, it can be vectorized. After that, the predicates of the instructions are replaced by vector register-masks (in this place an additional parameter of the vectorized function \texttt{prefun} appears in the form of a mask).
+After converting the body of the loop to the predicate form, it can be vectorized. After that, the predicates of the instructions are replaced by vector register-masks (in this place an additional parameter of the vectorized function \texttt{prefun} appears in the form of a mask).
 The result of vectorizing the \texttt{starpu} function is shown in the listing below.
 
 \begin{lstlisting}[caption={Vectorized version of \texttt{starpu}.},label={lst:prac_riemann_starpu_vec}]
@@ -644,14 +644,14 @@ As a result of applying vectorization for all the functions of the Riemann solve
 
 \subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
 
-При численном решении задач газовой динамики часто приходится сталкиваться с телами, обладающими сложной геометрией.
-Для таких тел построение согласованной расчетной сетки может быть крайне трудозатратной задачей.
-Альтернативой в данном случае является использование метода погруженной границы.
-Данный метод позволяет использовать для расчетов несогласованную сетку и даже простую декартову сетку, что сильно упрощает выполнение расчетов.
-В рамках реализации метода погруженной границы требуется решать частную задачу определения пересечения треугольника и прямоугольного параллелепипеда в пространстве для большого количества данных геометрических примитивов.
+When solving gas dynamics problems numerically, bodies with complex geometry are a frequent case.
+For such bodies, building a consistent computational grid can be an extremely complex task.
+An alternative in this case is the use of the immersed boundary method.
+This method allows you to use an inconsistent grid for calculations and even a simple Cartesian grid, which greatly simplifies the calculation.
+As part of the implementation of the immersed boundary method, it is required to solve a particular problem of determining the intersection of a triangle and a rectangular parallelepiped in space for a large number of these geometric primitives.
 
-Пусть треугольник задан тремя точками: $A(x_A, y_A, z_A)$, $B(x_B, y_B, z_B)$, $C(x_C, y_C, z_C)$.
-Тогда координаты любой точки $P(x, y, z)$, находящейся внутри треугольника, можно представить следующим образом:
+Let a triangle be given by three points: $A(x_A, y_A, z_A)$, $B(x_B, y_B, z_B)$, $C(x_C, y_C, z_C)$.
+Then the coordinates of any point $P(x, y, z)$, located inside a triangular can be represented as follows:
 
 \begin{equation}
 \begin{cases}
@@ -661,9 +661,9 @@ z = z_A + (z_B - z_A)\alpha + (z_C - z_A)\beta
 \end{cases}
 \end{equation}
 
-где $\alpha \ge 0$, $\beta \ge 0$, $\alpha + \beta \ge 1$.
+where $\alpha \ge 0$, $\beta \ge 0$, $\alpha + \beta \ge 1$.
 
-Геометрическим местом точек прямоугольного параллелепипеда является множество точек $P(x, y, z)$, координаты которых удовлетворяют следующей системе неравенств:
+The geometric locus of the points of a rectangular parallelepiped is the set of points $P(x, y, z)$, the coordinates of which satisfy the following system of inequalities:
 
 \begin{equation}
 \begin{cases}
@@ -673,7 +673,7 @@ z_l \le z \le z_h
 \end{cases}
 \end{equation}
 
-Для установления факта пересечения треугольника и прямоугольного параллелепипеда нужно определить, имеет ли решение приведенная ниже система неравенств относительно $\alpha$ и $\beta$:
+To establish the fact of the intersection of a triangle and a rectangular parallelepiped, it is necessary to determine whether there is a solution of the system of inequalities below with respect to $\alpha$ и $\beta$:
 
 \begin{equation}
 \begin{cases}
@@ -686,13 +686,14 @@ z_l \le z_A + (z_B - z_A)\alpha + (z_C - z_A)\beta \le z_h \\
 \end{cases}
 \end{equation}
 
-Для подобных систем неравенств существует много различных способов решения.
-В нашем случае система довольно простая, содержит две переменные, и к ней может быть применен метод свертывания конечных систем линейных неравенств.
+For such systems of inequalities, there are many different solutions.
+In our case, the system is quite simple, contains two variables, and the method of convolution of finite systems of linear inequalities can be applied to it.
 
-Для решения методом свертывания систему неравенств преобразуем так, чтобы она содержала неравенства только вида $k_{\alpha}\alpha + k_{\beta}\beta + k \le 0$.
-После этого выполняется один шаг свертывания (или деформации системы) и она превращается в систему неравенств относительно одной переменной, проверка разрешимости которой не представляет труда.
-Будем выполнять деформацию системы с целью исключить из нее переменную $\alpha$.
-Для этого составим новую систему, в которую войдут все неравенства исходной системы вида $k_{\beta}\beta + k \le 0$, а каждая пара неравенств
+To solve by the convolution method, we transform the system of inequalities so that it contains inequalities of only the form $k_{\alpha}\alpha + k_{\beta}\beta + k \le 0$.
+After this, one step of folding (or deformation of the system) is performed and it turns into a system of inequalities with respect to one variable.
+This system is easy to verify for the existence of a solution.
+We will perform the deformation of the system in order to exclude the variable $\alpha$ from it.
+To do this, we compose a new system that includes all the inequalities of the original system of the form $k_{\beta}\beta + k \le 0$, and each pair of inequalities
 
 \begin{equation}
 \begin{cases}
@@ -701,27 +702,28 @@ k_{\alpha}^2 \alpha + k_{\beta}^2 + k^2 \le 0 \\
 \end{cases}
 \end{equation}
 
-где $k_{\alpha}^1 < 0$, а $k_{\alpha}^2 > 0$ войдет в деформированную систему в виде
+where $k_{\alpha}^1 < 0$, а $k_{\alpha}^2 > 0$ will enter the deformed system in the form
 
 \begin{equation}
 (k_{\beta}^1 k_{\alpha}^2 - k_{\beta}^2 k_{\alpha}^1)\beta + (k^1 k_{\alpha}^2 - k^2 k_{\alpha}^1) \le 0
 \end{equation}
 
-Так как исходная система содержит 9 уравнений, по крайней мере одно из которых имеет нулевой коэффициент при переменной $\alpha$, а из оставшихся восьми половина коэффициентов при переменной $\alpha$ неотрицательны, а половина неположительны, то деформированная система будет содержать не более 17 уравнений.
+Since the original system contains 9 equations, at least one of which has a zero coefficient for the variable $\alpha$.
+Of the remaining eight, half of the coefficients for the variable $\alpha$ are non-negative, and half are non-positive, then the deformed system will contain no more than 17 equations.
 
-Рассмотрим реализацию функции \\
-$tri\_box\_intersect(xa, ya, za, xb, yb, zb, xc, yc, zc, xl, xh, yl, yh, zl, zh) \rightarrow int$, анализирующую наличие пересечения треугольника и прямоугольного параллелепипеда.
-Функция возвращает 1, если пересечение есть, и 0, если пересечения нет.
-Логика работы функции следующая.
-Сначала коэффициенты разрешаемой системы неравенств заносятся в двумерный массив коэффициентов $b[bec][3]$, где $bec$ (basic equations count) -- количество исходных неравенств системы (в нашем случае 9).
-Затем выполняется один шаг свертывания системы с одновременным поиском множества решения для переменной $\beta$.
-Перед началом свертывания множество допустимых значений для переменной $\beta$ принимается в виде отрезка $[0, 1]$ ($lo = 0$, $hi = 1$).
-По мере свертывания системы неравенств происходит сокращение данного множеств решений.
-Если на каком-то  этапе свертывания множество решений обращается в пустое ($lo > hi$), то функция заканчивает работу и возвращает 0.
-Если после выполнения всех действий свертывания множество решений осталось ненулевым, то это означает наличие пересечения, и функция возвращает 1.
-Реализация свертывания системы уравнений представлена на листинге ниже:
+Consider the implementation of the function \\
+$tri\_box\_intersect(xa, ya, za, xb, yb, zb, xc, yc, zc, xl, xh, yl, yh, zl, zh) \rightarrow int$, analyzing the presence of intersection between triangle and a rectangular parallelepiped.
+The function returns 1, if there is an intersection, и 0, if not.
+The logic of the function is as follows.
+First, the coefficients of the system of inequalities are put in a two-dimensional array of coefficients $b[bec][3]$, where $bec$ (basic equations count) -- the number of initial inequalities of the system (in our case, 9).
+Then, one step of convolution of the system is performed. At the same time, a set of solutions is searched for $\beta$.
+Before minimization, the set of valid values for the variable $\beta$ is taken as a range $[0, 1]$ ($lo = 0$, $hi = 1$).
+During the convolution of the system of inequalities, this set of solutions decreases.
+If at some stage of convolution the set of solutions turns to empty ($lo>hi$), then the function finishes and returns 0.
+If, after performing all the folding operations, the set of solutions remains nonzero, this means that there is an intersection, and the function returns 1.
+The convolution implementation of the system of equations is presented in the listing below:
 
-\begin{lstlisting}[caption={Исходная реализация свертывания системы линейных неравенств для определения пересечения треугольника и прямоугольного параллелепипеда.},label={lst:prac_intersect_1}]
+\begin{lstlisting}[caption={The initial implementation of the convolution of a system of linear inequalities aimed to determine the intersection of a triangle and a rectangular parallelepiped.},label={lst:prac_intersect_1}]
 for (i = 0; i < bec; i++)
 {
     bi0 = b[i][0];
@@ -762,17 +764,17 @@ return 1;
 
 \ \\
  
-Функция $upgrade$, которая вызывается из кода, предназначена для обновления текущего множества допустимых значений для переменной $\beta$ с учетом нового полученного ограничения вида $k_{\beta}\beta + k \le 0$, коэффициенты которого передаются в первом и втором параметрах.
-Текущее множество решений является отрезком с границами, хранящимися в переменных $lo$ и $hi$, и в зависимости от знака коэффициента $k_{\beta}$ одна из этих границ внутри вызова функции $upgrade$ может измениться (граница $lo$ может увеличиться, либо граница $hi$ может уменьшиться).
-Если после обновления множества решений оно оказывается пустым (нижняя граница становится больше верхней), то функция $upgrade$ возвращает 0, в противном случае она возвращает 1.
+The $upgrade$ function, which is called from the code, is designed to update the current set of valid values for $\beta$ taking into account the newly obtained constraint of the form $k_{\beta}\beta + k \le 0$, the coefficients of which are passed in the first and second parameters.
+The current set of solutions is a segment with boundaries stored in variables $lo$ and $hi$, and depending on the sign of the coefficient $k_{\beta}$ one of these boundaries inside a call of $upgrade$ can change (either $lo$ increases, or $hi$ decreases).
+If after updating the set of solutions it turns out to be empty (lower boundary exceeds upper), then $upgrade$ returns 0, otherwise it returns 1.
 
-После рассмотрения реализации функции $tri\_box\_intersect$ можно перейти к векторизации вычислений.
-Для анализа пересечения двух сеток необходимо вызывать функцию $tri\_box\_intersect$ многократно с разными наборами входных параметров.
-Для оптимизации этого процесса реализуем функцию $tri\_box\_intersect\_w$, объединяющую внутри себя обработку $WIDTH$ вызовов функции $tri\_box\_intersect$.
+After considering the implementation of $tri\_box\_intersect$ we can pass to vectorization of computations.
+To analyze the intersection of two grids, $tri\_box\_intersect$ should be called multiple times with different sets of input parameters.
+To optimize the process let's implement $tri\_box\_intersect\_w$ function, uniting processing of $WIDTH$ calls of $tri\_box\_intersect$.
 
-Ниже представлена реализация функции $tri\_box\_intersect\_w$ в первом приближении.
+The following is an implementation of the $tri\_box\_intersect\_w$ as a first approximation.
 
-\begin{lstlisting}[caption={Исходная реализация функции, объединяющей $WIDTH$ вызовов функции $tri\_box\_intersect$.},label={lst:prac_intersect_w}]
+\begin{lstlisting}[caption={Original implementation of a function combining $WIDTH$ function calls $tri\_box\_intersect$.},label={lst:prac_intersect_w}]
 void tri_box_intersect_w(float *xa, float *ya, float *za,
                          float *xb, float *yb, float *zb,
                          float *xc, float *yc, float *zc,
@@ -795,15 +797,14 @@ void tri_box_intersect_w(float *xa, float *ya, float *za,
 
 \
 
-Конечно в реальной задаче требуется обрабатывать миллионы вызовов, однако они могут быть разбиты на группы по $WIDTH$ и обработаны с помощью функции $tri\_box\_intersect\_w$, поэтому остановимся подробнее на векторизации данной функции. 
- 
-Для векторизации функции $tri\_box\_intersect\_w$ следует выполнить подстановку тела функции $tri\_box\_intersect$ в место ее вызова.
-После выполнения данного преобразования получаем плоский цикл, телом которого является гнездо циклов со сложным управлением.
-Наличие большого количества условных операторов в исходном коде порождает множество инструкций под нулевыми предикатами в результирующем коде в случае слияния кода, что негативно сказывается на производительности.
-Для уменьшения количества условных операторов, можно использовать математические тождества, заменяющие условные конструкции на команды, имеющие векторные аналоги в наборе инструкций AVX-512.
-Например в рассматриваемом коде вычисление значений $f0$ и $f1$ с учетом условия $b[i][0] * b[j][0] < 0$ может быть заменено на следующее:
+Of course, the real task requires processing millions of calls, but they can be divided into groups of $WIDTH$ and processed using the function $tri\_box\_intersect\_w$, so we will consider vectorization of this function.
 
-\begin{lstlisting}[caption={Применение тождеств для использования векторных инструкций.},label={lst:prac_intersect_16_2}]
+To vectorize the function $tri\_box\_intersect\_w$, you should substitute the body of the function $tri\_box\_intersect$ at the place of its call.
+After performing this transformation, we obtain a flat loop whose body is a nest of loops with complex control.
+The presence of a large number of conditional statements in the source code generates many instructions under zero predicates in the resulting code in the case of code merging, which negatively affects performance.
+To reduce the number of conditional operators, we can use mathematical identities that replace conditional constructions with instructions that have vector analogues in the AVX-512 instruction set.
+For example, in the code under consideration, the calculation of the values of $f0$ and $f1$ taking into account the condition $b[i][0] * b[j][0] < 0$ can be replaced by the following:
+\begin{lstlisting}[caption={Using identities to use vector instructions.},label={lst:prac_intersect_16_2}]
 f0 = fabs(bi0) * b[j][1]
      + fabs(b[j][0]) * b[i][1]
 f1 = fabs(bi0) * b[j][2]
@@ -812,22 +813,23 @@ f1 = fabs(bi0) * b[j][2]
 
 \
 
-Похожие трудности вызывает внешнее условие \texttt{if} на листинге \ref{lst:prac_intersect_1}.
-Данное условие имеет альтернативную ветку, содержащую цикл.
-Слияние данных двух ветвей снижает производительность результирующего кода, поэтому в данном случае выгодно применить расщепление внешнего цикла по конструкции \texttt{if-else}.
-При этом образуются два гнезда циклов, каждое из которых может быть векторизовано независимо.
-Заметим, что описанное преобразование в общем смысле не является эквивалентным, так как обе ветки условия \texttt{if-else}, а значит и тела образовавшихся циклов содержат выходы из функции, выполнение расщепления цикла может изменить условие, провоцирующее выход из функции.
-По этой причине компилятор не способен выполнить данное преобразование автоматически.
-Однако с точки зрения результата функции данное преобразование корректно, поэтому мы его и применяем.
+Similar difficulties are caused by an external condition \texttt{if} on the listing \ref{lst:prac_intersect_1}.
+This condition has an alternative branch containing a loop.
+Merging the data of the two branches reduces the performance of the resulting code, therefore, in this case, it is advantageous to split the outer loop according to the \texttt{if-else} construct.
+In this case, two nests of loops are formed, each of which can be vectorized independently.
+Note that the described transformation in the general sense is not equivalent, since both branches of the condition \texttt{if-else}, and therefore the bodies of the resulting loops, contain outputs from the function.
+Performing a splitting of loop may change the condition that provokes the exit from the function.
+For this reason, the compiler is not able to perform this conversion automatically.
+However, from the point of view of the result of the function, this transformation is correct, therefore we use it.
 
-Отметим еще один крайне положительный момент в рассматриваемом программном контексте.
-Условием выхода из вложенных циклов является достижение индуктивной переменной значения $bec$.
-Данное значение является константой, а значит не зависит от номера итерации, поэтому в векторный код это условие может быть перенесено без изменений.
-В случае зависимости условия выхода из цикла от номера итерации само условие должно быть также векторизовано, что может привести к потерям производительности.
-Однако в рассматриваемом коде проблем векторизации циклов с нерегулярным количеством итераций нет.
-На листингах ниже приведем получившийся код для функции $tri\_box\_intersect\_w$, а также его схематичную трансформацию в векторный аналог.
+There is one more extremely positive moment in the considered program context.
+The condition for exiting nested loops is to achieve the inductive variable value $bec$.
+This value is a constant, which means that it does not depend on the iteration number, therefore this condition can be transferred to the vector code without changes.
+If the condition for exiting the loop depends on the iteration number, the condition itself must also be vectorized, which can lead to performance losses.
+However, in this code there are no problems with loop vectorization with an irregular number of iterations.
+On the listings below, we present the resulting code for the function $tri\_box\_intersect\_w$, as well as its schematic transformation into a vector analogue.
 
-\begin{lstlisting}[caption={Схема программного кода перед переводом в векторную форму.},label={lst:prac_inter_pred}]
+\begin{lstlisting}[caption={Scheme of program code before conversion to vector form.},label={lst:prac_inter_pred}]
 float b[bec][3][WIDTH];
 
 <init b>;
@@ -872,7 +874,7 @@ for (int w = 0; w < WIDTH; w++)
 
 \ \\
 
-\begin{lstlisting}[caption={Векторная форма получившегося программного кода из листинга \ref{lst:prac_inter_pred}.},label={lst:prac_inter_vec}]
+\begin{lstlisting}[caption={Vector form of the resulting code from listing \ref{lst:prac_inter_pred}.},label={lst:prac_inter_vec}]
 __m512 b[bec][3];
 
 <init b>;
@@ -918,15 +920,15 @@ _mm512_mask_store_epi32(r,
 
 \ \\
 
-Из листингов \ref{lst:prac_inter_pred} и \ref{lst:prac_inter_vec} видно, что правильно составленный предикатный код может быть довольно просто переведен в векторный аналог.
-Для достижения этого были удовлетворены следующие условия.
-Во-первых, удалены все ветки $else$ в условных операторах.
-Во-вторых, вызов функции $upgrade$ вынесен из-под предиката.
-Вместо этого в нашем случае скалярное условие вызова функции $upgrade$ трансформировалось в аргумент данной функции, и после этого код легко поддается векторизации.
-В остальном все вещественные скалярные инструкции были просто заменены на векторные аналоги.
+From the listings \ref{lst:prac_inter_pred} and \ref{lst:prac_inter_vec} it is obvious, that correctly composed predicate code can be quite simply translated into a vector analogue.
+To achieve this, the following conditions were satisfied.
+First, all $else$ branches in conditional statements have been removed.
+Second, the call to the $upgrade$ function has been removed from the predicate.
+Instead, in our case, the scalar condition for calling the $upgrade$ function was transformed into the argument of this function, and after that the code can be easily vectorized.
+In the rest, all real scalar instructions were simply replaced with vector analogues.
 
-Выполненные преобразования позволили добиться ускорения функции \\
-$tri\_box\_intersect\_w$ в 6.7 раз.
+The transformations made it possible to accelerate the function \\
+$tri\_box\_intersect\_w$ by 6.7 times.
 
 \section{Conclusion}
 
