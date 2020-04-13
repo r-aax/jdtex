@@ -81,7 +81,7 @@ Along with increasing the peak performance of the computing systems themselves, 
 The lowest-level direction for creating high-performance parallel executable code is the vectorization of calculations, which allows you to directly use the hardware capabilities of the computers.
 The AVX-512 instruction set is a foremost tool of improving the performance of modern Intel microprocessors.
 In microprocessors with support for the AVX-512 instruction set, the peak performance is calculated taking into account 512-bit vector registers and dual FMA operations (fused multiply-add).
-This means that without vectorization of code when using a single-precision real operations performance higher than 3.125%% of the peak can not be achieved even theoretically.
+This means that without vectorization of code when using a single-precision real operations performance higher than 3.125\% of the peak can not be achieved even theoretically.
 In view of this, the search for methods and solutions for applying vectorization in a complex program context is an extremely urgent task.
 
 Despite the diversity of the possible software context of supercomputer applications, there are types of software constructs whose effective optimization can significantly increase the efficiency of the entire application.
@@ -91,7 +91,7 @@ In this article, only one type of vectorized program context will be considered 
 
 In the framework of this article, we will restrict ourselves to considering only computational problems working with real numbers of single precision.
 Let's give the definition of a flat loop for such problems.
-In general case a flat loop will be called a program construct with the form shown in listing ~\ref{lst:flat_loop}.
+In general case a flat loop is a program construct with the form shown in listing ~\ref{lst:flat_loop}.
 
 \begin{lstlisting}[caption={General view of a flat loop.},label={lst:flat_loop}]
 for (int w = 0; w < WIDTH; w++)
@@ -102,7 +102,7 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-We will follow the following agreements.
+We will follow the next agreements.
 First, we assume that the number of iterations of the flat loop $WIDTH$ is exactly equal to the number of elements in the vector.
 In our case, we consider 512-bit vectors and real data with single precision (each element takes 32 bits), so $WIDTH = 16$.
 This restriction does not really violate generality, so we can always divide a loop with any number of iterations into several loops of $WIDTH$ iterations and, possibly, another loop with a smaller number of iterations (loop epilogue).
@@ -124,7 +124,7 @@ for (int w = 0; w < WIDTH; w++)
 
 Loops satisfying the described conventions are extremely convenient in terms of vectorization.
 The absence of inter-iteration dependencies in such a loop allows iterations of the loop to be performed independently of each other, in any order, which means that they can be performed in parallel.
-The requirement for the number of iterations in the loop, the alignment in memory, as well as the type of accesses to the elements of arrays ($x[w]$) ensures that inside this loop, when working with some array $x$, we refer only to its part limited by numbers items from $0$ to $WIDTH-1$.
+The requirement for the number of iterations in the loop, the alignment in memory, as well as the type of accesses to the elements of arrays ($x[w]$) ensures that inside this loop, when working with some array $x$, we refer only to its part limited by items from $0$ to $WIDTH-1$.
 Thus, to access arrays inside a flat loop, we can use vector commands to read aligned sections of memory.
 
 Of course, if the body of a flat loop is limited only by memory accesses and simple arithmetic operations, then to optimize such a loop, an optimizing compiler is enough to easily replace scalar instructions with vector analogues inside the loop.
@@ -134,7 +134,7 @@ All of these issues for flat loops can be resolved using the AVX-512 instruction
 This requires translating the body of the loop into the predicate representation, and then replacing scalar predicate operations with vector predicate instructions.
 
 Since we assumed that a flat loop is always controlled by an inductive variable, varying from $0$ to $WIDTH$, later we will characterize a flat loop only by its body.
-For example for loop from listing~\ref{lst:flat_loop} we say that we consider flat loop \texttt{<block(w)>}.
+For example for the loop from listing~\ref{lst:flat_loop} we say that we consider a flat loop \texttt{<block(w)>}.
 
 Before we proceed to a discussion of specific approaches for vectorizing flat loops using the predicate representation of the loop body, it is necessary to briefly describe the AVX-512 instruction set, and especially instructions suitable for vectorizing flat loops.
 
@@ -153,8 +153,8 @@ The AVX-512 instruction set is constantly updated with the release of new lines 
 The main subsets of instructions can be distinguished:
 AVX-512 F -- Foundation -- Basic instructions working with 32-bit and 64-bit data.
 This includes element-wise operations on vectors, operations with masks, merging vectors by mask, comparison of vectors, operations of permutation of elements of vectors, conversion operations, and others.
-AVX-512 CD -- Conflict Detection -- A set of operations designed to resolve conflicts during loop vectorization. The basic instruction from this set of VPCONFLICT allows you to compare each element of the first vector with each element of the second vector. This instruction is used to dynamically check address ranges for conflicts.
-AVX-512 ER -- Exponential and Reciprocal -- A set of instructions for elementwise calculation with increased accuracy of the functions $2^x$, $1/x$, $1/\sqrt{x}$.
+AVX-512 CD -- Conflict Detection -- A set of operations designed to resolve conflicts during loop vectorization. The basic instruction from this set VPCONFLICT allows you to compare each element of the first vector with each element of the second vector. This instruction is used to dynamically check address ranges for conflicts.
+AVX-512 ER -- Exponential and Reciprocal -- A set of instructions for element-wise calculation with increased accuracy of the functions $2^x$, $1/x$, $1/\sqrt{x}$.
 AVX-512 PF -- Prefetch -- Instructions for pre-paging data for reading and writing to addresses with arbitrary offsets (VGATHER / VSCATTER).
 AVX-512 VL -- Vector Length -- Extension of many instructions on data elements of size 128 and 256 bits.
 AVX-512 DQ -- Doubleword and Quadword -- Contains additional instructions for working with 32 and 64 bit data elements.
@@ -169,14 +169,14 @@ We write arithmetic operations in their natural form, for example, $r = a + b$ m
 Vectors made up of individual elements will be written using capital Latin letters.
 Thus we say that $A$ is a vector consisting of $WIDTH$ elements $A[w]$.
 By $R = A + B$ we mean the element-wise sum of the vectors $A$ and $B$ and copying the result into the vector $R$.
-Replacing the addition operation with the arbitrary operation $op$ (not necessarily the operation of two arguments), we obtain the semantics of the vector element-wise operation in the form $R = op A, B$.
+Replacing the addition operation with the arbitrary operation $op$ (not necessarily the operation of two arguments), we obtain the semantics of the vector element-wise operation in the form $R = op \ A, B$.
 
 To consider the semantics of vector operations that work with masks, we need a representation of vector predicates.
 Predicates will be denoted by Latin letters with a checkmark at the top.
 Using the predicate when choosing one of the two arguments will be written using the ternary operator.
 Thus, in $r = \check{p} \ ? \ a : b$ the element $r$ takes the value of $a$ when the predicate $\check{p}$ is true, otherwise it takes the value of $b$.
 The vector analogue of previous notation is $R = \check{P} \ ? \ A : B$.
-This operation is executed elementwise for elements in positions $w$ ($0 \le w < WIDTH$).
+This operation is executed element-wise for elements in positions $w$ ($0 \le w < WIDTH$).
 
 Now we consider the main classes of instructions suitable for vectorization of flat loops (examples of operations and their semantics are given in table~1).
 
@@ -226,7 +226,7 @@ Arithmetic operations with three arguments are the so-called doubled, or combine
 
 The next large class of operations is comparison operations.
 In the table, this class is represented by a single VCMP operation, however, this operation hides many different comparison operations (VCMPEQ, VCMPLE, VCMPNE and others).
-These operations perform elementwise comparison of two vectors and write the results into a vector predicate.
+These operations perform element-wise comparison of two vectors and write the results into a vector predicate.
 
 The last class of vector instructions considered is represented by one VBLENDM instruction, which is an implementation of the vector ternary operator $R = \check{P} \ ? \ A : B$.
 
@@ -294,7 +294,7 @@ Note that these calculations were made under the assumption that the blocks \tex
 However, they themselves may contain control transfer operators, which will further reduce the effectiveness of vectorization.
 
 Thus, the complete merging of all execution branches is not an effective way of vectorizing flat loops.
-In the case when one of the executed branches has low probability and also a large length, then in the absence of side effects, we can apply the removal of an unlikely branch from the loop.
+In the case when one of the executed branches has low probability and also a large length, then in the absence of side effects, we can apply  removal of an unlikely branch from the loop.
 
 \begin{lstlisting}[caption={Vectorization of \texttt{if-else} with unlikely branch.},label={lst:if_else_vec_sec_lo_prob}]
 <BLOCK1> ? <COND>;
@@ -314,7 +314,7 @@ In addition, with a low probability of execution of the second block, there is n
 In real applications, such unlikely branches can handle some very rare and sophisticated situations, and the code in these blocks can be much more complicated than the code that processes regular cases \cite{Rybakov_Aircraft}.
 
 Another important technique for vectorizing branched conditions is the use of vector instructions containing logic and the use of identities based on them.
-Instructions containing logic include operations such as VBLENDM, VABS (which is implemented through the VAND instruction), VMIN, VMAX.
+Instructions containing logic include operations such as VBLENDM, VABS (which are implemented through the VAND instruction), VMIN, VMAX.
 In fact, all these operations contain hidden controls of the type \text{if-else}.
 In real applications, there are often sections of code whose logic can be rewritten using these operations, thereby reducing the number of different branches of execution.
 As an example, consider the limitation of the value of a variable using a given lower and upper bounds, as shown in listing~\ref{lst:bounds_orig}
@@ -338,7 +338,7 @@ for (int w = 0; w < WIDTH; w++)
 Merging such a section of code will not be efficient enough (in  combination with other operations of a flat loop).
 However, using simple identities using the VMIN, VMAX commands, you can get an equivalent and simpler record of the same section in vector form, as shown in listing~\ref{lst:bounds_vec}.
 
-\begin{lstlisting}[caption={Векторизованная форма ограничения значения величины с помощью нижней и верхней границ.},label={lst:bounds_vec}]
+\begin{lstlisting}[caption={Vectorized form of limiting a value using the lower and upper bounds.},label={lst:bounds_vec}]
 X = VMAX X, A
 X = VMIN X, B
 \end{lstlisting}
@@ -355,7 +355,7 @@ The flat loop body itself may contain loop nests.
 If the conditions for exiting these nested loops are constant, then no problems with vectorization arise (in this case, the same analogy applies as in the case of constant conditions in a branched control).
 Therefore, we assume that the nested loop has an exit condition depending on $w$.
 In other words, the number of iterations of such a loop is not constant.
-For clarity, consider a simple construction that meets these requirements. (листинг~\ref{lst:while_loop}).
+For clarity, consider a simple construction that meets these requirements. (listing~\ref{lst:while_loop}).
 
 \begin{lstlisting}[caption={Flat loop containing a loop with a non-constant number of iterations},label={lst:while_loop}]
 for (int w = 0; w < WIDTH; w++)
