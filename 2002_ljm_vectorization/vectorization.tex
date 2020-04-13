@@ -483,7 +483,7 @@ To use intrinsic functions in the program, you need to include a header file \te
 
 Intrinsic functions do not cover all AVX-512 instructions, however, they eliminate the need to manually write assembler code and allow the use of built-in data types for 512-bit vectors (\texttt{\_\_m512}, \texttt{\_\_m512i}, \texttt{\_\_m512d}).
 Some intrinsics do not correspond to a separate command, but to a whole sequence, such as for the operation of adding all the elements of a vector.
-Of the many intrinsics, the following groups of functions can be distinguished, similar in structure.
+Of the many intrinsics, the following groups of functions, similar in structure, can be distinguished.
 The \textit{swizzle}, \textit{shuffle}, \textit{permute} and \textit{permutevar} functions rearrange the elements of a vector and expand into a sequence of operations in which VSHUF and mask forwarding are present.
 For a larger number of operations, the AVX-512 implements instrinsics that expand into one specific operation.
 Among them are arithmetic operations, bitwise operations, operations of reading from memory and writing to memory, conversion operations, merging of two vectors, finding inverse values, obtaining the minimum and maximum of two values, comparison operations, operations with masks, combined operations and others.
@@ -495,7 +495,7 @@ When considering vector codes of practical problems, the intrinsics functions of
 
 The implementation of the Riemann solver considered in this section is publicly available on the Internet as part of the NUMERICA library \cite{Numerica}.
 In this case, we will be interested in the one-dimensional case for a one-component medium, implemented as a pure function (functions without side effects, the result of the function depends only on the values of the input parameters).
-This function from the values of density, velocity and pressure of the gas to the left and right of discontinuity, finds the values of these quantities at the gap at zero time after the elimination of the partition.
+This function from the values of density, velocity and pressure of the gas to the left and right of discontinuity, finds the values of these quantities at the discontinuity at zero time after the after removal of the septum.
 
 \begin{equation}\label{eq:riemann}
 U_l = \left( \begin{array}{ccc} d_l \\ u_l \\ p_l \end{array} \right),
@@ -507,7 +507,7 @@ In formula (\ref{eq:riemann}) gas density, velocity and pressure to the left of 
 Similarly, $d_r$, $u_r$, $p_r$ denote gas density, velocity, and pressure to the right of discontinuity, combined into the gas state $U_r$.
 The variables $d$, $u$, $p$ denote the density, velocity and pressure of the gas obtained as a result of solving the Riemann problem.
 
-The NUMERICA library is implemented in the FORTRAN programming language, therefore direct vectorization of this code using intrinsics functions is impossible, therefore, the version of the code ported to the C programming language was used.
+The NUMERICA library is implemented in the FORTRAN programming language, therefore direct vectorization of this code using intrinsics functions is impossible, so, the version of the code ported to the C programming language was used.
 
 During the calculation, using numerical methods based on the Riemann solver, many calls to the \texttt{riemann} function are made with different sets of input data (at each iteration of the account, one call is made for each face of each cell of the computational grid).
 Since the riemann function is pure, calls for different sets of input data (\texttt{dl}, \texttt{ul}, \texttt{pl}, \texttt{dr}, \texttt{ur}, \texttt{pr}) are independent and it becomes possible to combine calls in order to effectively use vector (element-wise) instructions.
@@ -636,10 +636,10 @@ void starpu_16(__m512 dl, __m512 ul, __m512 pl, __m512 cl,
 The initialization of the full mask for performing vectorized iterations of the loop is visible on the listing.
 As the loop runs, the mask depletes, and when it is completely zeroed, the loop ends.
 
-It is worth noting that vectorizing a loop with an unknown number of iterations can be quite dangerous, since the number of iterations of a vectorized loop is equal to the maximum of the number of iterations of the loops from 16 combined calls of the original non-vectorized function.
+It is worth noting that vectorizing a loop with an unknown number of iterations can be quite dangerous, since the number of iterations of a vectorized loop is equal to the maximum of the number of loop iterations from 16 combined calls of the original non-vectorized function.
 With a large difference in the number of iterations of the original code, a drop in efficiency occurs.
 
-As a result of applying vectorization for all the functions of the Riemann solver, we managed to achieve a total 7 times acceleration.
+As a result of applying vectorization for all the functions of the Riemann solver, total 7 times acceleration was achieved.
 %Можно также отметить работы \cite{BaderSWEVect,FerreiraSWEVect} по данному направлению.
 
 \subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
@@ -673,7 +673,7 @@ z_l \le z \le z_h
 \end{cases}
 \end{equation}
 
-To establish the fact of the intersection of a triangle and a rectangular parallelepiped, it is necessary to determine whether there is a solution of the system of inequalities below with respect to $\alpha$ и $\beta$:
+To establish the fact of intersection between triangle and rectangular parallelepiped, it is necessary to determine whether there is a solution of the system of inequalities below with respect to $\alpha$ и $\beta$:
 
 \begin{equation}
 \begin{cases}
@@ -713,17 +713,17 @@ Of the remaining eight, half of the coefficients for the variable $\alpha$ are n
 
 Consider the implementation of the function \\
 $tri\_box\_intersect(xa, ya, za, xb, yb, zb, xc, yc, zc, xl, xh, yl, yh, zl, zh) \rightarrow int$, analyzing the presence of intersection between triangle and a rectangular parallelepiped.
-The function returns 1, if there is an intersection, и 0, if not.
+The function returns 1, if there is an intersection, and 0, if not.
 The logic of the function is as follows.
 First, the coefficients of the system of inequalities are put in a two-dimensional array of coefficients $b[bec][3]$, where $bec$ (basic equations count) -- the number of initial inequalities of the system (in our case, 9).
 Then, one step of convolution of the system is performed. At the same time, a set of solutions is searched for $\beta$.
-Before minimization, the set of valid values for the variable $\beta$ is taken as a range $[0, 1]$ ($lo = 0$, $hi = 1$).
+Before convolution, the set of valid values for the variable $\beta$ is taken as a range $[0, 1]$ ($lo = 0$, $hi = 1$).
 During the convolution of the system of inequalities, this set of solutions decreases.
 If at some stage of convolution the set of solutions turns to empty ($lo>hi$), then the function finishes and returns 0.
 If, after performing all the folding operations, the set of solutions remains nonzero, this means that there is an intersection, and the function returns 1.
 The convolution implementation of the system of equations is presented in the listing below:
 
-\begin{lstlisting}[caption={The initial implementation of the convolution of a system of linear inequalities aimed to determine the intersection of a triangle and a rectangular parallelepiped.},label={lst:prac_intersect_1}]
+\begin{lstlisting}[caption={The initial implementation of convolution of system of linear inequalities aimed to determine the intersection of a triangle and a rectangular parallelepiped.},label={lst:prac_intersect_1}]
 for (i = 0; i < bec; i++)
 {
     bi0 = b[i][0];
@@ -804,7 +804,7 @@ After performing this transformation, we obtain a flat loop whose body is a nest
 The presence of a large number of conditional statements in the source code generates many instructions under zero predicates in the resulting code in the case of code merging, which negatively affects performance.
 To reduce the number of conditional operators, we can use mathematical identities that replace conditional constructions with instructions that have vector analogues in the AVX-512 instruction set.
 For example, in the code under consideration, the calculation of the values of $f0$ and $f1$ taking into account the condition $b[i][0] * b[j][0] < 0$ can be replaced by the following:
-\begin{lstlisting}[caption={Using identities to use vector instructions.},label={lst:prac_intersect_16_2}]
+\begin{lstlisting}[caption={Using identities to implement vector instructions.},label={lst:prac_intersect_16_2}]
 f0 = fabs(bi0) * b[j][1]
      + fabs(b[j][0]) * b[i][1]
 f1 = fabs(bi0) * b[j][2]
@@ -817,7 +817,7 @@ Similar difficulties are caused by an external condition \texttt{if} on the list
 This condition has an alternative branch containing a loop.
 Merging the data of the two branches reduces the performance of the resulting code, therefore, in this case, it is advantageous to split the outer loop according to the \texttt{if-else} construct.
 In this case, two nests of loops are formed, each of which can be vectorized independently.
-Note that the described transformation in the general sense is not equivalent, since both branches of the condition \texttt{if-else}, and therefore the bodies of the resulting loops, contain outputs from the function.
+Note that the described transformation in general sense is not equivalent, since both branches of the condition \texttt{if-else}, and therefore the bodies of the resulting loops, contain outputs from the function.
 Performing a splitting of loop may change the condition that provokes the exit from the function.
 For this reason, the compiler is not able to perform this conversion automatically.
 However, from the point of view of the result of the function, this transformation is correct, therefore we use it.
