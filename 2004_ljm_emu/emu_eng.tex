@@ -66,17 +66,22 @@ The development of dataflow processor architecture is a promising direction for 
 
 \section{Introduction}
 
-Введение про архитектуру потокового процессора.
+The processor with dataflow architecture (the dataflow processor) has the potential to provide the highest performance among processors due the fact that parallelism of programs execution laying down since program graph created. Thereby performance is not required to be detected using sophisticated equipment from the sequence of instructions specified by the instruction counter, as is the case in a processor with the von Neumann architecture. A program in the dataflow processor is the oriental graph where nodes are instructions and information transfers by the arcs as tokens, which contains the data field and context field of transferring data. This context absolutely identifies where token should transfers (the number of receiver command in the graph) and also contains the number of index, iteration and the subprogram execution, which allow to execute different iterations of inner cycles and different executions of procedures at the same program graph at parallel. Regardless of the place of the two-input instruction in the graph, it transfers for execution upon arrival at the input of the last of the pair of operand tokens with the same context. After the execution the result in the actuator, new tokens with the result value sends to the inputs of subsequent commands according to the program column, and the used operands destroys.
+
+At the same time, in contrast to the von Neumann one, the dataflow processor has not a central control device (instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme. Namely, the device for searching ready-to-execute commands -- the memory of searching pairs (the content-addressable memory) can be executed such as many parallel-running modules, which provides the same large numbers of actuators \cite{fine-grained-prl}.
+
+
+In contrast with the well-known projects of vector dataflow machines, in which arithmetic operations on vectors performs only for vectors in their registers, the block of vector register is absent in the dataflow processor emulator and a single-level memory of high-capacity vectors (RAM level) is using. This eliminates the problem of the possibility of overflow on the register file, which does not have a simple solution, given the complete asynchrony of the dataflow model of calculating. It is also not so easy to do without the participation of the operating system in the process of the program execution when allocating space for the created arrays in the main memory. Therefore, it proposed to implement the distribution of the vector memory resource in the dataflow processor emulator at the hardware level \cite{vpp}.
 
 \section{Processor with The von Neumann architecture emulation}
 
-One of the basic principles of The von Neumann architecture is the principle of program control sequence. According to it, the executable code of the program is stored in memory, and the processor can execute its instructions sequentially, one by one. The next instruction’s address submitted to the processor for execution is stored in a special register called instruction pointer. By default, it always shifts to the next instruction in memory. This address can be forcedly changed by special transition instructions, and in this case we can talk about transferring control to another part of the program.
+One of the basic principles of The von Neumann architecture is the principle of program control sequence. According to it, the executable code of the program is stored in memory, and the processor can execute its instructions sequentially, one by one. The next instruction address submitted to the processor for execution is stored in a special register called instruction pointer. By default, it always shifts to the next instruction in memory. This address can be forcedly changed by special transition instructions, and in this case we can talk about transferring control to another part of the program.
 
-We introduce the concept of a linear section (or the program’s base block). The linear section is a sequence on instructions with the next two properties. Firstly, control could only be transfer to the first instruction of a given section. In other words, a linear section has only one input, which is the first section’s instruction. Secondly, if control was transfer to the linear section than all instructions of a given section must be done (i.e., there can be no transition instructions inside the linear section). The transition instruction can only be at the end of the linear section. Sometimes, instead of linear sections, it is convenient to view so-called quasilinear sections, which can have arbitrary amount of transition instructions inside for transitions to other linear sections. We will not review quasilinear sections, because any such section can be split into a sequence of ordinary linear sections.
+We introduce the concept of a linear section (or the program base block). The linear section is a sequence on instructions with the next two properties. Firstly, control could only be transfer to the first instruction of a given section. In other words, a linear section has only one input, which is the first section instruction. Secondly, if control was transfer to the linear section than all instructions of a given section must be done (i.e., there can be no transition instructions inside the linear section). The transition instruction can only be at the end of the linear section. Sometimes, instead of linear sections, it is convenient to view so-called quasilinear sections, which can have arbitrary amount of transition instructions inside for transitions to other linear sections. We will not review quasilinear sections, because any such section can be split into a sequence of ordinary linear sections.
 
-An important concept widely used in the theory of optimizing compilers is the control flow graph. A control flow graph is a directed graph whose nodes are linear sections of the program, and arcs indicate the transfer of control between them. The control flow graph is a convenient and visual structure for describing program’s behavior and used by optimizing compilers to implement global program optimizations i.e. optimizations that go beyond linear sections.
+An important concept widely used in the theory of optimizing compilers is the control flow graph. A control flow graph is a directed graph whose nodes are linear sections of the program, and arcs indicate the transfer of control between them. The control flow graph is a convenient and visual structure for describing program behavior and used by optimizing compilers to implement global program optimizations i.e. optimizations that go beyond linear sections.
 
-Consider the logic of the device intermediate program’s representation inside one linear section. Consider for this a simple example of finding roots of a quadratic equation. We will use listing in the C programming language to write examples and pseudocode. So, let us have a linear section (program code block) at the input of which we have the variables $a$, $b$, $c$ containing the coefficients of the quadratic equation $ax^2 + bx + c = 0$. At the linear section’s output it is required to get the values of the roots, which are calculated by the formulas $x_{1,2} = (-b \pm \sqrt{b^2 - 4ac})/(2a)$.
+Consider the logic of the device intermediate program representation inside one linear section. Consider for this a simple example of finding roots of a quadratic equation. We will use listing in the C programming language to write examples and pseudocode. So, let us have a linear section (program code block) at the input of which we have the variables $a$, $b$, $c$ containing the coefficients of the quadratic equation $ax^2 + bx + c = 0$. At the linear section output it is required to get the values of the roots, which are calculated by the formulas $x_{1,2} = (-b \pm \sqrt{b^2 - 4ac})/(2a)$.
 
 \begin{lstlisting}[caption={The code block for calculating the roots of the quadratic equation.},label={lst:square_equation_1}]
 {
@@ -137,9 +142,11 @@ MOV v15       ->  x2
 
 In Listing~\ref{lst:square_equation_2}, all instructions except transmission operation operate on virtual registers (v0-v15). The order of the commands is important in this note. At any time after the execution of any instruction, we can talk about some state of the processor which characterized by the contents of the memory, as well as all the registers used.
 
-The main part of processor’s emulator is the realization of instruction’s semantic, executed by the processor. I.e. that every instruction is considered as function, which transfers calculating machine from one state to another.
+The main part of processor emulator is the realization of instruction semantic, executed by the processor. I.e. that every instruction is considered as function, which transfers calculating machine from one state to another.
 
 \section{Dataflow processor emulation}
+
+The dataflow processor emulator, which considered in this article, has the dynamic model. It permits to give away the commands for execution when their tokens are ready with the simultaneous execution possibility of inner cycle’s iterations and different procedure launches on the same program graph.
 
 In contrast with processors with The von Neumann architecture, dataflow processors completely orderliness in command execution. I.e. if two anyone instructions can execute in parallel, (this is possible in the absence of dependence between them) then the order of their execution did not determined. We will consider the same example of the linear section, inside which the roots of the quadratic equation are calculated. The program for dataflow processor is the graph just like use-define graph showed at Figure~\ref{fig:def_use}.
 Dataflow graph, which is a program for dataflow processor, is also oriented. Nodes of this graph also are the instructions, but arcs have a completely different meaning. In the case of use-define graph, arcs were fix fact of the dependence between two operations (indicating by which variables, by which resource), in case of dataflow graph the arc is a unique data carrier that names token. Therefore, token is a data structure that storage the information about transferring data and about destination point of this data (the identifier consuming this instruction data as well as the argument number, which this data is for the instruction). Besides, the token contains additional information (the token state) allowing distinguishing instruction, which relate to different function process or to different cycle iteration, but for this example, this is not important, therefore, the description of token state will omitted.
@@ -157,7 +164,7 @@ If we will view another instruction 2 MUL we can see that it got only one ready 
 
 Thereby, all of the instructions in the presented graph will be processed while needed values will not be received in the tokens at output arcs from the instructions 10 DIV and 11 DIV.
 
-The realization of instructions semantic in the dataflow processor’s emulator has no different from the same functional in the traditional processor’s emulator.
+The realization of instructions semantic in the dataflow processor emulator has no different from the same functional in the traditional processor emulator.
 
 Central functional element for ensure operability of the dataflow processor is as named content-addressable memory, realization of which is the appointment of this article.
 
@@ -172,6 +179,26 @@ Content-addressable token memory is a repository of tokens that are currently cr
 
 After the execution of the instructions 9 MUL, 1 MUL, 4 HEG and 3 MUL the only instruction is ready to execute is 2 MUL. The machine state of this instruction before the execution shows at Figure~\ref{fig:dataflow2}.
 At this Figure we can see instruction 2 MUL which are ready to execute, and also some tokens caught it the content-addressable memory. Further execution of the program is similar and at the end, we come to the formation of two tokens on the output arcs of operations 10 DIV and 11 DIV, which will be send to their consumer instructions after that.
+
+
+
+In the same processors, an overflow of the content-addressable memory is unacceptable, that is why the content-addressable memory must have high capacity and be fast at the same time, which is difficult to realize into practice. That is the point to realize the emulator, which will help to get closer to creating such the dataflow processor while revealing all possible errors and shortcomings.
+
+
+Figure~\ref{fig:dataflow_emulator} shows us the architecture of dataflow processor in the form of four modules.
+
+\begin{figure}[h!]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse
+\center{\includegraphics[scale=1.3]{pics/emu_vec.pdf}}
+\captionstyle{normal}\caption{Schematic illustration of dataflow processor emulator architecture.}
+\label{fig:dataflow_emulator}
+\end{figure}
+
+CAM is a module, which implements the content-addressable memory. From there, a ready-made pair of tokens enters the BUFFER, which provides intermediate storage of ready-made pairs of tokens and give them away for execution in the COMMAND MEMORY, where the commands execute.
+
+The introduction of vector processing into dynamic dataflow machine can significant reduce the requirements for the capacity of content-addressable memory since one vector command performs a group of X elementary operations instead of one, where X is the length of the vector. When storing vectors in the vector memory, it needs only one pair of tokens in the content-addressable memory with vector pointers instead of X pairs during scalar processing. At the same time, the requirements for the capacity of the content-addressable on the vectorized part of the program reduced at the X times.
+
 
 \begin{lstlisting}[caption={Implementation of the logic of the contest-addressable token memory.},label={lst:assoc}]
 set_token({CId, E, _} = T, Args, D) when (Args > 1) ->
@@ -191,8 +218,6 @@ set_token({CId, E, _} = T, Args, D) when (Args > 1) ->
 	end.
 \end{lstlisting}
 
-\
-
 At Listing~\ref{lst:assoc} there is the compact logic implementation of content-addressable token memory in the Erlang programming language. All the logics realize with one function $set\_token$ with three arguments: $T$ -- added token (which consists of the instructions identifier $CId$, number of argument $E$, and dates), $Args$ -- the number of arguments of the instruction for which the token is added, $D$ -- dictionary which token content-addressable memory is implemented. The function logic turns to the next: to extract from the dictionary all the tokens, which are associated with the key $CId$, and check if they close all the arguments of considered instruction (i.e. numbers of the arguments form a sequence $[0, 1, .. Args - 1]$.). If the added token is the las missing argument of the considered instruction, then we need to extract all the tokens form the dictionary and return them back in the form of list for executing the instruction (line 11). Otherwise token should be added in the dictionary tying it to a key $CId$ (lines 6 and 13).
 
 Note that the most simplified implementation is given. It is not considered possibility of using the token state for instructions identify from different function calls or from different cycles iteration (for completeness as a key of dictionary together with instruction identifier $CId$ should also use the token state). In the given implementation, exception handling also is not considered. For example, sequential addition of two token in the content-addressable memory that are the same argument of the same instruction should cause the error. However, despite the incompleteness of implementation, shows here logic allows providing functionality of the content-addressable token memory, which needed for execution of the dataflow processor’s program.
@@ -206,6 +231,14 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
+
+\bibitem{fine-grained-prl}
+\refitem{article}
+N.~A.~Dikarev, B.~M.~Shabanov, A.~S.~Shmelev, {\it ``The use of fine-grained parallelism in dataflow processor"}, Problems of developing promising micro- and nanoelectronic systems (MES), {\bf 2}, pp.~144--150 (2016).
+
+\bibitem{vpp}
+\refitem{article}
+N.~A.~Dikarev, B.~M.~Shabanov, {\it ``Vector dataflow processor"}, IZVESTIYA SFedU, {\bf 10}(54), pp.~80--85 (2005).
 
 \bibitem{Muchnick}
 \refitem{book}
