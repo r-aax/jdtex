@@ -84,18 +84,18 @@ Along with increasing the peak performance of the computing systems themselves, 
 
 The lowest-level direction for creating high-performance parallel executable code is the vectorization of calculations, which allows you to directly use the hardware capabilities of the computers.
 The AVX-512 instruction set is a foremost tool of improving the performance of modern Intel microprocessors.
-In microprocessors with support for the AVX-512 instruction set, the peak performance is calculated taking into account 512-bit vector registers and dual FMA operations (fused multiply-add).
+In microprocessors with support for the AVX-512 instruction set, the peak performance is calculated taking into account 512-bit vector registers and dual FMA (fused multiply-add) operations.
 This means that without vectorization of code when using a single-precision real operations performance higher than 3.125\% of the peak can not be achieved even theoretically.
 In view of this, the search for methods and solutions for applying vectorization in a complex program context is an extremely urgent task \cite{ShabanovVec}.
 
 Despite the diversity of the possible software context of supercomputer applications, there are types of software constructs whose effective optimization can significantly increase the efficiency of the entire application.
-In this article, only one type of vectorized program context will be considered - a flat loop, for which vectorization methods using AVX-512 will be proposed.
+In this article, only one type of vectorized program context will be considered -- a flat loop, for which vectorization methods using AVX-512 will be proposed.
 
 \section{Flat loops}
 
 In the framework of this article, we will restrict ourselves to considering only computational problems working with real numbers of single precision.
 Let's give the definition of a flat loop for such problems.
-In general case a flat loop is a program construct with the form shown in listing ~\ref{lst:flat_loop}.
+In general case a flat loop is a program construct with the form shown in listing~\ref{lst:flat_loop}.
 
 \begin{lstlisting}[caption={General view of a flat loop.},label={lst:flat_loop}]
 for (int w = 0; w < WIDTH; w++)
@@ -117,6 +117,7 @@ Note that there may be program code that does not meet these requirements, but i
 Thirdly, there are no inter-iteration dependences inside the loop.
 Requirements for calls of the form $x[w]$ to arrays exclude the possibility of inter-iteration dependencies in the loop when accessing arrays, but theoretically there may be conflicts over access to other variables.
 For example, the loop shown in listing~\ref{lst:not_flat_loop} is not a flat one, because there is dependency in access to $s$.
+
 \begin{lstlisting}[caption={Simple example of a non-flat loop.},label={lst:not_flat_loop}]
 for (int w = 0; w < WIDTH; w++)
 {
@@ -128,7 +129,7 @@ for (int w = 0; w < WIDTH; w++)
 
 Loops satisfying the described conventions are extremely convenient in terms of vectorization.
 The absence of inter-iteration dependencies in such a loop allows iterations of the loop to be performed independently of each other, in any order, which means that they can be performed in parallel.
-The requirement for the number of iterations in the loop, the alignment in memory, as well as the type of accesses to the elements of arrays ($x[w]$) ensures that inside this loop, when working with some array $x$, we refer only to its part limited by items from $0$ to $WIDTH-1$.
+The requirement for the number of iterations in the loop, the alignment in memory, as well as the type of accesses to the elements of arrays ($x[w]$) ensures that inside this loop, when working with some array $x$, we refer only to its part limited by items from $0$ to $WIDTH - 1$.
 Thus, to access arrays inside a flat loop, we can use vector commands to read aligned sections of memory.
 
 Of course, if the body of a flat loop is limited only by memory accesses and simple arithmetic operations, then to optimize such a loop, an optimizing compiler is enough to easily replace scalar instructions with vector analogues inside the loop.
@@ -157,7 +158,9 @@ The AVX-512 instruction set is constantly updated with the release of new lines 
 The main subsets of instructions can be distinguished:
 AVX-512 F -- Foundation -- Basic instructions working with 32-bit and 64-bit data.
 This includes element-wise operations on vectors, operations with masks, merging vectors by mask, comparison of vectors, operations of permutation of elements of vectors, conversion operations, and others.
-AVX-512 CD -- Conflict Detection -- A set of operations designed to resolve conflicts during loop vectorization. The basic instruction from this set VPCONFLICT allows you to compare each element of the first vector with each element of the second vector. This instruction is used to dynamically check address ranges for conflicts.
+AVX-512 CD -- Conflict Detection -- A set of operations designed to resolve conflicts during loop vectorization.
+The basic instruction from this set VPCONFLICT allows you to compare each element of the first vector with each element of the second vector.
+This instruction is used to dynamically check address ranges for conflicts.
 AVX-512 ER -- Exponential and Reciprocal -- A set of instructions for element-wise calculation with increased accuracy of the functions $2^x$, $1/x$, $1/\sqrt{x}$.
 AVX-512 PF -- Prefetch -- Instructions for pre-paging data for reading and writing to addresses with arbitrary offsets (VGATHER / VSCATTER).
 AVX-512 VL -- Vector Length -- Extension of many instructions on data elements of size 128 and 256 bits.
@@ -168,15 +171,15 @@ AVX-512 VNNI -- Vector Neural Network Instructions -- Additional instructions in
 The most important distinguishing feature of the AVX-512 instruction set is the presence in them of support for vector predicates (or masks), which allow you to apply the operation to individual elements of vectors.
 
 Let's describe the semantics of the AVX-512 vector instructions suitable for vectorizing flat loops.
-We denote in small Latin letters the data elements we operate with in the process of counting (in this case, these are real data elements of the format float).
+We denote in small latin letters the data elements we operate with in the process of counting (in this case, these are real data elements of single precision).
 We write arithmetic operations in their natural form, for example, $r = a + b$ means the calculation of the sum of two data elements.
-Vectors made up of individual elements will be written using capital Latin letters.
+Vectors made up of individual elements will be written using capital latin letters.
 Thus we say that $A$ is a vector consisting of $WIDTH$ elements $A[w]$.
 By $R = A + B$ we mean the element-wise sum of the vectors $A$ and $B$ and copying the result into the vector $R$.
 Replacing the addition operation with the arbitrary operation $op$ (not necessarily the operation of two arguments), we obtain the semantics of the vector element-wise operation in the form $R = op \ A, B$.
 
 To consider the semantics of vector operations that work with masks, we need a representation of vector predicates.
-Predicates will be denoted by Latin letters with a checkmark at the top.
+Predicates will be denoted by latin letters with a checkmark at the top.
 Using the predicate when choosing one of the two arguments will be written using the ternary operator.
 Thus, in $r = \check{p} \ ? \ a : b$ the element $r$ takes the value of $a$ when the predicate $\check{p}$ is true, otherwise it takes the value of $b$.
 The vector analogue of previous notation is $R = \check{P} \ ? \ A : B$.
@@ -268,7 +271,7 @@ Further, when considering the conditions in the body of a flat loop, we will ass
 Thus, the body of a flat loop consists of two blocks $block1(w)$ and $block2(w)$, one of which is executed depending on $cond(w)$.
 
 Each block can be associated with its length, defined as the number of operations in this block.
-We will call this characteristic block execution time (blocks from listing ~\ref{lst:if_else_orig} have $t_1$ and $t_2$ execution times, respectively).
+We will call this characteristic block execution time (blocks from listing~\ref{lst:if_else_orig} have $t_1$ and $t_2$ execution times, respectively).
 Also, each of these two blocks can be characterized by the probability of its execution.
 This probability is the ratio of the number of block executions to the total number of iterations of the flat loop (the blocks from listing~\ref{lst:if_else_orig} have the execution probabilities $p_1$ and $p_2$, respectively).
 Then we can calculate the total execution time of one iteration of a flat loop as $t_1 p_1 + t_2 p_2$.
@@ -298,7 +301,7 @@ Note that these calculations were made under the assumption that the blocks $BLO
 However, they themselves may contain control transfer operators, which will further reduce the effectiveness of vectorization.
 
 Thus, the complete merging of all execution branches is not an effective way of vectorizing flat loops.
-In the case when one of the executed branches has low probability and also a large length, then in the absence of side effects, we can apply  removal of an unlikely branch from the loop.
+In the case when one of the executed branches has low probability and also a large length, then in the absence of side effects, we can apply removal of an unlikely branch from the loop.
 
 \begin{lstlisting}[caption={Vectorization of $if-else$ with unlikely branch.},label={lst:if_else_vec_sec_lo_prob}]
 BLOCK1 ? COND;
@@ -339,7 +342,7 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-Merging such a section of code will not be efficient enough (in  combination with other operations of a flat loop).
+Merging such a section of code will not be efficient enough (in combination with other operations of a flat loop).
 However, using simple identities using the VMIN, VMAX commands, you can get an equivalent and simpler record of the same section in vector form, as shown in listing~\ref{lst:bounds_vec}.
 
 \begin{lstlisting}[caption={Vectorized form of limiting a value using the lower and upper bounds.},label={lst:bounds_vec}]
@@ -380,11 +383,11 @@ for (int w = 0; w < WIDTH; w++)
 
 \
 
-The main problem in vectorizing this fragment is that for different values of $ w $, a different number of iterations of the inner loop can be performed (for some program contexts, you cannot even guarantee that this number of iterations will be finite).
+The main problem in vectorizing this fragment is that for different values of $w$, a different number of iterations of the inner loop can be performed (for some program contexts, you cannot even guarantee that this number of iterations will be finite).
 To ensure vectorization, you need to create a special vector predicate that will signal for which $w$ it is necessary to continue the internal loop, and for which it should be interrupted.
 A complete termination of a loop will occur only when the entire vector predicate of the loop continuation becomes zero.
-To vectorize the indicated nest, it must first be translated into a predicate form.
-It is important to distinguish two predicates: need for iteration predicate and predicate of $sqrt(x[w] < 1.0$.
+To vectorize the indicated nest, it must first be transformed into a predicate form.
+It is important to distinguish two predicates: predicate of need for iteration execution and predicate of logic expression $sqrt(x[w] < 1.0$.
 The peculiarity of this fragment is that in the case of a false predicate for the next iteration of the loop, we no longer have the right to check the condition $sqrt (x [w]) <1.0$ (since the argument of the square root extraction function will become negative), that is, checking of this condition should occur under the predicate of the loop iteration (for scalar code this is already fulfilled, and for the vector analogue this requirement must be provided explicitly).
 Listing~\ref{lst:while_loop_pred} shows a predicate representation of this nest.
 
@@ -428,7 +431,7 @@ while (IS_ITER != 0x0)
 
 \
 
-This listing shows V1 -- vector consisting of values 1.0, V2 -- vector consisting of values 2.0.
+This listing shows $V1$ -- vector consisting of values 1.0, $V2$ -- vector consisting of values 2.0.
 
 When vectorizing a flat loop, the body of which is a nest of loops, there is no restriction on the depth of the nest.
 However, it is necessary for each loop from the nest to maintain its own predicate, which allows iteration of the loop so that data elements that were not processed in the scalar code are not accidentally processed when executing vector instructions (otherwise this can lead to undesirable situations, such as exceptions due to work with garbage data).
@@ -469,7 +472,6 @@ After adjusting the function being called, the proposed loop can be easily vecto
 
 \begin{lstlisting}[caption={Vectorization of a flat loop with a function call under the condition},label={lst:call_vec}]
 X = VBLENDM(COND, F(COND, A), B)
-
 \end{lstlisting}
 
 \
@@ -498,7 +500,7 @@ Of the many intrinsics, the following groups of functions, similar in structure,
 The \textit{swizzle}, \textit{shuffle}, \textit{permute} and \textit{permutevar} functions rearrange the elements of a vector and expand into a sequence of operations in which VSHUF and mask forwarding are present.
 For a larger number of operations, the AVX-512 implements intrinsics that expand into one specific operation.
 Among them are arithmetic operations, bitwise operations, operations of reading from memory and writing to memory, conversion operations, merging of two vectors, finding inverse values, obtaining the minimum and maximum of two values, comparison operations, operations with masks, combined operations and others.
-Some intrinsics, especially those designed to perform packed transcendental operations, are expanded simply into a library function call (for example $\_mm512\_log\_ps$, $\_mm512\_hypot\_ps$, trigonometrical functions).
+Some intrinsics, especially those designed to perform packed transcendental operations, are expanded simply into a library function call (for example $\_mm512\_log\_ps$, trigonometrical functions).
 
 When considering vector codes of practical problems, the intrinsics functions of vector commands without using masks will be written in short form.
 For example, instead of the intrinsic function $\_mm512\_add\_ps$ we will simply write $ADD$.
@@ -508,7 +510,7 @@ For operations with masks, the intrinsics functions will be specified in full.
 
 The implementation of the Riemann solver considered in this section is publicly available on the Internet as part of the NUMERICA library \cite{Numerica}.
 In this case, we will be interested in the one-dimensional case for a one-component medium, implemented as a pure function (functions without side effects, the result of the function depends only on the values of the input parameters).
-This function from the values of density, velocity and pressure of the gas to the left and right of discontinuity, finds the values of these quantities at the discontinuity at zero time after the after removal of the septum.
+This function from the values of density, velocity and pressure of the gas to the left and right of discontinuity, finds the values of these quantities at the discontinuity at zero time after the removal of the septum.
 
 \begin{equation}\label{eq:riemann}
 U_l = \left( \begin{array}{ccc} d_l \\ u_l \\ p_l \end{array} \right),
@@ -653,14 +655,14 @@ It is worth noting that vectorizing a loop with an unknown number of iterations 
 With a large difference in the number of iterations of the original code, a drop in efficiency occurs.
 
 As a result of applying vectorization for all the functions of the Riemann solver, total 7 times acceleration was achieved.
-You can also note the work \cite{BaderSWEVect,FerreiraSWEVect} in this direction.
+You can also note the works \cite{BaderSWEVect,FerreiraSWEVect} in this direction.
 
 \subsection{Vectorization of cells classification in the implementation of the immersed boundary method}
 
 When solving gas dynamics problems numerically, bodies with complex geometry are a frequent case.
 For such bodies, building a consistent computational grid can be an extremely complex task.
 An alternative in this case is the use of the immersed boundary method \cite{MittalIBM,TsengIBM}.
-This method allows you to use an inconsistent grid for calculations and even a simple Cartesian grid, which greatly simplifies the calculation.
+This method allows you to use an inconsistent grid for calculations and even a simple cartesian grid, which greatly simplifies the calculation.
 As part of the implementation of the immersed boundary method, it is required to solve a particular problem of determining the intersection of a triangle and a rectangular parallelepiped in space for a large number of these geometric primitives.
 
 Let a triangle be given by three points: $A(x_A, y_A, z_A)$, $B(x_B, y_B, z_B)$, $C(x_C, y_C, z_C)$.
@@ -732,7 +734,7 @@ First, the coefficients of the system of inequalities are put in a two-dimension
 Then, one step of convolution of the system is performed. At the same time, a set of solutions is searched for $\beta$.
 Before convolution, the set of valid values for the variable $\beta$ is taken as a range $[0, 1]$ ($lo = 0$, $hi = 1$).
 During the convolution of the system of inequalities, this set of solutions decreases.
-If at some stage of convolution the set of solutions turns to empty ($lo>hi$), then the function finishes and returns 0.
+If at some stage of convolution the set of solutions turns to empty ($lo > hi$), then the function finishes and returns 0.
 If, after performing all the folding operations, the set of solutions remains nonzero, this means that there is an intersection, and the function returns 1.
 The convolution implementation of the system of equations is presented in the listing below:
 
@@ -956,7 +958,8 @@ In both cases, a complicated program context was vectorized, and the code accele
 The obtained practical results indicate the good potential of the proposed methods, and in the future, the authors intend to support this area of research, paying particular attention to increasing the automation of program code vectorization (for the considered practical examples, manual rewriting of the code using intrinsics functions was used).
 
 \begin{acknowledgments}
-The work has been done at the JSCC RAS as part of the state assignment for the topic ... The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8).
+The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
