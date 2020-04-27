@@ -71,7 +71,11 @@ The processor with dataflow architecture (the dataflow processor) has the potent
 At the same time, in contrast to the von Neumann one, the dataflow processor has not a central control device (instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme. Namely, the device for searching ready-to-execute commands -- the memory of searching pairs (the content-addressable memory) can be executed such as many parallel-running modules, which provides the same large numbers of actuators \cite{fine-grained-prl}.
 
 
-In contrast with the well-known projects of vector dataflow machines, in which arithmetic operations on vectors performs only for vectors in their registers, the block of vector register is absent in the dataflow processor emulator and a single-level memory of high-capacity vectors (RAM level) is using. This eliminates the problem of the possibility of overflow on the register file, which does not have a simple solution, given the complete asynchrony of the dataflow model of calculating. It is also not so easy to do without the participation of the operating system in the process of the program execution when allocating space for the created arrays in the main memory. Therefore, it proposed to implement the distribution of the vector memory resource in the dataflow processor emulator at the hardware level \cite{vpp}.
+In contrast with the well-known projects of vector dataflow machines, in which arithmetic operations on vectors performs only for vectors in their registers, the block of vector register is absent in the dataflow processor emulator and a single-level memory of high-capacity vectors (RAM level) is using. This eliminates the problem of the possibility of overflow on the register file, which does not have a simple solution, given the complete asynchrony of the dataflow model of calculating. Besides it is necessary to execute 2-3 times more commands in dataflow processor on scientific tasks compared to the von Neumann processor \cite{multithreading}. It is also not so easy to do without the participation of the operating system in the process of the program execution when allocating space for the created arrays in the main memory. Therefore, it proposed to implement the distribution of the vector memory resource in the dataflow processor emulator at the hardware level \cite{vpp}.
+
+The difficulties noted above for the hardware implementation of the dataflow processor led to the fact that none of the many projects for its creation was not possible to achieve higher performance compared to the von Neumann processor, and by the end of the 2000s, there were practically no such projects. This refers to the development of universal dataflow processors, but not specialized ones, since, for example, dataflow processors of digital signal processing were not only developed, but also produced \cite{terada}.
+
+Unlike the implementation on a multiprocessor system, direct hardware implementation allows you to fully implement the calculation graph in the form of a computing pipeline, thereby eliminating the need to create a module that implements the execution of the calculation schedule \cite{popov}.
 
 \section{Processor with The von Neumann architecture emulation}
 
@@ -148,6 +152,8 @@ The main part of processor emulator is the realization of instruction semantic, 
 
 The dataflow processor emulator, which considered in this article, has the dynamic model. It permits to give away the commands for execution when their tokens are ready with the simultaneous execution possibility of inner cycle’s iterations and different procedure launches on the same program graph.
 
+The dynamic model of the dataflow processor allows revealing more parallelism in the program due to not only the coincidence of the command number of the operand tokens, but also several fields, for example, index number, iteration, and subroutine start \cite{Wiley}.
+
 In contrast with processors with The von Neumann architecture, dataflow processors completely orderliness in command execution. I.e. if two anyone instructions can execute in parallel, (this is possible in the absence of dependence between them) then the order of their execution did not determined. We will consider the same example of the linear section, inside which the roots of the quadratic equation are calculated. The program for dataflow processor is the graph just like use-define graph showed at Figure~\ref{fig:def_use}.
 Dataflow graph, which is a program for dataflow processor, is also oriented. Nodes of this graph also are the instructions, but arcs have a completely different meaning. In the case of use-define graph, arcs were fix fact of the dependence between two operations (indicating by which variables, by which resource), in case of dataflow graph the arc is a unique data carrier that names token. Therefore, token is a data structure that storage the information about transferring data and about destination point of this data (the identifier consuming this instruction data as well as the argument number, which this data is for the instruction). Besides, the token contains additional information (the token state) allowing distinguishing instruction, which relate to different function process or to different cycle iteration, but for this example, this is not important, therefore, the description of token state will omitted.
 
@@ -168,7 +174,10 @@ The realization of instructions semantic in the dataflow processor emulator has 
 
 Central functional element for ensure operability of the dataflow processor is as named content-addressable memory, realization of which is the appointment of this article.
 
-Content-addressable token memory is a repository of tokens that are currently created and are being executed in the program. Wherein, if it turns out that there is all needed arguments at the content-addressable memory for anyone of commands, they immediately deletes for content-addressable memory and forward for the execution in the command. Thereby, at any given time in the content-addressable memory are only those arguments, which are still waiting missing arguments for some instructions. I.e. at conditionally the first moment of time shows at Figure~\ref{fig:dataflow}, in the content-addressable token memory is only one token $\{2, 1, c\}$, which are still waiting its pair, whereas the commands 9 MUL, 1 MUL, 4 NEG, 3 MUL are already ready for execution and being in the command’s buffer together with the sets of their arguments. At the Figure~\ref{fig:dataflow} shaded the token, which is in the content-addressable memory and so the commands, which are ready to execute.
+Content-addressable token memory is a repository of tokens that are currently created and are being executed in the program. Wherein, if it turns out that there is all needed arguments at the content-addressable memory for anyone of commands, they immediately deletes for content-addressable memory and forward for the execution in the command. Thereby, at any given time in the content-addressable memory are only those arguments, which are still waiting missing arguments for some instructions. I.e. at conditionally the first moment of time shows at Figure~\ref{fig:dataflow}, in the content-addressable token memory is only one token $\{2, 1, c\}$, which are still waiting its pair, whereas the commands 9 MUL, 1 MUL, 4 NEG, 3 MUL are already ready for execution and being in the command’s buffer together with the sets of their arguments.
+
+The dataflow processors approach resolves any threads of control into separate instructions that are ready to execute as soon as all required operands available \cite{silc}. 
+At the Figure~\ref{fig:dataflow} shaded the token, which is in the content-addressable memory and so the commands, which are ready to execute.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -222,6 +231,8 @@ At Listing~\ref{lst:assoc} there is the compact logic implementation of content-
 
 Note that the most simplified implementation is given. It is not considered possibility of using the token state for instructions identify from different function calls or from different cycles iteration (for completeness as a key of dictionary together with instruction identifier $CId$ should also use the token state). In the given implementation, exception handling also is not considered. For example, sequential addition of two token in the content-addressable memory that are the same argument of the same instruction should cause the error. However, despite the incompleteness of implementation, shows here logic allows providing functionality of the content-addressable token memory, which needed for execution of the dataflow processor’s program.
 
+In the dataflow processor, communication between two instructions is much quicker if these instructions are allocated to the same processing element. Thus a program may run much faster if its instructions are clustered to minimize communication traffic between clusters and each cluster is allocated to one processing element. Since it will be handling significantly less packet traffic, the communication network of the dataflow processor will be simpler and less expensive than the distribution network in the cell block architecture. Whether the cost reduction justifies the additional programming effort is a matter of debate, contingent on the area of application, the technology of fabrication, and the time frame under consideration \cite{Dennis}.
+
 \section{Conclusion}
 
 The article discusses the differences in the implementation of an executable program designed for a processor with von Neumann architecture and for a dataflow processor. The differences between the use-define graph and the dataflow graph are shown, which reflect the program logic within the linear section. The necessary element of dataflow processor’s realization shown -- content-addressable token memory with which is able to storage and quick search the ready-made tokens for the commands, which may transfer for execution. A compact implementation of the content-addressable token memory for instructions with an arbitrary number of iterations is given. That realization can be expanded for any program for the dataflow processor including which use cycles and function calls (including recursive). This approach to organizing of the content-addressable token memory used in the implementation of the vector processor with dataflow architecture emulator, which is developing at the JSCC RAS.
@@ -236,9 +247,26 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 \refitem{article}
 N.~A.~Dikarev, B.~M.~Shabanov, A.~S.~Shmelev, {\it ``The use of fine-grained parallelism in dataflow processor"}, Problems of developing promising micro- and nanoelectronic systems (MES), {\bf 2}, pp.~144--150 (2016).
 
+\bibitem{multithreading}
+\refitem{article}
+G.~V.~Papadopoulos, K.~R.~Traub, {\it ``Multithreading: a revisionist view of
+dataflow architectures"}, Proc. 18-th Ann. Symp. on Computer Architecture,
+ISCA ’91 (Toronto, Ontario, Canada, May 27–30, 1991), ACM, New York), pp.~342--351 (1991).
+
+
 \bibitem{vpp}
 \refitem{article}
 N.~A.~Dikarev, B.~M.~Shabanov, {\it ``Vector dataflow processor"}, IZVESTIYA SFedU, {\bf 10}(54), pp.~80--85 (2005).
+
+
+\bibitem{terada}
+\refitem{article}
+H.~Terada, {\it ``DDMP’s: Self-Timed Super-Pipelined Data-Driven Multimedia Processors."}, Proceedings of the IEEE, {\bf 2}(86), pp.~282--296 (1999).
+
+\bibitem{popov}
+\refitem{article}
+R.~I.~Popov, {\it ``Application of stream computer models in designing specialized processors."}, Scientific and Technical Journal of Information Technologies, Mechanics and Optics, {\bf 5}(75), pp.~77--81 (2011).
+
 
 \bibitem{Muchnick}
 \refitem{book}
@@ -247,6 +275,18 @@ S.~S.~Muchnick, {\it ``Advanced Compiler Design \& Implementation."}, Academic P
 \bibitem{Aho}
 \refitem{book}
 A.~V.~Aho, M.~S.~Lam, R.~Sethi, J.~D.~Ullman, {\it ``Compilers. Principles, Techniques, \& Tools."}, Addison-Wesley (2007).
+
+\bibitem{silc}
+\refitem{book}
+J.~Silc, B.~Robic, T.~Unqerer, {\it ``Processor Architecture: From Dataflow to Superscalar and Beyond"}, Springer Science and Business Media, (2012).
+
+\bibitem{Dennis}
+\refitem{article}
+J.~B.~Dennis, {\it ``Data Flow Supercomputers."}, MIT Laboratory for Computer Science, {\bf 13}, pp.~48--56 (1980).
+
+\bibitem{Wiley}
+\refitem{book}
+J.~Wiley, {\it ``Dataflow Computers: Their History and Future. \& Wiley Encyclopedia of Computer Science and Engineering, edited by Benjamin War"}, John Wiley and Sons, Inc (2008).
 
 \bibitem{Armstrong}
 \refitem{book}
