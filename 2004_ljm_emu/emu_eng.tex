@@ -260,22 +260,44 @@ Further execution of the program is similar and at the end, we come to the forma
 In the same processors, an overflow of the content-addressable memory is unacceptable, that is why the content-addressable memory must have high capacity and be fast at the same time, which is difficult to realize into practice.
 That is the point to realize the emulator, which will help to get closer to creating such the dataflow processor while revealing all possible errors and shortcomings.
 
-Figure~\ref{fig:dataflow_emulator} shows us the architecture of dataflow processor in the form of four modules.
+\section{Architecture of dataflow processor emulator}
+
+Рассмотрим архитектуру эмулятора потокового процессора в общем виде, представленную на Figure~\ref{fig:big-scheme}.
 
 \begin{figure}[h!]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
-\center{\includegraphics[scale=1.3]{pics/emu_vec.pdf}}
-\captionstyle{normal}\caption{Schematic illustration of dataflow processor emulator architecture.}
-\label{fig:dataflow_emulator}
+\center{\includegraphics[width=0.80\textwidth]{pics/big-scheme.pdf}}
+\captionstyle{normal}\caption{Общая схема архитектуры потокового процессора.}
+\label{fig:big-scheme}
 \end{figure}
 
-CAM is a module, which implements the content-addressable memory.
-From there, a ready-made pair of tokens enters the BUFFER, which provides intermediate storage of ready-made pairs of tokens and give them away for execution in the COMMAND MEMORY, where the commands execute.
+Рассмотрим основные объекты, представленные на Figure~\ref{fig:big-scheme}.
+Номером 1 обозначена программа, являющаяся входными данными для эмулятора, и представленная в виде ориентированного графа.
+Номером 2 обозначен процесс, обслуживающий ассоциативную память токенов, которая служит для сбора аргументов отдельных команд.
+Номером 3 обозначен буфер (очередь) готовых команд, которые могут быть переданы на исполнение.
+Исполнительное устройство, которое в данной схеме не разделяется на скалярное и векторное, обозначено номером 4.
 
-The introduction of vector processing into dynamic dataflow machine can significant reduce the requirements for the capacity of content-addressable memory since one vector command performs a group of X elementary operations instead of one, where X is the length of the vector.
-When storing vectors in the vector memory, it needs only one pair of tokens in the content-addressable memory with vector pointers instead of X pairs during scalar processing.
-At the same time, the requirements for the capacity of the content-addressable on the vectorized part of the program reduced at the X times.
+Между описанными объектами предусмотрены следующие варианты взаимодействия.
+В первый момент времени по графу программы определяются входные токены (которые могут быть сформированы до выполнения инструкций), данные токены поступают в CAM.
+Процесс, обслуживающий CAM, выполняется непрерывно.
+Как только внутри CAM обнаруживается набор токенов, который является полным набором аргументов для какой-либо команды, то эта команда сразу же отправляется в буфер команд, готовых к исполнению.
+Процесс, обслуживающий буфер исполнения, также выполняется непрерывно.
+Единственная его задача состоит в том, чтобы оправлять команды из буфера поочередно на исполнение.
+После того как на исполнительном устройстве выполнена очередная команда, происходит определение выходных токенов этой команды (с помощью графа программы), а дальше эти токены снова передаются в CAM.
+Данный цикл обмена информацией между элементами эмулятора продолжается до тех пор, пока не будет выполнена команда завершения работы программы.
+
+Таким образом, архитектура потокового процессора описана в терминах отдельных процессов, которые взаимодействуют между собой с помощью обмена сообщениями.
+При этом у эмулятора отсутствует глобальное состояние, что соответствует идеологии потокового процессора.
+Для реализации эмулятора потокового процессора был выбран язык программирования Erlang \cite{Armstrong,Cesarini}.
+Язык программирования Erlang является функциональным языком, который предназначен для реализации отдельных параллельно выполняющихся процессов, обменивающихся сообщениями.
+Обмен сообщениями между процессами является единственным способом обеспечения коммуникации между процессами (в языке отсутствует понятие разделяемой памяти), он поддержан на синтаксическом уровне.
+Параллельность выполнения процессов является естественным поведением языка, поэтому не требуется реализовывать дополнительные инструменты для обеспечения взаимодействия элементов системы.
+
+Если рассматривать элементы эмулятора потокового процессора, то отдельный интерес представляет реализация ассоциативной памяти токенов.
+Реализация исполнительного устройства принципиально не отличается от реализации в эмуляторе классического процессора (реализация семантики инструкций, которые по токенам входных данных выполняют создание выходных токенов).
+Буфер команд, готовых к исполнению, представляет собой просто очередь команд, поэтому его реалиация также тривиальна.
+Рассмотрим реализацию ключевого элемента потокового процессора -- ассоциативную память токенов.
 
 \begin{lstlisting}[caption={Implementation of the logic of the contest-addressable token memory.},label={lst:assoc}]
 set_token({CId, E, _} = T, Args, D) when (Args > 1) ->
@@ -366,13 +388,17 @@ J.~Wiley, {\it ``Dataflow Computers: Their History and Future. \& Wiley Encyclop
 \refitem{book}
 J.~Silc, B.~Robic, T.~Unqerer, {\it ``Processor Architecture: From Dataflow to Superscalar and Beyond"}, Springer Science and Business Media, (2012).
 
-\bibitem{Dennis}
-\refitem{article}
-J.~B.~Dennis, {\it ``Data Flow Supercomputers."}, MIT Laboratory for Computer Science, {\bf 13}, pp.~48--56 (1980).
-
 \bibitem{Armstrong}
 \refitem{book}
 J.~Armstrong, {\it ``Programming Erlang. Software for a Concurrent World."}, Pragmatic Programmers (2013).
+
+\bibitem{Cesarini}
+\refitem{book}
+F.~Cesarini, S.~Thompson, {\it ``Erlang programming."}, O'Reilly (2009).
+
+\bibitem{Dennis}
+\refitem{article}
+J.~B.~Dennis, {\it ``Data Flow Supercomputers."}, MIT Laboratory for Computer Science, {\bf 13}, pp.~48--56 (1980).
 
 \end{thebibliography}
 
