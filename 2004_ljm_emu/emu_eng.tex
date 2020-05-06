@@ -100,34 +100,34 @@ This refers to the development of universal dataflow processors, but not special
 
 Unlike the implementation of a multiprocessor system, direct hardware implementation allows you to fully implement the calculation graph in the form of a computing pipeline, thereby eliminating the need to create a module that implements the execution of the calculation schedule \cite{popov}.
 
-\section{Processor with The von Neumann architecture emulation}
+\section{Emulation of processor with the von Neumann architecture}
 
-One of the basic principles of the von Neumann architecture is the principle of the program control sequence.
+One of the basic principles of the von Neumann architecture is the principle of control flow.
 According to it, the executable code of the program is stored in memory, and the processor can execute its instructions sequentially, one by one.
 The next instruction address submitted to the processor for execution is stored in a special register called instruction pointer.
 By default, it always shifts to the next instruction in memory.
 This address can be forcedly changed by special transition instructions, and in this case, we can talk about transferring control to another part of the program.
 
-We introduce the concept of a linear section (or the program base block).
+Let's introduce the concept of a linear section (or program basic block).
 The linear section is a sequence of instructions with the next two properties.
-Firstly, control could only be transfer to the first instruction of a given section.
-In other words, a linear section has only one input, which is the first section instruction.
-Secondly, if a control was transfer to the linear section than all instructions of this section must be done (i.e., there can be no transition instructions inside the linear section).
+First, control could only be transfer to the first instruction of a given section.
+In other words, a linear section has only one input, which is the section's first  instruction.
+Second, if control was transferred to the linear section, than all instructions of this section must be executed (i.e., there can be no transition instructions inside the linear section).
 The transition instruction can only be at the end of the linear section.
 Sometimes, instead of linear sections, it is convenient to view so-called quasilinear sections, which can have an arbitrary amount of transition instructions inside for transitions to other linear sections.
 We will not review quasilinear sections, because any such section can be split into a sequence of ordinary linear sections.
 
 An important concept widely used in the theory of optimizing compilers is the control flow graph (CFG) \cite{Muchnick}.
 A control flow graph is a directed graph whose nodes are linear sections of the program, and arcs indicate the transfer of control between them.
-The control flow graph is a convenient and visual structure for describing program behavior and used by optimizing compilers to implement global program optimizations i.e. optimizations that go beyond linear sections.
+The control flow graph is a convenient and demonstrative structure for describing program behavior and used by optimizing compilers to implement global program optimizations i.e. optimizations that go beyond linear sections.
 
-Consider the logic of the device intermediate program representation inside one linear section.
+Consider the logic of intermediate program representation inside one linear section.
 Consider for this a simple example of finding the roots of a quadratic equation.
 We will use listing in the C programming language to write examples and pseudocode.
-So, let us have a linear section (program code block) at the input of which we have the variables $a$, $b$, $c$ containing the coefficients of the quadratic equation $ax^2 + bx + c = 0$.
+Thus, we have a linear section (program code block) at the input of which we have the variables $a$, $b$, $c$ containing the coefficients of the quadratic equation $ax^2 + bx + c = 0$.
 At the linear section output it is required to get the values of the roots, which are calculated by the formulas $x_{1,2} = (-b \pm \sqrt{b^2 - 4ac})/(2a)$.
 
-\begin{lstlisting}[caption={The code block for calculating the roots of the quadratic equation.},label={lst:square_equation_1}]
+\begin{lstlisting}[caption={The code block for calculating the roots of quadratic equation.},label={lst:square_equation_1}]
 {
     float t = sqrt(b * b - 4.0 * a * c);
     
@@ -138,9 +138,9 @@ At the linear section output it is required to get the values of the roots, whic
 
 \
 
-In Listing~\ref{lst:square_equation_1}, the linear section is delimited in curly brackets and a temporary variable $t$ is declared to understand that this variable is not used outside the linear section.
+In listing~\ref{lst:square_equation_1}, the linear section is highlighted by curly brackets and temporary variable $t$ is declared to understand that this variable is not used outside the linear section.
 For convenience, we assume that the processor, for which the executable code will be created, supports the instruction for calculating the square root.
-Thus, the following instructions for working with real numbers will figure in the listing above: MUL -- multiplication of two numbers, SUB -- subtraction of two numbers, SQRT -- the square root of a number, NEG -- unary negative, ADD -- addition of two numbers, DIV -- division of two numbers.
+Thus, the following instructions for working with real numbers appear in the listing above: MUL -- multiplication of two numbers, SUB -- subtraction of two numbers, SQRT -- the square root of a number, NEG -- unary negative, ADD -- addition of two numbers, DIV -- division of two numbers.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -156,19 +156,19 @@ The compiler, of course, will simplify the calculation data by collecting common
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.60\textwidth]{pics/def_use.pdf}
-\captionstyle{normal}\caption{The dependency graph of the linear section in the calculation \\ of the expressions of the roots of the quadratic equation.}\label{fig:def_use}
+\captionstyle{normal}\caption{The dependency graph of the linear section in the calculation \\ of expressions of quadratic equation's roots.}\label{fig:def_use}
 \end{figure}
 
-Nodes of this directed graph are separate operations (shows dark rectangles), and arcs are use-define chains between data operations (the $B$ command depends on the data from the $A$ command if it consumes the data generated by the $A$ command).
+Nodes of this directed graph are separate operations (shown as dark rectangles), and arcs are def-use dependencies between data operations (the $B$ command depends on the data from the $A$ command if uses the data generated by the $A$ command).
 It can be another dependency between operations besides data dependency (control dependency, anti-dependency), but these dependencies are missing in our simple example.
 
 To form the resulting executable code the presence of a def-use graph is not enough.
 It is necessary to line up all commands included in the def-use graph in a single sequence, which will subsequently be written to a linear section of memory.
-In this case, when alignment a sequence of commands, it is necessary to observe the requirement that if the $B$ command depends on the $A$ command according to the data, then it should be later than the $A$ command in the final sequence.
+In this case, when aligning a sequence of commands, it is necessary to observe the requirement that if the $B$ command depends on the $A$ command according to the data, then it should be later than the $A$ command in the final sequence.
 This process called code planning \cite{Aho}.
-In the result of the code planning for considering the case, we will get a pseudocode for calculating the roots of the quadratic equation is such view, shown in Listing~\ref{lst:square_equation_2}.
+In the result of code planning in the considered case, we will get a pseudocode for calculating the roots of quadratic equation similar to one in listing~\ref{lst:square_equation_2}.
 
-\begin{lstlisting}[caption={Pseudocode for calculating the roots of a quadratic equation.},label={lst:square_equation_2}]
+\begin{lstlisting}[caption={Pseudocode for calculating the roots of  quadratic equation.},label={lst:square_equation_2}]
 MOV 4.0       ->  v0
 MOV   a       ->  v1
 MOV   b       ->  v2
@@ -191,12 +191,12 @@ MOV v15       ->  x2
 
 \
 
-In Listing~\ref{lst:square_equation_2}, all instructions except transmission operation operate on virtual registers (v0-v15).
-The order of the commands is important in this note.
-At any time after the execution of any instruction, we can talk about some state of the processor which characterized by the contents of the memory, as well as all the registers used.
+In listing~\ref{lst:square_equation_2}, all instructions except transmission operation operate on virtual registers (v0-v15).
+The order of the commands is important in this form.
+At any time after the execution of any instruction, we can talk about some state of the processor which is characterized by the content of memory and of all the registers used.
 
 The main part of the processor emulator is the realization of instruction semantic, executed by the processor.
-I.e. that every instruction is considered as function, which transfers calculating machine from one state to another.
+Every instruction is considered as a function, which transfers computer from one state to another.
 
 \section{Dataflow processor emulation}
 
