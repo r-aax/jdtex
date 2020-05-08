@@ -66,76 +66,72 @@ escapeinside={\%*}{*)}
 Abstract.
 \end{abstract}
 
-\subclass{} % Enter 2010 Mathematics Subject Classification.
+\subclass{68R10} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{Keyword1, keyword2.}
+\keywords{Process mining, process discovery algorithm, Petri nets, process model, event logs.}
 
 \maketitle
 
 \section{Introduction}
 
-Process mining представляет собой совокупность подходов и методов по извлечению относящейся к процессам достоверной информации из данных, собранных в журналах событий.
-Process mining является дополнением к технологии управления бизнес-процессами (Business Process Management, BPM), которая в свою очередь является расширением технологии управления рабочими процессами (Workflow Management, WFM).
-Технология WFM исторически была направлена прежде всего на автоматизацию бизнес-процессов с механической точки зрения, тогда как с применением подходов BPM уделяется особое внимание другим аспектам, в которых могут быть скрыты узкие места (человеческий фактор, особенности организации, нечеткие правила и другие).
-В настоящее время большинство информационных систем по анализу процессов (Process-Aware Information System, PAIS) в составе серьезного программного обеспечения класса планирования ресурсов предприятия (Enterprise Resource Planning, ERP), кроме классических инструментов WFM включает расширения BPM и подходы process mining.
-Однако зачастую данные системы так и остаются системами анализа и уведомления, оказываясь недостаточно интегрированными в цифровое пространство.
-Наряду с термином PAIS для таких систем применяется также термин BPMS (BPM System) или просто PMS (Process Management System).
+Process mining is a collection of approaches and methods for extracting process related information from event logs.
+Process mining is closely related to areas such as business process management (BPM) and workflow management (WFM).
+WFM technology has historically been primarily aimed at automating business processes from a mechanical point of view, while using BPM approaches, special attention is paid to other aspects in which bottlenecks can be hidden (human factor, organization features, fuzzy rules, and others).
+Currently, many process-aware information systems (PAIS), in addition to the classic WFM tools, include BPM extensions and process mining approaches.
+However, often these systems remain analysis and notification systems, being insufficiently integrated into the digital space.
+Along with the term PAIS, the term BPMS (BPM system) or simply PMS (process management system) is also used for such systems.
 
-Любая система анализа процессов работает с моделью процесса, которая записывается с использованием одной или нескольких нотаций.
-Эти нотации представляют сущность процесса и по сути являются макроописаниями ориентированных графов специального вида.
-Основными объектами моделей процессов являются активности, состояния, переходы и подпроцессы.
-Переходы между разными активностями, также называют зависимостями.
-Совокупность зависимостей между активностями и дополнительные условия, накладываемые на модель процесса, порождают множество возможных последовательностей смены состояний, или множество сценариев протекания процесса.
-В зависимости от детализации процессов могут применяться дополнительные атрибуты любых объектов модели процесса: привязки ко времени, продолжительность активностей, логика зависимостей, ресурсы и стратегии их использования, роли исполнителей активностей и многие другие.
-Такое многообразие, возникающее при моделировании процессов, порождает огромное количество методов анализа процессов и протекания сценариев, и может служить источником полезных и не всегда очевидных знаний, используемых для оптимизации процессов.
+Any process analysis system works with a process model that is written using one or more notations.
+These notations represent the essence of the process and are essentially macro-descriptions of oriented graphs of a special kind.
+The main objects of process models are activities, states, transitions and subprocesses.
+Transitions between different activities are also called dependencies.
+The set of dependencies between activities and also additional conditions imposed on the process model give rise to many possible sequences of state changes, or many scenarios of the process.
+Depending on the details of the processes, additional attributes of any objects of the process model can be used: time references, duration of activities, dependency logic, resources and strategies for their use, roles of activity performers, and many others.
+Such a variety that arises in the modeling of processes generates a huge number of methods for analyzing processes and scenarios, and can serve as a source of useful and not always obvious knowledge used to optimize processes.
 
-Модели процессов, записанные с помощью формальной нотации, могут быть использованы для различных целей: обзор (при разработке модели команда рассматривает процесс с различных точек зрения и может детально остановиться на отдельных ее локальных особенностях), обсуждение (формальная запись модели процесса с конкретных точек зрения делает возможным проведения дискуссии между всеми стейкхолдерами, участвующими в разработке модели), документация (формальная запись модели допускает даже автоматическое создание документации), верификация (некоторые очевидные ошибки, могут быть обнаружены при анализе одной лишь топологии графа модели, например это могут быть мертвые участки процесса, дедлоки, бесконечные циклы и другие), анализ производительности (с помощью симуляции на модели процесса могут быть быстро выявлены и устранены узкие места), визуализация (с помощью анимированной визуализации разработка и отладка моделей процессов может быть сильно упрощена), спецификация (из формальной модели могут быть сгенерированы описания интерфейсов и протоколов взаимодействия еще до интеграции в единое цифровое пространство), конфигурация (описание модели процесса может быть использовано для настройки и конфигурации системы при ее внедрении).
-Обычно при разработке некоторого процесса существует одновременно неформальная модель (используемая для обсуждения и документации) и формальная модель, пригодная для проведения симуляций (используется для анализа и улучшения). 
+Process models recorded using formal notation can be used for various purposes: a review from various points of view, discussion of a process model between all participants, preparation of documentation (including in automatic mode), verification (some obvious errors may be detected just by analyzing the topology of the model graph, for example, it can be dead sections of the process, deadlocks, infinite loops and others), performance analysis (using simulations on the process model can be bottlenecks identified and eliminated), visualization of the process to simplify the analysis, specification (from the formal model, descriptions of interfaces and interaction protocols can be generated even before integration into a single digital space), configuration (the description of the process model can be used to configure the system when its implementation).
+Typically, when developing a process, there is both an informal model (used for discussion and documentation) and a formal model suitable for simulations (used for analysis and improvement). 
 
-Неформальные модели часто бывают оторванными от жизни, абстрактными, идеализированными, тогда как формальные модели, наоборот, слишком детализированы и зачастую непонятны конечным стейкхолдерам и высшему руководству.
-Между этими двумя моделями нет золотой середины, и это часто приводит к дополнительным рискам при разработке модели процесса, так как по сути тестируемая и анализируемая исполняемая модель сильно отличается от той модели, что присутствует на презентациях для руководства.
-Но даже это не является главной проблемой.
+Informal models are often divorced from life, abstract, idealized, while formal models, on the contrary, are too detailed and often understandable only to the actual developers of the model.
+There is no middle ground between these two models, and this often leads to additional risks when developing a process model, since in fact the tested and analyzed executable model is very different from the model at the presentations.
+But even this is not the main problem.
 
-Основная проблема любой модели процесса это то, что заранее неизвестно, насколько модель соотносится с действительностью.
-В реальности в процессы включены люди, логика взаимодействия которых с системой неизмеримо сложна, и точное моделирование поведения человека, его системы мотивации и других особенностей невозможно в фиксированной модели процесса (модель процесса не может перерабатываться с учетом каждой отдельной персоналии).
-В результате может оказаться, что великолепно проработанная и отлаженная модель процесса оказывается нежизнеспособной при внедрении в работающую систему.
-Выходом из данной ситуации может быть только наличие обратной связи между процессом, протекающим в реальном мире, и моделью процесса.
-Такая обратная связь в терминах подхода process mining выражается в регистрации событий об отдельных активностях и фиксации данных событий в специальных хранилищах, которые называются журналы событий.
+The main problem of any process model is that it is not known in advance how much the model relates to reality.
+In reality, people are included in the processes, the logic of their interaction with the system is immeasurably complex, and accurate modeling of a person’s behavior, his motivation system and other features is impossible in a fixed process model (the process model cannot be rebuild taking into account each individual person).
+As a result, it may turn out that a superbly worked out and debugged process model is not viable when implemented in a working system.
+The only way out of this situation can be the presence of feedback between the process taking place in the real world and the process model.
+Such feedback in terms of the process mining approach is expressed in the registration of events about individual activities and the recording of event data in special repositories called event logs.
 
-Жизненный цикл процесса можно разбить на 4 основные стадии.
-Сначала осуществляется проектирование модели процесса, затем модель транформируется в рабочую систему (стадия конфигурации/реализации).
-Во время работы системы осуществляется ее мониторинг, в процессе которого непрерывно выполняется локальная регулировка процесса.
-Данная стадия может продолжаться довольно долго, пока не накопится достаточно оснований, которые могут послужить триггером к повторному проектированию модели процесса (это может быть как низкая наблюдаемая производительность работающей системы, так и изменившиеся внешние условия функционирования).
-В первых двух стадиях жизненного цикла процесса основную роль играет модель процесса, тогда как на последующих двух стадиях первостепенными являются данные. 
+Event logs are filled in during the operation and monitoring of a working system and should be used to optimize the process model when re-designing this model.
+However, at present, the data accumulated during monitoring the functioning of the system are not fully used to analyze the performance of the process model.
+Very few organizations verify compliance of accumulated data and the process model, and often the reasons for re-designing the process model are not performance issues, but external factors, such as changes in legislation, policies, standards, or changes in external cooperation.
+Thus, there are risks that the process model may be repeatedly redesigned, but retain the weaknesses and bottlenecks that lead to constant low system performance.
+There is a kind of vicious circle, the only way out of which is the intellectual analysis of monitoring data (event logs), with subsequent feedback when improving the process model.
 
-Однако в настоящее время данные, накопленные во время мониторинга функционирования системы, не используются в полной мере для анализа производительности модели процесса.
-Очень немногие организации выполняют проверку соответствия накопленных данных и модели процесса и зачастую причинами перехода на стадию повторного проектирования являются не вопросы производительности, а внешние факторы, такие как изменение законодательства, политики, стандартов или изменения во внешней кооперации.
-Таким образом, существуют риски, что модель процесса может неоднократно подвергаться повторному проектированию, однако сохранять в себе недостатки и узкие места, которые приводят к постоянной низкой производительности системы.
-Возникает своего рода порочный круг, выходом из которого может служить только интеллектуальный анализ данных мониторинга (журналов событий), с последующей обратной связью в жизненном цикле процесса.
+Process mining is a new discipline, with the help of which the analysis of the monitoring data of a working system is carried out, on the basis of which you can get knowledge about the actual course of a process, which allows you to work with the process itself, and not with its idealized model.
 
-Process mining является новой дисциплиной, с помощью которой осуществляется анализ данных мониторинга работающей системы, на основании которого можно получить знания об актуальном протекании того или иного процесса, что позволяет работать именно с самим процессом, а не с его идеализированной моделью.
+While applying process mining technology, the business process model interacts with a working information system, the outside world and accumulated data.
+The process model is transformed into a process implemented within the information system through which interaction with the outside world is carried out.
+At the same time, events coming from the outside world through an information system are recorded in event logs.
+The main application of process mining arises when analyzing the interaction of a process model and accumulated data.
 
-В процессе применения технологии process mining выполняется взаимодействие модели бизнес процесса с работающей информационной системой, внешним миром и накопленными данными.
-Модель процесса трансформируется в процесс, реализованный внутри информационной системы, через которую осуществляется взаимодействие с внешним миром.
-В то же время события, поступающие от внешнего мира через информационную систему, записываются в журналы событий. Основное применение process mining возникает при анализе взаимодействия модели процесса и накопленных данных.
+There are three main areas of process mining.
+The first direction is the construction of a process model based on accumulated data (process discovery).
+It consists in the analysis of the actual accumulated data on the course of the real process (fixed chains of data flows, a log of the interaction of process participants with each other, message passing between process participants) and the construction of a process model based on it without using information about the designed idealized model.
+The second area is called conformance testing.
+The purpose of this type of analysis is to verify the conformity of the developed model and the event logs related to this model.
+When conducting this check, it is possible to detect regions in the process model that are not sufficiently covered by data from event logs or regions with insufficiently clear logic, within which the course of the real process slows down due to the additional costs of overcoming these difficulties.
+For example, in the place of a fuzzy description of the logic of the process, additional coordination of some action that is not reflected in the process model may be required.
+In this case, the model can demonstrate high performance, however, with real flow, the process will slow down or even block.
+The third area or process mining is process improvement based on analysis (process enhancement).
+If checking the conformity of the process model and its data helps to find places where the process model diverges from reality, then in this direction it is possible to develop recommendations on how to change the process model in order to reduce this discrepancy.
+Improvements may relate to the modification of the process model to more accurately reflect reality, and may cause the model to expand if the logic of the existing model is too meager to reflect the complex interactions of the process participants.
 
-Можно выделить три основных направления проведения анализа process mining.
-Первое направление это построение модели процесса на основе накопленных данных (process discovery).
-Заключается оно в анализе актуальных накопленных данных о протекании реального процесса (зафиксированные цепочки потоков данных, журнал взаимодействия участников процесса друг с другом, передача сообщений между участниками процесса) и построение на его основе модели процесса без использования информации о спроектированной идеализированной модели.
-Второе направление называется проверкой соответствия (conformance).
-Назначение данного типа анализа это проверка соответствия разработанной модели и журналов событий, относящихся к данной модели.
-При проведении данной проверки можно обнаружить регионы в модели процесса, которые недостаточно покрыты данными из журналов событий или регионы с недостаточно четкой логикой, внутри которых протекание реального процесса замедляется в связи с дополнительными издержками на преодоление этих трудностей.
-Например, в месте нечеткого описания логики протекания процесса может требоваться дополнительное согласование некоторого действия, не отраженное в модели процесса.
-В этом случае модель может демонстрировать высокую производительность, однако при реальном протекании процесс может тормозиться или даже блокироваться в данном скрытом узле.
-Третьим направлением process mining является усовершенствование процесса на основе анализа (enhancement).
-Если проверка соответствия модели процесса и его данных помогает обнаруживать места, в которых модель процесса расходится с реальностью, то в данном направлении возможна выработка рекомендаций, как нужно изменить модель процесса, чтобы уменьшить данное расхождение.
-Усовершенствования могут касаться модификации модели процесса для более точного отражения реальности, а могут послужить причиной расширения модели, если логика существующей модели слишком скудна, чтобы отразить сложные взаимодействия участников процесса.
+It is worth noting that the logic of the process, data flows, interaction within the process, messaging are the most simple aspects that affect process mining.
+However, technology is not limited to these aspects.
+Resource allocation, planning issues, decision rules, complex interaction logic, probabilistic events all of these aspects also apply to process mining and can be analyzed using the tools of this technology.
 
-Стоит отметить, что логика протекания процесса, потоки данных, взаимодействие внутри процесса, обмен сообщениями являются самыми низовыми аспектами, которые затрагивает process mining.
-Однако технология не ограничивается только этими аспектами.
-Распределение ресурсов, вопросы планирования, правила принятия решений, сложная логика взаимодействия, вероятностные события все эти аспекты также относятся к применению process mining и могут быть проанализированы с использованием инструментов данной технологии.
-
-В данной статье рассматривается алгоритм построения реального процесса на основе данных журнала событий и рассмотрены пути оптимизации данного алгоритма.
+This article discusses an algorithm for constructing a real process based on data from an event log and discusses ways to optimize this algorithm.
 
 \section{Simple Process Discovery Algorithm}
 
