@@ -135,18 +135,18 @@ This article discusses an algorithm for constructing a real process based on dat
 
 \section{Simple Process Discovery Algorithm}
 
-В данной статье будем рассматривать описание модели процесса с помощью workflow nets (WFN).
-WFN отражает только последовательность выполнения активностей во время протекания сценария процесса и не затрагивает другие аспекты анализа.
-WFN является ориентированным графом, ребра которого способны передавать токены, которые отражают ход протекания сценария.
+In this article we will consider the description of the process model using workflow nets (WFN).
+WFN reflects only the sequence of activities during the flow of the process scenario and does not affect other aspects of the analysis.
+WFN is a directed graph whose edges are capable of transmitting tokens that reflect the course of the scenario.
 
-Узлы WFN могут быть двух типов.
-Узлы первого типа являются местами для нахождения токенов (на схемах моделей процессов далее показаны белыми прямоугольниками, метки мест обозначаются $p0$, $p1$ и т.д.).
-Узлы второго типа представляют активности процесса (на схемах моделей процессов далее показаны черными прямоугольниками, метки активностей имеют имена $a$, $b$ и т.д.).
-В WFN специально выделены два места: $I$ -- глобальный вход, с которого начинается выполнение сценария, $O$ -- глобальный выход, на котором заканчивается выполнение сценария (эти специальные места далее на схемах моделей процессов показаны серыми прямоугольниками).
+There are two types of WFN nodes.
+The nodes of the first type are tokens places (on the diagrams of process models are shown below with white rectangles, place labels are denoted $p0$, $p1$, etc.).
+The nodes of the second type represent the activity of the process (in the diagrams of the process models are shown below with black rectangles, the activity labels are named $a$, $b$, etc.).
+Two places are specially allocated in WFN: $I$ is the global input from which the scenario starts, $O$ is the global output where the scenario ends (these special places are shown by gray rectangles on the diagrams of process models).
 
-Ребра WFN могут соединять только узлы разного типа (то есть предшественником или последователем места может быть только активность, предшественником или последователем активности может быть только место).
-В ходе протекания процесса некоторая активность может быть выполнена только если все места-предшественники данного узла содержат токены.
-После выполнения некоторой активности в WFN токены из узлов-предшественников удаляются, после чего создаются новые токены, которые распространяются по всем выходным ребрам и помещаются во все узлы-последователи данной активности.
+WFN edges can connect only nodes of different types (that is, only activity can be a predecessor or successor of a place, only a place can be a predecessor or successor of an activity).
+During the course of the process, some activity can be performed only if all the predecessor token places of this node contain tokens.
+After performing some activity in WFN, tokens from the predecessor nodes are deleted, after which new tokens are created, which are distributed along all output edges and are placed in all successor nodes of this activity.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -156,61 +156,61 @@ WFN является ориентированным графом, ребра к�
 \label{fig:wfn-patterns}
 \end{figure}
 
-Рассмотрим основные локальные шаблоны протекания процесса, которые можно отобразить с помощью WFN (Figure~\ref{fig:wfn-patterns}).
+Consider the main local patterns of the process that can be displayed using WFN (Figure~\ref{fig:wfn-patterns}).
 
-На рисунке~\ref{fig:wfn-patterns} a) представлена обычная последовательность активностей $a \rightarrow b$.
-Данный шаблон предписывает, что после выполнения активности $a$ токен будет помещен в место $p0$.
-После этого окажется, что для активности $b$ выполнено условие, что все ее предшественники содержат токены (так как единственный предшественник $b$ это $p0$).
-Таким образом, активность $b$ будет выполнена, токен удален из места $p0$ и новые токены будут отправлены по выходным дугам в узлы-последователи активности $b$.
+Figure~\ref{fig:wfn-patterns} a) shows the usual sequence of activities $a \rightarrow b$.
+This template prescribes that after the $a$ activity is completed, the token will be placed in the place of $p0$.
+After that, it turns out that the condition $b$ is fulfilled that all its predecessors contain tokens (since the only predecessor $b$ is $p0$).
+Thus, the $b$ activity will be performed, the token will be removed from the place $p0$, and new tokens will be sent along the output edges to the nodes-successors of the $b$ activity.
      
-На рисунке~\ref{fig:wfn-patterns} b) показан шаблон XOR-split, который реализует выбор одной из активностей после выполнения активности $a$.
-После выполнения активности $a$ место $p0$ оказывается занятым токеном, который может быть использован при выполнении только одной из активностей $b$ или $c$.
-Таким образом возможно выполнение либо последовательности активностей $a \rightarrow b$, либо последовательности $a \rightarrow c$.
+Figure~\ref{fig:wfn-patterns} b) shows an XOR-split template that implements the selection of one of the activities after the execution of the $a$ activity.
+After the activity $a$ has been completed, the place $p0$ is occupied by a token, which can be used when only one of the activities $b$ or $c$ is performed.
+Thus, it is possible to execute either a sequence of activities $a \rightarrow b$ or a sequence $a \rightarrow c$.
 
-На рисунке~\ref{fig:wfn-patterns} c) показан шаблон XOR-join, который по аналогии реализует выполнение либо последовательности активностей $a \rightarrow c$, либо последовательности активностей $b \rightarrow c$.
+The figure~\ref{fig:wfn-patterns} c) shows the XOR-join template, which by analogy implements either a sequence of activities $a \rightarrow c$ or a sequence of activities $b \rightarrow c$.
 
-На рисунке~\ref{fig:wfn-patterns} d) показан шаблон AND-split, который реализует выполнение обеих активностей $b$ и $c$ после выполнения активности $a$.
-Как только активность $a$ оказывается выполненной, то в места $p0$ и $p1$ попадают токены, которые делают возможным выполнение активностей $b$ и $c$.
-При этом не важен порядок, в котором эти активности будут выполнены.
+The figure~\ref{fig:wfn-patterns} d) shows the AND-split pattern, which implements the execution of both $b$ and $c$ after the $a$ activity.
+As soon as the $a$ activity is completed, tokens fall into the places $p0$ and $p1$, which make it possible to execute the $b$ and $c$ activities.
+In this case, the order in which these activities will be performed is not important.
 
-На рисунке~\ref{fig:wfn-patterns} e) показан шаблон AND-join, демонстрирующий, что активность $c$ может быть выполнена только после выполнения обеих активностей $a$ и $b$.
-Активность $c$ требует для своего выполнения наличия токенов сразу в $p0$ и $p1$, а это может произойти только после выполнения обеих активностей $a$ и $b$.
-Порядок выполнения активностей $a$ и $b$ в данном случае не важен.
+The figure~\ref{fig:wfn-patterns} e) shows the AND-join pattern, demonstrating that the activity $c$ can be performed only after the execution of both activities $a$ and $b$.
+The $c$ activity requires for its execution the presence of tokens immediately in $p0$ and $p1$, and this can happen only after the execution of both $a$ and $b$ activities.
+The execution order of the $a$ and $b$ activities is not important in this case.
 
-После описания данной упрощенной модели процесса с помощью WFN можно перейти собственно к алгоритму построения модели на основании журнала событий.
-В данном случае журналом событий является просто список сценариев, каждый из которых представляет собой упорядоченную последовательность активностей.
-Требуется по предоставленному журналу событий построить модель процесса, описанную с помощью WFN, которая реализует все сценарии из данного журнала.
+After describing this simplified process model using WFN, we can proceed directly to the algorithm for constructing the model based on the event log.
+In this case, an event log is simply a list of scenarios, each of which is an ordered sequence of activities.
+According to the provided event log, it is required to build a process model described using WFN that implements all the scenarios from this log.
 
-Будем рассматривать простые сценарии, на которых будет видно, насколько сильно влияют записи журнала событий на реальную модель процесса.
-Например, пусть у нас есть идеальная модель некоторого процесса, который состоит из фиксированной последовательности активностей, которые должны быть выполнены в строго определенной последовательности.
-Вот эта последовательность активностей: $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.
-Данной последовательности активностей соответствует следующая модель процесса, представленная на рисунке~\ref{fig:origin1}
+We will consider simple scenarios in which it will be seen how strongly the event log entries affect the real process model.
+For example, let us have an ideal model of a process, which consists of a fixed sequence of activities that must be performed in a strictly defined sequence.
+Here is the sequence of activities: $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.
+This sequence of activities corresponds to the following process model shown in the figure~\ref{fig:origin1}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/origin1.png}
-\captionstyle{normal}\caption{Модель процесса, построенная по одному сценарию $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.}
+\captionstyle{normal}\caption{Process model that build from one scenario $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.}
 \label{fig:origin1}
 \end{figure}
 
-Даже если все участники процесса согласны с такой определенной последовательностью активностей, которая необходима для протекания сценария, то обычно в реальности случаются ситуации, когда процесс протекает по-другому.
-Представим себе простую ситуацию, когда ввиду спешки или форс-мажора были опущены все промежуточные активности в выполнении сценария и в журнале событий оказалась запись $a \rightarrow f$.
-На рисунке~\ref{fig:second1} показана новая модель процесса, которая отражает также и этот появившийся упрощенный сценарий.
+Even if all participants in the process agree with such a specific sequence of activities that is necessary for the scenario to proceed, then in reality situations usually happen when the process proceeds differently.
+Imagine a simple situation when, due to rush or force majeure, all intermediate activities in the scenario execution were omitted and the entry $a \rightarrow f$ appeared in the event log.
+Figure~\ref{fig:second1} shows a new process model that also reflects this simplified scenario.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/second1.png}
-\captionstyle{normal}\caption{Скорректированная модель процесса после обработки сценария $a \rightarrow f$.}
+\captionstyle{normal}\caption{Adjusted process model after processing the scenario $a \rightarrow f$.}
 \label{fig:second1}
 \end{figure}
 
-На этом рисунке мы уже видим появление шаблонов XOR-split и XOR-join, и в общем модель процесса заметно усложнилась.
+In this figure, we already see the emergence of the XOR-split and XOR-join patterns, and in general the process model has become much more complicated.
 
-А теперь рассмотрим еще более расширенный журнал событий, в котором попадаются сценарии с другими отклонениями.
-В частности рассмотрим сценарий с нарушением порядка выполнения активностей, оборванный сценарий и сценарий с повторным выполнением некоторых последовательностей активностей.
-Соберем полный журнал событий, он будет иметь следующий вид:
+And now let's look at an even more extended event log, in which there are scenarios with other deviations.
+In particular, we consider a scenario with a violation of the order of activities, a partial scenario, and a scenario with the repeated execution of certain sequences of activities.
+Let's collect the full event log, it will look like this:
 
 \begin{eqnarray*}
 a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f \\
@@ -220,26 +220,26 @@ a \rightarrow b \rightarrow c \\
 a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f
 \end{eqnarray*}
 
-При построении модели процесса по представленному журналу событий, мы получим схему, изображенную на рисунке~\ref{fig:third1}.
+When building a process model from the presented event log, we get the circuit shown in the figure~\ref{fig:third1}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/third1.png}
-\captionstyle{normal}\caption{Модель процесса, построенная по журналу событий, содержащему сценарии с искажениями.}
+\captionstyle{normal}\caption{A process model based on an event log containing distorted scenarios.}
 \label{fig:third1}
 \end{figure}
 
-Данная модель процесса, конечно, не имеет ничего общего с идеальной моделью с рисунка~\ref{fig:origin1}.
-Так же очевидно, что любой анализ следует проводить с использованием этой реальной модели, а не идеальной.
-Построение же реальной модели по журналу событий может быть выполнено только автоматически, так как любые искажения реальных сценариев существенно влияют на топологию модели.
-Заметим также, что в приведенных примерах показаны совершенно тривиальные сценарии, которые и близко не подходят к сложностям реально протекающих бизнес-процессов.
-Поэтому для построения моделей реальных процессов для настоящих журналов событий требуются эффективные алгоритмы.
+This model of the process, of course, does not look like the ideal model from the figure~\ref{fig:origin1}.
+It is also obvious that any analysis should be carried out using this real model, and not an ideal one.
+The construction of a real model from the event log can only be performed automatically, since any distortion of real scenarios significantly affects the topology of the model.
+We also note that the above examples show completely trivial scenarios that do not come close to the complexities of real-life business processes.
+Therefore, to build models of real processes for real event logs, efficient algorithms are required.
 
-Опишем простейший алгоритм конструирования модели процесса по журналу событий.
-В процессе описания алгоритма будем сразу же показывать его работу на уже рассмотренном модельном журнале событий (обозначим его $L$).
+Let us describe the simplest algorithm for constructing a process model from an event log.
+In the process of describing the algorithm, we will immediately show its results on the already considered model event log (we denote it by $L$).
 
-Итак, пусть у нас есть журнал событий
+So we have an event log
 
 \begin{equation}
 \begin{aligned}
@@ -253,8 +253,8 @@ L = [
 \end{aligned}
 \end{equation}
 
-Сначала нужно определить множество всех активностей, присутствующих в журнале событий ($A$).
-Кроме того, нужно определить множество активностей, с которых начинаются сценарии из журнала событий ($A_I \subset A$), а также активностей, которыми заканчиваются сценарии из журнала событий ($A_O \subset A$).
+First, we need to determine the set of all activities present in the event log (we denote it $A$).
+In addition, we need to define the set of activities with which the scenarios from the event log start ($A_I \subset A$), as well as the activities that end the scenarios from the event log ($A_O \subset A$).
 
 \begin{equation}
 \begin{aligned}
@@ -264,10 +264,10 @@ L = [
 \end{aligned}
 \end{equation}
 
-Для следующего шага требуется построение матрицы последовательностей активностей ($M_S$).
-Данная матрица является квадратной, она имеет размер $|A| \times |A|$, и ее элемент $M_S[x, y]$ содержит единицу, если в журнале событий найдется сценарий, в котором встречается последовательность $x \rightarrow y$.
+The next step requires the construction of a matrix of activity sequences ($M_S$).
+This matrix is square; it has size $| A | \ times | A |$, and its element $M_S[x, y]$ contains 1 if there is a scenario in the event log that contains the sequence $x \ rightarrow y$.
 
-Матрица $M_S$ для нашего тестового журнала событий выглядит следующим образом:
+The $M_S$ matrix for our test event log is as follows:
 
 \begin{equation}
 M_S = \begin{vmatrix}
@@ -281,16 +281,16 @@ M_S = \begin{vmatrix}
 \end{vmatrix}
 \end{equation}
 
-Далее строится матрица отношений $M_R$.
-Она имеет такой же размер, что и матрица $M_S$, и ее элементы определяют отношения между активностями, которые должны быть отражены в построенной модели процесса.
-Отношение строгого следования между активностями $x$ и $y$ (будем обозначать его через $x \Rightarrow y$) означает, что в журнале событий найдется сценарий, в котором $x \rightarrow y$, но не найдется такого сценария, в котором $y \rightarrow x$.
-Другими словами, активности $x$ и $y$ связаны отношением жесткого следования, если $M_S[x, y](1 - M_S[y, x]) = 1$.
-Аналогично, активности $x$ и $y$ можно назвать параллельными, если в некоторых сценариях за $x$ может следовать $y$, а в других сценариях за $y$ может следовать $x$.
-Условием параллельности активностей является условие $M_S[x, y]M_S[y, x] = 1$ (обозначение $x \ || \ y$).
-Если же ни в каких сценариях не обнаружено последовательностей $x \rightarrow y$ или $y \rightarrow x$, то отношение между такими активностями будем называть неопределенностью.
-Условие неопределенности -- $(1 - M_S[x, y])(1 - M_S[y, x]) = 1$ (обозначение $x \ ? \ y$).
+Next, the relationship matrix $M_R$ is constructed.
+It has the same size as the $M_S$ matrix, and its elements determine the relationships between activities that should be reflected in the constructed process model.
+The strict follow relationship between the $x$ and $y$ activities (we will denote it by $x \Rightarrow y$) means that in the event log there is a scenario in which $x \rightarrow y$, but there is no such scenario in which $y \rightarrow x$.
+In other words, the $x$ and $y$ activities are related by a strict follow relationship if $M_S[x, y](1 - M_S[y, x]) = 1$.
+Similarly, the activities of $x$ and $y$ can be called parallel, if in some scenarios $x$ may follow $y$, and in other scenarios $y$ may follow $x$.
+The condition for parallel activities is $M_S[x, y]M_S[y, x] = 1$ (designation $x \ || \ y$).
+If, in no scenarios, the sequences $x \rightarrow y$ or $y \rightarrow x$ are detected, then the relation between such activities will be called uncertainty.
+The uncertainty condition is $(1 - M_S[x, y])(1 - M_S[y, x]) = 1$ (designation $x \ ? \ y$).
 
-Для рассматриваемого журнала событий матрица $M_R$ выглядит следующим образом:
+For the considered event log, the $M_R$ matrix is as follows:
 
 \begin{equation}\label{eqn:r}
 M_R = \begin{vmatrix}
@@ -304,13 +304,13 @@ M_R = \begin{vmatrix}
 \end{vmatrix}
 \end{equation}
 
-После построения матрицы отношений между активностями можно перейти к построению множества мест для токенов в модели процесса ($P$).
-Место для токена должно быть построено для каждой такой пары непересекающихся подмножеств активностей $X \subset A$, $Y \subset A$, что выполнено два условия.
-Во-первых, любые две активности из $X$ связаны соотношением неопределенности, также любые две активности из $Y$ связаны соотношением неопределенности.
-Во-вторых, любая активность $x \in X$ связана с любой активностью $y \in Y$ соотношением $x \Rightarrow y$. 
-В этом случае строится место токена $p(X, Y)$, его узлами-предшественниками становятся все активности из $X$, а узлами-последователями -- все активности из $Y$.
+After constructing a matrix of relations between activities, we can proceed to constructing set of token places in the process model ($P$).
+A token place must be built for each such pair of disjoint subsets of activities $X \subset A$, $Y \subset A$, which satisfies two conditions.
+Firstly, any two activities from $X$ are related by the uncertainty relation, also any two activities from $Y$ are connected by the uncertainty relation.
+Secondly, any activity $x \in X$ is associated with any activity $y \in Y$ by the ratio $x \Rightarrow y$.
+In this case, the token place $p(X, Y)$ is built, all the activities from $X$ become its predecessor nodes, and all activities from $Y$ become the successor nodes.
 
-В нашем рассматриваемом случае множество мест токенов выглядит следующим образом:
+In our case under consideration, the set of token places are as follows:
 
 \begin{equation}
 \begin{aligned}
@@ -332,10 +332,10 @@ p(\{b\}, \{c\})
 \end{aligned}
 \end{equation}
 
-Финальным шагом в формировании WFN, который представляет модель процесса, является удаление лишних мест токенов.
-Если в наборе мест токенов найдутся два места $p(X, Y) \in P$ и $p(X', Y') \in P$ такие, что $X' \subseteq X$ и $Y' \subseteq Y$, то место $p(X', Y')$ является избыточным, и его можно удалить из модели.
+The final step in the formation of the WFN, which is a model of the process, is the removal of extra token places.
+If there are two places $p(X, Y) \in P$ and $p(X ', Y') \in P$ in the set of token places such that $X' \subseteq X$ and $Y' \subseteq Y$, then the place $p(X', Y')$ is redundant and can be removed from the model.
 
-После удаления избыточных мест, финальное множество мест токенов примет свой окончательный вид:
+After removing excess places, the final set of token places will take its final form:
 
 \begin{equation}
 \begin{aligned}
@@ -345,7 +345,7 @@ p(\{d\}, \{e\}), p(\{c\}, \{e\}), p(\{e, a\}, \{f, b\}), p(\{b\}, \{d\}), p(\{b\
 \end{aligned}
 \end{equation}
 
-Набор приведенных мест токенов и построение всех дуг между метами токенов и активностями приводит нас к модели процесса, изображенной на рисунке~\ref{fig:third1}.
+The set of given token places and the construction of all edges between token places and activities leads us to the process model shown in the figure~\ref{fig:third1}.
 
 \section{Simple Process Discovery Algorithm Optimization}
 
