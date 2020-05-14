@@ -267,49 +267,44 @@ Consider the architecture of the dataflow processor emulator in general, present
 \begin{figure}[h!]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
-\center{\includegraphics[width=0.80\textwidth]{pics/big-scheme.pdf}}
+\center{\includegraphics[width=1.0\textwidth]{pics/big-scheme2.pdf}}
 \captionstyle{normal}\caption{General architecture of dataflow processor.}
 \label{fig:big-scheme}
 \end{figure}
 
+The vector dataflow processor emulator is implemented using four infinite processes that exchange messages with each other.
+Each process is a separate processor entity and has its own functionality.
 
-Consider the main objects presented in figure~\ref{fig:big-scheme}. Number 1 is the program, which is the input data for the emulator and presented in the form of a directed graph. Number 2 is the process working with the associative token memory, which serves to collect the individual command's arguments. Number 3 is a buffer (a queue) of ready-made commands that can transfer for execution. Number 4 indicates the actuator, which in the scheme is not divided into scalar and vector. Between the described objects, the following interaction options are provided.
+The main process $main$ is the lead in the emulator.
+He is the host of three basic data structures that reflect the execution of the program.
+The $tokens$ structure contains a list of tokens that currently exist during program execution.
+The structure of $graph$ is a directed graph that implements the logic of the program.
+Finally, the $semantic$ structure describes the semantics of processor instructions, that is, it contains the implementation of functions that, according to a set of input tokens, generate sets of output tokens for each instruction.
 
-At the first moment, the input tokens (which can be form before the instructions execution) are determined by the program graph, these tokens are received in the CAM. The process serving the CAM runs continuously. As soon as a set of tokens found inside CAM, which is a complete set of arguments for the command, this command immediately sent to the buffer of commands ready for execution. The process serving the executive buffer also runs continuously. Its only task is to send commands from the buffer one by one for execution. After the next command executed on the actuator, the output tokens of this command determined (using the program graph) and then these tokens again transferred to the CAM. This cycle of information exchange between the elements of the emulator continues until the program shutdown command will execute. Thus, the architecture of the dataflow processor described in terms of individual processes that interact with each other through messaging. At the same time, the emulator does not have a global state, which corresponds to the ideology of the dataflow processor. Erlang programming language \cite{Armstrong,Cesarini} was chosen to implement the dataflow processor emulator.
+The next process under consideration is the $ast\_mem$ process, which implements the logic of associative token memory.
+The interface of this process consists of one single function -- to put a token in associative memory.
+In the event that this token is the last missing element for executing any instruction, then the entire set of input tokens for this instruction is deleted from the associative token memory and transferred to form a command that is ready for execution.
 
-Erlang programming language is a functional language designed to implement separate parallel processes that exchange messages. Messaging between processes is the only way to ensure communication between processes (the language does not have the concept of shared memory) it is supported at the syntactic level. Parallel to the execution of processes is a natural behavior of the language; therefore, it is not necessary to implement additional tools to ensure the interaction of system elements.
+For storage of ready-to-execute commands, the process $exe\_buf$ is intended.
+This process is a simple queue containing all currently ready commands.
+Accordingly, in this queue, you can add a command along with its ready token arguments, or you can get some command and remove it from the queue.
 
-If we consider the elements of a dataflow processor emulator, then the implementation of the associative token memory of particular interest. The implementation of the actuator does not fundamentally differ from the implementation in the emulator of the classical processor (the implementation of the semantics of instructions that create output tokens using input tokens). The buffer of commands ready for execution is simply a queue of commands, so its implementation is also trivial. Consider the implementation of a key element of the dataflow processor -- associative token memory.
+To implement work with vector arguments of commands, a vector storage is intended, which is implemented using the $vec\_mem$ process.
+Work with this repository is carried out using the vector address.
+The vector memory interface consists of such requests as: allocate a new vector, get a vector from memory, get a vector element, write a specific value to a vector element, etc.
 
-\begin{lstlisting}[caption={Implementation of logic of associative token memory.},label={lst:assoc}]
-set_token({CId, E, _} = T, Args, D) when (Args > 1) ->
-	FullEntries = lists:seq(0, Args - 1, 1),
-	ET = {E, T},
-	case dict:find(CId, D) of
-		error ->
-			dict:append(CId, ET, D);
-		{ok, Vs} ->
-			{Es, Ts} = lists:unzip(lists:sort(Vs ++ [ET])),
-			case Es of
-				FullEntries ->
-					{Ts, dict:erase(CId, D)};
-				_ ->
-					dict:append(CId, ET, D)
-			end
-	end.
-\end{lstlisting}
+The logic of the emulator consists of an endless poll of the head process $main$.
+At each iteration of the survey, the following logic for processing data structures $tokens$, $graph$ and $semantic$ is performed.
+If the $tokens$ structure contains tokens, then one of them is taken and sent to $ast\_mem$.
+After that, depending on the response of the process $ast\ _mem$, the token can simply be added to the associative memory of tokens, or a ready-to-execute command can be generated and placed in the buffer $exe\_buf$.
+If the structure $tokens$ is empty, then the head process receives the first (or arbitrary) command from the ready-made instructions buffer and executes it using the semantics storing in $semantic$ structure.
+Next, the generated tokens of the result of the executed command using the $graph$ structure receive information about the destination commands and are added to the $tokens$ structure.
+After that, the program execution cycle continues again until the target tokens are received and the buffer of ready-to-execute instructions is empty.
 
-Listing ~\ref{lst:assoc} shows a compact implementation of the token associative memory logic in Erlang \cite{Armstrong}.
-All logic is implemented using a single function $set\_token$ with three arguments: $T$ - the token to be added (which consists of the instruction identifier $CId$, argument number $E$, and data), $Args$ - the number of arguments the instruction for which the token is added has $D$ - a dictionary with which token associative memory is implemented.
-The logic of the function is as follows: extract all tokens associated with the $CId$ key from the dictionary and check whether they close all the arguments of the instruction (that is, the argument numbers form the sequence $[0, 1, .. Args - 1]$.
-If the added token is the last missing argument of the instruction, then you need to extract all tokens from the dictionary and return them in the form of a list for executing the instruction (line 11).
-Otherwise, the token should be added to the dictionary by binding to the key $CId$ (lines 6 and 13).
-
-Note that the most simplified implementation is given.
-It is not considered the possibility of using the token state for instructions identify from different function calls or from different cycles iteration (for completeness as a key of dictionary together with instruction identifier $CId$ should also use the token state).
-In the given implementation, exception handling also is not considered.
-For example, the sequential addition of two tokens in the associative memory that is the same argument of the same instruction should cause the error.
-However, despite the incompleteness of implementation, it shows here logic allows providing the functionality of the associative token memory, which needed for execution of the dataflow processor’s program.
+The described logic of the interaction of the processes of the emulator of a dataflow processor is implemented using the Erlang programming language \cite {Armstrong, Cesarini}.
+Erlang programming language is a functional language designed to implement separate parallel processes that exchange messages.
+Messaging between processes is the only way to ensure communication between processes (the language does not have the concept of shared memory) it is supported at the syntactic level.
+Parallel to the execution of processes is a natural behavior of the language; therefore, it is not necessary to implement additional tools to ensure the interaction of system elements.
 
 In the dataflow processor, communication between two instructions is much quicker if these instructions are allocated to the same processing element.
 Thus a program may run much faster if its instructions are clustered to minimize communication traffic between clusters and each cluster is allocated to one processing element.
@@ -319,15 +314,14 @@ Whether the cost reduction justifies the additional programming effort is a matt
 \section{Conclusion}
 
 The article discusses the differences in the implementation of an executable program designed for a processor with von Neumann architecture and for a dataflow processor.
-The differences between the def-use graph and the flow graph are shown, which reflect the program logic within the linear section.
-A necessary element of the dataflow processor emulator implementation is considered - associative token memory, with which you can store and quickly find ready-made data for commands that can be transferred for execution.
-A compact implementation of associative token memory for instructions with an arbitrary number of iterations is given.
-This implementation can be expanded for an arbitrary program for a dataflow processor, including which uses loops and function calls (including recursive ones).
-This approach to organizing associative token memory is used in the implementation of a vector dataflow processor emulator, the architecture of which is being developed at the JSCC RAS.
+The differences between the def-use graph and the dataflow graph are shown, which reflect the program logic within the linear section.
+A dataflow processor emulator implementation is considered, including associative token memory, with which it is possible to store and quickly find ready-made data for commands that can be transferred for execution.
+This dataflow processor emulator architecture can be used for implementing dataflow processor with arbitrary logic and semantic of instructions.
+This approach to dataflow processor emulator is used in the emulator implementation of a vector dataflow processor which is being developed at the JSCC RAS.
 
 \begin{acknowledgments}
 The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8).
-The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+The supercomputer MVS-10P, located at the JSCC RAS, was used during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
