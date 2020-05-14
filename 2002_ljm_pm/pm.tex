@@ -82,7 +82,7 @@ However, often these systems remain analysis and notification systems, being ins
 Along with the term PAIS, the term BPMS (BPM system) or simply PMS (process management system) is also used for such systems.
 
 Any process analysis system works with a process model that is written using one or more notations.
-These notations represent the essence of the process and are essentially macro-descriptions of oriented graphs of a special kind.
+These notations represent the essence of the process and are essentially macro-descriptions of oriented graphs of special kind.
 The main objects of process models are activities, states, transitions and subprocesses.
 Transitions between different activities are also called dependencies.
 The set of dependencies between activities and also additional conditions imposed on the process model give rise to many possible sequences of state changes, or many scenarios of the process.
@@ -158,22 +158,22 @@ After performing some activity in WFN, tokens from the predecessor nodes are del
 
 Consider the main local patterns of the process that can be displayed using WFN (Figure~\ref{fig:wfn-patterns}).
 
-Figure~\ref{fig:wfn-patterns} a) shows the usual sequence of activities $a \rightarrow b$.
+Figure~\ref{fig:wfn-patterns}a shows the usual sequence of activities $a \rightarrow b$.
 This template prescribes that after the $a$ activity is completed, the token will be placed in the place of $p0$.
 After that, it turns out that the condition $b$ is fulfilled that all its predecessors contain tokens (since the only predecessor $b$ is $p0$).
 Thus, the $b$ activity will be performed, the token will be removed from the place $p0$, and new tokens will be sent along the output edges to the nodes-successors of the $b$ activity.
      
-Figure~\ref{fig:wfn-patterns} b) shows an XOR-split template that implements the selection of one of the activities after the execution of the $a$ activity.
+Figure~\ref{fig:wfn-patterns}b shows an XOR-split template that implements the selection of one of the activities after the execution of the $a$ activity.
 After the activity $a$ has been completed, the place $p0$ is occupied by a token, which can be used when only one of the activities $b$ or $c$ is performed.
 Thus, it is possible to execute either a sequence of activities $a \rightarrow b$ or a sequence $a \rightarrow c$.
 
-The figure~\ref{fig:wfn-patterns} c) shows the XOR-join template, which by analogy implements either a sequence of activities $a \rightarrow c$ or a sequence of activities $b \rightarrow c$.
+Figure~\ref{fig:wfn-patterns}c shows the XOR-join template, which by analogy implements either a sequence of activities $a \rightarrow c$ or a sequence of activities $b \rightarrow c$.
 
-The figure~\ref{fig:wfn-patterns} d) shows the AND-split pattern, which implements the execution of both $b$ and $c$ after the $a$ activity.
+Figure~\ref{fig:wfn-patterns}d shows the AND-split pattern, which implements the execution of both $b$ and $c$ after the $a$ activity.
 As soon as the $a$ activity is completed, tokens fall into the places $p0$ and $p1$, which make it possible to execute the $b$ and $c$ activities.
 In this case, the order in which these activities will be performed is not important.
 
-The figure~\ref{fig:wfn-patterns} e) shows the AND-join pattern, demonstrating that the activity $c$ can be performed only after the execution of both activities $a$ and $b$.
+Figure~\ref{fig:wfn-patterns}e shows the AND-join pattern, demonstrating that the activity $c$ can be performed only after the execution of both activities $a$ and $b$.
 The $c$ activity requires for its execution the presence of tokens immediately in $p0$ and $p1$, and this can happen only after the execution of both $a$ and $b$ activities.
 The execution order of the $a$ and $b$ activities is not important in this case.
 
@@ -265,7 +265,7 @@ In addition, we need to define the set of activities with which the scenarios fr
 \end{equation}
 
 The next step requires the construction of a matrix of activity sequences ($M_S$).
-This matrix is square; it has size $| A | \ times | A |$, and its element $M_S[x, y]$ contains 1 if there is a scenario in the event log that contains the sequence $x \ rightarrow y$.
+This matrix is square; it has size $| A | \ times | A |$, and its element $M_S[x, y]$ contains 1 if there is a scenario in the event log that contains the sequence $x \rightarrow y$.
 
 The $M_S$ matrix for our test event log is as follows:
 
