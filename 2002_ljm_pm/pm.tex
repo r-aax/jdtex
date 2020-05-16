@@ -82,14 +82,14 @@ However, often these systems remain analysis and notification systems, being ins
 Along with the term PAIS, the term BPMS (BPM system) or simply PMS (process management system) is also used for such systems.
 
 Any process analysis system works with a process model that is written using one or more notations.
-These notations represent the essence of the process and are essentially macro-descriptions of oriented graphs of special kind.
+These notations represent the essence of the process and are essentially macro-descriptions of directed graphs of special kind.
 The main objects of process models are activities, states, transitions and subprocesses.
 Transitions between different activities are also called dependencies.
 The set of dependencies between activities and also additional conditions imposed on the process model give rise to many possible sequences of state changes, or many scenarios of the process.
 Depending on the details of the processes, additional attributes of any objects of the process model can be used: time references, duration of activities, dependency logic, resources and strategies for their use, roles of activity performers, and many others.
 Such a variety that arises in the modeling of processes generates a huge number of methods for analyzing processes and scenarios, and can serve as a source of useful and not always obvious knowledge used to optimize processes.
 
-Process models recorded using formal notation can be used for various purposes: a review from various points of view, discussion of a process model between all participants, preparation of documentation (including in automatic mode), verification (some obvious errors may be detected just by analyzing the topology of the model graph, for example, it can be dead sections of the process, deadlocks, infinite loops and others), performance analysis (using simulations on the process model can be bottlenecks identified and eliminated), visualization of the process to simplify the analysis, specification (from the formal model, descriptions of interfaces and interaction protocols can be generated even before integration into a single digital space), configuration (the description of the process model can be used to configure the system when its implementation).
+Process models recorded using formal notation can be used for various purposes: a review from various points of view, discussion of a process model between all participants, preparation of documentation (including in automatic mode), verification (some obvious errors may be detected just by analyzing the topology of the model graph, for example, it can be dead sections of the process, deadlocks, infinite loops and others), performance analysis (simulations of the process model can be used for bottlenecks identification and elimination), visualization of the process to simplify the analysis, specification (from the formal model, descriptions of interfaces and interaction protocols can be generated even before integration into a single digital space), configuration (the description of the process model can be used to configure the system during its implementation).
 Typically, when developing a process, there is both an informal model (used for discussion and documentation) and a formal model suitable for simulations (used for analysis and improvement). 
 
 Informal models are often divorced from life, abstract, idealized, while formal models, on the contrary, are too detailed and often understandable only to the actual developers of the model.
@@ -141,10 +141,10 @@ WFN is a directed graph whose edges are capable of transmitting tokens that refl
 
 There are two types of WFN nodes.
 The nodes of the first type are tokens places (on the diagrams of process models are shown below with white rectangles, place labels are denoted $p0$, $p1$, etc.).
-The nodes of the second type represent the activity of the process (in the diagrams of the process models are shown below with black rectangles, the activity labels are named $a$, $b$, etc.).
-Two places are specially allocated in WFN: $I$ is the global input from which the scenario starts, $O$ is the global output where the scenario ends (these special places are shown by gray rectangles on the diagrams of process models).
+The nodes of the second type represent the activities of the process (in the diagrams of the process models are shown below with black rectangles, the activity labels are named $a$, $b$, etc.).
+Two token places are specially emphasized in WFN: $I$ is the global input from which the scenario starts, $O$ is the global output where the scenario ends (these special places are shown by gray rectangles on the diagrams of process models).
 
-WFN edges can connect only nodes of different types (that is, only activity can be a predecessor or successor of a place, only a place can be a predecessor or successor of an activity).
+WFN edges can connect only nodes of different types (that is, only activity can be a predecessor or successor of a token place, only a token place can be a predecessor or successor of an activity).
 During the course of the process, some activity can be performed only if all the predecessor token places of this node contain tokens.
 After performing some activity in WFN, tokens from the predecessor nodes are deleted, after which new tokens are created, which are distributed along all output edges and are placed in all successor nodes of this activity.
 
@@ -265,7 +265,7 @@ In addition, we need to define the set of activities with which the scenarios fr
 \end{equation}
 
 The next step requires the construction of a matrix of activity sequences ($M_S$).
-This matrix is square; it has size $| A | \ times | A |$, and its element $M_S[x, y]$ contains 1 if there is a scenario in the event log that contains the sequence $x \rightarrow y$.
+This matrix is square; it has size $| A | \times | A |$, and its element $M_S[x, y]$ contains 1 if there is a scenario in the event log that contains the sequence $x \rightarrow y$.
 
 The $M_S$ matrix for our test event log is as follows:
 
@@ -281,7 +281,7 @@ M_S = \begin{vmatrix}
 \end{vmatrix}
 \end{equation}
 
-Next, the relationship matrix $M_R$ is constructed.
+Next, the relationship matrix $M_R$ is needed to be constructed.
 It has the same size as the $M_S$ matrix, and its elements determine the relationships between activities that should be reflected in the constructed process model.
 The strict follow relationship between the $x$ and $y$ activities (we will denote it by $x \Rightarrow y$) means that in the event log there is a scenario in which $x \rightarrow y$, but there is no such scenario in which $y \rightarrow x$.
 In other words, the $x$ and $y$ activities are related by a strict follow relationship if $M_S[x, y](1 - M_S[y, x]) = 1$.
@@ -307,7 +307,7 @@ M_R = \begin{vmatrix}
 After constructing a matrix of relations between activities, we can proceed to constructing set of token places in the process model ($P$).
 A token place must be built for each such pair of disjoint subsets of activities $X \subset A$, $Y \subset A$, which satisfies two conditions.
 Firstly, any two activities from $X$ are related by the uncertainty relation, also any two activities from $Y$ are connected by the uncertainty relation.
-Secondly, any activity $x \in X$ is associated with any activity $y \in Y$ by the ratio $x \Rightarrow y$.
+Secondly, any activity $x \in X$ is associated with any activity $y \in Y$ by the relation $x \Rightarrow y$.
 In this case, the token place $p(X, Y)$ is built, all the activities from $X$ become its predecessor nodes, and all activities from $Y$ become the successor nodes.
 
 In our case under consideration, the set of token places are as follows:
