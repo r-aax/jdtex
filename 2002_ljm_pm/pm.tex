@@ -63,8 +63,10 @@ escapeinside={\%*}{*)}
 \received{May 01, 2020}
 
 \begin{abstract}
-Abstract.
-\end{abstract}
+The article discusses the approach to the analysis of business processes, called process mining, and the directions of its application.
+In particular, a description of the process discovery algorithm is provided, with the help of which the process model is reconstructed  from the event log in the form of a workflow graph.
+The implementation and improvement of the algorithm are proposed, which allow avoiding costly enumeration of all subsets of activities included in the analyzed process model.
+The proposed approach allows the use of process discovery algorithm for large event logs.\end{abstract}
 
 \subclass{68R10} % Enter 2010 Mathematics Subject Classification.
 
@@ -440,7 +442,11 @@ To eliminate this drawback, additional research and improvement of this algorith
 
 \section{Conclusion}
 
-Conclusion.
+The considered approach to the implementation of the process discovery algorithm allows it to be applied to large-size event logs.
+Building a relationship graph with subsequent expansion allows you to get rid of enumeration of all subsets of activities involved in the analyzed process.
+In fact, when constructing a relationship graph, the branch and bound method is implicitly used, in which only those subsets of the vertices of the relationship graph are considered, each pair of which is connected by the relation $x \ ? \ y$.
+Of particular interest is the order of traversing the edges $\overline{E}$ of the relationship graph $G$ during the application of the algorithm, since the construction speed of the graph $G$ depends on it.
+This aspect deserves attention, since it would be useful to get rid of the need to save all relations between edges from $\overrightarrow{E}$ until the end of the algorithm work.
 
 \begin{acknowledgments}
 The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
