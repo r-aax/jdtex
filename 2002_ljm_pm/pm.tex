@@ -349,65 +349,65 @@ The set of given token places and the construction of all edges between token pl
 
 \section{Simple Process Discovery Algorithm Optimization}
 
-В приведенном в предыдущем разделе алгоритме узким местом является конструирование множества мест токенов $P$ с последующим удалением избыточностей.
-При возрастании общего количества активностей число возможных комбинаций подмножеств активностей для формирования мест токенов растет экспоненциально.
-Также большая часть построенных мест токенов впоследствии все равно должна быть удалена.
-Например, при построенном места токенов $p(\{a, b\}, \{c, d\})$ в множество $P$ обязательно попадут следующие избыточные места токенов: $p(\{a\}, \{c\})$, $p(\{a\}, \{d\})$, $p(\{b\}, \{c\})$, $p(\{b\}, \{d\})$.
-В дальнейшем эти избыточные места токенов будут удалены.
-Но для поиска избыточных мест токенов также необходимо затратить вычислительное время.
+In the algorithm presented in the previous section, the bottleneck is the construction of token places set $P$ with the subsequent removal of redundancies.
+As the total number of activities increases, the number of possible combinations of subsets of activities for the formation of token places increases exponentially.
+Also, most of the built token places subsequently still have to be removed.
+For example, with the constructed token place $p(\{a, b\}, \{c, d\})$, the following excess token places will be necessarily included into the set $P$: $p(\{a\}, \{c\})$, $p(\{a\}, \{d\})$, $p(\{b\}, \{c\})$, $p(\{b\}, \{d\})$.
+In the future, these excess token places will be deleted.
+But to search for redundant token places, it is also necessary to spend computational time.
 
-Предложим алгоритм построения мест токенов, в котором выполняется перебор только необходимых подмножеств активностей, а контроль за избыточными местами токенов выполняется автоматически.
+We will propose an algorithm for constructing token places in which only the necessary subsets of activities are checked, and control over redundant token places is performed automatically.
 
-Сначала введем отношения между множествами активностей следующим образом.
-Пусть $X$ и $Y$ -- два множества активностей.
-Будем говорить, что $X \ ? \ Y$ если для любых двух активностей $x \in X$, $y \in Y$ выполняется соотношение $x \ ? \ y$.
-Также будем говорить, что $X \Rightarrow Y$ если для любых двух активностей $x \in X$, $y \in Y$ выполняется соотношение $x \Rightarrow y$.
+First, we introduce the relations between the sets of activities as follows.
+Let $X$ and $Y$ be two sets of activities.
+We say that $X \ ? \ Y$ if for any two activities $x \in X$, $y \in Y$ the relation $x \ ? \ y$ is correct.
+We will also say that $X \Rightarrow Y$ if for any two activities $x \in X$, $y \in Y$ the relation $x \Rightarrow y$ holds.
 
-Введем понятие графа отношений между множествами активностей.
-Данный граф будет содержать ориентированные ребра, а также отношения между ориентированными ребрами.
-Пусть $A$ -- множество активностей, между элементами которого введены отношения $x \Rightarrow y$ и $x \ ? \ y$ (отношение $x \ || \ y$ в данном случае нас не интересует).
-Графом отношений будем называть граф $G = G(N, \overrightarrow{E}, \Xi)$.
-Элементами множества узлов $N$ данного графа являются такие подмножества $X \subseteq A$, что любые две активности этого подмножества $a \in X$, $b \in X$ связаны соотношением $a \ ? \ b$.
-Элементами множества ориентированных ребер $\overrightarrow{E}$ являются упорядоченные пары $(X, Y)$ элементов из $N$ такие, что $X \Rightarrow Y$ (на картинках далее данные ребра будут изображаться сплошными черными стрелками).
-Элементами множества $\Xi$ являются такие упорядоченные пары $(\overrightarrow{e}', \overrightarrow{e})$, где $\overrightarrow{e}' = (X', Y') \in \overrightarrow{E}$, $\overrightarrow{e} = (X, Y) \in \overrightarrow{E}$ и $X' \subseteq X$, $Y' \subseteq Y$.    
+We introduce the concept of a graph of relations between sets of activities.
+This graph will contain directed edges, as well as relations between these edges.
+Let $A$ be the set of activities, between the elements of which the relations $x \Rightarrow y$ and $x \ ? \ y$ are introduced (the relation $x \ || \ y$ in this case does not interest us).
+A relationship graph is a graph $G = G(N, \overrightarrow{E}, \Xi)$.
+Elements of the set of nodes $N$ of a given graph are subsets $X \subseteq A$ such that any two activities $a \in X$, $b \in X$ of this subset are related by the relation $a \ ? \ b$.
+Elements of the set of direcetd edges $\overrightarrow {E}$ are ordered pairs of $(X, Y)$ elements from $N$ such that $X \Rightarrow Y$ (in the pictures below, these edges will be represented by solid black arrows).
+Elements of the set $\Xi$ are such ordered pairs $(\overrightarrow{e}', \overrightarrow{e})$, where $\overrightarrow {e}' = (X ', Y') \in \overrightarrow{E}$, $\overrightarrow{e} = (X, Y) \in \overrightarrow{E}$ and $X' \subseteq X$, $Y' \subseteq Y$.    
 
-Если для данного множества активностей $A$ такой граф $G$ построен, то искомые места токенов, которые требовалось найти в рамках рассмотренного алгоритма process discovery это такие места токенов $p(X, Y)$ для которых верно $(X, Y) \in \overrightarrow{E}$, а также нет такого элемента $\overrightarrow{e} \in \overrightarrow{E}$, что $((X, Y), \overrightarrow{e}) \in \Xi$.
-Заметим, что в конечном итоге нас интересуют ребра графа $G$, так что на любом этапе построения данного графа изолированные вершины из него можно удалять, не оговаривая это отдельно (изолированные вершины графа $G$ не влияют на работу алгоритма).
+If for a given set of activities $A$ such a graph $G$ is constructed, then the token places that were required to be found within the framework of the process discovery algorithm are those token places $p(X, Y)$ for which $(X, Y) \in \overrightarrow {E}$, and also there is no element $\overrightarrow{e} \in \overrightarrow {E}$ such that $((X, Y), \overrightarrow {e}) \in \Xi $.
+Note that in the end we are interested in the edges of the graph $G$, so that at any stage of constructing this graph, isolated vertices can be removed from it without specifying it specially (isolated vertices of the graph $G$ do not affect the operation of the algorithm).
 
-Рассмотрим построение требуемого графа $G$ итерационным способом.
-В процессе построения графа $G$ разрешим ему содержать неориентированные ребра, являющиеся неупорядоченными парами $\{X, Y \}$ элементов из $N$, такими, что $X \ ? \ Y$.
-Множество этих ребер обозначим $\overline{E}$ (на картинках далее данные ребра будут изображены пунктирными линиями).
-Таким образом, в процессе построения будем рассматривать граф $G(N, \overline{E}, \overrightarrow{E}, \Xi)$.
+Consider the construction of the required graph $G$ in an iterative way.
+In the process of constructing the graph $G$, we allow it to contain undirected edges that are unordered pairs of $\{X, Y\}$ elements from $N$ such that $X \ ? \ Y$.
+We denote the set of these edges by $\overline{E}$ (in the pictures below, these edges will be depicted by dashed lines).
+Thus, during the construction process, we will consider the graph $G(N, \overline{E}, \overrightarrow{E}, \Xi)$.
 
-Вначале создадим первую версию графа $G_0$, которую с помощью последовательных преобразований будем переводить в требуемую форму $G$.
-Итак, определим графе $G_0 = G_0(N_0, \overline{E}_0, \overrightarrow{E}_0, \Xi_0)$ следующим образом:
+At the beginning, we create the first version of the graph $G_0$, which we will use for the subsequent transformations to translate into the required form $G$.
+So, we define the graph $G_0 = G_0(N_0, \overline{E}_0, \overrightarrow{E}_0, \Xi_0)$ as follows:
 
 \begin{equation}
 \begin{cases}
 N_0 = \{ \{x\} \ | \ x \in A \} \\
-\overline{E}_0 = \{ \{X, Y\} \ | \ X \in N, Y \in N, x \ ? \ y \} \\
-\overrightarrow{E}_0 = \{ (X, Y) \ | \ X \in N, Y \in N, x \ \Rightarrow \ y \} \\
+\overline{E}_0 = \{ \{X, Y\} \ | \ X \in N_0, Y \in N_0, x \ ? \ y \} \\
+\overrightarrow{E}_0 = \{ (X, Y) \ | \ X \in N_0, Y \in N_0, x \ \Rightarrow \ y \} \\
 \Xi_0 = \emptyset
 \end{cases}
 \end{equation}
 
-На картинке~\ref{fig:g_0} представлен граф $G_0$ построенный для матрицы $M_R$ из (\ref{eqn:r}).
+The figure~\ref{fig:g_0} shows the graph $G_0$ constructed for the matrix $M_R$ from (\ref{eqn:r}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.8\textwidth]{pics/g_0.pdf}
-\captionstyle{normal}\caption{Граф $G_0$ построенный для тестового журнала событий.}
+\captionstyle{normal}\caption{Graph $G_0$ constructed for test event log.}
 \label{fig:g_0}
 \end{figure}
 
-После построения графа $G_0$ будем выполнять его последовательное расширение с помощью отдельных шагов.
-На каждом шаге берется произвольное ребро $\overline{e} = \{X, Y\} \in \overrightarrow{E}$ и для него выполняются следующие действия.
-В множество $N$ добавляется новый элемент $X \cup Y$.
-Для каждого элемента $Z \in N$ такого, что $\{Z, X\} \in \overline{E}$, $\{Z, Y\} \in \overline{E}$ в множество неориентированных ребер $\overline{E}$ добавляется элемент $\{Z, X \cup Y\}$.
-Для каждого элемента $Z \in N$ такого, что $(Z, X) \in \overrightarrow{E}$, $(Z, Y) \in \overrightarrow{E}$ в множество ориентированных ребер $\overrightarrow{E}$ добавляется элемент $(Z, X \cup Y)$, а в множество $\Xi$ добавляются элементы $((Z, X), (Z, X \cup Y))$ и $((Z, Y), (Z, X \cup Y))$.
-Ребро $\overline{e}$ удаляется из множества $\overline{E}$.
-Иллюстрация выполнения шага расширения графа $G$ представлена на рисунке~\ref{fig:step}.
+After constructing the graph $G_0$, we will sequentially expand it using several separate steps.
+At each step, an arbitrary edge $\overline{e} = \{X, Y\} \in \overline{E}$ is taken and the following actions are performed for it.
+A new element $X \cup Y$ is added to the set $N$.
+For each element $Z \in N$ such that $\{Z, X\} \in \overline{E}$, $\{Z, Y\} \in \overline{E}$ new element $\{Z, X \cup Y\}$ is added into the set of non-oriented edges $\overline{E}$.
+For each element $Z \in N$ such that $(Z, X) \in \overrightarrow{E}$, $(Z, Y) \in \overrightarrow{E}$ new element $(Z, X \cup Y) $ is added  into the set of oriented edges $\overrightarrow{E}$, and the elements $((Z, X), (Z, X \cup Y))$ and $((Z, Y), (Z, X \cup Y))$ are added to the set $\Xi$.
+The edge $\overline{e}$ is removed from the set $\overline{E}$.
+An illustration of the execution step of the graph $G$ expansion is presented in the figure~\ref{fig:step}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -417,10 +417,10 @@ N_0 = \{ \{x\} \ | \ x \in A \} \\
 \label{fig:step}
 \end{figure}
 
-Описанные шаги по расширению графа $G$ выполняются до тех пор, пока множество $\overline{E}$ не станет пустым.
-Стоит заметить, что количество элементов данного множества не обязано уменьшаться на каждом шаге расширения графа (например, на рисунке~\ref{fig:step} количество ребер из $\overline{E}$ не изменилось).
-Однако, в том случае, если на каком-то шаге количество ребер в $\overline{E}$ не уменьшилось, то обязательно произошло разрушение полного графа, составленного из ребер из $\overline{E}$ (на рисунке~\ref{fig:step} разрушился треугольник $XYZ_1$), вместо которого может возникнуть полный граф только меньшего порядка.
-Таким образом, через конечное количество шагов расширения множество $\overline{E}$ станет пустым и финальный граф $G$ будет сформирован.
+The described steps for expanding the graph $G$ are performed until the set $\overline{E}$ becomes empty.
+It is worth noting that the number of elements in this set does not have to decrease at each step of the graph extension (for example, in the figure~\ref{fig:step} the number of edges from $\overline{E}$ has not changed).
+However, if at particular step of graph $G$ expansion the number of edges in $\overline{E}$ has not decreased, then some complete graph composed of edges from $\overline{E}$ nessesarily must be destroyed (in the figure~\ref{fig:step} the triangle $XYZ_1$ was destroyed), instead of which a complete graph of only a smaller order can appear.
+Thus, after a finite number of expansion steps, the set $\overline{E}$ will become empty and the final graph $G$ will be generated.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -430,20 +430,20 @@ N_0 = \{ \{x\} \ | \ x \in A \} \\
 \label{fig:g}
 \end{figure}
 
-На рисунке~\ref{fig:g} приведен окончательный вид графа $G$ для рассматриваемого примера.
-Элементы из множества $\Xi$ на данном рисунке показаны серыми дугами, а избыточные ребра из $\overrightarrow{E}$ изображены точечными линиями.
-При описанном построении графа отношений $G$ не составляет труда обнаружить все избыточные ребра из $\overrightarrow{E}$.
-Таким образом, искомое множество ребер из $\overrightarrow{E}$ изображено на рисунке сплошными черными стрелками, что совпадает с множеством из (\ref{eqn:p2}).
+Figure~\ref{fig:g} shows the final form of the graph $G$ for considered example.
+Elements from the set $\Xi$ in this figure are shown by gray arcs, and redundant edges from $\overrightarrow{E}$ are shown by dotted lines.
+With the construction of the graph of relations $G$ described, it is not difficult to detect all redundant edges from $\overrightarrow{E}$.
+Thus, the desired set of edges from $\overrightarrow{E}$ is shown by solid black arrows in the figure, which coincides with the set from (\ref{eqn:p2}).
 
-Недостатком алгоритма является то, что избыточные ребра нельзя удалять по ходу выполнения шагов расширения графа $G$, так как любое промежуточное ребро может участвовать при добавлении новых ребер.
-Для устранения этого недостатка требуется проведение дополнительных исследований и усовершенствования данного алгоритма, что выходит за рамки данной статьи.
+The disadvantage of the algorithm is that redundant edges cannot be removed during the expansion steps of the graph $G$, since any intermediate edge can participate when adding new edges.
+To eliminate this drawback, additional research and improvement of this algorithm is required, which is beyond the scope of this article.
 
 \section{Conclusion}
 
 Conclusion.
 
 \begin{acknowledgments}
-The work has been done at the JSCC RAS as part of the state assignment for the topic ... The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
