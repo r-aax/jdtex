@@ -76,12 +76,12 @@ The proposed approach allows the use of process discovery algorithm for large ev
 
 \section{Introduction}
 
-Process mining is a collection of approaches and methods for extracting process related information from event logs.
-Process mining is closely related to areas such as business process management (BPM) and workflow management (WFM).
+Process mining \cite{Aalst} is a collection of approaches and methods for extracting process related information from event logs.
+Process mining is closely related to areas such as business process management (BPM) \cite{BPM} and workflow management (WFM) \cite{WFM}.
 WFM technology has historically been primarily aimed at automating business processes from a mechanical point of view, while using BPM approaches, special attention is paid to other aspects in which bottlenecks can be hidden (human factor, organization features, fuzzy rules, and others).
 Currently, many process-aware information systems (PAIS), in addition to the classic WFM tools, include BPM extensions and process mining approaches.
 However, often these systems remain analysis and notification systems, being insufficiently integrated into the digital space.
-Along with the term PAIS, the term BPMS (BPM system) or simply PMS (process management system) is also used for such systems.
+Along with the term PAIS \cite{PAIS}, the term BPMS (BPM system) or simply PMS (process management system) is also used for such systems.
 
 Any process analysis system works with a process model that is written using one or more notations.
 These notations represent the essence of the process and are essentially macro-descriptions of directed graphs of special kind.
@@ -104,7 +104,7 @@ As a result, it may turn out that a superbly worked out and debugged process mod
 The only way out of this situation can be the presence of feedback between the process taking place in the real world and the process model.
 Such feedback in terms of the process mining approach is expressed in the registration of events about individual activities and the recording of event data in special repositories called event logs.
 
-Event logs are filled in during the operation and monitoring of a working system and should be used to optimize the process model when re-designing this model.
+Event logs are filled in during the operation and monitoring of a working system and should be used to optimize the process model when re-designing this model \cite{Redesign}.
 However, at present, the data accumulated during monitoring the functioning of the system are not fully used to analyze the performance of the process model.
 Very few organizations verify compliance of accumulated data and the process model, and often the reasons for re-designing the process model are not performance issues, but external factors, such as changes in legislation, policies, standards, or changes in external cooperation.
 Thus, there are risks that the process model may be repeatedly redesigned, but retain the weaknesses and bottlenecks that lead to constant low system performance.
@@ -118,26 +118,26 @@ At the same time, events coming from the outside world through an information sy
 The main application of process mining arises when analyzing the interaction of a process model and accumulated data.
 
 There are three main areas of process mining.
-The first direction is the construction of a process model based on accumulated data (process discovery).
+The first direction is the construction of a process model based on accumulated data (process discovery) \cite{BPM2_Discovery}.
 It consists in the analysis of the actual accumulated data on the course of the real process (fixed chains of data flows, a log of the interaction of process participants with each other, message passing between process participants) and the construction of a process model based on it without using information about the designed idealized model.
-The second area is called conformance testing.
+The second area is called conformance testing \cite{Conformance}.
 The purpose of this type of analysis is to verify the conformity of the developed model and the event logs related to this model.
 When conducting this check, it is possible to detect regions in the process model that are not sufficiently covered by data from event logs or regions with insufficiently clear logic, within which the course of the real process slows down due to the additional costs of overcoming these difficulties.
 For example, in the place of a fuzzy description of the logic of the process, additional coordination of some action that is not reflected in the process model may be required.
 In this case, the model can demonstrate high performance, however, with real flow, the process will slow down or even block.
-The third area or process mining is process improvement based on analysis (process enhancement).
+The third area or process mining is process improvement based on analysis (process enhancement) \cite{Enhancement}.
 If checking the conformity of the process model and its data helps to find places where the process model diverges from reality, then in this direction it is possible to develop recommendations on how to change the process model in order to reduce this discrepancy.
 Improvements may relate to the modification of the process model to more accurately reflect reality, and may cause the model to expand if the logic of the existing model is too meager to reflect the complex interactions of the process participants.
 
 It is worth noting that the logic of the process, data flows, interaction within the process, messaging are the most simple aspects that affect process mining.
 However, technology is not limited to these aspects.
-Resource allocation, planning issues, decision rules, complex interaction logic, probabilistic events all of these aspects also apply to process mining and can be analyzed using the tools of this technology.
+Resource allocation, planning issues, decision rules, complex interaction logic, probabilistic events all of these aspects also apply to process mining and can be analyzed using the tools of this technology \cite{Metrics}.
 
 This article discusses an algorithm for constructing a real process based on data from an event log and discusses ways to optimize this algorithm.
 
 \section{Simple Process Discovery Algorithm}
 
-In this article we will consider the description of the process model using workflow nets (WFN).
+In this article we will consider the description of the process model using workflow nets (WFN) \cite{WorkflowNets}.
 WFN reflects only the sequence of activities during the flow of the process scenario and does not affect other aspects of the analysis.
 WFN is a directed graph whose edges are capable of transmitting tokens that reflect the course of the scenario.
 
@@ -180,6 +180,7 @@ The $c$ activity requires for its execution the presence of tokens immediately i
 The execution order of the $a$ and $b$ activities is not important in this case.
 
 After describing this simplified process model using WFN, we can proceed directly to the algorithm for constructing the model based on the event log.
+Process discovery algorithm description is based on fundamental work of W. M. van der Aalst \cite{Aalst} in scope of process mining.
 In this case, an event log is simply a list of scenarios, each of which is an ordered sequence of activities.
 According to the provided event log, it is required to build a process model described using WFN that implements all the scenarios from this log.
 
@@ -454,9 +455,45 @@ The work has been done at the JSCC RAS as part of the state assignment for the t
 
 \begin{thebibliography}{99}
 
-\bibitem{Rettinger}
+\bibitem{Aalst}
+\refitem{book}
+W. M. van der Aalst, {\it ``Process Mining. Discovery, Conformance and Enhancement of Business Processes."}, Springer (2011).
+
+\bibitem{BPM}
+\refitem{book}
+J. Jeston, J. Nelis, {\it ``Business Process Management. Practical guidelines to successful implementations."}, Routledge (2014).
+
+\bibitem{WFM}
+\refitem{book}
+K. van Hee, {\it ``Workflow Management: Models, Methods, and Systems (Information Systems)."}, The MIT Press (2004).
+
+\bibitem{PAIS}
+\refitem{book}
+M. Dumas, W. M. van der Aalst, A. H. ter Hofstede, {\it ``Process Aware Information Systems: Bridging People and Software Through Process Technology."}, Wiley-Interscience (2005).
+
+\bibitem{Redesign}
 \refitem{article}
-C. Rettinger, C. Godenschwager, S. Eibl, et al., {\it ``Fully Resolved Simulations of Dune Formation in Riverbeds"}, ISC High Performance , LNCS~{\bf 10266}, 3--21 (2017).
+S. L. Mansar, H. A. Reijers, {\it ``Best Practices in Business Process Redesign: Validation of a Redesign Framework."}, Computers in Industry, 56 (5), 457--471 (2005).
+
+\bibitem{BPM2_Discovery}
+\refitem{book}
+M. Dumas, M. La Rosa, J. Mendling, H. A. Reijers, {\it ``Fundamentals of Business Process Management."}, Springer (2018).
+
+\bibitem{Conformance}
+\refitem{article}
+A. Rozinat, W. M. van der Aalst, {\it ``Conformance Checking of Process Based on Monitoring Real Behavior."}, Information Systems, 33 (1), 64--95 (2008).
+
+\bibitem{Enhancement}
+\refitem{article}
+A. Burattin, A. Sperduti, M. Veluscek, {\it ``Business Models Enhancement through Discovery of Roles."}, IEEE Symposium on Computational Intelligence and Data Mining, 103--110 (2013).
+
+\bibitem{Metrics}
+\refitem{article}
+J. Mendling, {\it ``Business Process Management. Metrics for Process Models."}, Springer, 1--15 (2008).
+
+\bibitem{WorkflowNets}
+\refitem{article}
+R. Agrawal, D. Gunopulos, F. Leymann, {\it ``Mining Process Models from Workflow Logs."}, in Six International Conference on Extended Database Technology, 469--483 (1998).
 
 \end{thebibliography}
 
