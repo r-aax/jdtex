@@ -64,32 +64,43 @@ escapeinside={\%*}{*)}
 
 \begin{abstract}
 The development of dataflow processor architecture is a promising direction for improving the performance of computing systems.
-The dataflow processors have several advantages in contrast with the von Neumann architecture processor.
+The dataflow processors have several advantages in contrast with the von Neumann architecture processors.
 These advantages are express in explicit parallelism of calculations, since in the presentation of programs for the dataflow processors the sequence of instructions limited solely by the fact of input data’s ready state.
 The concept of using tokens as data storage for instructions allows you to remove many problems associated with data conflicts and simplifies the program logic.
-One of the most important elements in the implementation of the logic of the dataflow processor is the content-addressable token memory, which should provide storage and quick search for ready-made data for instructions that can be transferred for execution.
-This article discusses the functionality of the dataflow processor emulator and its parts including content-addressable token memory and the logic of its operation using the example of a simple dataflow graph.
+One of the most important elements in the implementation of the logic of the dataflow processor is the associative token memory, which should provide storage and quick search for ready-made data for instructions that can be transferred for execution.
+This article discusses the functionality of the dataflow processor emulator and its parts including associative token memory and the logic of its operation using the example of a simple dataflow graph.
 \end{abstract}
 
 \subclass{68N20,68R10} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{Dataflow processor emulator, dataflow graph, token, token state, associative memory, control flow graph, def-use graph.}
+\keywords{Dataflow processor emulator, dataflow graph, token, token state, associative token memory, control flow graph, def-use graph.}
 
 \maketitle
 
 \section{Introduction}
 
-The processor with dataflow architecture (the dataflow processor) has the potential to provide the highest performance among processors because of parallelism of program execution laying down since the program graph created.
-Thereby performance is not required to be detected using sophisticated equipment from the sequence of instructions specified by the instruction counter, as is the case in a processor with the von Neumann architecture.
-A program in the dataflow processor is the oriental graph where nodes are instructions and information transfers by the edges as tokens, which contains the data field and context field of transferring data.
-This context identifies where token should transfers (the number of receiver command in the graph) and also contains the number of an index, iteration, and the subprogram execution, which allow executing different iterations of inner cycles and different executions of procedures at the same program graph at parallel.
-Regardless of the place of the two-input instruction in the graph, it transfers for execution upon arrival at the input of the last of the pair of operand tokens with the same context.
-After the execution, the result in the actuator, new tokens with the result value sends to the inputs of subsequent commands according to the program column, and the used operands destroy.
+A processor with dataflow architecture (dataflow processor) has the potential to provide the highest performance among processors due to the fact that the parallelism of command execution is taken into account when drawing up a program graph.
+The program execution is not required to be performed by sequentional translating of the sequence of instructions, as is in the case of a processor with the von Neumann architecture.
+A program in the dataflow processor is the directed graph where nodes are instructions, and information transfers by the edges as tokens, which contains the data field and context field of transferring data.
+This context identifies where token should be sent to (the number of receiver command in the graph) and also contains the state, which allows executing different iterations of nested loops and different executions of procedures at the same program graph at parallel.
+And regardless of the place of the instruction with many inputs in the graph, it is passed for execution when arriving at the input of the last of operand tokens with the same state.
+After calculating the result of the instruction, new tokens with the result value are sent to the inputs of subsequent commands according to the program graph, and the used operand tokens are destroyed.
 
+<<<<<<< HEAD
 At the same time, in contrast to the von Neumann architecture, the dataflow processor has not a central control device (instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme.
 Namely, the device for searching ready-to-execute commands -- the memory of searching pairs (the content-addressable memory) can be executed such as many parallel-running modules, which provides the same large numbers of actuators. Since the execution of an instruction is dependent upon the arrivals of operands, the management of token storage and instruction scheduling are intimately related in any dataflow computer \cite{fine-grained-prl,culler}.
 
 Unlike the implementation of a multiprocessor system, direct hardware implementation allows you to fully implement the calculation graph in the form of a computing pipeline, thereby eliminating the need to create a module that implements the execution of the calculation schedule \cite{popov}.
+=======
+At the same time, in contrast to the von Neumann architecture, the dataflow processor has not a central control device (with instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme.
+Namely, the device for searching ready-to-execute commands -- associative memory of ready tokens can be executed as many parallel-running modules, which provides the same large numbers of execution units \cite{fine-grained-prl}.
+
+In contrast with the well-known projects of vector dataflow machines, in which arithmetic operations on vectors perform only for vectors in their registers, the block of a vector register is absent in the dataflow processor emulator and a single-level memory of high-capacity vectors (RAM level) is used.
+This eliminates the problem of possibility of overflow on the register file, which does not have a simple solution, given the complete asynchrony of the dataflow model of calculating.
+Besides, it is necessary to execute 2-3 times more commands in the dataflow processor on scientific tasks compared to the von Neumann processor \cite{multithreading}.
+It is also not so easy to do without the participation of the operating system in the process of the program execution when allocating space for the created arrays in the main memory.
+Therefore, it proposed to implement the distribution of the vector memory resource in the dataflow processor emulator at the hardware level \cite{vpp}.
+>>>>>>> a4a3b2c9e022f04f1a04f1f3d3716028deb3a524
 
 The difficulties noted above for the hardware implementation of the dataflow processor led to the fact that none of the many projects for its creation was possible to achieve higher performance compared to the von Neumann processor, and by the end of the 2000s, there were practically no such projects.
 This refers to the development of universal dataflow processors, but not specialized ones, since, for example, dataflow processors of digital signal processing were not only developed, but also produced \cite{terada}.
@@ -122,7 +133,7 @@ Consider the logic of intermediate program representation inside one linear sect
 Consider for this a simple example of finding the roots of a quadratic equation.
 We will use listing in the C programming language to write examples and pseudocode.
 Thus, we have a linear section (program code block) at the input of which we have the variables $a$, $b$, $c$ containing the coefficients of the quadratic equation $ax^2 + bx + c = 0$.
-At the linear section output it is required to get the values of the roots, which are calculated by the formulas $x_{1,2} = (-b \pm \sqrt{b^2 - 4ac})/(2a)$.
+At the linear section output it is required to get the values of the roots, which are calculated by the common formulas $x_{1,2} = (-b \pm \sqrt{b^2 - 4ac})/(2a)$.
 
 \begin{lstlisting}[caption={The code block for calculating the roots of quadratic equation.},label={lst:square_equation_1}]
 {
@@ -143,7 +154,7 @@ Thus, the following instructions for working with real numbers appear in the lis
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/square_equation_calculation_tree.pdf}
-\captionstyle{normal}\caption{Tree for calculating the expressions of the roots of the quadratic equation.}\label{fig:square_equation_calculation_tree}
+\captionstyle{normal}\caption{Trees for calculating the roots of quadratic equation.}\label{fig:square_equation_calculation_tree}
 \end{figure}
 
 Figure~\ref{fig:square_equation_calculation_tree} shows two trees of evaluating the expressions $x_1$ and $x_2$.
@@ -153,11 +164,11 @@ The compiler, of course, will simplify the calculation data by collecting common
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.60\textwidth]{pics/def_use.pdf}
-\captionstyle{normal}\caption{The dependency graph of the linear section in the calculation \\ of expressions of quadratic equation's roots.}\label{fig:def_use}
+\captionstyle{normal}\caption{Dependency graph of a linear section which calculates the roots of quadratic equation.}\label{fig:def_use}
 \end{figure}
 
 Nodes of this directed graph are separate operations (shown as dark rectangles), and edges are def-use dependencies between data operations (the $B$ command depends on the data from the $A$ command if uses the data generated by the $A$ command).
-It can be another dependency between operations besides data dependency (control dependency, anti-dependency), but these dependencies are missing in our simple example.
+It can be another dependency between operations besides data dependency (control dependency, anti-dependency), but these types of dependencies are missing in our simple example.
 
 To form the resulting executable code the presence of a def-use graph is not enough.
 It is necessary to line up all commands included in the def-use graph in a single sequence, which will subsequently be written to a linear section of memory.
@@ -200,26 +211,26 @@ Every instruction is considered as a function, which transfers computer from one
 The dataflow processor emulator, which considered in this article, has a dynamic model.
 It permits to pass the commands for execution when their tokens are ready with the simultaneous execution possibility of inner cycle’s iterations and different procedure launches on the same program graph.
 
-The dynamic model of the dataflow processor allows revealing more parallelism in program due to not only the coincidence of command number of the operand tokens, but also several fields, for example, index number, iteration, and subroutine start \cite{Wiley}.
+The dynamic model of the dataflow processor allows revealing more parallelism in program due to not only the coincidence of command number, of the operand tokens, but also of the tokens state \cite{Wiley}.
 
 In contrast with processors with the von Neumann architecture, dataflow processors lack complete orderliness in command execution.
 I.e. if two instructions can be executed in parallel (this is possible in the absence of dependence between them) then the order of their execution is not determined.
 We will consider the same example of the linear section, inside which the roots of the quadratic equation are calculated.
 The program for the dataflow processor is the graph just like the def-use graph showed in Figure~\ref{fig:def_use}.
-Dataflow graph, which is a program for dataflow processor, is also oriented.
+Dataflow graph, which is a program for dataflow processor, is also directed.
 The nodes of this graph also are the instructions, but edges have a completely different meaning.
 In the case of def-use graph, edges were fixed fact of the dependence between two operations (indicating by which variables, by which resource), in case of dataflow graph the edge is a unique data carrier that names token.
 Therefore, the token is a data structure that stores information about transferring data and about the destination point of this data (the identifier consuming this instruction data as well as the argument number, which this data is for the instruction).
-Besides, the token contains additional information (token state) allowing to distinguish instruction, which relates to different function processes or to different loop iteration, but for this example, this is not important, therefore, the description of token state will be omitted.
+Besides, the token contains additional information (token state) allowing to distinguish instruction, which relates to different function processes or to different loop iterations, but for this example, this is not important, therefore, the description of token state will be omitted.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.80\textwidth]{pics/dataflow.pdf}
-\captionstyle{normal}\caption{Dataflow graph of a linear section which calculates \\ the roots of quadratic equation.}\label{fig:dataflow}
+\captionstyle{normal}\caption{Dataflow graph of a linear section which calculates the roots of quadratic equation.}\label{fig:dataflow}
 \end{figure}
 
-Figure~\ref{fig:dataflow} shows us the dataflow graph in the initial time when none of the instructions have been completed yet.
+Figure~\ref{fig:dataflow} shows the dataflow graph in the initial time when none of the instructions have been completed yet.
 In this figure, on the edges of the graph, you can see those tokens that are ready and transferred to the relevant instructions.
 For example, for the instruction 9 MUL two tokens are ready: $\{9, 0, 2.0\}$ (9 -- number of instruction, 0 -- number of argument, 2.0 -- real number), $\{9, 1, a\}$ (9 -- number of instruction, 1 -- number of argument, $a$ -- real number).
 Both arguments for the instruction 9 MUL are ready and instruction can be executed.
@@ -232,7 +243,7 @@ Thus, all instructions in the presented graph will be processed until the requir
 
 The implementation of instruction semantics in a dataflow processor emulator is no different from the same functionality in a traditional processor emulator.
 
-The central functional element for ensuring the operability of the dataflow processor is so-called associative token memory, the implementation of which is the purpose of this article.
+The central functional element for ensuring the operability of the dataflow processor is so-called associative token memory, which is designed to store and search tokens for ready-to-execute commands.
 
 Associative token memory is a repository of tokens that are currently created and are being executed in the program.
 Moreover, if it turns out that in the associative memory there are all the necessary arguments for a command, they are immediately removed from the associative memory and sent for execution to the command.
@@ -252,7 +263,7 @@ In the figure ~\ref{fig:dataflow} the token located in the associative memory is
 After execution of the instructions 9 MUL, 1 MUL, 4 NEG and 3 MUL, the only instruction ready for execution is 2 MUL.
 The state of the computer before executing this instruction is shown in the figure ~\ref{fig:dataflow2}.
 In this figure, the 2 MUL instruction ready for execution is visible, as well as several tokens that have been passed into associative memory.
-Further execution of the program is similar and at the end we come to the formation of two tokens on the output edges of operations 10 DIV and 11 DIV, which will then be sent to their consumer instructions..
+Further execution of the program is similar and at the end we come to the formation of two tokens on the output edges of operations 10 DIV and 11 DIV, which will then be sent to their consumer instructions.
 
 In the same processors, overflow of the associative memory is unacceptable, that is why the associative memory must have high capacity and be fast at the same time, which is difficult to realize into practice.
 That is the point to implement the emulator, which will help to get closer to creating such the dataflow processor while revealing all possible errors and shortcomings.
@@ -264,49 +275,44 @@ Consider the architecture of the dataflow processor emulator in general, present
 \begin{figure}[h!]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse
-\center{\includegraphics[width=0.80\textwidth]{pics/big-scheme.pdf}}
-\captionstyle{normal}\caption{General architecture of a dataflow processor.}
+\center{\includegraphics[width=1.0\textwidth]{pics/big-scheme2.pdf}}
+\captionstyle{normal}\caption{General architecture of dataflow processor.}
 \label{fig:big-scheme}
 \end{figure}
 
+The vector dataflow processor emulator is implemented using four infinite processes that exchange messages with each other.
+Each process is a separate processor entity and has its own functionality.
 
-Consider the main objects presented in Figure~\ref{fig:big-scheme}. Number 1 is the program, which is the input data for the emulator and presented in the form of a directed graph. Number 2 is the process serving the content-addressable token memory, which serves to collect the individual command's arguments. Number 3 is a buffer (a queue) of ready-made commands that can transfer for execution. Number 4 indicates the actuator, which in the scheme is not divided into scalar and vector. Between the described objects, the following interaction options are provided.
+The main process $main$ is the lead in the emulator.
+He is the host of three basic data structures that reflect the execution of the program.
+The $tokens$ structure contains a list of tokens that currently exist during program execution.
+The structure of $graph$ is a directed graph that implements the logic of the program.
+Finally, the $semantic$ structure describes the semantics of processor instructions, that is, it contains the implementation of functions that, according to a set of input tokens, generate sets of output tokens for each instruction.
 
-At the first moment, the input tokens (which can be form before the instructions execution) are determined by the program graph, these tokens are received in the CAM. The process serving the CAM runs continuously. As soon as a set of tokens found inside CAM, which is a complete set of arguments for the command, this command immediately sent to the buffer of commands ready for execution. The process serving the executive buffer also runs continuously. Its only task is to send commands from the buffer one by one for execution. After the next command executed on the actuator, the output tokens of this command determined (using the program graph) and then these tokens again transferred to the CAM. This cycle of information exchange between the elements of the emulator continues until the program shutdown command will execute. Thus, the architecture of the dataflow processor described in terms of individual processes that interact with each other through messaging. At the same time, the emulator does not have a global state, which corresponds to the ideology of the dataflow processor. Erlang programming language \cite{Armstrong,Cesarini} was chosen to implement the dataflow processor emulator.
+The next process under consideration is the $ast\_mem$ process, which implements the logic of associative token memory.
+The interface of this process consists of one single function -- to put a token in associative memory.
+In the event that this token is the last missing element for executing any instruction, then the entire set of input tokens for this instruction is deleted from the associative token memory and transferred to form a command that is ready for execution.
 
-Erlang programming language is a functional language designed to implement separate parallel processes that exchange messages. Messaging between processes is the only way to ensure communication between processes (the language does not have the concept of shared memory) it is supported at the syntactic level. Parallel to the execution of processes is a natural behavior of the language; therefore, it is not necessary to implement additional tools to ensure the interaction of system elements.
+For storage of ready-to-execute commands, the process $exe\_buf$ is intended.
+This process is a simple queue containing all currently ready commands.
+Accordingly, in this queue, you can add a command along with its ready token arguments, or you can get some command and remove it from the queue.
 
-If we consider the elements of a dataflow processor emulator, then the implementation of the content-addressable token memory of particular interest. The implementation of the actuator does not fundamentally differ from the implementation in the emulator of the classical processor (the implementation of the semantics of instructions that create output tokens using input tokens). The buffer of commands ready for execution is simply a queue of commands, so its implementation is also trivial. Consider the implementation of a key element of the dataflow processor -- content-addressable token memory.
+To implement work with vector arguments of commands, a vector storage is intended, which is implemented using the $vec\_mem$ process.
+Work with this repository is carried out using the vector address.
+The vector memory interface consists of such requests as: allocate a new vector, get a vector from memory, get a vector element, write a specific value to a vector element, etc.
 
-\begin{lstlisting}[caption={Implementation of the logic of the contest-addressable token memory.},label={lst:assoc}]
-set_token({CId, E, _} = T, Args, D) when (Args > 1) ->
-	FullEntries = lists:seq(0, Args - 1, 1),
-	ET = {E, T},
-	case dict:find(CId, D) of
-		error ->
-			dict:append(CId, ET, D);
-		{ok, Vs} ->
-			{Es, Ts} = lists:unzip(lists:sort(Vs ++ [ET])),
-			case Es of
-				FullEntries ->
-					{Ts, dict:erase(CId, D)};
-				_ ->
-					dict:append(CId, ET, D)
-			end
-	end.
-\end{lstlisting}
+The logic of the emulator consists of an endless poll of the head process $main$.
+At each iteration of the survey, the following logic for processing data structures $tokens$, $graph$ and $semantic$ is performed.
+If the $tokens$ structure contains tokens, then one of them is taken and sent to $ast\_mem$.
+After that, depending on the response of the process $ast\ _mem$, the token can simply be added to the associative memory of tokens, or a ready-to-execute command can be generated and placed in the buffer $exe\_buf$.
+If the structure $tokens$ is empty, then the head process receives the first (or arbitrary) command from the ready-made instructions buffer and executes it using the semantics storing in $semantic$ structure.
+Next, the generated tokens of the result of the executed command using the $graph$ structure receive information about the destination commands and are added to the $tokens$ structure.
+After that, the program execution cycle continues again until the target tokens are received and the buffer of ready-to-execute instructions is empty.
 
-At Listing~\ref{lst:assoc} there is the compact logic implementation of content-addressable token memory in the Erlang programming language.
-All the logics realize with one function $set\_token$ with three arguments: $T$ -- added token (which consists of the instructions identifier $CId$, number of argument $E$, and dates), $Args$ -- the number of arguments of the instruction for which the token is added, $D$ -- dictionary which token content-addressable memory is implemented.
-The function logic turns to the next: to extract from the dictionary all the tokens, which are associated with the key $CId$, and check if they close all the arguments of considered instruction (i.e. numbers of the arguments form a sequence $[0, 1, .. Args - 1]$.).
-If the added token is the last missing argument of the considered instruction, then we need to extract all the tokens from the dictionary and return them back in the form of a list for executing the instruction (line 11).
-Otherwise, token should be added in the dictionary tying it to a key $CId$ (lines 6 and 13).
-
-Note that the most simplified implementation is given.
-It is not considered the possibility of using the token state for instructions identify from different function calls or from different cycles iteration (for completeness as a key of dictionary together with instruction identifier $CId$ should also use the token state).
-In the given implementation, exception handling also is not considered.
-For example, the sequential addition of two tokens in the content-addressable memory that is the same argument of the same instruction should cause the error.
-However, despite the incompleteness of implementation, it shows here logic allows providing the functionality of the content-addressable token memory, which needed for execution of the dataflow processor’s program.
+The described logic of the interaction of the processes of the emulator of a dataflow processor is implemented using the Erlang programming language \cite {Armstrong, Cesarini}.
+Erlang programming language is a functional language designed to implement separate parallel processes that exchange messages.
+Messaging between processes is the only way to ensure communication between processes (the language does not have the concept of shared memory) it is supported at the syntactic level.
+Parallel to the execution of processes is a natural behavior of the language; therefore, it is not necessary to implement additional tools to ensure the interaction of system elements.
 
 In the dataflow processor, communication between two instructions is much quicker if these instructions are allocated to the same processing element.
 Thus a program may run much faster if its instructions are clustered to minimize communication traffic between clusters and each cluster is allocated to one processing element.
@@ -315,16 +321,15 @@ Depending on the area of application, the technology of fabrication, and the tim
 
 \section{Conclusion}
 
-The article discusses the differences in the implementation of an executable program designed for a processor with von Neumann architecture and a dataflow processor.
-The differences between the use-define graph and the dataflow graph are shown, which reflect the program logic within the linear section.
-The necessary element of dataflow processor’s realization shown -- content-addressable token memory with which can storage and quick search the ready-made tokens for the commands, which may transfer for execution.
-A compact implementation of the content-addressable token memory for instructions with an arbitrary number of iterations is given.
-That realization can be expanded for any program for the dataflow processor including which use cycles and function calls (including recursive).
-This approach to organizing of the content-addressable token memory used in the implementation of the vector processor with dataflow architecture emulator, which is developing at the JSCC RAS.
+The article discusses the differences in the implementation of an executable program designed for a processor with von Neumann architecture and for a dataflow processor.
+The differences between the def-use graph and the dataflow graph are shown, which reflect the program logic within the linear section.
+A dataflow processor emulator implementation is considered, including associative token memory, with which it is possible to store and quickly find ready-made data for commands that can be transferred for execution.
+This dataflow processor emulator architecture can be used for implementing dataflow processor with arbitrary logic and semantic of instructions.
+This approach to dataflow processor emulator is used in the emulator implementation of a vector dataflow processor which is being developed at the JSCC RAS.
 
 \begin{acknowledgments}
 The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8).
-The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+The supercomputer MVS-10P, located at the JSCC RAS, was used during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}

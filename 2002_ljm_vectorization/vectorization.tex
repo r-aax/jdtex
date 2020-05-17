@@ -68,7 +68,7 @@ Widespread application of supercomputer technologies in various spheres of life,
 Vectorization of program code is a low-level optimization that can, with a relatively local and compact application, increase the productivity of computational codes by several times.
 Modern Intel microprocessors have support for a unique set of instructions AVX-512, which, due to its features, allows you to vectorize almost any kind of code written in a predicate form.
 A set of simple restrictions when developing programs along with vectorization tools to enable the use of the AVX-512 instruction set can significantly speed up the resulting program.
-The article discusses approaches to vectorization of flat loops - a special-purpose program context, the successful vectorization of which allows to increase the productivity of supercomputer applications even for such program code for which optimizing compilers are powerless.
+The article discusses approaches to vectorization of flat loops -- a special-purpose program context, the successful vectorization of which allows to increase the productivity of supercomputer applications even for such program code for which optimizing compilers are powerless.
 \end{abstract}
 
 \subclass{68N19} % Enter 2010 Mathematics Subject Classification.
@@ -229,7 +229,7 @@ Now we consider the main classes of instructions suitable for vectorization of f
 The first type of operations in question are vector operations with one argument.
 In this case, the same operation is applied to each element of the vector (for example, obtaining the reciprocal of the value or calculating the square root), after which the results are written into the resulting vector.
 With the help of an additional predicate argument, you can select subset of processed elements of the vector.
-If an operation should not be applied to the vector element, then the corresponding element of the resulting vector can either be left unchanged or zeroed (this is regulated by a separate flag in the instruction).
+If an operation should not be applied to the vector element, then the corresponding element of the resulting vector can either be left unchanged or zeroed (this is regulated by a special flag in the instruction).
 
 The semantics of arithmetic vector instructions with two and three arguments are written in the same way.
 Operations with two arguments are the usual operations of addition, subtraction, multiplication, obtaining the maximum of two numbers and others.
@@ -391,7 +391,7 @@ The main problem in vectorizing this fragment is that for different values of $w
 To ensure vectorization, you need to create a special vector predicate that will signal for which $w$ it is necessary to continue the internal loop, and for which it should be interrupted.
 A complete termination of a loop will occur only when the entire vector predicate of the loop continuation becomes zero.
 To vectorize the indicated nest, it must first be transformed into a predicate form.
-It is important to distinguish two predicates: predicate of need for iteration execution and predicate of logic expression $sqrt(x[w] < 1.0$.
+It is important to distinguish two predicates: predicate of need for iteration execution and predicate of logic expression $sqrt(x[w]) < 1.0$.
 The peculiarity of this fragment is that in the case of a false predicate for the next iteration of the loop, we no longer have the right to check the condition $sqrt (x [w]) <1.0$ (since the argument of the square root extraction function will become negative), that is, checking of this condition should occur under the predicate of the loop iteration (for scalar code this is already fulfilled, and for the vector analogue this requirement must be provided explicitly).
 Listing~\ref{lst:while_loop_pred} shows a predicate representation of this nest.
 

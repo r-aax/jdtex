@@ -63,94 +63,92 @@ escapeinside={\%*}{*)}
 \received{May 01, 2020}
 
 \begin{abstract}
-Abstract.
-\end{abstract}
+The article discusses the approach to the analysis of business processes, called process mining, and the directions of its application.
+In particular, a description of the process discovery algorithm is provided, with the help of which the process model is reconstructed  from the event log in the form of a workflow graph.
+The implementation and improvement of the algorithm are proposed, which allow avoiding costly enumeration of all subsets of activities included in the analyzed process model.
+The proposed approach allows the use of process discovery algorithm for large event logs.\end{abstract}
 
-\subclass{} % Enter 2010 Mathematics Subject Classification.
+\subclass{68R10} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{Keyword1, keyword2.}
+\keywords{Process mining, process discovery algorithm, Petri nets, process model, event logs.}
 
 \maketitle
 
 \section{Introduction}
 
-Process mining представляет собой совокупность подходов и методов по извлечению относящейся к процессам достоверной информации из данных, собранных в журналах событий.
-Process mining является дополнением к технологии управления бизнес-процессами (Business Process Management, BPM), которая в свою очередь является расширением технологии управления рабочими процессами (Workflow Management, WFM).
-Технология WFM исторически была направлена прежде всего на автоматизацию бизнес-процессов с механической точки зрения, тогда как с применением подходов BPM уделяется особое внимание другим аспектам, в которых могут быть скрыты узкие места (человеческий фактор, особенности организации, нечеткие правила и другие).
-В настоящее время большинство информационных систем по анализу процессов (Process-Aware Information System, PAIS) в составе серьезного программного обеспечения класса планирования ресурсов предприятия (Enterprise Resource Planning, ERP), кроме классических инструментов WFM включает расширения BPM и подходы process mining.
-Однако зачастую данные системы так и остаются системами анализа и уведомления, оказываясь недостаточно интегрированными в цифровое пространство.
-Наряду с термином PAIS для таких систем применяется также термин BPMS (BPM System) или просто PMS (Process Management System).
+Process mining \cite{Aalst} is a collection of approaches and methods for extracting process related information from event logs.
+Process mining is closely related to areas such as business process management (BPM) \cite{BPM} and workflow management (WFM) \cite{WFM}.
+WFM technology has historically been primarily aimed at automating business processes from a mechanical point of view, while using BPM approaches, special attention is paid to other aspects in which bottlenecks can be hidden (human factor, organization features, fuzzy rules, and others).
+Currently, many process-aware information systems (PAIS), in addition to the classic WFM tools, include BPM extensions and process mining approaches.
+However, often these systems remain analysis and notification systems, being insufficiently integrated into the digital space.
+Along with the term PAIS \cite{PAIS}, the term BPMS (BPM system) or simply PMS (process management system) is also used for such systems.
 
-Любая система анализа процессов работает с моделью процесса, которая записывается с использованием одной или нескольких нотаций.
-Эти нотации представляют сущность процесса и по сути являются макроописаниями ориентированных графов специального вида.
-Основными объектами моделей процессов являются активности, состояния, переходы и подпроцессы.
-Переходы между разными активностями, также называют зависимостями.
-Совокупность зависимостей между активностями и дополнительные условия, накладываемые на модель процесса, порождают множество возможных последовательностей смены состояний, или множество сценариев протекания процесса.
-В зависимости от детализации процессов могут применяться дополнительные атрибуты любых объектов модели процесса: привязки ко времени, продолжительность активностей, логика зависимостей, ресурсы и стратегии их использования, роли исполнителей активностей и многие другие.
-Такое многообразие, возникающее при моделировании процессов, порождает огромное количество методов анализа процессов и протекания сценариев, и может служить источником полезных и не всегда очевидных знаний, используемых для оптимизации процессов.
+Any process analysis system works with a process model that is written using one or more notations.
+These notations represent the essence of the process and are essentially macro-descriptions of directed graphs of special kind.
+The main objects of process models are activities, states, transitions and subprocesses.
+Transitions between different activities are also called dependencies.
+The set of dependencies between activities and also additional conditions imposed on the process model give rise to many possible sequences of state changes, or many scenarios of the process.
+Depending on the details of the processes, additional attributes of any objects of the process model can be used: time references, duration of activities, dependency logic, resources and strategies for their use, roles of activity performers, and many others.
+Such a variety that arises in the modeling of processes generates a huge number of methods for analyzing processes and scenarios, and can serve as a source of useful and not always obvious knowledge used to optimize processes.
 
-Модели процессов, записанные с помощью формальной нотации, могут быть использованы для различных целей: обзор (при разработке модели команда рассматривает процесс с различных точек зрения и может детально остановиться на отдельных ее локальных особенностях), обсуждение (формальная запись модели процесса с конкретных точек зрения делает возможным проведения дискуссии между всеми стейкхолдерами, участвующими в разработке модели), документация (формальная запись модели допускает даже автоматическое создание документации), верификация (некоторые очевидные ошибки, могут быть обнаружены при анализе одной лишь топологии графа модели, например это могут быть мертвые участки процесса, дедлоки, бесконечные циклы и другие), анализ производительности (с помощью симуляции на модели процесса могут быть быстро выявлены и устранены узкие места), визуализация (с помощью анимированной визуализации разработка и отладка моделей процессов может быть сильно упрощена), спецификация (из формальной модели могут быть сгенерированы описания интерфейсов и протоколов взаимодействия еще до интеграции в единое цифровое пространство), конфигурация (описание модели процесса может быть использовано для настройки и конфигурации системы при ее внедрении).
-Обычно при разработке некоторого процесса существует одновременно неформальная модель (используемая для обсуждения и документации) и формальная модель, пригодная для проведения симуляций (используется для анализа и улучшения). 
+Process models recorded using formal notation can be used for various purposes: a review from various points of view, discussion of a process model between all participants, preparation of documentation (including in automatic mode), verification (some obvious errors may be detected just by analyzing the topology of the model graph, for example, it can be dead sections of the process, deadlocks, infinite loops and others), performance analysis (simulations of the process model can be used for bottlenecks identification and elimination), visualization of the process to simplify the analysis, specification (from the formal model, descriptions of interfaces and interaction protocols can be generated even before integration into a single digital space), configuration (the description of the process model can be used to configure the system during its implementation).
+Typically, when developing a process, there is both an informal model (used for discussion and documentation) and a formal model suitable for simulations (used for analysis and improvement). 
 
-Неформальные модели часто бывают оторванными от жизни, абстрактными, идеализированными, тогда как формальные модели, наоборот, слишком детализированы и зачастую непонятны конечным стейкхолдерам и высшему руководству.
-Между этими двумя моделями нет золотой середины, и это часто приводит к дополнительным рискам при разработке модели процесса, так как по сути тестируемая и анализируемая исполняемая модель сильно отличается от той модели, что присутствует на презентациях для руководства.
-Но даже это не является главной проблемой.
+Informal models are often divorced from life, abstract, idealized, while formal models, on the contrary, are too detailed and often understandable only to the actual developers of the model.
+There is no middle ground between these two models, and this often leads to additional risks when developing a process model, since in fact the tested and analyzed executable model is very different from the model at the presentations.
+But even this is not the main problem.
 
-Основная проблема любой модели процесса это то, что заранее неизвестно, насколько модель соотносится с действительностью.
-В реальности в процессы включены люди, логика взаимодействия которых с системой неизмеримо сложна, и точное моделирование поведения человека, его системы мотивации и других особенностей невозможно в фиксированной модели процесса (модель процесса не может перерабатываться с учетом каждой отдельной персоналии).
-В результате может оказаться, что великолепно проработанная и отлаженная модель процесса оказывается нежизнеспособной при внедрении в работающую систему.
-Выходом из данной ситуации может быть только наличие обратной связи между процессом, протекающим в реальном мире, и моделью процесса.
-Такая обратная связь в терминах подхода process mining выражается в регистрации событий об отдельных активностях и фиксации данных событий в специальных хранилищах, которые называются журналы событий.
+The main problem of any process model is that it is not known in advance how much the model relates to reality.
+In reality, people are included in the processes, the logic of their interaction with the system is immeasurably complex, and accurate modeling of a person’s behavior, his motivation system and other features is impossible in a fixed process model (the process model cannot be rebuild taking into account each individual person).
+As a result, it may turn out that a superbly worked out and debugged process model is not viable when implemented in a working system.
+The only way out of this situation can be the presence of feedback between the process taking place in the real world and the process model.
+Such feedback in terms of the process mining approach is expressed in the registration of events about individual activities and the recording of event data in special repositories called event logs.
 
-Жизненный цикл процесса можно разбить на 4 основные стадии.
-Сначала осуществляется проектирование модели процесса, затем модель транформируется в рабочую систему (стадия конфигурации/реализации).
-Во время работы системы осуществляется ее мониторинг, в процессе которого непрерывно выполняется локальная регулировка процесса.
-Данная стадия может продолжаться довольно долго, пока не накопится достаточно оснований, которые могут послужить триггером к повторному проектированию модели процесса (это может быть как низкая наблюдаемая производительность работающей системы, так и изменившиеся внешние условия функционирования).
-В первых двух стадиях жизненного цикла процесса основную роль играет модель процесса, тогда как на последующих двух стадиях первостепенными являются данные. 
+Event logs are filled in during the operation and monitoring of a working system and should be used to optimize the process model when re-designing this model \cite{Redesign}.
+However, at present, the data accumulated during monitoring the functioning of the system are not fully used to analyze the performance of the process model.
+Very few organizations verify compliance of accumulated data and the process model, and often the reasons for re-designing the process model are not performance issues, but external factors, such as changes in legislation, policies, standards, or changes in external cooperation.
+Thus, there are risks that the process model may be repeatedly redesigned, but retain the weaknesses and bottlenecks that lead to constant low system performance.
+There is a kind of vicious circle, the only way out of which is the intellectual analysis of monitoring data (event logs), with subsequent feedback when improving the process model.
 
-Однако в настоящее время данные, накопленные во время мониторинга функционирования системы, не используются в полной мере для анализа производительности модели процесса.
-Очень немногие организации выполняют проверку соответствия накопленных данных и модели процесса и зачастую причинами перехода на стадию повторного проектирования являются не вопросы производительности, а внешние факторы, такие как изменение законодательства, политики, стандартов или изменения во внешней кооперации.
-Таким образом, существуют риски, что модель процесса может неоднократно подвергаться повторному проектированию, однако сохранять в себе недостатки и узкие места, которые приводят к постоянной низкой производительности системы.
-Возникает своего рода порочный круг, выходом из которого может служить только интеллектуальный анализ данных мониторинга (журналов событий), с последующей обратной связью в жизненном цикле процесса.
+Process mining is a new discipline, with the help of which the analysis of the monitoring data of a working system is carried out, on the basis of which you can get knowledge about the actual course of a process, which allows you to work with the process itself, and not with its idealized model.
 
-Process mining является новой дисциплиной, с помощью которой осуществляется анализ данных мониторинга работающей системы, на основании которого можно получить знания об актуальном протекании того или иного процесса, что позволяет работать именно с самим процессом, а не с его идеализированной моделью.
+While applying process mining technology, the business process model interacts with a working information system, the outside world and accumulated data.
+The process model is transformed into a process implemented within the information system through which interaction with the outside world is carried out.
+At the same time, events coming from the outside world through an information system are recorded in event logs.
+The main application of process mining arises when analyzing the interaction of a process model and accumulated data.
 
-В процессе применения технологии process mining выполняется взаимодействие модели бизнес процесса с работающей информационной системой, внешним миром и накопленными данными.
-Модель процесса трансформируется в процесс, реализованный внутри информационной системы, через которую осуществляется взаимодействие с внешним миром.
-В то же время события, поступающие от внешнего мира через информационную систему, записываются в журналы событий. Основное применение process mining возникает при анализе взаимодействия модели процесса и накопленных данных.
+There are three main areas of process mining.
+The first direction is the construction of a process model based on accumulated data (process discovery) \cite{BPM2_Discovery}.
+It consists in the analysis of the actual accumulated data on the course of the real process (fixed chains of data flows, a log of the interaction of process participants with each other, message passing between process participants) and the construction of a process model based on it without using information about the designed idealized model.
+The second area is called conformance testing \cite{Conformance}.
+The purpose of this type of analysis is to verify the conformity of the developed model and the event logs related to this model.
+When conducting this check, it is possible to detect regions in the process model that are not sufficiently covered by data from event logs or regions with insufficiently clear logic, within which the course of the real process slows down due to the additional costs of overcoming these difficulties.
+For example, in the place of a fuzzy description of the logic of the process, additional coordination of some action that is not reflected in the process model may be required.
+In this case, the model can demonstrate high performance, however, with real flow, the process will slow down or even block.
+The third area or process mining is process improvement based on analysis (process enhancement) \cite{Enhancement}.
+If checking the conformity of the process model and its data helps to find places where the process model diverges from reality, then in this direction it is possible to develop recommendations on how to change the process model in order to reduce this discrepancy.
+Improvements may relate to the modification of the process model to more accurately reflect reality, and may cause the model to expand if the logic of the existing model is too meager to reflect the complex interactions of the process participants.
 
-Можно выделить три основных направления проведения анализа process mining.
-Первое направление это построение модели процесса на основе накопленных данных (process discovery).
-Заключается оно в анализе актуальных накопленных данных о протекании реального процесса (зафиксированные цепочки потоков данных, журнал взаимодействия участников процесса друг с другом, передача сообщений между участниками процесса) и построение на его основе модели процесса без использования информации о спроектированной идеализированной модели.
-Второе направление называется проверкой соответствия (conformance).
-Назначение данного типа анализа это проверка соответствия разработанной модели и журналов событий, относящихся к данной модели.
-При проведении данной проверки можно обнаружить регионы в модели процесса, которые недостаточно покрыты данными из журналов событий или регионы с недостаточно четкой логикой, внутри которых протекание реального процесса замедляется в связи с дополнительными издержками на преодоление этих трудностей.
-Например, в месте нечеткого описания логики протекания процесса может требоваться дополнительное согласование некоторого действия, не отраженное в модели процесса.
-В этом случае модель может демонстрировать высокую производительность, однако при реальном протекании процесс может тормозиться или даже блокироваться в данном скрытом узле.
-Третьим направлением process mining является усовершенствование процесса на основе анализа (enhancement).
-Если проверка соответствия модели процесса и его данных помогает обнаруживать места, в которых модель процесса расходится с реальностью, то в данном направлении возможна выработка рекомендаций, как нужно изменить модель процесса, чтобы уменьшить данное расхождение.
-Усовершенствования могут касаться модификации модели процесса для более точного отражения реальности, а могут послужить причиной расширения модели, если логика существующей модели слишком скудна, чтобы отразить сложные взаимодействия участников процесса.
+It is worth noting that the logic of the process, data flows, interaction within the process, messaging are the most simple aspects that affect process mining.
+However, technology is not limited to these aspects.
+Resource allocation, planning issues, decision rules, complex interaction logic, probabilistic events all of these aspects also apply to process mining and can be analyzed using the tools of this technology \cite{Metrics}.
 
-Стоит отметить, что логика протекания процесса, потоки данных, взаимодействие внутри процесса, обмен сообщениями являются самыми низовыми аспектами, которые затрагивает process mining.
-Однако технология не ограничивается только этими аспектами.
-Распределение ресурсов, вопросы планирования, правила принятия решений, сложная логика взаимодействия, вероятностные события все эти аспекты также относятся к применению process mining и могут быть проанализированы с использованием инструментов данной технологии.
-
-В данной статье рассматривается алгоритм построения реального процесса на основе данных журнала событий и рассмотрены пути оптимизации данного алгоритма.
+This article discusses an algorithm for constructing a real process based on data from an event log and discusses ways to optimize this algorithm.
 
 \section{Simple Process Discovery Algorithm}
 
-В данной статье будем рассматривать описание модели процесса с помощью WFN.
-WFN отражает только последовательность выполнения активностей во время протекания сценария процесса и не затрагивает другие аспекты анализа процесса.
-WFN является ориентированным графом, ребра которого способны передавать токены, которые отражают ход протекания сценария процесса.
+In this article we will consider the description of the process model using workflow nets (WFN) \cite{WorkflowNets}.
+WFN reflects only the sequence of activities during the flow of the process scenario and does not affect other aspects of the analysis.
+WFN is a directed graph whose edges are capable of transmitting tokens that reflect the course of the scenario.
 
-Узлы WFN могут быть двух типов.
-Узлы первого типа являются местами для нахождения токенов (на схемах моделей процессов далее показаны белыми прямоугольниками, метки мест обозначаются $p0$, $p1$ и т.д.).
-Узлы второго типа представляют активности процесса (на схемах моделей процессов далее показаны черными прямоугольниками, метки активностей имеют имена $a$, $b$ и т.д.).
-В WFN специально выделены два места: $I$ -- глобальный вход, с которого начинается выполнение сценария процесса, $O$ -- глобальный выход, на котором заканчивается выполнение сценария  процесса (эти специальные места далее на схемах моделей процессов показаны серыми прямоугольниками).
+There are two types of WFN nodes.
+The nodes of the first type are tokens places (on the diagrams of process models are shown below with white rectangles, place labels are denoted $p0$, $p1$, etc.).
+The nodes of the second type represent the activities of the process (in the diagrams of the process models are shown below with black rectangles, the activity labels are named $a$, $b$, etc.).
+Two token places are specially emphasized in WFN: $I$ is the global input from which the scenario starts, $O$ is the global output where the scenario ends (these special places are shown by gray rectangles on the diagrams of process models).
 
-Ребра WFN могут соединять только узлы разного типа (то есть предшественником или последователем места может быть только активность, предшественником или последователем активности может быть только место).
-В ходе протекания процесса некоторая активность может быть выполнена только если все места-предшественники данного узла содержат токены.
-После выполнения некоторой активности в WFN токены из узлов-предшественников удаляются, после чего создаются новые токены, которые распространяются по всем выходным ребрам и помещаются во все узлы-последователи данной активности.
+WFN edges can connect only nodes of different types (that is, only activity can be a predecessor or successor of a token place, only a token place can be a predecessor or successor of an activity).
+During the course of the process, some activity can be performed only if all the predecessor token places of this node contain tokens.
+After performing some activity in WFN, tokens from the predecessor nodes are deleted, after which new tokens are created, which are distributed along all output edges and are placed in all successor nodes of this activity.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -160,60 +158,62 @@ WFN является ориентированным графом, ребра к�
 \label{fig:wfn-patterns}
 \end{figure}
 
-Рассмотрим основные локальные шаблоны протекания процесса, которые можно отобразить с помощью WFN (см. рисунок~\ref{fig:wfn-patterns}).
+Consider the main local patterns of the process that can be displayed using WFN (Figure~\ref{fig:wfn-patterns}).
 
-На рисунке~\ref{fig:wfn-patterns} a) представлена обычная последовательность активностей $a \rightarrow b$.
-Данный шаблон предписывает, что после выполнения активности $a$ токен будет помещен в место $p0$.
-После этого окажется, что для активности $b$ выполнено условие, что все ее предшественники содержат токены (так как единственный предшественник $b$ это $p0$).
-Таким образом, активность $b$ будет выполнена, токен удален из места $p0$ и новые токены будут отправлены по выходным дугам в узлы-последователи активности $b$.
+Figure~\ref{fig:wfn-patterns}a shows the usual sequence of activities $a \rightarrow b$.
+This template prescribes that after the $a$ activity is completed, the token will be placed in the place of $p0$.
+After that, it turns out that the condition $b$ is fulfilled that all its predecessors contain tokens (since the only predecessor $b$ is $p0$).
+Thus, the $b$ activity will be performed, the token will be removed from the place $p0$, and new tokens will be sent along the output edges to the nodes-successors of the $b$ activity.
      
-На рисунке~\ref{fig:wfn-patterns} b) показан шаблон XOR-split, который реализует выбор одной из активностей после выполнения активности $a$.
-После выполнения активности $a$ место $p0$ оказывается занятым токеном, который может быть использован при выполнении только одной из активностей $b$ или $c$.
-Таким образом возможно выполнение либо последовательности активностей $a \rightarrow b$, либо последовательности $a \rightarrow c$.
+Figure~\ref{fig:wfn-patterns}b shows an XOR-split template that implements the selection of one of the activities after the execution of the $a$ activity.
+After the activity $a$ has been completed, the place $p0$ is occupied by a token, which can be used when only one of the activities $b$ or $c$ is performed.
+Thus, it is possible to execute either a sequence of activities $a \rightarrow b$ or a sequence $a \rightarrow c$.
 
-На рисунке~\ref{fig:wfn-patterns} c) показан шаблон XOR-join, который по аналогии реализует выполнение либо последовательности активностей $a \rightarrow c$, либо последовательности активностей $a \rightarrow b$.
+Figure~\ref{fig:wfn-patterns}c shows the XOR-join template, which by analogy implements either a sequence of activities $a \rightarrow c$ or a sequence of activities $b \rightarrow c$.
 
-На рисунке~\ref{fig:wfn-patterns} d) показан шаблон AND-split, который реализует выполнение обеих активностей $b$ и $c$ после выполнения активности $a$.
-Как только активность $a$ оказывается выполненной, то в места $p0$ и $p1$ попадают токены, которые делают возможным выполнение активностей $b$ и $c$.
-При этом не важен порядок, в котором эти активности будут выполнены.
+Figure~\ref{fig:wfn-patterns}d shows the AND-split pattern, which implements the execution of both $b$ and $c$ after the $a$ activity.
+As soon as the $a$ activity is completed, tokens fall into the places $p0$ and $p1$, which make it possible to execute the $b$ and $c$ activities.
+In this case, the order in which these activities will be performed is not important.
 
-На рисунке~\ref{fig:wfn-patterns} e) показан шаблон AND-join, демонстрирующий, каким образом активность $c$ может быть выполнена только после выполнения обеих активностей $a$ и $b$.
-Активность $c$ требует для своего выполнения наличия токенов сразу в $p0$ и $p1$, а это может произойти только после выполнения обеих активностей $a$ и $b$.
+Figure~\ref{fig:wfn-patterns}e shows the AND-join pattern, demonstrating that the activity $c$ can be performed only after the execution of both activities $a$ and $b$.
+The $c$ activity requires for its execution the presence of tokens immediately in $p0$ and $p1$, and this can happen only after the execution of both $a$ and $b$ activities.
+The execution order of the $a$ and $b$ activities is not important in this case.
 
-После описания данной упрощенной модели процесса с помощью WFN можно перейти собственно к алгоритму построения модели на основании журнала событий.
-В данном случае журналом событий является просто список сценариев, каждый из которых представляет собой упорядоченную последовательность активностей.
-Требуется по предоставленному журналу событий построить модель процесса, описанную с помощью WFN, которая реализует все сценарии из данного журнала.
+After describing this simplified process model using WFN, we can proceed directly to the algorithm for constructing the model based on the event log.
+Process discovery algorithm description is based on fundamental work of W. M. van der Aalst \cite{Aalst} in scope of process mining.
+In this case, an event log is simply a list of scenarios, each of which is an ordered sequence of activities.
+According to the provided event log, it is required to build a process model described using WFN that implements all the scenarios from this log.
 
-Будем рассматривать простые сценарии, на которых будет видно, насколько сильно влияют записи журнала событий на реальную модель процесса.
-Например, пусть у нас есть идеальная модель некоторого процесса, который состоит из фиксированной последовательности активностей, которые должны быть выполнены в строго определенной последовательности.
-Вот эта последовательность активностей: $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.
-Данной последовательности активностей соответствует следующая модель процесса, представленная на рисунке~\ref{fig:origin1}
+We will consider simple scenarios in which it will be seen how strongly the event log entries affect the real process model.
+For example, let us have an ideal model of a process, which consists of a fixed sequence of activities that must be performed in a strictly defined sequence.
+Here is the sequence of activities: $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.
+This sequence of activities corresponds to the following process model shown in the figure~\ref{fig:origin1}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/origin1.png}
-\captionstyle{normal}\caption{Модель процесса, построенная по одному сценарию $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.}
+\captionstyle{normal}\caption{Process model that build from one scenario $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.}
 \label{fig:origin1}
 \end{figure}
 
-Даже если все участники процесса согласны с такой определенной последовательностью активностей, которая необходима для протекания сценария, то обычно в реальности случаются ситуации, когда процесс протекает по-другому.
-Представим себе простую ситуацию, когда ввиду спешки или форс-мажора были опущены все промежуточные активности в выполнении сценария и в журнале событий оказалась запись $a \rightarrow f$.
-На рисунке~\ref{fig:second1} показана новая модель процесса, которая отражает также и этот появившийся упрощенный сценарий.
+Even if all participants in the process agree with such a specific sequence of activities that is necessary for the scenario to proceed, then in reality situations usually happen when the process proceeds differently.
+Imagine a simple situation when, due to rush or force majeure, all intermediate activities in the scenario execution were omitted and the entry $a \rightarrow f$ appeared in the event log.
+Figure~\ref{fig:second1} shows a new process model that also reflects this simplified scenario.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/second1.png}
-\captionstyle{normal}\caption{Скорректированная модель процесса после обработки сценария $a \rightarrow f$.}
+\captionstyle{normal}\caption{Adjusted process model after processing the scenario $a \rightarrow f$.}
 \label{fig:second1}
 \end{figure}
 
-На этом рисунке мы уже видим появление шаблонов XOR-split и XOR-join, и в общем модель процесса заметно усложнилась.
+In this figure, we already see the emergence of the XOR-split and XOR-join patterns, and in general the process model has become much more complicated.
 
-А теперь рассмотрим еще более расширенный журнал событий, в котором попадаются сценарии с другими отклонениями.
-В частности рассмотрим сценарий с нарушением порядка выполнения активностей, оборванный сценарий и сценарий с повторным выполнением некоторых последовательностей активностей.
-Соберем полный журнал событий, он будет иметь следующий вид:
+And now let's look at an even more extended event log, in which there are scenarios with other deviations.
+In particular, we consider a scenario with a violation of the order of activities, a partial scenario, and a scenario with the repeated execution of certain sequences of activities.
+Let's collect the full event log, it will look like this:
 
 \begin{eqnarray*}
 a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f \\
@@ -223,26 +223,26 @@ a \rightarrow b \rightarrow c \\
 a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f
 \end{eqnarray*}
 
-При построении модели процесса по представленному журналу событий, мы получим схему, изображенную на рисунке~\ref{fig:third1}.
+When building a process model from the presented event log, we get the circuit shown in the figure~\ref{fig:third1}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/third1.png}
-\captionstyle{normal}\caption{Модель процесса, построенная по журналу событий, содержащему сценарии с искажениями.}
+\captionstyle{normal}\caption{A process model based on an event log containing distorted scenarios.}
 \label{fig:third1}
 \end{figure}
 
-Данная модель процесса, конечно, не имеет ничего общего с идеальной моделью с рисунка~\ref{fig:origin1}.
-Так же очевидно, что любой анализ следует проводить с использованием этой реальной модели, а не идеальной.
-Построение же реальной модели по журналу событий может быть выполнено только автоматически, так как любые искажения реальных сценариев существенно влияют на топологию модели.
-Заметим также, что в приведенных примерах показаны совершенно тривиальные сценарии, которые и близко не подходят к сложностям реально протекающих бизнес-процессов.
-Поэтому для построения моделей реальных процессов для настоящих журналов событий требуются эффективные алгоритмы.
+This model of the process, of course, does not look like the ideal model from the figure~\ref{fig:origin1}.
+It is also obvious that any analysis should be carried out using this real model, and not an ideal one.
+The construction of a real model from the event log can only be performed automatically, since any distortion of real scenarios significantly affects the topology of the model.
+We also note that the above examples show completely trivial scenarios that do not come close to the complexities of real-life business processes.
+Therefore, to build models of real processes for real event logs, efficient algorithms are required.
 
-Опишем простейший алгоритм конструирования модели процесса по журналу событий.
-В процессе описания алгоритма будем сразу же показывать его работу на уже рассмотренном модельном журнале событий (обозначим его $L$).
+Let us describe the simplest algorithm for constructing a process model from an event log.
+In the process of describing the algorithm, we will immediately show its results on the already considered model event log (we denote it by $L$).
 
-Итак, пусть у нас есть журнал событий
+So we have an event log
 
 \begin{equation}
 \begin{aligned}
@@ -256,8 +256,8 @@ L = [
 \end{aligned}
 \end{equation}
 
-Сначала нужно определить множество всех активностей, присутствующих журнале событий ($A$).
-Кроме того, нужно определить множество активностей, с которых начинаются сценарии из журнала событий ($A_I \subset A$), а также активностей, которыми заканчиваются сценарии из журнала событий ($A_O \subset A$).
+First, we need to determine the set of all activities present in the event log (we denote it $A$).
+In addition, we need to define the set of activities with which the scenarios from the event log start ($A_I \subset A$), as well as the activities that end the scenarios from the event log ($A_O \subset A$).
 
 \begin{equation}
 \begin{aligned}
@@ -267,10 +267,10 @@ L = [
 \end{aligned}
 \end{equation}
 
-Для следующего шага требуется построение матрицы последовательностей активностей ($M_S$).
-Данная матрица является квадратной, она имеет размер равный общему количеству активностей, и ее элемент $M_S[x, y]$ содержит единицу, если в журнале событий найдется сценарий, в котором встречается последовательность $x \rightarrow y$.
+The next step requires the construction of a matrix of activity sequences ($M_S$).
+This matrix is square; it has size $| A | \times | A |$, and its element $M_S[x, y]$ contains 1 if there is a scenario in the event log that contains the sequence $x \rightarrow y$.
 
-Матрица $M_S$ для нашего тестового журнала событий выглядит следующим образом:
+The $M_S$ matrix for our test event log is as follows:
 
 \begin{equation}
 M_S = \begin{vmatrix}
@@ -284,16 +284,16 @@ M_S = \begin{vmatrix}
 \end{vmatrix}
 \end{equation}
 
-Далее строится матрица отношений $M_R$.
-Она имеет такой же размер, что и матрица $M_S$, и ее элементы определяют отношения между активностями, которые должны быть отражены в построенной модели процесса.
-Отношение строгого следования между активностями $x$ и $y$ (будем обозначать его через $x \Rightarrow y$) означает, что в журнале событий найдется сценарий, в котором $x \rightarrow y$, но не найдется такого сценария, в котором $y \rightarrow x$.
-Другими словами, активности $x$ и $y$ связаны отношением жесткого следования, если $M_S[x, y](1 - M_S[y, x]) = 1$.
-Аналогично, активности $x$ и $y$ можно назвать параллельными, если в некоторых сценариях за $x$ может следовать $y$, а в других сценариях за $y$ может следовать $x$.
-Условием параллельности активностей является условие $M_S[x, y]M_S[y, x] = 1$ (обозначение $x \ || \ y$).
-Если же ни в каких сценариях не обнаружено последовательностей $x \rightarrow y$ или $y \rightarrow x$, то отношение между такими актвностями будем называть неопределенностью.
-Условие неопределенности -- $(1 - M_S[x, y])(1 - M_S[y, x]) = 1$ (обозначение $x \ ? \ y$).
+Next, the relationship matrix $M_R$ is needed to be constructed.
+It has the same size as the $M_S$ matrix, and its elements determine the relationships between activities that should be reflected in the constructed process model.
+The strict follow relationship between the $x$ and $y$ activities (we will denote it by $x \Rightarrow y$) means that in the event log there is a scenario in which $x \rightarrow y$, but there is no such scenario in which $y \rightarrow x$.
+In other words, the $x$ and $y$ activities are related by a strict follow relationship if $M_S[x, y](1 - M_S[y, x]) = 1$.
+Similarly, the activities of $x$ and $y$ can be called parallel, if in some scenarios $x$ may follow $y$, and in other scenarios $y$ may follow $x$.
+The condition for parallel activities is $M_S[x, y]M_S[y, x] = 1$ (designation $x \ || \ y$).
+If, in no scenarios, the sequences $x \rightarrow y$ or $y \rightarrow x$ are detected, then the relation between such activities will be called uncertainty.
+The uncertainty condition is $(1 - M_S[x, y])(1 - M_S[y, x]) = 1$ (designation $x \ ? \ y$).
 
-Для рассматриваемого журнала событий матрица $M_R$ выглядит следующим образом:
+For the considered event log, the $M_R$ matrix is as follows:
 
 \begin{equation}\label{eqn:r}
 M_R = \begin{vmatrix}
@@ -307,116 +307,193 @@ M_R = \begin{vmatrix}
 \end{vmatrix}
 \end{equation}
 
-После построения матрицы отношений между активностями можно перейти к построению множества мест для токенов в модели процесса ($P$).
-Место для токена должно быть построено для каждой такой пары непересекающихся подмножеств активностей $X \subset A$, $Y \subset A$, что выполнено два условия.
-Во-первых, любые две активности из $X$ связаны соотношением неопределенности, также любые две активности из $Y$ связаны соотношением неопределенности.
-Во-вторых, любая активность $x \in X$ связана с любой активностью $y \in Y$ соотношением $x \Rightarrow y$. 
-В этом случае строится место токена $p(X, Y)$, его узлами-предшественниками становятся все активности из $X$, а узлами-последователями -- все активности из $Y$.
+After constructing a matrix of relations between activities, we can proceed to constructing set of token places in the process model ($P$).
+A token place must be built for each such pair of disjoint subsets of activities $X \subset A$, $Y \subset A$, which satisfies two conditions.
+Firstly, any two activities from $X$ are related by the uncertainty relation, also any two activities from $Y$ are connected by the uncertainty relation.
+Secondly, any activity $x \in X$ is associated with any activity $y \in Y$ by the relation $x \Rightarrow y$.
+In this case, the token place $p(X, Y)$ is built, all the activities from $X$ become its predecessor nodes, and all activities from $Y$ become the successor nodes.
 
-В нашем рассматриваемом случае множество мест токенов выглядит следующим образом:
+In our case under consideration, the set of token places are as follows:
 
-\begin{equation}
+\begin{equation}\label{eqn:p1}
 \begin{aligned}
 P = \{
 & p(\{d\}, \{e\}),
 p(\{c\}, \{e\}),
 p(\{e\}, \{f\}),
 p(\{e\}, \{b\}),
-p(\{e\}, \{f, b\}), \\
+p(\{e\}, \{b, f\}), \\
 & p(\{a\}, \{f\}),
 p(\{a\}, \{b\}),
-p(\{a\}, \{f, b\}),
-p(\{e, a\}, \{f\}),
-p(\{e, a\}, \{b\}), \\
-& p(\{e, a\}, \{f, b\}),
+p(\{a\}, \{b, f\}),
+p(\{a, e\}, \{f\}),
+p(\{a, e\}, \{b\}), \\
+& p(\{a, e\}, \{b, f\}),
 p(\{b\}, \{d\}),
 p(\{b\}, \{c\})
 \}
 \end{aligned}
 \end{equation}
 
-Финальным шагом в формировании WFN, который представляет модель процесса, является удаление лишних мест токенов.
-Если в наборе мест токенов найдутся два места $p(X, Y) \in P$ и $p(X', Y') \in P$ такие, что $X' \subseteq X$ и $Y' \subseteq Y$, то место $p(X', Y')$ является избыточным, и его можно удалить из модели.
+The final step in the formation of the WFN, which is a model of the process, is the removal of extra token places.
+If there are two places $p(X, Y) \in P$ and $p(X ', Y') \in P$ in the set of token places such that $X' \subseteq X$ and $Y' \subseteq Y$, then the place $p(X', Y')$ is redundant and can be removed from the model.
 
-После удаления избыточных мест, финальное множество место токенов примет свой окончательный вид:
+After removing excess places, the final set of token places will take its final form:
 
-\begin{equation}
+\begin{equation}\label{eqn:p2}
 \begin{aligned}
 P = \{
-p(\{d\}, \{e\}), p(\{c\}, \{e\}), p(\{e, a\}, \{f, b\}), p(\{b\}, \{d\}), p(\{b\}, \{c\})
+p(\{d\}, \{e\}), p(\{c\}, \{e\}), p(\{a, e\}, \{b, f\}), p(\{b\}, \{d\}), p(\{b\}, \{c\})
 \}
 \end{aligned}
 \end{equation}
 
-Набор приведенных мест токенов приводит нас к модели процесса, изображенной на рисунке~\ref{fig:third1}.
+The set of given token places and the construction of all edges between token places and activities leads us to the process model shown in the figure~\ref{fig:third1}.
 
 \section{Simple Process Discovery Algorithm Optimization}
 
-В приведенном в предыдущем разделе алгоритме узким местом является конструирование множества мест токенов $P$ с последующим удалением избыточностей.
-При возрастании количества сценариев в журнале событий и общего количества активностей количество возможных комбинаций подмножеств активностей для формирования мест токенов растет экспоненциально.
-При этом большая часть построенных токенов впоследствии все равно должна быть удалена, так как при построении будет много избыточных мест.
-Например, при построенном месте $p(\{a, b\}, \{c, d\})$ в множество $P$ обязательно попадут следующие избыточные места: $p(\{a\}, \{c\})$, $p(\{a\}, \{d\})$, $p(\{b\}, \{c\})$, $p(\{b\}, \{d\})$.
-В дальнейшем эти избыточные места будут удалены.
-Поэтому требуется подход по построению множества мест токенов $P$, в котором избыточные места отсутствуют с самого начала.
+In the algorithm presented in the previous section, the bottleneck is the construction of token places set $P$ with the subsequent removal of redundancies.
+As the total number of activities increases, the number of possible combinations of subsets of activities for the formation of token places increases exponentially.
+Also, most of the built token places subsequently still have to be removed.
+For example, with the constructed token place $p(\{a, b\}, \{c, d\})$, the following excess token places will be necessarily included into the set $P$: $p(\{a\}, \{c\})$, $p(\{a\}, \{d\})$, $p(\{b\}, \{c\})$, $p(\{b\}, \{d\})$.
+In the future, these excess token places will be deleted.
+But to search for redundant token places, it is also necessary to spend computational time.
+
+We will propose an algorithm for constructing token places in which only the necessary subsets of activities are checked, and control over redundant token places is performed automatically.
+
+First, we introduce the relations between the sets of activities as follows.
+Let $X$ and $Y$ be two sets of activities.
+We say that $X \ ? \ Y$ if for any two activities $x \in X$, $y \in Y$ the relation $x \ ? \ y$ is correct.
+We will also say that $X \Rightarrow Y$ if for any two activities $x \in X$, $y \in Y$ the relation $x \Rightarrow y$ holds.
+
+We introduce the concept of a graph of relations between sets of activities.
+This graph will contain directed edges, as well as relations between these edges.
+Let $A$ be the set of activities, between the elements of which the relations $x \Rightarrow y$ and $x \ ? \ y$ are introduced (the relation $x \ || \ y$ in this case does not interest us).
+A relationship graph is a graph $G = G(N, \overrightarrow{E}, \Xi)$.
+Elements of the set of nodes $N$ of a given graph are subsets $X \subseteq A$ such that any two activities $a \in X$, $b \in X$ of this subset are related by the relation $a \ ? \ b$.
+Elements of the set of direcetd edges $\overrightarrow {E}$ are ordered pairs of $(X, Y)$ elements from $N$ such that $X \Rightarrow Y$ (in the pictures below, these edges will be represented by solid black arrows).
+Elements of the set $\Xi$ are such ordered pairs $(\overrightarrow{e}', \overrightarrow{e})$, where $\overrightarrow {e}' = (X ', Y') \in \overrightarrow{E}$, $\overrightarrow{e} = (X, Y) \in \overrightarrow{E}$ and $X' \subseteq X$, $Y' \subseteq Y$.    
+
+If for a given set of activities $A$ such a graph $G$ is constructed, then the token places that were required to be found within the framework of the process discovery algorithm are those token places $p(X, Y)$ for which $(X, Y) \in \overrightarrow {E}$, and also there is no element $\overrightarrow{e} \in \overrightarrow {E}$ such that $((X, Y), \overrightarrow {e}) \in \Xi $.
+Note that in the end we are interested in the edges of the graph $G$, so that at any stage of constructing this graph, isolated vertices can be removed from it without specifying it specially (isolated vertices of the graph $G$ do not affect the operation of the algorithm).
+
+Consider the construction of the required graph $G$ in an iterative way.
+In the process of constructing the graph $G$, we allow it to contain undirected edges that are unordered pairs of $\{X, Y\}$ elements from $N$ such that $X \ ? \ Y$.
+We denote the set of these edges by $\overline{E}$ (in the pictures below, these edges will be depicted by dashed lines).
+Thus, during the construction process, we will consider the graph $G(N, \overline{E}, \overrightarrow{E}, \Xi)$.
+
+At the beginning, we create the first version of the graph $G_0$, which we will use for the subsequent transformations to translate into the required form $G$.
+So, we define the graph $G_0 = G_0(N_0, \overline{E}_0, \overrightarrow{E}_0, \Xi_0)$ as follows:
+
+\begin{equation}
+\begin{cases}
+N_0 = \{ \{x\} \ | \ x \in A \} \\
+\overline{E}_0 = \{ \{X, Y\} \ | \ X \in N_0, Y \in N_0, x \ ? \ y \} \\
+\overrightarrow{E}_0 = \{ (X, Y) \ | \ X \in N_0, Y \in N_0, x \ \Rightarrow \ y \} \\
+\Xi_0 = \emptyset
+\end{cases}
+\end{equation}
+
+The figure~\ref{fig:g_0} shows the graph $G_0$ constructed for the matrix $M_R$ from (\ref{eqn:r}).
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.8\textwidth]{pics/g_r.pdf}
-\captionstyle{normal}\caption{Граф отношение $G_R$. Направленные ребра иллюстрируют отношения строгого следования, пунктирные ненаправленные ребра показывают отношением неопределенности.}
-\label{fig:g_r}
+\onelinecaptionsfalse % if the caption is multiline
+\includegraphics[width=0.8\textwidth]{pics/g_0.pdf}
+\captionstyle{normal}\caption{Graph $G_0$ constructed for test event log.}
+\label{fig:g_0}
 \end{figure}
 
-Множество мест токенов без избыточностей может быт построено на основе графа отношений между активностями.
-Рассмотрим еще раз матрицу отношений $M_R$ из (\ref{eqn:r}).
-В ней нам потребуются только отношения жесткого следования и неопределенности.
-Построим вспомогательный граф отношений ($G_R$), узлами которого являются активности.
-Далее, рассматриваемый граф содержит ребра двух видов.
-Направленные ребра будут отображать отношения жесткого следования (два узла $x$ и $y$ соединены направленным ребром, если $x \Rightarrow y$).
-Также в графе будут ненаправленные ребра, соединяющие узлы, связанные отношением неопределенности.
-Для нашего рассматриваемого тестового примера граф отношений приведен на рисунке~\ref{fig:g_r}.
-
-После формирования графа отношений $G_R$ нужно провести его стягивание по пунктирным ребрам (которые соответствуют отношению неопределенности).
-За один шаг выполняется стягивание по одному ребру по следующим правилам.
-Если в графе $G_R$ существует пара активностей $x$, $y$, связанных отношением $x \ ? \ y$, то можно выполнить стягивание по этому ребру.
-При этом нужно осуществлять коррекцию отношений с другими активностями графа.
-Если в графе есть активность $z$ такая, что $z \Rightarrow x$, $z \Rightarrow y$, то эти отношения удаляются, а вместо них добавляется отношение $z \Rightarrow xy$.
-Если в графе есть активность $z$ такая, что $x \Rightarrow z$, $y \Rightarrow z$, то эти отношения удаляются, а вместо них добавляется отношение $xy \Rightarrow z$.
-Если в графе есть активность $z$ такая, что $z \ ? \ x$, $z \ ? \ y$, то следует добавить также отношение $z \ ? \ xy$.
+After constructing the graph $G_0$, we will sequentially expand it using several separate steps.
+At each step, an arbitrary edge $\overline{e} = \{X, Y\} \in \overline{E}$ is taken and the following actions are performed for it.
+A new element $X \cup Y$ is added to the set $N$.
+For each element $Z \in N$ such that $\{Z, X\} \in \overline{E}$, $\{Z, Y\} \in \overline{E}$ new element $\{Z, X \cup Y\}$ is added into the set of non-oriented edges $\overline{E}$.
+For each element $Z \in N$ such that $(Z, X) \in \overrightarrow{E}$, $(Z, Y) \in \overrightarrow{E}$ new element $(Z, X \cup Y) $ is added  into the set of oriented edges $\overrightarrow{E}$, and the elements $((Z, X), (Z, X \cup Y))$ and $((Z, Y), (Z, X \cup Y))$ are added to the set $\Xi$.
+The edge $\overline{e}$ is removed from the set $\overline{E}$.
+An illustration of the execution step of the graph $G$ expansion is presented in the figure~\ref{fig:step}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.8\textwidth]{pics/g_r_reduce1.pdf}
-\captionstyle{normal}\caption{Редуцирование графа отношенией активностей. Шаг 1.}
-\label{fig:g_r_reduce1}
+\onelinecaptionsfalse % if the caption is multiline
+\includegraphics[width=0.8\textwidth]{pics/step.pdf}
+\captionstyle{normal}\caption{Один шаг расширения графа отношений $G$.}
+\label{fig:step}
 \end{figure}
+
+The described steps for expanding the graph $G$ are performed until the set $\overline{E}$ becomes empty.
+It is worth noting that the number of elements in this set does not have to decrease at each step of the graph extension (for example, in the figure~\ref{fig:step} the number of edges from $\overline{E}$ has not changed).
+However, if at particular step of graph $G$ expansion the number of edges in $\overline{E}$ has not decreased, then some complete graph composed of edges from $\overline{E}$ nessesarily must be destroyed (in the figure~\ref{fig:step} the triangle $XYZ_1$ was destroyed), instead of which a complete graph of only a smaller order can appear.
+Thus, after a finite number of expansion steps, the set $\overline{E}$ will become empty and the final graph $G$ will be generated.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.8\textwidth]{pics/g_r_reduce2.pdf}
-\captionstyle{normal}\caption{Редуцирование графа отношенией активностей. Шаг 2.}
-\label{fig:g_r_reduce2}
+\onelinecaptionsfalse % if the caption is multiline
+\includegraphics[width=0.8\textwidth]{pics/g.pdf}
+\captionstyle{normal}\caption{Финальный вид графа отношений $G$.}
+\label{fig:g}
 \end{figure}
 
-На рисунке~\ref{fig:g_r_reduce1} показан один шаг стягивания графа $G_R$ по ребру $b \ ? \ f$.
-На рисунке~\ref{fig:g_r_reduce2} показан следующий шаг стягивания графа, уже по ребру $a \ ? \ e$.
-Другие стягивания на данном графе выполнять не имеет смысла, после выполнения двух шагов граф содержит 5 направленных ребер, каждое из которых соответствует месту токена в модели процесса, показанной на рисунке~\ref{fig:third1}.
+Figure~\ref{fig:g} shows the final form of the graph $G$ for considered example.
+Elements from the set $\Xi$ in this figure are shown by gray arcs, and redundant edges from $\overrightarrow{E}$ are shown by dotted lines.
+With the construction of the graph of relations $G$ described, it is not difficult to detect all redundant edges from $\overrightarrow{E}$.
+Thus, the desired set of edges from $\overrightarrow{E}$ is shown by solid black arrows in the figure, which coincides with the set from (\ref{eqn:p2}).
+
+The disadvantage of the algorithm is that redundant edges cannot be removed during the expansion steps of the graph $G$, since any intermediate edge can participate when adding new edges.
+To eliminate this drawback, additional research and improvement of this algorithm is required, which is beyond the scope of this article.
 
 \section{Conclusion}
 
-Conclusion.
+The considered approach to the implementation of the process discovery algorithm allows it to be applied to large-size event logs.
+Building a relationship graph with subsequent expansion allows you to get rid of enumeration of all subsets of activities involved in the analyzed process.
+In fact, when constructing a relationship graph, the branch and bound method is implicitly used, in which only those subsets of the vertices of the relationship graph are considered, each pair of which is connected by the relation $x \ ? \ y$.
+Of particular interest is the order of traversing the edges $\overline{E}$ of the relationship graph $G$ during the application of the algorithm, since the construction speed of the graph $G$ depends on it.
+This aspect deserves attention, since it would be useful to get rid of the need to save all relations between edges from $\overrightarrow{E}$ until the end of the algorithm work.
 
 \begin{acknowledgments}
-The work has been done at the JSCC RAS as part of the state assignment for the topic ... The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
+The work has been done at the JSCC RAS as part of the state assignment for the topic 0065-2019-0016 (reg. no. AAAA-A19-119011590098-8). The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
 
-\bibitem{Rettinger}
+\bibitem{Aalst}
+\refitem{book}
+W. M. van der Aalst, {\it ``Process Mining. Discovery, Conformance and Enhancement of Business Processes."}, Springer (2011).
+
+\bibitem{BPM}
+\refitem{book}
+J. Jeston, J. Nelis, {\it ``Business Process Management. Practical guidelines to successful implementations."}, Routledge (2014).
+
+\bibitem{WFM}
+\refitem{book}
+K. van Hee, {\it ``Workflow Management: Models, Methods, and Systems (Information Systems)."}, The MIT Press (2004).
+
+\bibitem{PAIS}
+\refitem{book}
+M. Dumas, W. M. van der Aalst, A. H. ter Hofstede, {\it ``Process Aware Information Systems: Bridging People and Software Through Process Technology."}, Wiley-Interscience (2005).
+
+\bibitem{Redesign}
 \refitem{article}
-C. Rettinger, C. Godenschwager, S. Eibl, et al., {\it ``Fully Resolved Simulations of Dune Formation in Riverbeds"}, ISC High Performance , LNCS~{\bf 10266}, 3--21 (2017).
+S. L. Mansar, H. A. Reijers, {\it ``Best Practices in Business Process Redesign: Validation of a Redesign Framework."}, Computers in Industry, 56 (5), 457--471 (2005).
+
+\bibitem{BPM2_Discovery}
+\refitem{book}
+M. Dumas, M. La Rosa, J. Mendling, H. A. Reijers, {\it ``Fundamentals of Business Process Management."}, Springer (2018).
+
+\bibitem{Conformance}
+\refitem{article}
+A. Rozinat, W. M. van der Aalst, {\it ``Conformance Checking of Process Based on Monitoring Real Behavior."}, Information Systems, 33 (1), 64--95 (2008).
+
+\bibitem{Enhancement}
+\refitem{article}
+A. Burattin, A. Sperduti, M. Veluscek, {\it ``Business Models Enhancement through Discovery of Roles."}, IEEE Symposium on Computational Intelligence and Data Mining, 103--110 (2013).
+
+\bibitem{Metrics}
+\refitem{article}
+J. Mendling, {\it ``Business Process Management. Metrics for Process Models."}, Springer, 1--15 (2008).
+
+\bibitem{WorkflowNets}
+\refitem{article}
+R. Agrawal, D. Gunopulos, F. Leymann, {\it ``Mining Process Models from Workflow Logs."}, in Six International Conference on Extended Database Technology, 469--483 (1998).
 
 \end{thebibliography}
 
