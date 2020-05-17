@@ -87,18 +87,15 @@ Regardless of the place of the two-input instruction in the graph, it transfers 
 After the execution, the result in the actuator, new tokens with the result value sends to the inputs of subsequent commands according to the program column, and the used operands destroy.
 
 At the same time, in contrast to the von Neumann architecture, the dataflow processor has not a central control device (instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme.
-Namely, the device for searching ready-to-execute commands -- the memory of searching pairs (the content-addressable memory) can be executed such as many parallel-running modules, which provides the same large numbers of actuators \cite{fine-grained-prl}.
+Namely, the device for searching ready-to-execute commands -- the memory of searching pairs (the content-addressable memory) can be executed such as many parallel-running modules, which provides the same large numbers of actuators. Since the execution of an instruction is dependent upon the arrivals of operands, the management of token storage and instruction scheduling are intimately related in any dataflow computer \cite{fine-grained-prl,culler}.
 
-In contrast with the well-known projects of vector dataflow machines, in which arithmetic operations on vectors perform only for vectors in their registers, the block of a vector register is absent in the dataflow processor emulator and a single-level memory of high-capacity vectors (RAM level) is using.
-This eliminates the problem of the possibility of overflow on the register file, which does not have a simple solution, given the complete asynchrony of the dataflow model of calculating.
-Besides, it is necessary to execute 2-3 times more commands in the dataflow processor on scientific tasks compared to the von Neumann processor \cite{multithreading}.
-It is also not so easy to do without the participation of the operating system in the process of the program execution when allocating space for the created arrays in the main memory.
-Therefore, it proposed to implement the distribution of the vector memory resource in the dataflow processor emulator at the hardware level \cite{vpp}.
+Unlike the implementation of a multiprocessor system, direct hardware implementation allows you to fully implement the calculation graph in the form of a computing pipeline, thereby eliminating the need to create a module that implements the execution of the calculation schedule \cite{popov}.
 
 The difficulties noted above for the hardware implementation of the dataflow processor led to the fact that none of the many projects for its creation was possible to achieve higher performance compared to the von Neumann processor, and by the end of the 2000s, there were practically no such projects.
 This refers to the development of universal dataflow processors, but not specialized ones, since, for example, dataflow processors of digital signal processing were not only developed, but also produced \cite{terada}.
 
-Unlike the implementation of a multiprocessor system, direct hardware implementation allows you to fully implement the calculation graph in the form of a computing pipeline, thereby eliminating the need to create a module that implements the execution of the calculation schedule \cite{popov}.
+The Joint Supercomputer Center of the Russian Academy of Sciences (JSCC RAS) is developing a vector processor with the dataflow architecture \cite{vpp}. This paper introduces the development of the emulator of the model of this processor. 
+
 
 \section{Emulation of processor with the von Neumann architecture}
 
@@ -314,7 +311,7 @@ However, despite the incompleteness of implementation, it shows here logic allow
 In the dataflow processor, communication between two instructions is much quicker if these instructions are allocated to the same processing element.
 Thus a program may run much faster if its instructions are clustered to minimize communication traffic between clusters and each cluster is allocated to one processing element.
 Since it will be handling significantly less packet traffic, the communication network of the dataflow processor will be simpler and less expensive than the distribution network in the cell block architecture.
-Whether the cost reduction justifies the additional programming effort is a matter of debate, contingent on the area of application, the technology of fabrication, and the time frame under consideration \cite{Dennis}.
+Depending on the area of application, the technology of fabrication, and the time frame under consideration, the reduction in additional programming costs may not be justified \cite{Dennis}.
 
 \section{Conclusion}
 
@@ -336,23 +333,21 @@ The supercomputer MVS-10P, located at the JSCC RAS, was used for calculations du
 \refitem{article}
 N.~A.~Dikarev, B.~M.~Shabanov, A.~S.~Shmelev, {\it ``The use of fine-grained parallelism in dataflow processor"}, Problems of developing promising micro- and nanoelectronic systems (MES), {\bf 2}, pp.~144--150 (2016).
 
-\bibitem{multithreading}
-\refitem{article}
-G.~V.~Papadopoulos, K.~R.~Traub, {\it ``Multithreading: a revisionist view of
-dataflow architectures"}, Proc. 18-th Ann. Symp. on Computer Architecture,
-ISCA ’91 (Toronto, Ontario, Canada, May 27–30, 1991), ACM, New York), pp.~342--351 (1991).
+\bibitem{culler}
+\refitem{book}
+D.~Culler, {\it ``Dataflow Architecture"}, MIT/LCS/TM-294, Massachusetts Institute of Technology (1986).
 
-\bibitem{vpp}
+\bibitem{popov}
 \refitem{article}
-N.~A.~Dikarev, B.~M.~Shabanov, {\it ``Vector dataflow processor"}, IZVESTIYA SFedU, {\bf 10}(54), pp.~80--85 (2005).
+R.~I.~Popov, {\it ``Application of stream computer models in designing specialized processors."}, Scientific and Technical Journal of Information Technologies, Mechanics and Optics, {\bf 5}(75), pp.~77--81 (2011).
 
 \bibitem{terada}
 \refitem{article}
 H.~Terada, {\it ``DDMP’s: Self-Timed Super-Pipelined Data-Driven Multimedia Processors."}, Proceedings of the IEEE, {\bf 2}(86), pp.~282--296 (1999).
 
-\bibitem{popov}
+\bibitem{vpp}
 \refitem{article}
-R.~I.~Popov, {\it ``Application of stream computer models in designing specialized processors."}, Scientific and Technical Journal of Information Technologies, Mechanics and Optics, {\bf 5}(75), pp.~77--81 (2011).
+N.~A.~Dikarev, B.~M.~Shabanov, {\it ``Vector dataflow processor"}, IZVESTIYA SFedU, {\bf 10}(54), pp.~80--85 (2005).
 
 \bibitem{Muchnick}
 \refitem{book}
