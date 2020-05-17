@@ -86,20 +86,10 @@ This context identifies where token should be sent to (the number of receiver co
 And regardless of the place of the instruction with many inputs in the graph, it is passed for execution when arriving at the input of the last of operand tokens with the same state.
 After calculating the result of the instruction, new tokens with the result value are sent to the inputs of subsequent commands according to the program graph, and the used operand tokens are destroyed.
 
-<<<<<<< HEAD
 At the same time, in contrast to the von Neumann architecture, the dataflow processor has not a central control device (instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme.
 Namely, the device for searching ready-to-execute commands -- the memory of searching pairs (the content-addressable memory) can be executed such as many parallel-running modules, which provides the same large numbers of actuators. Since the execution of an instruction is dependent upon the arrivals of operands, the management of token storage and instruction scheduling are intimately related in any dataflow computer \cite{fine-grained-prl,culler}.
 
 Unlike the implementation of a multiprocessor system, direct hardware implementation allows you to fully implement the calculation graph in the form of a computing pipeline, thereby eliminating the need to create a module that implements the execution of the calculation schedule \cite{popov}.
-=======
-At the same time, in contrast to the von Neumann architecture, the dataflow processor has not a central control device (with instruction counter), and the parallelism of the executing instructions determined in dynamics by the arrival of operands to the instruction inputs in the decentralized scheme.
-Namely, the device for searching ready-to-execute commands -- associative memory of ready tokens can be executed as many parallel-running modules, which provides the same large numbers of execution units \cite{fine-grained-prl}.
-
-In contrast with the well-known projects of vector dataflow machines, in which arithmetic operations on vectors perform only for vectors in their registers, the block of a vector register is absent in the dataflow processor emulator and a single-level memory of high-capacity vectors (RAM level) is used.
-This eliminates the problem of possibility of overflow on the register file, which does not have a simple solution, given the complete asynchrony of the dataflow model of calculating.
-Besides, it is necessary to execute 2-3 times more commands in the dataflow processor on scientific tasks compared to the von Neumann processor \cite{multithreading}.
-It is also not so easy to do without the participation of the operating system in the process of the program execution when allocating space for the created arrays in the main memory.
-Therefore, it proposed to implement the distribution of the vector memory resource in the dataflow processor emulator at the hardware level \cite{vpp}.
 
 The difficulties noted above for the hardware implementation of the dataflow processor led to the fact that none of the many projects for its creation was possible to achieve higher performance compared to the von Neumann processor, and by the end of the 2000s, there were practically no such projects.
 This refers to the development of universal dataflow processors, but not specialized ones, since, for example, dataflow processors of digital signal processing were not only developed, but also produced \cite{terada}.
