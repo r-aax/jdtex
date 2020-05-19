@@ -54,10 +54,6 @@ escapeinside={\%*}{*)}
 \email[E-mail: ]{rybakov.aax@gmail.com}
 \affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 
-\author{\firstname{S.~S.}~\surname{Shumilin}}
-\email[E-mail: ]{shumilin@jscc.com}
-\affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
-
 \firstcollaboration{(Submitted by S.~S.~Submitter)}
 
 \received{May 01, 2020}
@@ -126,7 +122,7 @@ We will use listing in the C programming language to write examples and pseudoco
 Thus, we have a linear section (program code block) at the input of which we have the variables $a$, $b$, $c$ containing the coefficients of the quadratic equation $ax^2 + bx + c = 0$.
 At the linear section output it is required to get the values of the roots, which are calculated by the common formulas $x_{1,2} = (-b \pm \sqrt{b^2 - 4ac})/(2a)$.
 
-\begin{lstlisting}[caption={The code block for calculating the roots of quadratic equation.},label={lst:square_equation_1}]
+\begin{lstlisting}[caption={Сode block for calculating the roots of quadratic equation.},label={lst:square_equation_1}]
 {
     float t = sqrt(b * b - 4.0 * a * c);
     
@@ -160,12 +156,7 @@ In this case, when aligning a sequence of commands, it is necessary to observe t
 This process called code planning \cite{Aho}.
 In the result of code planning in the considered case, we will get a pseudocode for calculating the roots of quadratic equation similar to the code in listing~\ref{lst:square_equation_2}.
 
-\begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
-\includegraphics[width=0.60\textwidth]{pics/def_use.pdf}
-\captionstyle{normal}\caption{Dependency graph of a linear section which calculates the roots of a quadratic equation.}\label{fig:def_use}
-\end{figure}
+\
 
 \begin{lstlisting}[caption={Pseudocode for calculating the roots of  quadratic equation.},label={lst:square_equation_2}]
 MOV 4.0       ->  v0
@@ -188,7 +179,12 @@ MOV v14       ->  x1
 MOV v15       ->  x2
 \end{lstlisting}
 
-\
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse % if the caption is multiline
+\includegraphics[width=0.60\textwidth]{pics/def_use.pdf}
+\captionstyle{normal}\caption{Dependency graph of a linear section which calculates the roots of quadratic equation.}\label{fig:def_use}
+\end{figure}
 
 In Listing~\ref{lst:square_equation_2}, all instructions except transmission operation operate on virtual registers (v0-v15).
 The order of the commands is important in this form.
