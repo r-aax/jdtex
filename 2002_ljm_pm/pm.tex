@@ -151,10 +151,9 @@ During the course of the process, some activity can be performed only if all the
 After performing some activity in WFN, tokens from the predecessor nodes are deleted, after which new tokens are created, which are distributed along all output edges and are placed in all successor nodes of this activity.
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.8\textwidth]{pics/wfn-patterns.pdf}
-\captionstyle{normal}\caption{Process patterns in WFN model. a) Sequence, b) XOR-split, c) XOR-join,\\d) AND-split, e) AND-join.}
+\captionstyle{center}\caption{Process patterns in WFN model. a) Sequence, b) XOR-split, c) XOR-join, \\ d) AND-split, e) AND-join.}
 \label{fig:wfn-patterns}
 \end{figure}
 
@@ -193,7 +192,7 @@ This sequence of activities corresponds to the following process model shown in 
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/origin1.png}
-\captionstyle{normal}\caption{Process model that build from one scenario $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.}
+\captionstyle{center}\caption{Process model that build from one scenario $a \rightarrow b \rightarrow c \rightarrow d \rightarrow e \rightarrow f$.}
 \label{fig:origin1}
 \end{figure}
 
@@ -205,7 +204,7 @@ Figure~\ref{fig:second1} shows a new process model that also reflects this simpl
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/second1.png}
-\captionstyle{normal}\caption{Adjusted process model after processing the scenario $a \rightarrow f$.}
+\captionstyle{center}\caption{Adjusted process model after processing the scenario $a \rightarrow f$.}
 \label{fig:second1}
 \end{figure}
 
@@ -229,7 +228,7 @@ When building a process model from the presented event log, we get the circuit s
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.95\textwidth]{pics/third1.png}
-\captionstyle{normal}\caption{A process model based on an event log containing distorted scenarios.}
+\captionstyle{center}\caption{A process model based on an event log containing distorted scenarios.}
 \label{fig:third1}
 \end{figure}
 
@@ -335,7 +334,7 @@ p(\{b\}, \{c\})
 \end{aligned}
 \end{equation}
 
-The final step in the formation of the WFN, which is a model of the process, is the removal of extra token places.
+The final step in the formation of the WFN, which is a model of the process, is removal of extra token places.
 If there are two places $p(X, Y) \in P$ and $p(X ', Y') \in P$ in the set of token places such that $X' \subseteq X$ and $Y' \subseteq Y$, then the place $p(X', Y')$ is redundant and can be removed from the model.
 
 After removing excess places, the final set of token places will take its final form:
@@ -371,7 +370,7 @@ This graph will contain directed edges, as well as relations between these edges
 Let $A$ be the set of activities, between the elements of which the relations $x \Rightarrow y$ and $x \ ? \ y$ are introduced (the relation $x \ || \ y$ in this case does not interest us).
 A relationship graph is a graph $G = G(N, \overrightarrow{E}, \Xi)$.
 Elements of the set of nodes $N$ of a given graph are subsets $X \subseteq A$ such that any two activities $a \in X$, $b \in X$ of this subset are related by the relation $a \ ? \ b$.
-Elements of the set of direcetd edges $\overrightarrow {E}$ are ordered pairs of $(X, Y)$ elements from $N$ such that $X \Rightarrow Y$ (in the pictures below, these edges will be represented by solid black arrows).
+Elements of the set of directed edges $\overrightarrow {E}$ are ordered pairs of $(X, Y)$ elements from $N$ such that $X \Rightarrow Y$ (in the pictures below, these edges will be represented by solid black arrows).
 Elements of the set $\Xi$ are such ordered pairs $(\overrightarrow{e}', \overrightarrow{e})$, where $\overrightarrow {e}' = (X ', Y') \in \overrightarrow{E}$, $\overrightarrow{e} = (X, Y) \in \overrightarrow{E}$ and $X' \subseteq X$, $Y' \subseteq Y$.    
 
 If for a given set of activities $A$ such a graph $G$ is constructed, then the token places that were required to be found within the framework of the process discovery algorithm are those token places $p(X, Y)$ for which $(X, Y) \in \overrightarrow {E}$, and also there is no element $\overrightarrow{e} \in \overrightarrow {E}$ such that $((X, Y), \overrightarrow {e}) \in \Xi $.
@@ -397,10 +396,8 @@ N_0 = \{ \{x\} \ | \ x \in A \} \\
 The figure~\ref{fig:g_0} shows the graph $G_0$ constructed for the matrix $M_R$ from (\ref{eqn:r}).
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.8\textwidth]{pics/g_0.pdf}
-\captionstyle{normal}\caption{Graph $G_0$ constructed for test event log.}
+\captionstyle{center}\caption{Graph $G_0$ constructed for test event log.}
 \label{fig:g_0}
 \end{figure}
 
@@ -413,23 +410,19 @@ The edge $\overline{e}$ is removed from the set $\overline{E}$.
 An illustration of the execution step of the graph $G$ expansion is presented in the figure~\ref{fig:step}.
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.8\textwidth]{pics/step.pdf}
-\captionstyle{normal}\caption{Один шаг расширения графа отношений $G$.}
+\captionstyle{center}\caption{One step of the graph $G$ expansion.}
 \label{fig:step}
 \end{figure}
 
 The described steps for expanding the graph $G$ are performed until the set $\overline{E}$ becomes empty.
 It is worth noting that the number of elements in this set does not have to decrease at each step of the graph extension (for example, in the figure~\ref{fig:step} the number of edges from $\overline{E}$ has not changed).
-However, if at particular step of graph $G$ expansion the number of edges in $\overline{E}$ has not decreased, then some complete graph composed of edges from $\overline{E}$ nessesarily must be destroyed (in the figure~\ref{fig:step} the triangle $XYZ_1$ was destroyed), instead of which a complete graph of only a smaller order can appear.
+However, if at particular step of graph $G$ expansion the number of edges in $\overline{E}$ has not decreased, then some complete graph composed of edges from $\overline{E}$ necessarily must be destroyed (in the figure~\ref{fig:step} the triangle $XYZ_1$ was destroyed), instead of which a complete graph of only a smaller order can appear.
 Thus, after a finite number of expansion steps, the set $\overline{E}$ will become empty and the final graph $G$ will be generated.
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.8\textwidth]{pics/g.pdf}
-\captionstyle{normal}\caption{Финальный вид графа отношений $G$.}
+\captionstyle{center}\caption{Final form of graph $G$.}
 \label{fig:g}
 \end{figure}
 
@@ -444,7 +437,7 @@ To eliminate this drawback, additional research and improvement of this algorith
 \section{Conclusion}
 
 The considered approach to the implementation of the process discovery algorithm allows it to be applied to large-size event logs.
-Building a relationship graph with subsequent expansion allows you to get rid of enumeration of all subsets of activities involved in the analyzed process.
+Building a relationship graph with subsequent expansion allows to get rid of enumeration of all subsets of activities involved in the analyzed process.
 In fact, when constructing a relationship graph, the branch and bound method is implicitly used, in which only those subsets of the vertices of the relationship graph are considered, each pair of which is connected by the relation $x \ ? \ y$.
 Of particular interest is the order of traversing the edges $\overline{E}$ of the relationship graph $G$ during the application of the algorithm, since the construction speed of the graph $G$ depends on it.
 This aspect deserves attention, since it would be useful to get rid of the need to save all relations between edges from $\overrightarrow{E}$ until the end of the algorithm work.
