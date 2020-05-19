@@ -138,10 +138,8 @@ For convenience, we assume that the processor, for which the executable code wil
 Thus, the following instructions for working with real numbers appear in the listing above: MUL -- multiplication of two numbers, SUB -- subtraction of two numbers, SQRT -- the square root of a number, NEG -- unary negative, ADD -- addition of two numbers, DIV -- division of two numbers.
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=1.05\textwidth]{pics/square_equation_calculation_tree.pdf}
-\captionstyle{normal}\caption{Trees for calculating the roots of quadratic equation.}\label{fig:square_equation_calculation_tree}
+\captionstyle{center}\caption{Trees for calculating the roots of quadratic equation.}\label{fig:square_equation_calculation_tree}
 \end{figure}
 
 Figure~\ref{fig:square_equation_calculation_tree} shows two trees of evaluating the expressions $x_1$ and $x_2$.
@@ -180,10 +178,8 @@ MOV v15       ->  x2
 \end{lstlisting}
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.60\textwidth]{pics/def_use.pdf}
-\captionstyle{normal}\caption{Dependency graph of a linear section which calculates the roots of quadratic equation.}\label{fig:def_use}
+\captionstyle{center}\caption{Dependency graph of a linear section which calculates the roots of quadratic equation.}\label{fig:def_use}
 \end{figure}
 
 In Listing~\ref{lst:square_equation_2}, all instructions except transmission operation operate on virtual registers (v0-v15).
@@ -211,10 +207,8 @@ Therefore, the token is a data structure that stores information about transferr
 Besides, the token contains additional information (token state) allowing to distinguish instruction, which relates to different function calls or to different loop iterations, but for this example, this is not important, therefore, the description of token state will be omitted.
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
 \includegraphics[width=0.80\textwidth]{pics/dataflow.pdf}
-\captionstyle{normal}\caption{Dataflow graph of a linear section which calculates the roots of a quadratic equation.}\label{fig:dataflow}
+\captionstyle{center}\caption{Dataflow graph of a linear section which calculates the roots of a quadratic equation.}\label{fig:dataflow}
 \end{figure}
 
 Figure~\ref{fig:dataflow} shows the dataflow graph in the initial time when none of the instructions have been completed yet.
@@ -241,10 +235,9 @@ The dataflow processors approach resolves any threads of control into separate i
 In the Figure~\ref{fig:dataflow} the token located in the associative memory is shaded, as well as the commands ready to be executed.
 
 \begin{figure}[h]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse % if the caption is multiline
+\setcaptionmargin{5mm} % if the caption is multiline
 \includegraphics[width=0.80\textwidth]{pics/dataflow2.pdf}
-\captionstyle{normal}\caption{Dataflow graph of a linear section which calculates the roots of quadratic equation before executing the 2 MUL instruction.}\label{fig:dataflow2}
+\captionstyle{center}\caption{Dataflow graph of a linear section which calculates the roots of quadratic equation before executing the 2 MUL instruction.}\label{fig:dataflow2}
 \end{figure}
 
 After execution of the instructions 9 MUL, 1 MUL, 4 NEG and 3 MUL, the only instruction ready for execution is 2 MUL.
@@ -260,10 +253,8 @@ That is the point to implement the emulator, which will help to get closer to cr
 Consider the architecture of the dataflow processor emulator in general, presented in Figure~\ref{fig:big-scheme}.
 
 \begin{figure}[h!]
-\setcaptionmargin{5mm}
-\onelinecaptionsfalse
 \center{\includegraphics[width=1.0\textwidth]{pics/big-scheme2.pdf}}
-\captionstyle{normal}\caption{General architecture of dataflow processor.}
+\captionstyle{center}\caption{General architecture of dataflow processor.}
 \label{fig:big-scheme}
 \end{figure}
 
