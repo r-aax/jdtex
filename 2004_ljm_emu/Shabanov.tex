@@ -54,17 +54,30 @@ escapeinside={\%*}{*)}
 \email[E-mail: ]{rybakov.aax@gmail.com}
 \affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 
-\firstcollaboration{(Submitted by S.~S.~Submitter)}
+\firstcollaboration{(Submitted by A.~M.~Elizarov)} % Add if you know submitter.
+%\lastcollaboration{ }
 
-\received{May 01, 2020}
+\received{May 01, 2020; revised May 30, 2020, accepted June 05,
+2020}
 
 \begin{abstract}
-The development of dataflow processor architecture is a promising direction for improving the performance of computing systems.
-The dataflow processors have several advantages in contrast with the von Neumann architecture processors.
-These advantages are express in explicit parallelism of calculations, since in the presentation of programs for the dataflow processors the execution of instructions is limited solely by the fact of input data’s ready state.
-The concept of using tokens as data storage for instructions allows you to remove many problems associated with data conflicts and simplifies the program logic.
-One of the most important elements in the implementation of the logic of the dataflow processor is the associative token memory, which should provide storage and quick search for ready-made data for instructions that can be transferred for execution.
-This article discusses the functionality of the dataflow processor emulator and its parts including associative token memory and the logic of its operation using the example of a simple dataflow graph.
+The development of dataflow processor architecture is a promising
+direction for improving the performance of computing systems. The
+dataflow processors have several advantages in contrast with the von
+Neumann architecture processors. These advantages are express in
+explicit parallelism of calculations, since in the presentation of
+programs for the dataflow processors the execution of instructions
+is limited solely by the fact of input data's ready state. The
+concept of using tokens as data storage for instructions allows you
+to remove many problems associated with data conflicts and
+simplifies the program logic. One of the most important elements in
+the implementation of the logic of the dataflow processor is the
+associative token memory, which should provide storage and quick
+search for ready-made data for instructions that can be transferred
+for execution. This article discusses the functionality of the
+dataflow processor emulator and its parts including associative
+token memory and the logic of its operation using the example of a
+simple dataflow graph.
 \end{abstract}
 
 \subclass{68N20,68R10} % Enter 2010 Mathematics Subject Classification.
@@ -92,7 +105,7 @@ The difficulties noted above for the hardware implementation of the dataflow pro
 This refers to the development of universal dataflow processors, but not specialized ones, since, for example, dataflow processors of digital signal processing were not only developed, but also produced \cite{terada}.
 
 The Joint Supercomputer Center of the Russian Academy of Sciences (JSCC RAS) is developing a vector processor with the dataflow architecture \cite{vpp}.
-This paper introduces the development of the emulator of the model of dataflow processors family. 
+This paper introduces the development of the emulator of the model of dataflow processors family.
 
 
 \section{Emulation of processor with the von Neumann architecture}
@@ -125,20 +138,20 @@ At the linear section output it is required to get the values of the roots, whic
 \begin{lstlisting}[caption={Code block for calculating the roots of quadratic equation.},label={lst:square_equation_1}]
 {
     float t = sqrt(b * b - 4.0 * a * c);
-    
+
     x1 = (-b + t) / (2.0 * a);
     x2 = (-b - t) / (2.0 * a);
 }
 \end{lstlisting}
 
-\
+
 
 In listing~\ref{lst:square_equation_1}, the linear section is highlighted by curly brackets and temporary variable $t$ is declared to understand that this variable is not used outside the linear section.
 For convenience, we assume that the processor, for which the executable code will be created, supports the instruction for calculating the square root.
-Thus, the following instructions for working with real numbers appear in the listing above: MUL -- multiplication of two numbers, SUB -- subtraction of two numbers, SQRT -- the square root of a number, NEG -- unary negative, ADD -- addition of two numbers, DIV -- division of two numbers.
+Thus, the following instructions for working with real numbers appear in the listing above: MUL is a multiplication of two numbers, SUB is a subtraction of two numbers, SQRT is a square root of a number, NEG is an unary negative, ADD is an addition of two numbers, DIV is a division of two numbers.
 
 \begin{figure}[h]
-\includegraphics[width=1.05\textwidth]{pics/square_equation_calculation_tree.pdf}
+\includegraphics[width=0.75\textwidth]{pics/square_equation_calculation_tree.pdf}
 \captionstyle{center}\caption{Trees for calculating the roots of quadratic equation.}\label{fig:square_equation_calculation_tree}
 \end{figure}
 
@@ -154,7 +167,7 @@ In this case, when aligning a sequence of commands, it is necessary to observe t
 This process called code planning \cite{Aho}.
 In the result of code planning in the considered case, we will get a pseudocode for calculating the roots of quadratic equation similar to the code in listing~\ref{lst:square_equation_2}.
 
-\
+
 
 \begin{lstlisting}[caption={Pseudocode for calculating the roots of  quadratic equation.},label={lst:square_equation_2}]
 MOV 4.0       ->  v0
@@ -178,7 +191,7 @@ MOV v15       ->  x2
 \end{lstlisting}
 
 \begin{figure}[h]
-\includegraphics[width=0.60\textwidth]{pics/def_use.pdf}
+\includegraphics[width=0.45\textwidth]{pics/def_use.pdf}
 \captionstyle{center}\caption{Dependency graph of a linear section which calculates the roots of quadratic equation.}\label{fig:def_use}
 \end{figure}
 
@@ -191,8 +204,11 @@ Every instruction is considered as a function, which transfers the computer from
 
 \section{Dataflow processor emulation}
 
-The dataflow processor emulator, which considered in this article, has a dynamic model.
-It permits to pass the commands for execution when their tokens are ready with the simultaneous execution possibility of inner cycle’s iterations and different procedure launches on the same program graph.
+The dataflow processor emulator, which considered in this article,
+has a dynamic model. It permits to pass the commands for execution
+when their tokens are ready with the simultaneous execution
+possibility of inner cycle' iterations and different procedure
+launches on the same program graph.
 
 The dynamic model of the dataflow processor allows revealing more parallelism in program due to not only the coincidence of command number, of the operand tokens, but also of the tokens state \cite{Wiley}.
 
@@ -207,13 +223,13 @@ Therefore, the token is a data structure that stores information about transferr
 Besides, the token contains additional information (token state) allowing to distinguish instruction, which relates to different function calls or to different loop iterations, but for this example, this is not important, therefore, the description of token state will be omitted.
 
 \begin{figure}[h]
-\includegraphics[width=0.80\textwidth]{pics/dataflow.pdf}
+\includegraphics[width=0.5\textwidth]{pics/dataflow.pdf}
 \captionstyle{center}\caption{Dataflow graph of a linear section which calculates the roots of a quadratic equation.}\label{fig:dataflow}
 \end{figure}
 
 Figure~\ref{fig:dataflow} shows the dataflow graph in the initial time when none of the instructions have been completed yet.
 In this figure, on the edges of the graph, you can see those tokens that are ready and transferred to the relevant instructions.
-For example, for the instruction 9 MUL two tokens are ready: $\{9, 0, 2.0\}$ (9 -- number of instruction, 0 -- number of argument, 2.0 -- real number), $\{9, 1, a\}$ (9 -- number of instruction, 1 -- number of argument, $a$ -- real number).
+For example, for the instruction 9 MUL two tokens are ready: $\{9, 0, 2.0\}$ (9 is a number of instruction, 0 is number of a argument, 2.0 is a real number), $\{9, 1, a\}$ (9 is a number of instruction, 1 is a number of argument, $a$ is a real number).
 Both arguments for the instruction 9 MUL are ready and instruction can be executed.
 After execution, tokens containing arguments are deleted, and tokens containing the result of instruction 9 MUL will be sent by the output edges to instructions 10 DIV and 11 DIV.
 
@@ -226,24 +242,38 @@ The implementation of instruction semantics in a dataflow processor emulator is 
 
 The central functional element for ensuring the operability of the dataflow processor is so-called associative token memory, which is designed to store and search tokens for ready-to-execute commands.
 
-Associative token memory is a repository of tokens that are currently created and are being executed in the program.
-Moreover, if it turns out that in the associative memory there are all the necessary arguments for a command, they are immediately removed from the associative memory and sent for execution to the command.
-Thus, at any moment in time in the associative memory there are only those arguments that wait for the missing arguments for some instructions.
-That is, at the conditionally first moment in time, shown in the figure~ \ref{fig:dataflow}, in the associative memory of tokens there is only one token $\{2, 1, c\}$, waiting for its pair, while the commands are 9 MUL, 1 MUL, 4 NEG, 3 MUL are already ready for execution and are in the command buffer along with sets of their arguments.
+Associative token memory is a repository of tokens that are
+currently created and are being executed in the program. Moreover,
+if it turns out that in the associative memory there are all the
+necessary arguments for a command, they are immediately removed from
+the associative memory and sent for execution to the command. Thus,
+at any moment in time in the associative memory there are only those
+arguments that wait for the missing arguments for some instructions.
+That is, at the conditionally first moment in time, shown in the
+Figure~ \ref{fig:dataflow}, in the associative memory of tokens
+there is only one token $\{2, 1, c\}$, waiting for its pair, while
+the commands are 9 MUL, 1 MUL, 4 NEG, 3 MUL are already ready for
+execution and are in the command buffer along with sets of their
+arguments.
 
-The dataflow processors approach resolves any threads of control into separate instructions that are ready to execute as soon as all required operands available \cite{silc}. 
+The dataflow processors approach resolves any threads of control into separate instructions that are ready to execute as soon as all required operands available \cite{silc}.
 In the Figure~\ref{fig:dataflow} the token located in the associative memory is shaded, as well as the commands ready to be executed.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm} % if the caption is multiline
-\includegraphics[width=0.80\textwidth]{pics/dataflow2.pdf}
+\includegraphics[width=0.50\textwidth]{pics/dataflow2.pdf}
 \captionstyle{center}\caption{Dataflow graph of a linear section which calculates the roots of quadratic equation before executing the 2 MUL instruction.}\label{fig:dataflow2}
 \end{figure}
 
-After execution of the instructions 9 MUL, 1 MUL, 4 NEG and 3 MUL, the only instruction ready for execution is 2 MUL.
-The state of the computer before executing this instruction is shown in the figure ~\ref{fig:dataflow2}.
-In this figure, the 2 MUL instruction ready for execution is visible, as well as several tokens that have been passed into associative memory.
-Further execution of the program is similar and at the end we come to the formation of two tokens on the output edges of operations 10 DIV and 11 DIV, which will then be sent to their consumer instructions.
+After execution of the instructions 9 MUL, 1 MUL, 4 NEG and 3 MUL,
+the only instruction ready for execution is 2 MUL. The state of the
+computer before executing this instruction is shown in the Figure
+~\ref{fig:dataflow2}. In this figure, the 2 MUL instruction ready
+for execution is visible, as well as several tokens that have been
+passed into associative memory. Further execution of the program is
+similar and at the end we come to the formation of two tokens on the
+output edges of operations 10 DIV and 11 DIV, which will then be
+sent to their consumer instructions.
 
 In the dataflow processors, overflow of the associative memory is unacceptable, that is why the associative memory must have high capacity and be fast at the same time, which is difficult to realize in practice.
 That is the point to implement the emulator, which will help to get closer to creating such the dataflow processor while revealing all possible errors and shortcomings.
@@ -253,9 +283,9 @@ That is the point to implement the emulator, which will help to get closer to cr
 Consider the architecture of the dataflow processor emulator in general, presented in Figure~\ref{fig:big-scheme}.
 
 \begin{figure}[h!]
-\center{\includegraphics[width=1.0\textwidth]{pics/big-scheme2.pdf}}
-\captionstyle{center}\caption{General architecture of dataflow processor.}
-\label{fig:big-scheme}
+\center{\includegraphics[width=0.8\textwidth]{pics/big-scheme2.pdf}}
+\captionstyle{center}\caption{General architecture of dataflow
+processor.} \label{fig:big-scheme}
 \end{figure}
 
 The vector dataflow processor emulator is implemented using four infinite processes that exchange messages with each other.
@@ -308,48 +338,55 @@ The supercomputer MVS-10P, located at the JSCC RAS, was used during the research
 \begin{thebibliography}{99}
 
 \bibitem{fine-grained-prl}
-\refitem{article}
-N.~A.~Dikarev, B.~M.~Shabanov, A.~S.~Shmelev, {\it ``The use of fine-grained parallelism in dataflow processor"}, Problems of developing promising micro- and nanoelectronic systems (MES), {\bf 2}, pp.~144--150 (2016).
+\refitem{article} N.~A.~Dikarev, B.~M.~Shabanov, and A.~S.~Shmelev,
+{\it ``The use of fine-grained parallelism in dataflow processor"},
+Problems of developing promising micro- and nanoelectronic systems
+(MES) {\bf 2}, 144--150 (2016).
 
 \bibitem{culler}
 \refitem{book}
 D.~Culler, {\it ``Dataflow Architecture"}, MIT/LCS/TM-294, Massachusetts Institute of Technology (1986).
 
 \bibitem{popov}
-\refitem{article}
-R.~I.~Popov, {\it ``Application of stream computer models in designing specialized processors."}, Scientific and Technical Journal of Information Technologies, Mechanics and Optics, {\bf 5}(75), pp.~77--81 (2011).
+\refitem{article} R.~I.~Popov, {\it ``Application of stream computer
+models in designing specialized processors"}, Scientific and
+Technical Journal of Information Technologies, Mechanics and Optics
+{\bf 5} (75), 77--81 (2011).
 
 \bibitem{terada}
-\refitem{article}
-H.~Terada, {\it ``DDMP’s: Self-Timed Super-Pipelined Data-Driven Multimedia Processors."}, Proceedings of the IEEE, {\bf 2}(86), pp.~282--296 (1999).
+\refitem{article} H.~Terada, {\it ``DDMP's: Self-Timed
+Super-Pipelined Data-Driven Multimedia Processors"}, Proceedings of
+the IEEE {\bf 2} (86), 282--296 (1999).
 
 \bibitem{vpp}
-\refitem{article}
-N.~A.~Dikarev, B.~M.~Shabanov, {\it ``Vector dataflow processor"}, IZVESTIYA SFedU, {\bf 10}(54), pp.~80--85 (2005).
+\refitem{article} N.~A.~Dikarev and B.~M.~Shabanov, {\it ``Vector
+dataflow processor"}, IZVESTIYA SFedU {\bf 10} (54), ~80--85 (2005).
 
 \bibitem{Muchnick}
-\refitem{book}
-S.~S.~Muchnick, {\it ``Advanced Compiler Design \& Implementation."}, Academic Press (1997).
+\refitem{book} S.~S.~Muchnick, {\it ``Advanced Compiler Design \&
+Implementation"}, Academic Press (1997).
 
 \bibitem{Aho}
-\refitem{book}
-A.~V.~Aho, M.~S.~Lam, R.~Sethi, J.~D.~Ullman, {\it ``Compilers. Principles, Techniques, \& Tools."}, Addison-Wesley (2007).
+\refitem{book} A.~V.~Aho, M.~S.~Lam, R.~Sethi, and J.~D.~Ullman,
+{\it ``Compilers. Principles, Techniques, \& Tools"}, Addison-Wesley
+(2007).
 
 \bibitem{Wiley}
 \refitem{book}
 J.~Wiley, {\it ``Dataflow Computers: Their History and Future. \& Wiley Encyclopedia of Computer Science and Engineering, edited by Benjamin War"}, John Wiley and Sons, Inc (2008).
 
 \bibitem{silc}
-\refitem{book}
-J.~Silc, B.~Robic, T.~Unqerer, {\it ``Processor Architecture: From Dataflow to Superscalar and Beyond"}, Springer Science and Business Media, (2012).
+\refitem{book} J.~Silc, B.~Robic, and T.~Unqerer, {\it ``Processor
+Architecture: From Dataflow to Superscalar and Beyond"}, Springer
+Science and Business Media (2012).
 
 \bibitem{Armstrong}
 \refitem{book}
 J.~Armstrong, {\it ``Programming Erlang. Software for a Concurrent World."}, Pragmatic Programmers (2013).
 
 \bibitem{Cesarini}
-\refitem{book}
-F.~Cesarini, S.~Thompson, {\it ``Erlang programming."}, O'Reilly (2009).
+\refitem{book} F.~Cesarini and S.~Thompson, {\it ``Erlang
+programming."}, O'Reilly (2009).
 
 \end{thebibliography}
 
