@@ -279,11 +279,14 @@ Xeon Cascade Lake & 2 / 48 / 96 & 3.0 GHz & 192 GB & yes \\
 Также следует выделить вычислительные узлы на базе микропроцессора Xeon Phi KNL.
 Эти микропроцессоры отличаются огромным количеством вычислительных ядер, каждое из которых способно выполнять до 4 потоков, что позволяет эффективно распараллеливать расчетные приложения вплоть до 288 потоков на одном микропроцессоре.
 
-
+\begin{figure}[h]
+\includegraphics[width=0.8\textwidth]{pics/speedup.pdf}
+\captionstyle{center}\caption{Ускорение вычислений на суперкомпьютерах МСЦ РАН при увеличении количества узлов.}\label{fig:speedup}
+\end{figure}
 
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/05-graph.pdf}
-\captionstyle{center}\caption{График масшатабируемости вычислений на суперкомпьютерах МСЦ РАН.}\label{fig:05-graph}
+\includegraphics[width=0.8\textwidth]{pics/scaling.pdf}
+\captionstyle{center}\caption{Эффективность распараллеливания вычислений на суперкомпьютерах МСЦ РАН при увеличении количества узлов.}\label{fig:speedup}
 \end{figure}
 
 TODO описание запусков
