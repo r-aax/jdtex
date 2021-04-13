@@ -65,18 +65,19 @@ escapeinside={\%*}{*)}
 \received{TODO}
 
 \begin{abstract}
-При решении комплексных задач численного моделирования используются расчетные сетки, содержащие десятки и сотни миллионов ячеек.
-Современные задачи и вовсе переходят черту в миллиард ячеек.
-Локальные вычислительные станции не способны справиться с такими объемами данных и вычислений.
-Для выполнения вычислений такого объема требуется использование суперкомпьютерных кластеров, состоящих из многих вычислительных узлов, связанных между собой высокоскоростной коммуникационной сетью.
-При этом необходимо выполнять декомпозицию расчетной сетки на отдельные домены, чтобы обеспечить ее параллельную обработку сразу на всех узлах кластера.
-Эти домены распределяются по вычислительным узлам суперкомпьютера и обрабатываются независимо друг от друга.
-Для синхронизации вычислений после каждой итерации обработки ячеек производятся обмены данными на границах между соседними соприкасающимися доменами.
-Для эффективности выполнения вычислений и масштабирования их на большое количество вычислительных узлов требуется разработка эффективных алгоритмов декомпозиции расчетных сеток, порождающих множество доменов с накладываемыми на них требованиями по количеству ячеек, равномерности распределения ячеек по доменам, связности доменов и размеру границ между ними.
-При этом теоретические показатели эффективности декомпозиции расчетной сетки не гарантируют эффективного выполнения реальной задачи на суперкомпьютере.
-В данной статье в качестве объекта исследования рассматривается неструктурированная поверхностная сетка, используемая для расчета процессов взаимодействия объемного тела с окружающей средой.
-Для сетки такого вида рассматривается иерархический алгоритм декомпозиции с выбором оптимального критерия разбиения на домены.
-С использованием данного алгоритма декомпозиции проводятся суперкомпьютерные расчеты на вычислительных ресурсах МСЦ РАН с целью измерения практических показателей масштабируемости высоконагруженных приложений.
+When solving complex problems of numerical modeling, computational grids, containing hundreds of millions of cells are quite often.
+Modern tasks even cross the line of billion cells.
+Workstations are unable to cope with such volume of data and computation.
+To perform computations of this volume we need to use supercomputer clusters consisting of many computational nodes interconnected by a high-speed communication network.
+In this case, it is necessary to perform the decomposition of the computational grid into separate domains in order to ensure its parallel processing on all nodes of the cluster.
+These domains are distributed among the computational nodes of the supercomputer and are processed independently of each other.
+To synchronize computations, after each iteration of cell processing, data exchanges are performed at the boundaries between adjacent contiguous domains.
+To efficiently perform computations and scale them to a large number of computational nodes, it is necessary to develop efficient algorithms for decomposition of computational grids that generate many domains with imposed requirements.
+This requirements include: number of cells, uniformity of cells' distribution over domains, domain connectivity and the size of boundaries between them.
+At the same time, theoretical indicators of the efficiency of decomposition of computational grid do not guarantee the efficient execution of a real problem on a supercomputer.
+We consider a hierarchical decomposition algorithm with the choice of the optimal criterion for dividing grid into domains.
+As such a grid we study an unstructured surface mesh used to calculate the processes of interaction of a volumetric body with the environment.
+Using this decomposition algorithm, supercomputer calculations are performed on the computing resources of JSCC RAS in order to measure the practical indicators of scalability of highly loaded applications.
 \end{abstract}
 
 \subclass{65Y05,65Y20,49M27} % Enter 2010 Mathematics Subject Classification.
