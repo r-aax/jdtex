@@ -88,46 +88,50 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 \section{Introduction}
 
-Современные расчетные приложения крайне требовательны к вычислительным ресурсам.
-Для больших задач не представляется возможным выполнение их на отдельно взятом вычислителе (одном микропроцессоре или одном сервере) за приемлемое время.
-Возникает потребность использовать для вычислений суперкомпьютерные кластеры, состоящие из многих вычислительных узлов.
-Для того, чтобы выполнить задачу на суперкомпьютере, необходимо разделить ее расчетную область на отдельные подобласти, называемые доменами, и обрабатывать эти домены параллельно и независимо друг от друга.
-Для повышения эффективности суперкомпьютерных приложений внутри вычислительного узла применяются различные методы подготовки данных и распараллеливания исполнения для систем с общей памятью, а также низкоуровневые оптимизации программного кода, такие как векторизация, позволяющие существенно повысить скорость выполнения приложений.
-Конечно, на границах соприкосновения доменов возникает необходимость синхронизации вычислений, что достигается путем обмена данными (например, с использованием MPI).
-Таким образом, выполнение суперкомпьютерных расчетов состоит из двух чередующихся шагов: параллельная обработка ячеек расчетной области и обмен данными на границах соприкосновения доменов, обрабатываемых различными процессами.
-Эффективность выполнения суперкомпьютерных приложений существенным образом зависит от качества декомпозиции расчетной сетки и ее распределения между разными вычислительными узлами.
+Modern computational applications are extremely demanding on computational resources.
+For large tasks it is not possible to execute them on a separate computer (one microprocessor or one server) in reasonable time.
+There is a need to use supercomputer clusters for computations, consisting of many computational nodes.
+In order to perform a task on a supercomputer, it is necessary to divide its computational domain into separate subdomains and process them in parallel.
+To improve the efficiency of supercomputer applications within a computing node, various methods of data preparation and parallelization of execution for systems with shared memory are used.
+Low-level optimizations of program code, such as vectorization, which can significantly increase the speed of application execution can also be very efficient.
+Of course, at the boundaries of domain contact, it becomes necessary to synchronize computations, which is achieved by data exchange (for example, using MPI).
+Thus, the execution of supercomputer calculations consists of two alternating steps: parallel processing of cells of the computational domain and data exchange at the boundaries of contact of domains.
+The efficiency of supercomputer applications execution essentially depends on the quality of the computational grid decomposition and its distribution over different computational nodes.
 
-Данная статья посвящена задаче декомпозиции поверхностной неструктурированной расчетной сетки для распределения между узлами гомогенного суперкомпьютерного кластера (то есть кластера, состоящего из одинаковых вычислительных узлов) для повышения эффективности масштабирования вычислений.
-Пусть дана поверхностная сетка, состоящая из $S$ расчетных ячеек, пусть также суперкомпьютер состоит из $n$ вычислительных узлов с одинаковыми характеристиками.
-Также будем считать, что скорость обмена данными между любыми двумя вычислительными узлами одинакова для всех узлов.
-Распространение задачи распределения вычислительной нагрузки на гетерогенный вычислительный кластер достигается путем ввода весовых коэффициентов для вычислительных узлов и для каналов обмена данными, как это описано в[TODO].
-Если представить скорость обработки расчетных ячеек на одном вычислительном узле как $a^{-1}$, то время выполнения одной итерации расчетов на одном вычислительном узле будет равно $T_1 = aS$.
-Пусть теперь расчетная область разбита на $n$ доменов, содержащих по $S_i$ ячеек ($i=1,n$).
-Обозначим через $L_{ij}$ количество ребер, составляющих границу между доменами $S_i$ и $S_j$.
-Будем считать, что каждый домен обрабатывается на своем вычислительном узле.
-Таким образом, все домены обрабатываются параллельно, и время обработки всех ячеек определяется временем обработки самого крупного домена.
-Кроме обработки всех расчетных ячеек после проведения итерации расчета необходимо выполнить обмен данными между всеми парами доменов по всем границам между ними.
-Пусть скорость передачи данных между узлами определяется величиной $b^{-1}$, и все обмены выполняются параллельно, тогда время выполнения всех обменов определяется временем обмена данными через самую длинную границу.
-Исходя из этого, можно определить суммарное время выполнения одной итерации расчета при выполнении на $n$ вычислительных узлах:
+This article is devoted to the problem of decomposition of a surface unstructured computational grid for distribution between the nodes of a homogeneous supercomputer cluster  to increase the efficiency of computational scaling.
+By homogeneous we mean a cluster consisting of the same computational nodes.
+Take a surface mesh consisting of $ S $ computational cells, let the supercomputer consist of $ n $ computational nodes with the same characteristics.
+We will also assume that the speed of data exchange between any two computational nodes is the same for all nodes.
+Extension of the problem of distributing the computational load to a heterogeneous computational cluster is achieved by entering weights for computational nodes and for data exchange channels, as described in [TODO].
+If we represent the processing speed of computational cells on one computational node as $ a^{-1} $, then the execution time of one iteration of computations on one computational node will be equal to $ T_1 = aS $.
+Now let the computational domain be divided into $ n $ domains each containing $ S_i $ cells ($ i = 1, n $).
+Let us denote by $ L_{ij} $ the number of edges that form the border between the domains $ S_i $ and $ S_j $.
+We will assume that each domain is processed on its own computational node.
+Thus, all domains are processed in parallel, and the processing time for all cells is determined by the processing time for the largest domain.
+In addition to processing all computational cells, after the calculation iteration, it is necessary to exchange data between all pairs of domains along their boundaries.
+Let the speed of data transfer between nodes be determined by the value of $ b^{-1} $, and all exchanges are performed in parallel.
+Then the execution time of all exchanges is determined by the time of data exchange across the longest boundary.
+Based on this, it is possible to determine the total execution time of one iteration of calculation when executing on $ n $ computational nodes:
 
 \begin{equation}
-T_n = a \max_{i = 1,n}{S_i} + b \max_{i,j=1,n}{L_{ij}}
+T_n = a \max_{i = 1,n}{S_i} + b \max_{i,j=1,n}{L_{ij}}.
 \end{equation}
 
-Критерием оптимизации декомпозиции расчетной сетки является сокращение времени выполнения расчетов, то есть величины $T_n$.
-Время выполнения расчетов напрямую зависит от размера самого крупного домена, однако мы будем рассматривать не абсолютный размер домена, а его отклонение от теоретического оптимального значения.
-Очевидно, что в идеальном случае при декомпозиции все домены должны иметь размер $\frac{S}{n}$, а относительное отклонение от идеального размера в процентах можно вычислить по формуле
+The criterion for optimization of computational grid's decomposition is the reduction of time for performing calculations, that is, the value of $ T_n $.
+The calculation execution time directly depends on the size of the largest domain, however, we will consider not the absolute size of the domain, but its deviation from the theoretical optimal value.
+Obviously, in the ideal case, during decomposition, all domains should have the size $ \frac{S}{n} $, and the relative deviation from the ideal size in percentage can be calculated by the formula:
 
 \begin{equation}
-D = 100 \% \left( \frac{n}{S} \max_{i=1,n}{S_i} - 1 \right)
+D = 100 \% \left( \frac{n}{S} \max_{i=1,n}{S_i} - 1 \right).
 \end{equation}
 
-Вторым важным критерием качества выполненной декомпозиции является наибольшее значение длины границы между парами доменов.
-В данном случае можно использовать абсолютную характеристику, так как длину границы предсказать довольно сложно, и у нее вообще говоря нет теоретического минимума (в зависимости от геометрии рассматриваемой сетки теоретически длина границы между доменами может быть нулевой).
-То есть в качестве критерия сравнения различных методов декомпозиции сетки будем использовать следующую величину:
+The second important criterion for the quality of the performed decomposition is the largest value of the length of the boundary between pairs of domains.
+In this case, the absolute characteristic can be used, since the length of the boundary is rather difficult to predict, and generally speaking, it has no theoretical minimum.
+Depending on the geometry of the grid under consideration, the length of the boundary between domains can theoretically be zero.
+We will use the following value as a criterion for comparing various grid decomposition methods:
 
 \begin{equation}
-L = \max_{i,j=1,n}{L_{ij}}
+L = \max_{i,j=1,n}{L_{ij}}.
 \end{equation}
 
 Несмотря на то, что в наших предположениях все обмены данными между доменами выполняются одновременно, общий объем всех обменов существенно влияет на скорость обмена данными, поэтому этот параметр также необходимо учитывать.
