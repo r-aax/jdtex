@@ -134,22 +134,26 @@ We will use the following value as a criterion for comparing various grid decomp
 L = \max_{i,j=1,n}{L_{ij}}.
 \end{equation}
 
-Несмотря на то, что в наших предположениях все обмены данными между доменами выполняются одновременно, общий объем всех обменов существенно влияет на скорость обмена данными, поэтому этот параметр также необходимо учитывать.
-Введем его в следующем виде.
-Общее число ребер расчетной сетки остается неизменным вне зависимости от алгоритма декомпозиции и количества доменов (обозначим общее количество ребер сетки через $E$).
-Среди этих ребер есть граничные ребра, имеющие только одну инцидентную ячейку, их количество также неизменно и равно $E_B$ (от слова "border").
-Остальные ребра имеют две инцидентные ячейки.
-Если обе ячейки, инцидентные некоторому ребру, принадлежат одному и тому же домену, то будем называть такое ребро внутренним ребром этого домена (обозначим их количество через $E_{INN}$ от слова "inner"), в противном случае ребро входит в границу между двумя доменами будем называть такое ребро междоменным (обозначим их количество через $E_{INT}$ от слова "inter").
-Ребер других видов быть не может.
-Таким образом, выполняется соотношение $E = E_B + E_{INN} + E_{INT}$.
-В качестве параметра оценки качества декомпозиции будем рассматривать долю междоменных ребер в общем количестве ребер сетки, то есть величину
+Despite the fact that, in our assumptions, all data exchanges between domains are executed simultaneously, the total volume of all exchanges significantly affects the data exchange rate, so this parameter must also be taken into account.
+Let us introduce it in the following form.
+The total number of edges in the computational grid remains unchanged regardless of the decomposition algorithm and number of domains.
+We denote the total number of edges in the grid by $ E $.
+Among these edges there are border edges that have only one incident cell, their number is also constant and equal to $ E_B $ (from the word "border").
+The rest of the edges have two incident cells.
+If both cells incident to a certain edge belong to the same domain, then we call such an edge an inner edge of this domain
+We denote their number by $ E_{INN} $ from the word "inner".
+Otherwise the edge enters the boundary between two domains and we call it an interdomain edge.
+$ E_{INT} $ is their number.
+There can be no other types of edges.
+Thus, the relation $ E = E_B + E_{INN} + E_{INT} $ is fulfilled.
+As a parameter for evaluating the quality of decomposition, we will consider the fraction of interdomain edges in the total number of mesh edges, that is, the value:
 
 \begin{equation}
 I = 100 \% \left( \frac{E_{INT}}{E} \right)
 \end{equation}
-	  
-Для оценки качества декомпозиции расчетной сетки следует учитывать все три описанных параметра: $D$ -- отклонение размера максимального домена от идеального значения, $I$ -- долю междоменных ребер в общем числе ребер расчетной сетки и $L$ -- длину наиболее протяженной границы между парами доменов.
-Чем ниже значения данных критериев, тем более качественной является декомпозиция и тем более эффективного выполнения расчетов стоит ожидать при выполнении запусков на реальной машине.
+
+To assess the quality of the computational mesh decomposition, all three described parameters should be taken into account: $ D $ is the deviation of the biggest domain size from the ideal value, $ I $ is the fraction of interdomain edges in the total number of edges of the computational mesh, and $ L $ is the length of the longest boundary between pairs of domains.
+The lower the values of these criteria, the better the decomposition is and the more efficient calculations can be expected when running on a real machine.
 
 \section{Распараллеливание вычислений на неструктурированной расчетной сетке}
 
@@ -158,10 +162,10 @@ I = 100 \% \left( \frac{E_{INT}}{E} \right)
 \captionstyle{center}\caption{Схема распараллеливания вычислений на суперкомпьютере.}\label{fig:02-scheme}
 \end{figure}
 
-Рассмотрим схему распараллеливания вычислений, связанных с моделированием взаимодействия объемного тела с окружающей средой.
-При этом вычисления проводятся на поверхности взаимодействующего тела, описываемой неструктурированной поверхностной расчетной сеткой (GSU - Grid Surface Unstructured) с треугольными ячейками.
-В рассматриваемой схеме вычислений на поверхности тела рассматриваются различные физические процессы, включая деформацию поверхности, течение жидкой пленки и образование ледяного нароста, что в конечном итоге должно приводить к перестроению расчетной поверхности.
-Схема вычислений, таким образом, разделяется на несколько независимых функциональных модулей (схема взаимодействия модулей показана на Fig~\ref{fig:02-scheme}).
+Consider a parallelization scheme for computations associated with modeling the interaction of a volumetric body with the environment.
+In this case, calculations are carried out on the surface of an interacting body described by an unstructured surface computational grid (GSU - Grid Surface Unstructured) with triangular cells.
+In the considered calculation scheme on the body surface, various physical processes are considered, including surface deformation, the flow of a liquid film, and ice accretion, which ultimately should lead to remeshing of the calculated surface.
+The calculation scheme is thus divided into several independent functional modules (the scheme of interaction of the modules is shown in Fig~\ref{fig:02-scheme}.
 
 Первый модуль -- \texttt{gsu-split} -- предназначен для загрузки расчетной сетки, ее декомпозиции на несколько доменов и подготовке ее к передаче решателю.
 Физический решатель \texttt{solver} предназначен только для проведения высоконагруженных вычислений, он взаимодействует с суперкомпьютерным кластером и работает на произвольном количестве вычислительных узлов.
