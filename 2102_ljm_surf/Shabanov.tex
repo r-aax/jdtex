@@ -272,21 +272,21 @@ This duplication of information is acceptable, since the data of the ghost cells
 
 \section{Efficiency of scaling supercomputer computations}
 
-Для замеров показателей масштабируемости вычислений на неструктурированной поверхностной расчетной сетке была использована тестовая поверхность обтекаемого трехмерного тела, содержащая порядка $2 \cdot 10^5$ узлов и $4 \cdot 10^5$ ячеек.
-В ячейках выполнялись расчеты, связанные с моделирование течения жидкой пленки, решением уравнений теплового баланса на поверхности, а также перестроение и сглаживание поверхности.
-Для декомпозиции поверхностной сетки использовался простой иерархических алгоритм деления доменов пополам, описанный в данной статье, в котором в качестве признаков ячеек брались три координаты центра.
-При этом в результате критерием выбора конкретной координаты для деления домена являлась минимизация длины границы между двумя доменами (такой подход позволяет выполнять деление домена по наиболее протяженному направлению).
+To measure the scalability of computations on an unstructured surface computational grid, a test surface of a streamlined three-dimensional body was used, containing about $ 2 \cdot 10^5 $ nodes and $ 4 \cdot 10^5 $ cells.
+In the cells, calculations were performed related to modeling the flow of a liquid film, solving the heat balance equations on the surface, as well as remeshing and smoothing the surface.
+To decompose the surface mesh, we used a simple hierarchical algorithm for halving domains, in which three coordinates of the center were taken as the features of the cells.
+At the same time, as a result, the criterion for choosing a specific coordinate for dividing a domain was to minimize the length of the boundary between two domains (this approach allows dividing a domain along the longest direction).
 
 \begin{table}[!h]
 \label{tbl:supercomputers}
 \setcaptionmargin{0mm}
 \onelinecaptionsfalse
 \captionstyle{flushleft}
-\caption{Конфигурации сегментов суперкомпьютера МВС-10П ОП, на которых производились замеры масштабирования вычислений.}
+\caption{The configurations of the segments of the MVS-10P OP supercomputer, on which the computation scaling measurements were taken.}
 \bigskip
 \begin{tabular}{|c|c|c|c|c|}
 \hline
-\parbox{3.5cm}{\textit{Семейство\\микропроцессоров Intel}} & \parbox{4.0cm}{\textit{Количество\\процессоров / ядер /\\потоков в узле}} & \parbox{3.0cm}{\textit{Частота\\микропроцессора}} & \parbox{3.0cm}{\textit{Объем\\оперативной\\памяти в узле}} & \parbox{2.0cm}{\textit{Поддержка\\AVX-512}} \\
+\parbox{3.5cm}{\textit{Family of\\Intel microprocessors}} & \parbox{4.0cm}{\textit{Number of\\processors/ cores /\\threads per node}} & \parbox{3.0cm}{\textit{Frequency of\\microprocessor}} & \parbox{3.0cm}{\textit{RAM\\per node}} & \parbox{2.0cm}{\textit{Supports\\AVX-512}} \\
 \hline
 Xeon Broadwell & 2 / 32 / 64 & 2.6 GHz & 128 GB & no \\
 \hline
@@ -300,34 +300,34 @@ Xeon Cascade Lake & 2 / 48 / 96 & 3.0 GHz & 192 GB & yes \\
 \label{tab:supercomputers}
 \end{table}   
 
-Для измерения показателей масштабируемости вычислений использовались гомогенные сегменты вычислительной системы Межведомственного суперкомпьютерного центра РАН.
-Всего расчеты проводились на четырех вычислительных сегментах, характеристики узлов которых приведены в таблице \ref{tab:supercomputers}.
-В данной таблице можно отметить, что все микропроцессоры кроме Xeon Broadwell поддерживают набор инструкций AVX-512, позволяющий использовать специальные 512-битные векторные регистры для эффективной векторизации кода.
-Также следует выделить вычислительные узлы на базе микропроцессора Xeon Phi KNL.
-Эти микропроцессоры отличаются огромным количеством вычислительных ядер, каждое из которых способно выполнять до 4 потоков, что позволяет эффективно распараллеливать расчетные приложения вплоть до 288 потоков на одном микропроцессоре.
+Homogeneous segments of the computing system of Joint Supercomputer Center of the Russian Academy of Sciences were used to measure the computational scalability.
+In total, the calculations were carried out on four computational segments, the characteristics of the nodes of which are given in the table \ref{tab:supercomputers}.
+In this table, it can be noted that all microprocessors except Xeon Broadwell support the AVX-512 instruction set, which allows the use of special 512-bit vector registers for efficient code vectorization.
+We should also highlight the computing nodes based on the Xeon Phi KNL microprocessor.
+These microprocessors are distinguished by a huge number of computing cores, each of which is capable of executing up to 4 threads, which allows efficient parallelization of computational applications up to 288 threads on a single microprocessor.
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/speedup.pdf}
-\captionstyle{center}\caption{Ускорение вычислений на суперкомпьютерах МСЦ РАН при увеличении количества узлов.}\label{fig:speedup}
+\captionstyle{center}\caption{Acceleration of computations on supercomputers at JSCC RAS when increasing the number of nodes.}\label{fig:speedup}
 \end{figure}
 
-Основной целью выполняемых запусков было проведение замеров показателей сильной масштабируемости вычислений при полном распараллеливании внутри вычислительных узлов с использованием OpenMP.
-То есть для всех запусков использовалась одна и та же поверхность (которая дробилась на нужное количество вычислительных узлов), а также в расчетах были задействованы все потоки, доступные внутри вычислительных узлов. 
+The main goal of the launches was to measure the strong scalability of computations with full parallelization within computational nodes using OpenMP.
+That is, for all launches, the same surface was used (which was split over the required number of computational nodes), and all the threads available inside the computational nodes were also involved in the calculations.
 
-При проведении расчетов замеры выполнялись независимо для каждой вычислительной системы в отдельности.
-Приведем описание измеряемых величин в процессе расчета для одной конкретной вычислительной системы.
-В качестве эталонного времени использовалось время выполнения задачи на одном вычислительном узле: $t(1)$.
-Также были выполнены замеры времени выполнения задач для количества вычислительных узлов, равного степени двойки (2, 4, 8, 16, 32, 64).
-При этом ускорением на количестве узлов, равном $i$, считалось значение величины $s(i) = \frac{t(1)}{t(i)}$.
-На Fig.~\ref{fig:speedup} приведены диаграммы ускорения вычислений при увеличении количества вычислительных узлов для разных вычислительных систем.
+When carrying out the calculations, the measurements were carried out independently for each computer system separately.
+Let us give a description of the quantities measured in the calculation process for one specific computing system.
+The time of the task execution on one computational node was used as the reference time: $ t(1) $.
+We also measured the execution time of tasks for the number of computational nodes equal to a power of two (2, 4, 8, 16, 32, 64).
+In this case, the acceleration on the number of nodes equal to $ i $ was considered the value of the value $ s(i) = \frac{t(1)}{t(i)} $.
+Fig.~\ref{fig:speedup} shows diagrams of computation acceleration with an increase in the number of computational nodes for different computational systems.
 
-Кроме вычисления непосредственно ускорения выполнения кода производились расчеты эффективности масштабирования.
-Под эффективности масштабирования вычислений в данном случае понимается величина $e(i) = \frac{s(i)}{i}$.
-Физический смысл данного показателя заключается в следующем.
-Можно считать, что в случае идеального распараллеливания вычислений при увеличении количества вычислительных узлов в $n$ раз время выполнения уменьшается ровно в $n$ раз.
-Таким образом в случае идеального распараллеливания $s(i) = i$, а $e(i) = 1$.
-Эффективность масштабирования вычислений является удобным индикатором качества создания исполняемого параллельного кода и сравнения между собой различных вычислительных систем.
-Заметим, что вполне возможно проявление сверхлинейной масштабируемости (когда значение $e(i)$ поднимается выше единицы), однако это скорее исключение, чем ожидаемый эффект.
+In addition to calculating the direct speedup of code execution, calculations of the scaling efficiency were performed.
+In this case, the computational scaling efficiency is understood as the value $ e(i) = \frac{s(i)}{i} $.
+The physical meaning of it is as follows.
+We can assume that in the case of ideal parallelization of computations increasing the number of nodes by $ n $ times, the execution time decreases exactly by $ n $ times.
+Thus, in the case of ideal parallelization, $ s (i) = i $, and $ e(i) = 1 $.
+The efficiency of scaling computations is a convenient indicator of the quality of creating executable parallel code and comparing different computing systems with each other.
+Note that super-linear scalability is quite possible (when the value of $ e(i) $ rises above one), but this is more an exception than an expected effect.
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/scaling.pdf}
