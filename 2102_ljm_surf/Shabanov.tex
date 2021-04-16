@@ -255,11 +255,11 @@ Fig.~\ref{fig:04-MPI} shows a scheme of organization of interprocess exchanges.
 Two domains (we will conventionally call them left and right), processed in MPI processes numbered 0 and 1, are separated by a boundary consisting of three edges.
 In this case, there are three cells in the left domain that are adjacent to the considered boundary, in the right domain there are only two such cells (since cell 23R is adjacent to two edges of the boundary at once).
 To organize interprocess communications in each domain, ghost cells are created for each edge of the considered boundary, which are involved in calculating flows through the edges.
-At the same time, there is no need to recalculate physical values ​​in ghost cells
+At the same time, there is no need to recalculate physical values in ghost cells
 All data for ghost cells is obtained using MPI exchanges from real cells of a neighboring domain.
 
 To transfer data from the real border cells of the domain to the ghost cells of the neighboring domain, buffers for sending and receiving data are organized in each of the two neighboring domains.
-The data exchange sequence is as follows (the diagram is shown in Fig.~\Ref{fig:04-MPI}).
+The data exchange sequence is as follows (the diagram is shown in Fig.~\ref{fig:04-MPI}).
 First, data from real boundary cells is written to the corresponding send buffers (send buff), then asynchronous commands \texttt{MPI\_Irecv} for receiving messages in the data receiving buffers (recv buff) are executed for all boundaries of the computational grid.
 After that, commands for asynchronous sending of data \texttt{MPI\_Isend} from the send buffers are also executed simultaneously for all boundaries of the computational grid.
 Next, it waits for the completion of all asynchronous data exchanges using the \texttt{MPI\_Waitall} function.
