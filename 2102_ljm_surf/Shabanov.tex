@@ -240,36 +240,37 @@ The deviations in the lengths of the boundaries between domains and the total le
 In the worst cases, domains of arbitrary shape and consisting of an arbitrary number of isolated parts of the surface may arise.
 Of course, a significant limitation of the algorithm is that it can be used to partition the surface only into the number of parts, which is a power of two, but the close-to-zero value of the computational load balancing quality index $ D $ allows in this case to neglect this drawback.
 
-\section{Организация межпроцессных обменов}
+\section{Organization of interprocess exchanges}
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/04-MPI.pdf}
-\captionstyle{center}\caption{Схема выполнения MPI-обменов через границу двух зон.}\label{fig:04-MPI}
+\captionstyle{center}\caption{Scheme of execution of MPI-exchanges across the border of two zones.}\label{fig:04-MPI}
 \end{figure}
 
-При проведении расчетов на декомпозированной сетке на каждой итерации счета необходимо выполнять обмен данными на каждой границе между доменами.
-В нашем случае при выполнении декомпозиции расчетной сетки граница между двумя доменами представлена произвольным набором междоменных ребер.
-При этом граница может быть разрывной, она и вовсе может состоять из отдельных ребер, поэтому последовательность междоменных ребер при описании границы не имеет значения.
+When performing calculations on a decomposed grid, at each iteration of the computation, it is necessary to exchange data at each boundary between domains.
+In our case, when performing the decomposition of the computational grid, the boundary between two domains is represented by an arbitrary set of interdomain edges.
+In this case, the boundary may be discontinuous, it may even consist of separate edges, therefore the sequence of interdomain edges is not important when describing the boundary.
 
-На Fig.~\ref{fig:04-MPI} представлена схема организации межпроцессных обменов.
-На данной иллюстрации два домена (будем условно их называть левым и правым), обрабатывающиеся в MPI-процессах с номерами 0 и 1, разделены границей, состоящей из трех ребер.
-При этом в левом домене присутствует три ячейки, которые примыкают к рассматриваемой границе, в правом домене таких ячеек только две (так как ячейка 23R примыкает сразу к двум ребрам границы).
-Для организации межпроцессных обменов в каждом домене для каждого ребра рассматриваемой границы создаются фиктивные ячейки, которые участвуют при расчете потоков через ребра границы.
-При этом пересчет физических величин в фиктивных ячейках выполнять не требуется, все данные для фиктивных ячеек получаются с помощью MPI-обменов из настоящих ячеек соседнего домена.
+Fig.~\ref{fig:04-MPI} shows a scheme of organization of interprocess exchanges.
+Two domains (we will conventionally call them left and right), processed in MPI processes numbered 0 and 1, are separated by a boundary consisting of three edges.
+In this case, there are three cells in the left domain that are adjacent to the considered boundary, in the right domain there are only two such cells (since cell 23R is adjacent to two edges of the boundary at once).
+To organize interprocess communications in each domain, ghost cells are created for each edge of the considered boundary, which are involved in calculating flows through the edges.
+At the same time, there is no need to recalculate physical values ​​in ghost cells
+All data for ghost cells is obtained using MPI exchanges from real cells of a neighboring domain.
 
-Для пересылки данных из настоящих граничных ячеек домена в фиктивные ячейки соседнего домена в каждом из двух соседних доменов организуются буферы отправки и приема данных.
-Последовательность обмена данными выглядит следующим образом (схема показана на Fig.~\ref{fig:04-MPI}).
-Сначала данные из настоящих граничных ячеек записываются в соответствующие буферы отправки данных (send buff), далее для всех границ расчетной сетки выполняются асинхронные команды \texttt{MPI\_Irecv} приема сообщений в буферах получения данных (recv buff).
-После чего также одновременно для всех границ расчетной сетки выполняются команды асинхронной отправки данных \texttt{MPI\_Isend} из буферов отправки.
-Далее выполняется ожидание завершения всех асинхронных обменов данными с помощью функции \texttt{MPI\_Waitall}.
-Последним шагом, завершающим обмен данными между соседними доменами, является перенос полученных физических значений из буферов получения данных (recv buff) в соответствующие фиктивные ячейки.
+To transfer data from the real border cells of the domain to the ghost cells of the neighboring domain, buffers for sending and receiving data are organized in each of the two neighboring domains.
+The data exchange sequence is as follows (the diagram is shown in Fig.~\Ref{fig:04-MPI}).
+First, data from real boundary cells is written to the corresponding send buffers (send buff), then asynchronous commands \texttt{MPI\_Irecv} for receiving messages in the data receiving buffers (recv buff) are executed for all boundaries of the computational grid.
+After that, commands for asynchronous sending of data \texttt{MPI\_Isend} from the send buffers are also executed simultaneously for all boundaries of the computational grid.
+Next, it waits for the completion of all asynchronous data exchanges using the \texttt{MPI\_Waitall} function.
+The last step, completing the exchange of data between neighboring domains, is the transfer of the received physical values from the data receiving buffers (recv buff) to the corresponding ghost cells.
 
-Можно отметить, что при использовании фиктивных ячеек возможно некоторое дублирование данных.
-Например, на представленной схеме ячейке 23R из правого домена соответствуют сразу две фиктивные ячейки в левом домене.
-Эти ячейки содержат одинаковые данные.
-Данное дублирование информации является приемлемым, так как данные фиктивных ячеек используются только на чтение для выполнения вычисления потоков через границу доменов, поэтому в данном случае выполнять какую-либо синхронизацию одинаковых фиктивных ячеек не нужно.
+Note that some data duplication may occur when using ghost cells.
+For example, in the presented diagram, cell 23R from the right domain corresponds at once to two ghost cells in the left domain.
+These cells contain the same data.
+This duplication of information is acceptable, since the data of the ghost cells is used only for reading to perform the calculation of flows across the domain boundary, therefore, in this case, there is no need to perform any synchronization of the same ghost cells.
 
-\section{Эффективность масштабирования вычислений на суперкомпьютере}
+\section{Efficiency of scaling supercomputer computations}
 
 Для замеров показателей масштабируемости вычислений на неструктурированной поверхностной расчетной сетке была использована тестовая поверхность обтекаемого трехмерного тела, содержащая порядка $2 \cdot 10^5$ узлов и $4 \cdot 10^5$ ячеек.
 В ячейках выполнялись расчеты, связанные с моделирование течения жидкой пленки, решением уравнений теплового баланса на поверхности, а также перестроение и сглаживание поверхности.
