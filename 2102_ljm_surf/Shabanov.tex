@@ -167,40 +167,40 @@ In this case, calculations are carried out on the surface of an interacting body
 In the considered calculation scheme on the body surface, various physical processes are considered, including surface deformation, the flow of a liquid film, and ice accretion, which ultimately should lead to remeshing of the calculated surface.
 The calculation scheme is thus divided into several independent functional modules (the scheme of interaction of the modules is shown in Fig~\ref{fig:02-scheme}.
 
-Первый модуль -- \texttt{gsu-split} -- предназначен для загрузки расчетной сетки, ее декомпозиции на несколько доменов и подготовке ее к передаче решателю.
-Физический решатель \texttt{solver} предназначен только для проведения высоконагруженных вычислений, он взаимодействует с суперкомпьютерным кластером и работает на произвольном количестве вычислительных узлов.
-Это наиболее требовательная к ресурсам часть приложения, занимающая более 90\% расчетного времени, поэтому она реализуется с использованием механизмов MPI, OpenMP и векторизации программного кода.
-После проведения необходимых расчетов модуль \texttt{solver} возвращает накопленные расчетные данные с разных временных точек, которые поступают на вход модулю слияния данных \texttt{gsu-merge}.
-Последним звеном в цепочке выполнения расчетов является модуль \texttt{gsu-remesh}, который на вход получает расчетную сетку (в общем случае множество расчетных сеток с разных точек времени) и выполняет ее перестроение. 
+The first module -- \texttt{gsu-split} -- is designed to load the computational mesh, decompose it into several domains and prepare it for solver.
+The physical solver \texttt{solver} is intended only for high-load computations, it interacts with the supercomputer cluster and operates on an arbitrary number of computational nodes.
+This is the most resource-demanding part of the application, which takes more than 90 \% of the estimated time, so it is implemented using MPI, OpenMP and vectorization of the program code.
+After carrying out the necessary calculations, the \texttt{solver} module returns the accumulated calculated data from different time points, which are fed into the \texttt{gsu-merge} data fusion module.
+The last link in the chain of calculations is the \texttt{gsu-remesh} module, which receives a computational grid as input (in general case, a set of computational grids from different points in time) and remeshes it.
 
-\section{Декомпозиция неструктурированной расчетной сетки}
+\section{Decomposition of an unstructured computational grid}
 
-В работе [TODO] описан параллельный алгоритм геометрической декомпозиции сеточных данных.
-Во время работы данного алгоритма происходит последовательное деление текущего домена пополам с помощью сечения плоскостью.
-По логике данного алгоритма изначальный головной домен (\texttt{h} -- head) делится на пару доменов \texttt{hl} (left), \texttt{hr} (right), каждый из которых делится далее пополам и так далее на любое количество доменов, равное степени двойки.
+[TODO] describes a parallel algorithm for geometric decomposition of grid data.
+During the operation of this algorithm, the current domain is sequentially halved using a plane section.
+According to the logic of this algorithm, the initial head domain (\texttt{h} -- head) is halved into a pair of domains \texttt{hl} (left), \texttt{hr} (right), each of which is further halved, and so on up to any number of domains equal to a power of two.
 
-Данный алгоритм предлагается расширить, введя в него произвольные критерии разбиения текущего домена на пару более мелких доменов.
-Вначале рассмотрим схему простого деления домена пополам с использованием произвольного признака, по которому производится деление (Fig.~\ref{fig:03-split}).
+We propose to extend this algorithm by introducing arbitrary criteria for dividing the current domain into a pair of smaller domains.
+First, consider the scheme of simple division of a domain in half using an arbitrary criterion by which the division is performed (Fig.~\ref{fig:03-split}).
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/03-split.pdf}
-\captionstyle{center}\caption{Схема разделения домена пополам по выбранному признаку fun.}\label{fig:03-split}
+\captionstyle{center}\caption{A scheme of halving the domain according to the selected attribute fun.}\label{fig:03-split}
 \end{figure}
 
-Пусть задано множество ячеек домена \texttt{h} и произвольная функция извлечения признака из ячейки \texttt{fun}.
-Первым шагом является вычисление множества признаков для всех ячеек (\texttt{s} -- signs):
+Assume a set of cells of domain \texttt{h} and some function \texttt{fun} for extracting the feature from a cell.
+The first step is to calculate the set of features for all cells (\texttt{s} -- signs):
 \begin{equation*}
 	s = \{fun(h_i)~|~h_i \in h\}.
 \end{equation*}
 
-Сортируем \texttt{s}.
+Sort \texttt{s}.
 
-В отсортированном множестве признаков следует выбрать медианное значение (\texttt{b} -- blade):
+In the sorted set of features, the median value should be chosen (\texttt{b} -- blade):
 \begin{equation*}
 	b = median(s).
 \end{equation*}
 
-Данное значение будет использоваться для разделения домена на два меньших домена (\texttt{hl} -- head left, \texttt{hr} -- head right) с помощью применения двух простых фильтров:
+This value will be used to split the domain into two smaller domains (\texttt{hl} -- head left, \texttt{hr} -- head right) using two simple filters:
 \begin{equation*}
 	hl = \{h_i~:~fun(h_i) < b,~h_i \in h\},
 \end{equation*}
@@ -208,34 +208,37 @@ The calculation scheme is thus divided into several independent functional modul
 	hr = \{h_i~:~fun(h_i) \geq b,~h_i \in h\}.
 \end{equation*}
 
-После разделения домена на два более мелких домена можно вычислить параметр, отражающий эффективность разбиения.
-В качестве такого параметра предлагается использовать длину границы между двумя образованными новыми доменами.
-Таким образом, критерий разбиения зависит от функции вычисления признака \texttt{fun}.
-В свою очередь это означает, что при выполнении разбиения не обязательно ограничиваться одной функцией вычисления признака. Вместо этого можно подать список функций, для каждой функции вычислить показатель качества разбиения и в результате остановиться на той функции вычисления признака, которая в конечном итоге приводит к наиболее эффективному разбиению.
-Если в качестве функций вычисления признака ячейки использовать просто извлечение трех координат центров ячеек, то мы получим в чистом виде алгоритм геометрической декомпозиции сетки с выбором для дробления наиболее протяженного размера по одной из координат.
-Результаты применения данного алгоритма можно видеть на Fig.~\ref{fig:03-explode-bunny} и Fig.~\ref{fig:03-hierarch}.
+After splitting a domain into two smaller domains, you can calculate a parameter that reflects the efficiency of splitting.
+We propose to use the length of the boundary between the two newly formed domains as such a parameter.
+Thus, the splitting criterion depends on the function of calculating the attribute \texttt{fun}.
+In turn, this means that when performing a partition, it is not necessary to be limited to one function of calculating a feature.
+Instead, you can submit a list of functions, for each function calculate the parameter of quality of the partition and, as a result, stop at the function, which ultimately leads to the most efficient partition.
+If we simply use the extraction of the three coordinates of the cells' centers as functions for calculating the feature of a cell, then we will obtain in its pure form an algorithm for the geometric decomposition of the grid with the choice of longest coordinate for splitting.
+The results of applying this algorithm can be seen in Fig.~\ref{fig:03-explode-bunny} and Fig.~\ref{fig:03-hierarch}.
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/03-explode-bunny.pdf}
-\captionstyle{center}\caption{Пример декомпозиции поверхностной расчетной сетки с помощью иерархического алгоритма.}\label{fig:03-explode-bunny}
+\captionstyle{center}\caption{An example of decomposition of a surface computational grid using a hierarchical algorithm.}\label{fig:03-explode-bunny}
 \end{figure}
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/03-hierarch.pdf}
-\captionstyle{center}\caption{Примеры декомпозиции поверхностной расчетной сетки с помощью иерархического алгоритма.}\label{fig:03-hierarch}
+\captionstyle{center}\caption{Examples of surface computational grid decomposition using a hierarchical algorithm.}\label{fig:03-hierarch}
 \end{figure}
 
-Варьируя набор функций вычисления признаков, по которым можно выполнять разбиение домена, возможно выполнять геометрическую декомпозицию вдоль направления любой кривой, для которой вычисляется проекция ячейки.
-Декомпозиция с помощью данного метода не ограничивается только геометрическими признаками.
-Функции вычисления признаков могут использоваться для анализа физических данных ячеек, например, для локализации и выделения в отдельные домены областей с повышенным давлением.
-В рамках данной работы описанный алгоритм декомпозиции поверхностной неструктурированной расчетной сетки применялся к поверхностным сеткам, используемым для расчета обледенения поверхности летательного аппарата.
-При расчете обледенения летательного аппарата основной объем вычислений относится к обработке поверхностных ячеек, общие данные между соседними доменами собраны на междоменных ребрах, что обеспечивает небольшой обмен данными, которыми требуется обмениваться в ходе синхронизации вычислений.
-Характерный размер таких сеток составил около $10^5$ ячеек, рассматривались как односвязные, так и многосвязные поверхности, а также поверхности, состоящие из нескольких изолированных друг от друга зон.
+By varying the set of features for calculating features by which the domain can be partitioned, it is possible to perform geometric decomposition along the direction of any curve for which the cell projection is calculated.
+Decomposition using this method is not limited to geometric features only.
+Features calculation functions can be used to analyze the physical data of cells, for example, to localize and isolate areas with increased pressure into separate domains.
+Within the framework of this work, the described algorithm for decomposition of the surface unstructured computational grid was applied to the surface grids used to calculate the icing of the aircraft surface.
+When calculating the icing of an aircraft, the bulk of the computations relates to the processing of surface cells.
+Shared data between adjacent domains is collected on interdomain edges.
+The typical size of such grids was about $ 10^5 $ cells. We considered both simply connected and not simply connected surfaces, as well as surfaces consisting of several zones isolated from each other.
 
-Стоит отметить, что теоретические параметры качества $D$, $L$, $I$ получаются достаточно низкие.
-Параметр $D$ практически равен нулю, так как на каждом шаге деление домена выполняется строго пополам.
-Отклонения же в длинах границ между доменами и суммарная протяженность границ также получается приемлемой несмотря на то, что алгоритм не гарантирует образование доменов с минимальными границами или даже связных доменов (в наихудших случаях возможно возникновение доменов произвольной формы и состоящих из произвольного количества изолированных частей поверхности).
-Конечно, существенным ограничением алгоритма является то, что с помощью него возможно разбиение поверхности только на количество частей, являющееся степенью двойки, однако близкое к нулю значение показателя качества балансировки вычислительной нагрузки $D$ позволяет в данном случае мириться с этим недостатком.
+It should be noted that the theoretical quality parameters $ D $, $ L $, $ I $ are quite low.
+The $ D $ parameter is practically zero, since at each step the domain is divided strictly in half.
+The deviations in the lengths of the boundaries between domains and the total length of the boundaries are also acceptable, despite the fact that the algorithm does not guarantee the formation of domains with minimal boundaries or even connected domains
+In the worst cases, domains of arbitrary shape and consisting of an arbitrary number of isolated parts of the surface may arise.
+Of course, a significant limitation of the algorithm is that it can be used to partition the surface only into the number of parts, which is a power of two, but the close-to-zero value of the computational load balancing quality index $ D $ allows in this case to neglect this drawback.
 
 \section{Организация межпроцессных обменов}
 
