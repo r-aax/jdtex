@@ -331,28 +331,30 @@ Note that super-linear scalability is quite possible (when the value of $ e(i) $
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/scaling.pdf}
-\captionstyle{center}\caption{Эффективность масштабирования вычислений на суперкомпьютерах МСЦ РАН при увеличении количества узлов.}\label{fig:speedup}
+\captionstyle{center}\caption{Efficiency of scaling computations on supercomputers of JSCC RAS when increasing the number of nodes.}\label{fig:speedup}
 \end{figure}
 
-На Fig.~\ref{scaling} представлена диаграмма эффективности масштабирования вычислений для различных вычислительных сегментов в зависимости от количества использованных вычислительных узлов.
-Можно видеть, что для всех вычислительных систем эффективность масштабирования варьируется в районе значений 0,8-0,9, хотя на некоторых конфигурациях запуска наблюдаются провалы даже в район 0,7.
-Запуски с низким значением эффективности распараллеливания как правило связаны с разбросом времени обработки MPI процессами своих доменов.
-Несмотря на то, что использованный в данной статье алгоритм декомпозиции расчетной сетки обеспечивал равномерное распределение ячеек по доменам, само время обработки ячейки сильно зависит от ее физических свойств и может отличаться в разы.
-По этой причине сбалансировать вычислительную нагрузку на разные вычислительные узлы возможно только в динамическом режиме, что не делалось в рамках данного исследования.
-Также отметим высокие показатели эффективности масштабирования вычислений для вычислительных узлов на базе микропроцессоров Xeon Cascade Lake.
-Данные процессоры -- наиболее современные из всего оборудования, участвовавшего в описанном эксперименте.
+Fig.~\ref{scaling} shows a diagram of the scaling efficiency of computations for various computational segments, depending on the number of computational nodes used.
+It can be seen that for all computing systems, the scaling efficiency varies in the region of 0.8-0.9, although on some launch configurations there are dips even in the region of 0.7.
+Launches with a low parallelization efficiency are usually associated with a spread in the processing time of MPI processes in their domains.
+Despite the fact that the algorithm for decomposition of the computational grid used in this article provided a uniform distribution of cells across domains, the processing time of a cell itself strongly depends on its physical properties and can differ significantly.
+For this reason, balancing the computational load on different computational nodes is possible only in a dynamic mode, which was not done within the framework of this study.
+We also note the high efficiency of scaling computations for compute nodes based on Xeon Cascade Lake microprocessors.
+These processors are the most modern of all the equipment that participated in the described experiment.
 
 \section{Conclusion}
 
-Эффективность масштабирования высоконагруженных вычислений является важным аспектом при разработке параллельных приложений и проведении расчетов.
-Сегодня, учитывая сложность решаемых научных и инженерных задач и объемы обрабатываемых данных, трудно расчитывать на эффективность работы на локальной станции или сервере.
-Для проведения качественных исследований с использованием современных математических моделей требуется использование суперкомпьютеров.
-Для их эффективного использования необходимо уметь создавать приложения, способные выполняться параллельно на многих вычислительных узлах.
-Для оценки эффективности запуска параллельных приложений удобно использовать показатель, называемый эффективность масштабирования вычислений, близость которого к единице сигнализирует о том, что используемые подходы и методы организации высокопроизводительных вычислений здраво отражают потребности задачи и аппаратных средств.
-В статье описаны различные аспекты, которые имеют решающее значение для достижения высоких показателей эффективности масштабирования вычислений.
-Среди них декомпозиция расчетной сетки, механизм организации межпроцессных обменов в процессе счета и выстраивание всей цепочки вычислений в единую последовательность действий.
-Для получения практических результатов в ходе исследования была использована задача расчета физических процессов на поверхности обтекаемого тела, вся работа выполнялась на неструктурированной поверхностной расчетной сетке.
-Для выполнения запусков использовались несколько сегментов вычислительной системы МСЦ РАН, наиболее высокий показатель эффективности масштабирования вычислений среди которых был достигнут на сегменте на базе микропроцессоров Xeon Cascade Lake.
+The efficiency of scaling high-load computing is an important aspect when developing parallel applications and performing calculations.
+Today, given the complexity of scientific and engineering problems to be solved and the amount of data being processed, it is difficult to rely on the efficiency of local station or server.
+To conduct qualitative research using modern mathematical models, the use of supercomputers is required.
+To use them effectively, you need to be able to create applications that can run in parallel on many computing nodes.
+To assess the efficiency of running parallel applications, it is convenient to use an indicator called the efficiency of computing scaling, the proximity of which to one indicates that the approaches and methods used for organizing high-performance computing reasonably reflect the needs of the problem and hardware.
+This article describes various aspects that are critical to achieving high compute scaling efficiency.
+Among them are the decomposition of the computational grid, the mechanism for organizing interprocess exchanges during the counting process, and building the entire chain of calculations into a single sequence of actions.
+To obtain practical results in the course of the study, the problem of calculating physical processes on the surface of a streamlined body was used.
+All the work was performed on an unstructured surface computational grid.
+To carry out the launches, several segments of the computing system of JSCC RAS were used.
+The highest computation scaling efficiency among which was achieved on the segment based on Xeon Cascade Lake microprocessors.
 
 \begin{acknowledgments}
 The work has been done at the JSCC RAS as part of the state assignment for the topic 0580-2021-0016.
