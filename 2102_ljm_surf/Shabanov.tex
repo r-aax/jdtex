@@ -169,7 +169,7 @@ In this case, calculations are carried out on the surface of an interacting body
 In the considered calculation scheme on the body surface, various physical processes are considered, including surface deformation, the flow of a liquid film, and ice accretion, which ultimately should lead to remeshing of the surface.
 The calculation scheme is thus divided into several independent functional modules (the scheme of interaction of the modules is shown in Fig~\ref{fig:02-scheme}).
 
-The first module -- \texttt{msu-split} -- is designed to load the computational mesh, decompose it into several domains and prepare it for solver.
+The first module (\texttt{msu-split}) is designed to load the computational mesh, decompose it into several domains and prepare it for solver.
 The physical solver \texttt{solver} is intended only for high-load computations, it interacts with a supercomputer cluster and operates on an arbitrary number of computational nodes.
 This is the most resource-demanding part of the application, which takes more than 99 \% of the estimated time, so it is implemented using MPI, OpenMP and vectorization of the program code.
 After carrying out the necessary calculations, the \texttt{solver} module returns the accumulated data from different time points, which are fed into the \texttt{msu-merge} data fusion module.
@@ -179,7 +179,7 @@ The last link in the chain of calculations is the \texttt{msu-remesh} module, wh
 
 [TODO] describes a parallel algorithm for geometric decomposition of mesh data.
 During the operation of this algorithm, the current domain is sequentially halved using a plane section.
-According to the logic of this algorithm, the initial head domain (\texttt{h} -- head) is halved into a pair of domains \texttt{hl} (left), \texttt{hr} (right), each of which is further halved, and so on up to any number of domains equal to a power of two.
+According to the logic of this algorithm, the initial head domain $h$ is halved into a pair of domains $h_l$ (left) and $h_r$ (right), each of which is further halved, and so on up to any number of domains equal to a power of two.
 
 We propose to extend this algorithm by introducing arbitrary criteria for dividing the current domain into a pair of smaller domains.
 First, consider the scheme of simple bisection of a domain using an arbitrary criterion by which the division is performed (Fig.~\ref{fig:03-split}).
