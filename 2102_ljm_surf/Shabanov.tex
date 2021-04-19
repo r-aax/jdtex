@@ -41,7 +41,7 @@ escapeinside={\%*}{*)}
 \titlerunning{Scaling of supercomputer calculations}
 \authorrunning{Shabanov et al.}
 
-\title{Scaling supercomputer computations on unstructured surface computational meshes}
+\title{Scaling of supercomputer calculations on unstructured surface computational meshes}
 
 \author{\firstname{B.~M.}~\surname{Shabanov}}
 \email[E-mail: ]{shabanov@jscc.com}
@@ -59,61 +59,61 @@ escapeinside={\%*}{*)}
 \email[E-mail: ]{nordmike@jscc.com}
 \affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 
-\firstcollaboration{(Submitted by A.~M.~Elizarov)} % Add if you know submitter.
+\firstcollaboration{(Submitted by TODO)} % Add if you know submitter.
 %\lastcollaboration{ }
 
 \received{TODO}
 
 \begin{abstract}
-When solving complex problems of numerical modeling, computational meshes, containing hundreds of millions of cells are quite often.
+When solving complex problems of numerical modeling, computational meshes, containing hundreds millions of cells are quite often.
 Modern tasks even cross the line of billion cells.
 Workstations are unable to cope with such volume of data and computation.
 To perform computations of this volume we need to use supercomputer clusters consisting of many computational nodes interconnected by a high-speed communication network.
 In this case, it is necessary to perform the decomposition of the computational mesh into separate domains in order to ensure its parallel processing on all nodes of the cluster.
 These domains are distributed among the computational nodes of the supercomputer and are processed independently of each other.
-To efficiently perform computations and scale them to a large number of computational nodes, it is necessary to develop efficient algorithms for decomposition of computational meshes that generate many domains with imposed requirements.
-We consider a hierarchical decomposition algorithm with the choice of the optimal criterion for dividing mesh into domains.
+To efficiently perform calculations and scale them to a large number of computational nodes, it is necessary to develop efficient algorithms for decomposition of computational meshes that generate many domains with imposed requirements.
+We consider an hierarchical decomposition algorithm with the choice of the optimal criterion for dividing mesh into domains.
 As such a mesh we study an unstructured surface mesh used to calculate the processes of interaction of a volumetric body with the environment.
 Using this decomposition algorithm, supercomputer calculations are performed on the computing resources of JSCC RAS in order to measure the practical indicators of scalability of highly loaded applications.
 \end{abstract}
 
 \subclass{65Y05,65Y20,49M27} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{supercomputer,  unstructured surface computational mesh, decomposition, domain, high-performance computing, scaling of calculations}
+\keywords{supercomputer, unstructured surface computational mesh, decomposition, domain, high-performance computing, scaling of calculations}
 
 \maketitle
 
 \section{Introduction}
 
-Modern computational applications are extremely demanding on computational resources.
+Modern supercomputer applications are extremely demanding on computational resources.
 For large tasks it is not possible to execute them on a separate computer (one microprocessor or one server) in reasonable time.
-There is a need to use supercomputer clusters for computations, consisting of many computational nodes.
+There is a need to use supercomputer clusters for calculations, consisting of many computational nodes.
 In order to perform a task on a supercomputer, it is necessary to divide its computational domain into separate subdomains and process them in parallel.
 
 To improve the efficiency of supercomputer applications within a computing node, various methods of data preparation and parallelization of execution for systems with shared memory are used.
 Low-level optimizations of program code, such as vectorization, which can significantly increase the speed of application execution can also be very efficient.
-Of course, at the boundaries of domain contact, it becomes necessary to synchronize computations, which is achieved by data exchange (for example, using MPI).
+Of course, at the boundaries of domain contact, it becomes necessary to synchronize calculations, which is achieved by data exchange (for example, using MPI).
 
-Thus, the execution of supercomputer calculations consists of two alternating steps: parallel processing of cells of the computational domain and data exchange at the boundaries of contact of domains.
+Thus, the execution of supercomputer calculations consists of two alternating steps: parallel processing of cells of the computational domain and data exchange at the boundaries of domains contact.
 The efficiency of supercomputer applications execution essentially depends on the quality of the computational mesh decomposition and its distribution over different computational nodes.
 
-This article studies the problem of decomposition of surface unstructured computational mesh for distribution between the nodes of homogeneous supercomputer cluster  to increase the efficiency of computational scaling.
+This article studies the problem of surface unstructured computational mesh decomposition for distribution between the nodes of homogeneous supercomputer cluster to increase the efficiency of calculations scaling.
 By homogeneous we mean a cluster consisting of the same computational nodes.
 
-Take a surface mesh consisting of $ S $ computational cells.
+Take a surface mesh consisting of $ S $ cells.
 Let the supercomputer consist of $ n $ computational nodes with the same characteristics.
 We will also assume that the speed of data exchange between any two computational nodes is the same for all nodes.
-Extension of the problem of distributing the computational load to a heterogeneous computational cluster is achieved by entering weights for computational nodes and for data exchange channels, as described in [TODO].
+Extension of the problem of distributing the computational load to a heterogeneous supercomputer is achieved by entering weights for nodes and for data exchange channels, as described in [TODO].
 
-If we represent the processing speed of computational cells on one computational node as $ a^{-1} $, then the execution time of one iteration of computations on one computational node will be equal to $ T_1 = aS $.
+If we denote the speed of cells processing on one computational node as $ a^{-1} $, then the execution time of one iteration of calculations on one computational node can be written as $ T_1 = aS $.
 Now let the computational domain be divided into $ n $ domains each containing $ S_i $ cells ($ i = 1, n $).
 Let us denote by $ L_{ij} $ the number of edges that form the border between the domains $ S_i $ and $ S_j $.
 We will assume that each domain is processed on its own computational node.
 Thus, all domains are processed in parallel, and the processing time for all cells is determined by the processing time for the largest domain.
-In addition to processing all computational cells, after a calculation iteration, it is necessary to exchange data between all pairs of domains along their boundaries.
+In addition to processing all cells, after a calculation iteration, it is necessary to exchange data between all pairs of domains along their boundaries.
 Let the speed of data transfer between nodes be determined as $ b^{-1} $, and all exchanges are performed in parallel.
 Then the execution time of all exchanges is determined by the time of data exchange across the longest boundary.
-Based on this, it is possible to determine the total execution time of one iteration of calculation when executing on $ n $ computational nodes:
+Based on this, it is possible to determine the total execution time of one iteration of calculations when executing on $ n $ computational nodes:
 
 \begin{equation}
 T_n = a \max_{i = 1,n}{S_i} + b \max_{i,j=1,n}{L_{ij}}.
@@ -127,10 +127,10 @@ Obviously, in the ideal case, during decomposition, all domains should have the 
 D = 100 \% \left( \frac{n}{S} \max_{i=1,n}{S_i} - 1 \right).
 \end{equation}
 
-The second important criterion for the quality of the performed decomposition is the longest length of the boundary between pairs of domains.
-In this case, the absolute characteristic can be used, since the length of the boundary is rather difficult to predict, and generally speaking, it has no theoretical minimum.
+The second important criterion for the quality of the performed decomposition is the length of the longest boundary between pairs of domains.
+In this case, the absolute characteristic can be used, since the length of the boundary is rather difficult to predict, and in general, it has no theoretical minimum.
 Depending on the geometry of the mesh under consideration, the length of the boundary between domains can theoretically be zero.
-We will use the following value as metric for comparing various mesh decomposition methods:
+We will use the following simple metric as decomposition method quality characteristic:
 
 \begin{equation}
 L = \max_{i,j=1,n}{L_{ij}}.
@@ -143,7 +143,7 @@ We denote the total number of edges in the mesh by $ E $.
 Among these edges there are border edges that have only one incident cell, their number is also constant and equal to $ E_B $ (from the word "border").
 The rest of the edges have two incident cells.
 If both cells incident to a certain edge belong to the same domain, then we call such an edge an inner edge of this domain.
-We denote their number by $ E_{INN} $ from the word "inner".
+We denote their number by $ E_{INN} $ (from the word "inner").
 Otherwise the edge enters the boundary between two domains and we call it an interdomain edge.
 $ E_{INT} $ is their number.
 There can be no other types of edges.
@@ -157,25 +157,25 @@ I = 100 \% \left( \frac{E_{INT}}{E} \right).
 To assess the quality of the computational mesh decomposition, all three described parameters should be taken into account: $ D $ is the deviation of the biggest domain size from the ideal value, $ I $ is the fraction of interdomain edges in the total number of edges of the computational mesh, and $ L $ is the length of the longest boundary between pairs of domains.
 The lower the values of these criteria, the better the decomposition is and the more efficient calculations can be expected when running on a real machine.
 
-\section{Parallelization of computations on an unstructured computational mesh}
+\section{Parallelization of calculations on an unstructured computational mesh}
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/02-scheme.pdf}
-\captionstyle{center}\caption{Parallelization scheme for computations on a supercomputer.}\label{fig:02-scheme}
+\captionstyle{center}\caption{Parallelization scheme for calculations on a supercomputer.}\label{fig:02-scheme}
 \end{figure}
 
-Consider a parallelization scheme for computations associated with modeling the interaction of a volumetric body with the environment.
-In this case, calculations are carried out on the surface of an interacting body described by an unstructured surface computational mesh (MSU - Mesh Surface Unstructured) with triangular cells.
-In the considered calculation scheme on the body surface, various physical processes are considered, including surface deformation, the flow of a liquid film, and ice accretion, which ultimately should lead to remeshing of the calculated surface.
+Consider a parallelization scheme for calculations associated with modeling the interaction of a volumetric body with the environment.
+In this case, calculations are carried out on the surface of an interacting body described by an unstructured surface computational mesh (MSU, Mesh Surface Unstructured) with triangular cells.
+In the considered calculation scheme on the body surface, various physical processes are considered, including surface deformation, the flow of a liquid film, and ice accretion, which ultimately should lead to remeshing of the surface.
 The calculation scheme is thus divided into several independent functional modules (the scheme of interaction of the modules is shown in Fig~\ref{fig:02-scheme}).
 
 The first module -- \texttt{msu-split} -- is designed to load the computational mesh, decompose it into several domains and prepare it for solver.
 The physical solver \texttt{solver} is intended only for high-load computations, it interacts with a supercomputer cluster and operates on an arbitrary number of computational nodes.
-This is the most resource-demanding part of the application, which takes more than 90 \% of the estimated time, so it is implemented using MPI, OpenMP and vectorization of the program code.
+This is the most resource-demanding part of the application, which takes more than 99 \% of the estimated time, so it is implemented using MPI, OpenMP and vectorization of the program code.
 After carrying out the necessary calculations, the \texttt{solver} module returns the accumulated data from different time points, which are fed into the \texttt{msu-merge} data fusion module.
-The last link in the chain of calculations is the \texttt{msu-remesh} module, which receives a computational mesh as input (in general case, a set of computational meshes from different points in time) and remeshes it.
+The last link in the chain of calculations is the \texttt{msu-remesh} module, which receives a computational mesh as input (in general case, a set of computational meshes from different points of time) and remeshes it.
 
-\section{Decomposition of an unstructured computational mesh}
+\section{Unstructured computational mesh decomposition}
 
 [TODO] describes a parallel algorithm for geometric decomposition of mesh data.
 During the operation of this algorithm, the current domain is sequentially halved using a plane section.
@@ -186,33 +186,33 @@ First, consider the scheme of simple bisection of a domain using an arbitrary cr
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/03-split.pdf}
-\captionstyle{center}\caption{A scheme of halving the domain according to the selected attribute fun.}\label{fig:03-split}
+\captionstyle{center}\caption{A scheme of halving the domain according to the selected attribute.}\label{fig:03-split}
 \end{figure}
 
-Assume a set of cells of domain \texttt{h} and some function \texttt{fun} for extracting a feature from a cell.
-The first step is to calculate a set of features for all cells (\texttt{s} -- signs):
+Assume a set of cells of domain $h$ and some function $fun$ for extracting a feature from a cell.
+The first step is to calculate a set of features for all cells ($f$ is features array):
 \begin{equation*}
-	s = \{fun(h_i)~|~h_i \in h\}.
+	f = \{fun(h_i)~|~h_i \in h\}.
 \end{equation*}
 
-Then sort \texttt{s}.
+Then sort $f$.
 
-In the sorted set of features, the median value should be chosen (\texttt{b} -- blade):
+In the sorted set of features, the median value should be chosen ($b$ is blade denotion):
 \begin{equation*}
-	b = median(s).
+	b = median(f).
 \end{equation*}
 
-This value will be used to split the domain into two smaller domains (\texttt{hl} -- head left, \texttt{hr} -- head right) using two simple filters:
+This value will be used to split the domain into two smaller domains ($h_l$ is left subdomain, $h_r$ is right subdomain) using two simple filters:
 \begin{equation*}
-	hl = \{h_i~:~fun(h_i) < b,~h_i \in h\},
+	h_l = \{h_i~:~h_i \in h,~fun(h_i) < b\},
 \end{equation*}
 \begin{equation*}
-	hr = \{h_i~:~fun(h_i) \geq b,~h_i \in h\}.
+	h_r = \{h_i~:~h_i \in h,~fun(h_i) \geq b\}.
 \end{equation*}
 
-After splitting a domain into two smaller domains, you can calculate a parameter that reflects the efficiency of splitting.
+After splitting a domain into two smaller subdomains, we can calculate a parameter that reflects the efficiency of splitting.
 We propose to use the length of the boundary between the two newly formed domains as such a parameter.
-Thus, the splitting criterion depends on the function of calculating the attribute \texttt{fun}.
+Thus, the splitting criterion depends on the function of calculating the attribute $fun$.
 In turn, this means that when performing a partition, it is not necessary to be limited to one function of calculating a feature.
 Instead, you can submit a list of functions, for each function calculate the parameter of quality of the partition and, as a result, stop at the function, which ultimately leads to the most efficient partition.
 
@@ -253,7 +253,7 @@ Of course, a significant limitation of the algorithm is that it can be used to p
 
 When performing calculations on a decomposed mesh, at each iteration of the computation, it is necessary to exchange data at each boundary between domains.
 In our case, when performing the decomposition of the computational mesh, the boundary between two domains is represented by an arbitrary set of interdomain edges.
-In this case, the boundary may be discontinuous, it may even consist of separate edges, therefore the sequence of interdomain edges is not important when describing the boundary.
+In this case, the boundary may be discontinuous, it may even consist of separate edges, therefore the order of interdomain edges in the sequence is not important when describing the boundary.
 
 Fig.~\ref{fig:04-MPI} shows a scheme of organization of interprocess exchanges.
 Two domains (we will conventionally call them left and right), processed in MPI processes numbered 0 and 1, are separated by a boundary consisting of three edges.
@@ -264,17 +264,17 @@ All data for ghost cells is obtained using MPI exchanges from real cells of a ne
 
 To transfer data from the real border cells of the domain to the ghost cells of the neighboring domain, buffers for sending and receiving data are organized in each of the two neighboring domains.
 The data exchange sequence is as follows (the diagram is shown in Fig.~\ref{fig:04-MPI}).
-First, data from real boundary cells is written to the corresponding send buffers (send buff), then asynchronous commands \texttt{MPI\_Irecv} for receiving messages in the data receiving buffers (recv buff) are executed for all boundaries of the computational mesh.
+First, data from real boundary cells is written to the corresponding send buffers, then asynchronous commands \texttt{MPI\_Irecv} for receiving messages in the data receiving buffers are executed for all boundaries of the computational mesh.
 After that, commands for asynchronous sending of data \texttt{MPI\_Isend} from the send buffers are also executed simultaneously for all boundaries of the computational mesh.
-Next, it waits for the completion of all asynchronous data exchanges using the \texttt{MPI\_Waitall} function.
-The last step, completing the exchange of data between neighboring domains, is the transfer of the received physical values from the data receiving buffers (recv buff) to the corresponding ghost cells.
+Next, it is necessary to wait for the completion of all asynchronous data exchanges using the \texttt{MPI\_Waitall} function.
+The last step, completing the exchange of data between neighboring domains, is the transfer of the received physical values from the data receiving buffers to the corresponding ghost cells.
 
 Note that some data duplication may occur when using ghost cells.
 For example, in the presented diagram, cell 23R from the right domain corresponds at once to two ghost cells in the left domain.
 These cells contain the same data.
 This duplication of information is acceptable, since the data of the ghost cells is used only for reading to perform the calculation of flows across the domain boundary, therefore, in this case, there is no need to perform any synchronization of the same ghost cells.
 
-\section{Efficiency of scaling supercomputer computations}
+\section{Efficiency of scaling supercomputer calculations}
 
 To measure the scalability of computations on an unstructured surface computational mesh, a test surface of a streamlined three-dimensional body was used, containing about $ 2 \cdot 10^5 $ nodes and $ 4 \cdot 10^5 $ cells.
 In the cells, calculations were performed related to modeling the flow of a liquid film, solving the heat balance equations on the surface, as well as remeshing and smoothing the surface.
@@ -323,9 +323,9 @@ Let us give a description of the quantities measured in the calculation process 
 The time of the task execution on one computational node was used as the reference time: $ t(1) $.
 We also measured the execution time of tasks for the number of computational nodes equal to a power of two (2, 4, 8, 16, 32, 64).
 In this case, the acceleration on the number of nodes equal to $ i $ was considered the value of the value $ s(i) = \frac{t(1)}{t(i)} $.
-Fig.~\ref{fig:speedup} shows diagrams of computation acceleration with an increase in the number of computational nodes for different computational systems.
+Fig.~\ref{fig:speedup} shows diagrams of computation acceleration with an increase in the number of nodes for different computational systems.
 
-In addition to calculating the direct speedup of code execution, calculations of the scaling efficiency were performed.
+In addition to calculating the direct speedup of code execution, the measurement of the scaling efficiency was performed.
 In this case, the computational scaling efficiency is understood as the value $ e(i) = \frac{s(i)}{i} $.
 The physical meaning of it is as follows.
 We can assume that in the case of ideal parallelization of computations increasing the number of nodes by $ n $ times, the execution time decreases exactly by $ n $ times.
@@ -339,10 +339,10 @@ Note that super-linear scalability is quite possible (when the value of $ e(i) $
 \end{figure}
 
 Fig.~\ref{fig:speedup} shows a diagram of the scaling efficiency of computations for various computational segments, depending on the number of computational nodes used.
-It can be seen that for all computing systems, the scaling efficiency varies in the region of 0.8-0.9, although on some launch configurations there are dips even in the region of 0.7.
+It can be seen that for all computing systems, the scaling efficiency varies in the region of 0,8-0,9, although on some launch configurations there are dips even in the region of 0,7.
 Launches with a low parallelization efficiency are usually associated with a spread in the processing time of MPI processes in their domains.
 Despite the fact that the algorithm for decomposition of the computational mesh used in this article provided a uniform distribution of cells across domains, the processing time of a cell itself strongly depends on its physical properties and can differ significantly.
-For this reason, balancing the computational load on different computational nodes is possible only in a dynamic mode, which was not done within the framework of this study.
+For this reason, balancing the computational load on different nodes is possible only in a dynamic mode, which was not done within the framework of this study.
 We also note the high efficiency of scaling computations for compute nodes based on Xeon Cascade Lake microprocessors.
 These processors are the most modern of all the equipment used in the described experiment.
 
@@ -351,7 +351,7 @@ These processors are the most modern of all the equipment used in the described 
 The efficiency of scaling high-load computing is an important aspect when developing parallel applications and performing calculations.
 Today, given the complexity of scientific and engineering problems and the amount of data being processed, it is difficult to rely on the efficiency of local station or server.
 To conduct qualitative research using modern mathematical models, the use of supercomputers is required.
-To use them effectively, you need to be able to create applications that can run in parallel on many computing nodes.
+To use them effectively, it is needed to be able to create applications that can run in parallel on many computing nodes.
 To assess the efficiency of running parallel applications, it is convenient to use an indicator called the efficiency of computing scaling, the proximity of which to 1 indicates that the approaches and methods used for organizing high-performance computing reasonably reflect the needs of the problem and hardware.
 This article describes various aspects that are critical to achieving high compute scaling efficiency.
 Among them are the decomposition of the computational mesh, the mechanism for organizing interprocess exchanges during the counting process, and building the entire chain of calculations into a single sequence of actions.
@@ -362,7 +362,7 @@ The highest computation scaling efficiency among which was achieved on the segme
 
 \begin{acknowledgments}
 The work has been done at the JSCC RAS as part of the state assignment for the topic 0580-2021-0016.
-The supercomputer MVS-10P OP (Broadwell, KNL and Cascade Lake segments), located at the JSCC RAS, was used during the research.
+The supercomputer MVS-10P OP (Broadwell, KNL, Skylake and Cascade Lake segments), located at the JSCC RAS, was used during the research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
