@@ -85,14 +85,14 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 \section{Introduction}
 
-Modern supercomputer applications are extremely demanding on computational resources.
+Modern supercomputer applications are widely used in various spheres of life \cite{Fadeev_Wheather,Hu_Seismic} and they are extremely demanding on computational resources.
 For large tasks it is not possible to execute them on a separate computer (one microprocessor or one server) in reasonable time.
 There is a need to use supercomputer clusters for calculations, consisting of many computational nodes.
-In order to perform a task on a supercomputer, it is necessary to divide its computational domain into separate subdomains and process them in parallel.
+In order to perform a task on a supercomputer, it is necessary to divide its computational domain into separate subdomains and process them in parallel \cite{Golovchecnko_Decomposition}.
 
-To improve the efficiency of supercomputer applications within a computing node, various methods of data preparation and parallelization of execution for systems with shared memory are used.
-Low-level optimizations of program code, such as vectorization, which can significantly increase the speed of application execution can also be very efficient.
-Of course, at the boundaries of domain contact, it becomes necessary to synchronize calculations, which is achieved by data exchange (for example, using MPI).
+To improve the efficiency of supercomputer applications within a computing node, various methods of data preparation and parallelization of execution for systems with shared memory are used \cite{Dorris_OpenMP}.
+Low-level optimizations of program code, such as vectorization \cite{Shabanov_Vec}, which can significantly increase the speed of application execution can also be very efficient.
+Of course, at the boundaries of domain contact, it becomes necessary to synchronize calculations, which is achieved by data exchange (for example, using MPI \cite{Kalantzis_MPI}).
 
 Thus, the execution of supercomputer calculations consists of two alternating steps: parallel processing of cells of the computational domain and data exchange at the boundaries of domains contact.
 The efficiency of supercomputer applications execution essentially depends on the quality of the computational mesh decomposition and its distribution over different computational nodes.
@@ -255,7 +255,7 @@ When performing calculations on a decomposed mesh, at each iteration of the comp
 In our case, when performing the decomposition of the computational mesh, the boundary between two domains is represented by an arbitrary set of interdomain edges.
 In this case, the boundary may be discontinuous, it may even consist of separate edges, therefore the order of interdomain edges in the sequence is not important when describing the boundary.
 
-Fig.~\ref{fig:04-MPI} shows a scheme of organization of interprocess exchanges.
+Fig.~\ref{fig:04-MPI} shows a scheme of organization of interprocess exchanges \cite{Rybakov_InnerRepresentation}.
 Two domains (we will conventionally call them left and right), processed in MPI processes numbered 0 and 1, are separated by a boundary consisting of three edges.
 In this case, there are three cells in the left domain that are adjacent to the considered boundary, in the right domain there are only two such cells (since cell 23R is adjacent to two edges of the boundary at once).
 To organize interprocess communications in each domain, ghost cells are created for each edge of the considered boundary, which are involved in calculating flows through the edges.
@@ -304,10 +304,10 @@ Xeon Cascade Lake & 2 / 48 / 96 & 3.0 GHz & 192 GB & yes \\
 \label{tab:supercomputers}
 \end{table}   
 
-Homogeneous segments of the computing system of Joint Supercomputer Center of the Russian Academy of Sciences were used to measure the computational scalability.
+Homogeneous segments of the computing system of Joint Supercomputer Center of the Russian Academy of Sciences were used to measure the computational scalability \cite{JSCC_Supercomputers}.
 In total, the calculations were carried out on four computational segments, the characteristics of the nodes of which are given in the table \ref{tab:supercomputers}.
-In this table, it can be noted that all microprocessors except Xeon Broadwell support the AVX-512 instruction set, which allows the use of special 512-bit vector registers for efficient code vectorization.
-We should also highlight the computing nodes based on the Xeon Phi KNL microprocessor.
+In this table, it can be noted that all Intel \cite{Intel_SDM} microprocessors except Xeon Broadwell support the AVX-512 instruction set, which allows the use of special 512-bit vector registers for efficient code vectorization.
+We should also highlight the computing nodes based on the Xeon Phi KNL microprocessor \cite{Jeffers_KNL}.
 These microprocessors are distinguished by a huge number of computing cores, each of which is capable of executing up to 4 threads, which allows efficient parallelization of computational applications up to 288 threads on a single microprocessor.
 
 \begin{figure}[h]
@@ -331,7 +331,7 @@ The physical meaning of it is as follows.
 We can assume that in the case of ideal parallelization of computations increasing the number of nodes by $ n $ times, the execution time decreases exactly by $ n $ times.
 Thus, in the case of ideal parallelization, $ s (i) = i $, and $ e(i) = 1 $.
 The efficiency of scaling computations is a convenient indicator of the quality of creating executable parallel code and comparing different computing systems with each other.
-Note that super-linear scalability is quite possible (when the value of $ e(i) $ rises above one), but this is more an exception than an expected effect.
+Note that super-linear scalability is quite possible (when the value of $ e(i) $ rises above one) \cite{Benderskiy_Scaling}, but this is more an exception than an expected effect.
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/scaling.pdf}
@@ -342,7 +342,7 @@ Fig.~\ref{fig:speedup} shows a diagram of the scaling efficiency of computations
 It can be seen that for all computing systems, the scaling efficiency varies in the region of 0,8-0,9, although on some launch configurations there are dips even in the region of 0,7.
 Launches with a low parallelization efficiency are usually associated with a spread in the processing time of MPI processes in their domains.
 Despite the fact that the algorithm for decomposition of the computational mesh used in this article provided a uniform distribution of cells across domains, the processing time of a cell itself strongly depends on its physical properties and can differ significantly.
-For this reason, balancing the computational load on different nodes is possible only in a dynamic mode, which was not done within the framework of this study.
+For this reason, balancing the computational load on different nodes is possible only in a dynamic mode \cite{Van_DynamicLoadBalance}, which was not done within the framework of this study.
 We also note the high efficiency of scaling computations for compute nodes based on Xeon Cascade Lake microprocessors.
 These processors are the most modern of all the equipment used in the described experiment.
 
@@ -367,170 +367,65 @@ The supercomputer MVS-10P OP (Broadwell, KNL, Skylake and Cascade Lake segments)
 
 \begin{thebibliography}{99}
 
-\bibitem{Rettinger}
-\refitem{article}
-C. Rettinger, C. Godenschwager, S. Eibl, et al., {\it ``Fully Resolved Simulations of Dune Formation in Riverbeds"}, ISC High Performance , LNCS~{\bf 10266}, 3--21 (2017).
+% 1. Intruduction.
 
-\bibitem{Krappel}
+\bibitem{Fadeev_Wheather}
 \refitem{article}
-T. Krappel, S. Riedelbauch, {\it ``Scale Resolving Flow Simulations of a Francis Turbine Using Highly Parallel CFD Simulations"}, High Performance Computing in Science and Engineering'16, 499--510 (2016).
+R.~Fadeev, K.~Ushakov, M.~Tolstykh, R.~Ibrayev, V.~Shashkin, G.~Goyman, {\it ``Supercomputing the Seasonal Weather Prediction''}, In: Voevodin V., Sobolev S. (eds) Supercomputing, RuSCDays 2019, Communications in Computer and Information Science, vol.~{\bf 1129}, Springer, Cham (2019).
 
-\bibitem{Markidis}
+\bibitem{Hu_Seismic}
 \refitem{article}
-S. Markidis, I. B. Peng, J. L. Tr\"aff, et al.,{\it ``The EPiGRAM Project: Preparing Parallel Programming Models for Exascale"}, ISC High Performance Workshops, LNCS~{\bf 9945}, 56--68  (2016).
+Y.~Hu, H.~Yang, Z.~Luan, L.~Gan, G.~Yang and D.~Qian, {\it ``Massively Scaling Seismic Processing on Sunway TaihuLight Supercomputer''}, In IEEE Transactions on Parallel and Distributed Systems, vol.~{\bf 31}, no. 5, 1194--1208 (2020).
 
-\bibitem{Klenk}
+\bibitem{Golovchecnko_Decomposition}
 \refitem{article}
-B.~Klenk, H.~Fr\"oning, {\it ``An Overview of MPI Characteristics of Exascale Proxy Applications"}, ISC High Performance, LNCS~{\bf 10266}, 217--236  (2016).
+E.~Golovchenko, E.~Dorofeeva, I.~Gasilova, A.~Boldareva, {\it ``Numerical Experiments with New Algorithms for Parallel Decomposition of Large Computational Meshes''}, Advances in Parallel Computing, vol.~{\bf 25}, 441--450 (2014).
 
-\bibitem{Abduljabbar}
+\bibitem{Dorris_OpenMP}
 \refitem{article}
-M.~Abduljabbar, G.~S.~Markomanolis, H.~Ibeid, et al., {\it ``An Overview of MPI Characteristics of Exascale Proxy Applications"}, ISC High Performance, LNCS~{\bf 10266}, 79--96 (2017).
+J.~Dorris, J.~Kurzak , P.~Luszczek, {\it ``Task-Based Cholesky Decomposition on Knights Corner Using OpenMP''}, ISC High Performance, LNCS~{\bf 9945}, 544--562 (2016).
 
-\bibitem{Rybakov}
+\bibitem{Shabanov_Vec}
 \refitem{article}
-A.~A.~Rybakov, {\it ``Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations"}, Program systems: Theory and Application~{\bf 32}(8:1), 121--134 (2017).
+B.~M.~Shabanov, A.~A.~Rybakov, S.~S.~Shumilin, {\it ``Vectorization of High-performance Scientific Calculations Using AVX-512 Intruction Set''}, Lobachevskii J Math {\bf 40}, 580--598 (2019).
 
-\bibitem{Van}
+\bibitem{Kalantzis_MPI}
 \refitem{article}
-R.~F.~Van der Wijngaart, E.~Georganas,~T.~G.~Mattson, et al., {\it ``A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities"}, ISC High Performance, LNCS~{\bf 10266}, 256--274 (2017).
+V.~Kalantzis, {\it ``Data analytics, accelerators, and supercomputing: the challenges and future of MPI"}, XRDS {\bf 23}, 3, 50--52 (2017).
 
-\bibitem{Benderskiy}
+% 2. Parallelization of calculations on an unstructured computational mesh.
+
+% 3. Unstructured computational mesh decomposition.
+
+% 4. Organization of interprocess exchanges.
+
+\bibitem{Rybakov_InnerRepresentation}
 \refitem{article}
-L.~A.~Benderskiy, D.~A.~Lyubimov, A.~A.~Rybakov, {\it ``Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS / ILES supercomputer using the high resolution method"}, Trudy SRISA RAS~{\bf 7}(4), 32--40 (2017).
+A.~A.~Rybakov, {\it ``Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations''}, Program systems: Theory and Application~{\bf 32} (8:1), 121--134 (2017).
 
-\bibitem{Heller}
-\refitem{article}
-T.~Heller, H.~Kaiser, P.~Diehl et al., {\it ``Closing the Performance Gap with Modern C++"}, ISC High Performance, LNCS~{\bf 9945}, 18--31 (2016).
+% 5. Efficiency of scaling supercomputer calculations.
 
-\bibitem{Roganov}
-\refitem{article}
-Roganov V., Osipov V., Matveev G., {\it ``Solving the 2D Poisson PDE by Gauss-Seidel method with parallel programming system"}, Program systems: theory and applications~{\bf 30}(7:3), 99--107 (2016).
+\bibitem{JSCC_Supercomputers}
+\refitem{misc}
+JSCC RAS Supercomputing resources. \url{http://www.jscc.ru/supercomputing-resources/}. Accessed 2021.
 
-% References for REVIEW OF RESEARCH PAPERS section.
+\bibitem{Intel_SDM}
+\refitem{manual}
+Intel 64 and IA-32 Architectures Software Developer's Manual, Combined Volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2019).
 
 \bibitem{Jeffers_KNL}
 \refitem{book}
 J.~Jeffers, J.~Reinders, A.~Sodani, \emph{Intel Xeon Phi Processor High Performance Programming, Knights Landing Edition} (Morgan Kaufmann, 2016).
 
-\bibitem{Jeffers_KNC}
-\refitem{book}
-J.~Jeffers, J.~Reinders, \emph{Intel Xeon Phi Coprocessor Processor High Performance Programming} (Morgan Kaufmann, 2013).
-
-\bibitem{Dorris}
+\bibitem{Benderskiy_Scaling}
 \refitem{article}
-J.~Dorris, J.~Kurzak , P.~Luszczek, {\it ``Task-Based Cholesky Decomposition on Knights Corner Using OpenMP"}, ISC High Performance, LNCS~{\bf 9945}, 544--562 (2016).
+L.~A.~Benderskiy, D.~A.~Lyubimov, A.~A.~Rybakov, {\it ``Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS / ILES supercomputer using the high resolution method''}, Trudy SRISA RAS~{\bf 7} (4), 32--40 (2017).
 
-\bibitem{Tobin}
+\bibitem{Van_DynamicLoadBalance}
 \refitem{article}
-J.~Tobin, A.~Breuer, A.~Heinecke et al., {\it ``Accelerating Seismic Simulations Using the Intel Xeon Phi Knights Landing Processor"}, ISC High Performance, LNCS~{\bf 10266}, 139--157 (2017).
+R.~F.~Van der Wijngaart, E.~Georganas,~T.~G.~Mattson, et al., {\it ``A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities''}, ISC High Performance, LNCS~{\bf 10266}, 256--274 (2017).
 
-\bibitem{McDoniel}
-\refitem{article}
-W.~McDoniel, M.~Hohnerbach, R.~Canales et al., {\it ``LAMMPS' PPPM Long-Range Solver for the Second Generation Xeon Phi"}, ISC High Performance, LNCS~{\bf 10266}, 61--78 (2017).
-
-\bibitem{Malas}
-\refitem{article}
-T.~Malas, T.~Kurth, J.~Deslippe, {\it ``Optimization of the Sparse Matrix-Vector Products of an IDR Krylov Iterative Solver in EMGeo for the Intel KNL Manycore Processor"}, ISC High Performance, LNCS~{\bf 9945}, 378--389 (2016).
-
-\bibitem{Krzikalla}
-\refitem{article}
-O.~Krzikalla, F.~Wende, M.~H\"ohnerbach, {\it ``Dynamic SIMD Vector Lane Scheduling"}, ISC High Performance, LNCS~{\bf 9945}, 354--365 (2016).
-
-\bibitem{Cook}
-\refitem{article}
-B.~Cook, P.~Maris,M.~Shao, {\it ``High Performance Optimizations for Nuclear Physics Code MFDn on KNL"}, ISC High Performance, LNCS~{\bf 9945}, 366--377 (2016).
-
-\bibitem{Rybakov_Optimization}
-\refitem{article}
-A.~A.~Rybakov,{\it ``Optimization of the problem of conflict detection with dangerous aircraft movement areas to execute on Intel Xeon Phi"}, Programmnye produkty i sistemy [Software \& Systems]~{\bf 30}(3), 524--528 (2017).
-
-\bibitem{Sengupta}
-\refitem{article}
-D.~Sengupta,~Y.~Wang,~N.~Sundaram et al., {\it ``Performance Incremental SVM Learning on Intel Xeon Phi Processors"}, ISC High Performance, LNCS~{\bf 10266}, 120--138 (2017).
-
-\bibitem{Kronbichler}
-\refitem{article}
-M.~Kronbichler,~K.~Kormann ,~I.~Pasichnyk, {\it ``Fast Matrix-Free Discontinuous Galerkin Kernels on Modern Computer Architectures"}, ISC High Performance, LNCS~{\bf 10266}, 237--255 (2017).
-
-\bibitem{Doerfler}
-\refitem{article}
-D.~Doerfler,~J.~Deslippe ,~S.~Williams, {\it `Applying the Roofline Performance Model to the Intel Xeon Phi Knights Landing Processor"}, ISC High Performance, LNCS~{\bf 9945}, 339--353 (2016).
-
-\bibitem{Rosales}
-\refitem{article}
-C.~Rosales, J.~Cazes, K.~Milfeld, {\it ``Comparative Study of Application Performance and Scalability on the Intel Knights Landing Processor"}, ISC High Performance, LNCS~{\bf 9945}, 307--318 (2016).
-
-% References for FLAT CYCLES section.
-
-\bibitem{Intel_SDM}
-\refitem{manual}
-Intel 64 and IA-32 Architectures Software Developer's Manual, Combined Volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2017).
-
-\bibitem{Intel_C}
-\refitem{manual}
-Intel C++ Compiler 16.0 User and Reference Guide, Intel Corporation (2016).
-
-\bibitem{Intel_Intr}
-\refitem{misc}
-Intel Intrinsics Guide. \url{https://software.intel.com/sites/landingpage/IntrinsicsGuide/}. Accessed 2018.
-
-\bibitem{Scott_Predct}
-\refitem{article}
-S.~A.~Mahlke, D.~C.~Lin, W.~Y.~Chen, R.~E.~Hank, {\it ``Effective Compiler Support for Predicated Execution Using the Hyperblock"}, Proceedings of the 25th International Symposium on Microarchitecture, ~45--54 (1992).
-
-\bibitem{Hwu_Predct}
-\refitem{article}
-W.~W.~Hwu, {\it ``The Superblock: an Effective Technique for VLIW and Superscalar Compilation"}, The Journal of Supercomputing~{\bf 7}(1/2), ~229--248 (1993).
-
-\bibitem{Golub}
-\refitem{book}
-G.~H.~Golub, C.~F.~Van Loan, {\it ``Matrix Computations"}, (The John Hopkins University Press, 1989).
-
-\bibitem{Zhang}
-\refitem{article}
-H.~Zhang, R.~T.~Mills, K.~Rupp, B.~F.~Smith, {\it ``Vectorized Parallel Sparse Matrix-Vector Multiplication in PETSc Using AVX-512"}, Proceedings of the 47th International Conference on Parallel Processing (ICPP 2018), ACM, Article 55, 10 pages (2018).
-
-\bibitem{Lyub_RANS_ILES}
-\refitem{article}
-D.~A.~Lyubimov, {\it ``Development and Application of a High-Resolution Technique for Jet Flow Computation Using Large Eddy Simulation"}, High Temperature~{\bf 50}(3),~420--436 (2012).
-
-\bibitem{Ben_Lyub_Chest_RANS_ILES}
-\refitem{article}
-L.~A.~Benderskii, D.~A.~Lyubimov, A.~O.~Chestnykh, B.~M.~Shabanov and A.~A.~Rybakov, {\it ``The Use of the RANS/ILES Method to Study the Influence of Coflow Wind on the Flow in a Hot, Nonisobaric, Supersonic Airdrome Jet during Its Interaction with the Jet Blast Deflector"}, High Temperature~{\bf 56}(2),~247--254 (2018).
-
-\bibitem{Aleen}
-\refitem{article}
-F.~Aleen, V.~P.~Zakharin, R.~Krishnaiyer, G.~Gupta, D.~Kreitzer, C.-S.~Lin, {\it ``Automated Compiler Optimization of Multiple Vector Loads/Stores"}, International Journal of Parallel Programming~{\bf 46}(2),~471--503 (2018).
-
-% References for IRREGULAR ITERATIONS LOOPS section.
-
-\bibitem{Fast_Sort}
-\refitem{article}
-B.~Bramas, {\it ``Fast Sorting Algorithms Using AVX-512 on Intel Knights Landing"}, arXiv: 1704.08579, Accessed 2018.
-
-\bibitem{Quick_Sort}
-\refitem{article}
-S.~Gueron, V.~Krasnov, {\it ``Fast Quicksort Implementation Using AVX Instructions"}, The Computer Journal,~{\bf 59}(1),~83--90 (2016).
-
-\bibitem{Quick_Sort_2}
-\refitem{article}
-B.~Bramas, {\it ``A Novel Hybrid Quicksort Algorithm Vectorized Using AVX-512 on Intel Skylake"}, International Journal of Advanced Computer Science and Applications (IJACSA)~{\bf 8}(10), (2017).
-
-\bibitem{Knuth}
-\refitem{book}
-D.~E.~Knuth, {\it ``The Art of Computer Programming: Volume 3: Sorting and Searching (2nd Edition)"}, (Addison-Wesley Professional, 1998).
-
-% References for PHYSICAL CALCULATIONS section.
-
-\bibitem{Toro}
-\refitem{book}
-E.~F.~Toro, {\it ``Riemann Solvers and Numerical Methods for Fluid Dynamics:
-A Practical Introduction, 2nd Edition"}, (Springer,1999).
-
-\bibitem{Numerica}
-\refitem{misc}
-NUMERICA, A Library of Sources for Teaching, Research and Applications, by E.~F.~Toro. \url{https://github.com/dasikasunder/NUMERICA}. Accessed 2018.
+% 6. Conclusion.
 
 \end{thebibliography}
 
