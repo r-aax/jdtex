@@ -103,7 +103,7 @@ By homogeneous we mean a cluster consisting of the same computational nodes.
 Take a surface mesh consisting of $ S $ cells.
 Let the supercomputer consist of $ n $ computational nodes with the same characteristics.
 We will also assume that the speed of data exchange between any two computational nodes is the same for all nodes.
-Extension of the problem of distributing the computational load to a heterogeneous supercomputer is achieved by entering weights for nodes and for data exchange channels, as described in [TODO].
+Extension of the problem of distributing the computational load to a heterogeneous supercomputer is achieved by entering weights for nodes and for data exchange channels, as described in \cite{Rybakov_Heterogenous}.
 
 If we denote the speed of cells processing on one computational node as $ a^{-1} $, then the execution time of one iteration of calculations on one computational node can be written as $ T_1 = aS $.
 Now let the computational domain be divided into $ n $ domains each containing $ S_i $ cells ($ i = 1, n $).
@@ -177,7 +177,7 @@ The last link in the chain of calculations is the \texttt{msu-remesh} module, wh
 
 \section{Unstructured computational mesh decomposition}
 
-[TODO] describes a parallel algorithm for geometric decomposition of mesh data.
+Article \cite{Golovchenko_Review} describes a parallel algorithm for geometric decomposition of mesh data.
 During the operation of this algorithm, the current domain is sequentially halved using a plane section.
 According to the logic of this algorithm, the initial head domain $h$ is halved into a pair of domains $h_l$ (left) and $h_r$ (right), each of which is further halved, and so on up to any number of domains equal to a power of two.
 
@@ -217,7 +217,7 @@ In turn, this means that when performing a partition, it is not necessary to be 
 Instead, you can submit a list of functions, for each function calculate the parameter of quality of the partition and, as a result, stop at the function, which ultimately leads to the most efficient partition.
 
 If we simply use the extraction of the three coordinates of the cells' centers as functions for calculating the feature of a cell, then we will obtain in its pure form an algorithm for the geometric decomposition of the mesh with the choice of longest coordinate for splitting.
-The results of applying this algorithm can be seen in Fig.~\ref{fig:03-explode-bunny} and Fig.~\ref{fig:03-hierarch}.
+The results of applying this algorithm to several 3D models from \cite{Stanford} can be seen in Fig.~\ref{fig:03-explode-bunny} and Fig.~\ref{fig:03-hierarch}.
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/03-explode-bunny.pdf}
@@ -233,7 +233,7 @@ By varying set of features for choosing those by which the domain can be partiti
 Decomposition using this method is not limited to geometric features only.
 Feature calculating functions can be used to analyze the physical data of cells, for example, to localize and isolate areas with increased pressure into separate domains.
 
-Within the framework of this work, the described algorithm for decomposition of the surface unstructured computational mesh was applied to the surface meshes used to calculate icing of the aircraft surface.
+Within the framework of this work, the described algorithm for decomposition of the surface unstructured computational mesh was applied to the surface meshes used to calculate icing of the aircraft surface \cite{Wright_Icing,Bourgault_Icing}.
 When calculating icing of an aircraft, the bulk of the computations relates to the processing of surface cells.
 Shared data between adjacent domains is collected on interdomain edges.
 The typical size of such meshes was about $ 10^5 $ cells. We considered both simply connected and not simply connected surfaces, as well as surfaces consisting of several zones isolated from each other.
@@ -306,7 +306,7 @@ Xeon Cascade Lake & 2 / 48 / 96 & 3.0 GHz & 192 GB & yes \\
 
 Homogeneous segments of the computing system of Joint Supercomputer Center of the Russian Academy of Sciences were used to measure the computational scalability \cite{JSCC_Supercomputers}.
 In total, the calculations were carried out on four computational segments, the characteristics of the nodes of which are given in the table \ref{tab:supercomputers}.
-In this table, it can be noted that all Intel \cite{Intel_SDM} microprocessors except Xeon Broadwell support the AVX-512 instruction set, which allows the use of special 512-bit vector registers for efficient code vectorization.
+In this table, it can be noted that all Intel \cite{Intel_SDM} microprocessors except Xeon Broadwell support the AVX-512 instruction set, which allows the use of special 512-bit vector registers for efficient code vectorization \cite{Savin_Vec}.
 We should also highlight the computing nodes based on the Xeon Phi KNL microprocessor \cite{Jeffers_KNL}.
 These microprocessors are distinguished by a huge number of computing cores, each of which is capable of executing up to 4 threads, which allows efficient parallelization of computational applications up to 288 threads on a single microprocessor.
 
@@ -371,37 +371,56 @@ The supercomputer MVS-10P OP (Broadwell, KNL, Skylake and Cascade Lake segments)
 
 \bibitem{Fadeev_Wheather}
 \refitem{article}
-R.~Fadeev, K.~Ushakov, M.~Tolstykh, R.~Ibrayev, V.~Shashkin, G.~Goyman, {\it ``Supercomputing the Seasonal Weather Prediction''}, In: Voevodin V., Sobolev S. (eds) Supercomputing, RuSCDays 2019, Communications in Computer and Information Science, vol.~{\bf 1129}, Springer, Cham (2019).
+R.~Fadeev, K.~Ushakov, M.~Tolstykh, R.~Ibrayev, V.~Shashkin, and G.~Goyman, \textquotedblleft Supercomputing the seasonal weather prediction,\textquotedblright \ in \textit{Supercomputing. RuSCDays 2019}, Ed. by V.~Voevodin and S.~Sobolev, Commun. Comput. Inform. Sci. \textbf{1129} (2019).
 
 \bibitem{Hu_Seismic}
 \refitem{article}
-Y.~Hu, H.~Yang, Z.~Luan, L.~Gan, G.~Yang and D.~Qian, {\it ``Massively Scaling Seismic Processing on Sunway TaihuLight Supercomputer''}, In IEEE Transactions on Parallel and Distributed Systems, vol.~{\bf 31}, no. 5, 1194--1208 (2020).
+Y.~Hu, H.~Yang, Z.~Luan, L.~Gan, G.~Yang, and D.~Qian, \textquotedblleft Massively scaling seismic processing on Sunway TaihuLight supercomputer,\textquotedblright \ IEEE Trans. Parallel Distrib. Syst. \textbf{31}, 1194--1208 (2020).
 
 \bibitem{Golovchecnko_Decomposition}
 \refitem{article}
-E.~Golovchenko, E.~Dorofeeva, I.~Gasilova, A.~Boldareva, {\it ``Numerical Experiments with New Algorithms for Parallel Decomposition of Large Computational Meshes''}, Advances in Parallel Computing, vol.~{\bf 25}, 441--450 (2014).
+E.~Golovchenko, E.~Dorofeeva, I.~Gasilova, and A.~Boldareva, \textquotedblleft Numerical experiments with new algorithms for parallel decomposition of large computational meshes,\textquotedblright \ Advances in Parallel Computing, \textbf{25}, 441--450 (2014).
 
 \bibitem{Dorris_OpenMP}
 \refitem{article}
-J.~Dorris, J.~Kurzak , P.~Luszczek, {\it ``Task-Based Cholesky Decomposition on Knights Corner Using OpenMP''}, ISC High Performance, LNCS~{\bf 9945}, 544--562 (2016).
+J.~Dorris, J.~Kurzak, and P.~Luszczek, \textquotedblleft Task-based Cholesky decomposition on Knights Corner using OpenMP,\textquotedblright \ ISC High Performance, LNCS~\textbf{9945}, 544--562 (2016).
 
 \bibitem{Shabanov_Vec}
 \refitem{article}
-B.~M.~Shabanov, A.~A.~Rybakov, S.~S.~Shumilin, {\it ``Vectorization of High-performance Scientific Calculations Using AVX-512 Intruction Set''}, Lobachevskii J Math {\bf 40}, 580--598 (2019).
+B.~Shabanov, A.~Rybakov, and S.~Shumilin, \textquotedblleft Vectorization of high-performance scientific calculations using AVX-512 intruction set,\textquotedblright \ Lobachevskii J Math {\bf 40}, 580--598 (2019).
 
 \bibitem{Kalantzis_MPI}
 \refitem{article}
-V.~Kalantzis, {\it ``Data analytics, accelerators, and supercomputing: the challenges and future of MPI"}, XRDS {\bf 23}, 3, 50--52 (2017).
+V.~Kalantzis, \textquotedblleft Data analytics, accelerators, and supercomputing: the challenges and future of MPI,\textquotedblright \ XRDS {\bf 23}, 50--52 (2017).
 
-% 2. Parallelization of calculations on an unstructured computational mesh.
+\bibitem{Rybakov_Heterogenous}
+\refitem{article}
+A.~Rybakov, \textquotedblleft Distribution of the computational load between the nodes of a heterogeneous computational cluster,\textquotedblright \ Software Journal:
+Theory and Applications, \textbf{1}, 1--7 (2018) [In Russian].
 
 % 3. Unstructured computational mesh decomposition.
+
+\bibitem{Golovchenko_Review}
+\refitem{article}
+E.~Golovchenko, \textquotedblleft Review of graph decomposition algorithms,\textquotedblright \ Preprints of Keldysh Institute of Appl. Math. \textbf{002} (2020) [In Russian].
+
+\bibitem{Stanford}
+\refitem{misc}
+The Stanford 3D scanning repository. \url{http://graphics.stanford.edu/data/3Dscanrep/}. Accessed 2021.
+
+\bibitem{Wright_Icing}
+\refitem{article}
+W.~Wright, P.~Struck, T.~Bartkus, and G.~Addy, \textquotedblleft Recent advances in the LEWICE icing model,\textquotedblright \ SAE Technical Paper (2015).
+
+\bibitem{Bourgault_Icing}
+\refitem{article}
+Y.~Bourgault, H.~Beaugendre, W.~Habashi, \textquotedblleft Development of a shallow-water icing model in FENSAP-ICE,\textquotedblleft \ Journal of Aircraft, \textbf{37}, 640--646 (2000).
 
 % 4. Organization of interprocess exchanges.
 
 \bibitem{Rybakov_InnerRepresentation}
 \refitem{article}
-A.~A.~Rybakov, {\it ``Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations''}, Program systems: Theory and Application~{\bf 32} (8:1), 121--134 (2017).
+A.~Rybakov, \textquotedblleft Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations,\textquotedblleft \  Program systems: Theory and Application~{\bf 32} (8:1), 121--134 (2017) [In Russian].
 
 % 5. Efficiency of scaling supercomputer calculations.
 
@@ -411,19 +430,23 @@ JSCC RAS Supercomputing resources. \url{http://www.jscc.ru/supercomputing-resour
 
 \bibitem{Intel_SDM}
 \refitem{manual}
-Intel 64 and IA-32 Architectures Software Developer's Manual, Combined Volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2019).
+Intel 64 and IA-32 Architectures software developer's manual, Combined volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2019).
+
+\bibitem{Savin_Vec}
+\refitem{article}
+G.~Savin, B.~Shabanov, A.~Rybakov, and S.~Shumilin, \textquotedblleft Vectorization of flat loops of arbitrary structure using instructions AVX-512,\textquotedblright \ Lobachevskii J Math {\bf 41}, 2566--2574 (2020).
 
 \bibitem{Jeffers_KNL}
 \refitem{book}
-J.~Jeffers, J.~Reinders, A.~Sodani, \emph{Intel Xeon Phi Processor High Performance Programming, Knights Landing Edition} (Morgan Kaufmann, 2016).
+J.~Jeffers, J.~Reinders, and A.~Sodani, \emph{Intel Xeon Phi processor high performance programming, Knights Landing Edition} (Morgan Kaufmann, 2016).
 
 \bibitem{Benderskiy_Scaling}
 \refitem{article}
-L.~A.~Benderskiy, D.~A.~Lyubimov, A.~A.~Rybakov, {\it ``Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS / ILES supercomputer using the high resolution method''}, Trudy SRISA RAS~{\bf 7} (4), 32--40 (2017).
+L.~Benderskiy, D.~Lyubimov, and A.~Rybakov, \textquotedblleft Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS/ILES supercomputer using the high resolution method,\textquotedblright \ Trudy SRISA RAS~{\bf 7} (4), 32--40 (2017) [In Russian].
 
 \bibitem{Van_DynamicLoadBalance}
 \refitem{article}
-R.~F.~Van der Wijngaart, E.~Georganas,~T.~G.~Mattson, et al., {\it ``A New Parallel Research Kernel to Expand Research on Dynamic Load-Balancing Capabilities''}, ISC High Performance, LNCS~{\bf 10266}, 256--274 (2017).
+R.~Van der Wijngaart, E.~Georganas, T.~Mattson, et al., \textquotedblleft A new parallel research kernel to expand research on dynamic load-balancing capabilities,\textquotedblright \ ISC High Performance, LNCS~{\bf 10266}, 256--274 (2017).
 
 % 6. Conclusion.
 
