@@ -15,7 +15,6 @@ centertags]%
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
 
-
 \lstset{
 language=C++,
 basewidth=0.5em,
@@ -40,30 +39,32 @@ escapeinside={\%*}{*)}
 
 \begin{document}
 
-\titlerunning{Short title}
-\authorrunning{Rybakov et al.}
+\titlerunning{Meshes self-intersections elimination}
+\authorrunning{Freylekhman et al.}
 
-\title{Full Title}
-
-\author{\firstname{A.~A.}~\surname{Rybakov}}
-\email[E-mail: ]{rybakov@jscc.ru}
-\affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
+\title{Self-intersections elimination for unstructured surface computational meshes}
 
 \author{\firstname{S.~A.}~\surname{Freylekhman}}
 \email[E-mail: ]{freysa@jscc.ru}
 \affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 
+\author{\firstname{A.~A.}~\surname{Rybakov}}
+\email[E-mail: ]{rybakov@jscc.ru}
+\affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
+
 \firstcollaboration{(Submitted by TODO)} % Add if you know submitter.
 %\lastcollaboration{ }
 
-\received{ТЕКСТ ТУТ}
+\received{TODO}
 
 \begin{abstract}
-ТЕКСТ ТУТ
-Using this decomposition algorithm, supercomputer calculations are performed on the computing resources of JSCC RAS in order to measure the practical indicators of scalability of highly loaded applications.
+Во время численного решения задачи обледенения трехмерного тела возникает проблема описания поверхности этого тела в процессе образования ледяного нароста.
+Поверхность обтекаемого тела описывается неструктурированной поверхностной расчетной сеткой, ячейки которой являются треугольниками.
+В процессе расчета обледенения ледяной нарост может принимать произвольные формы, а поверхностная сетка должна перестраиваться в соответствие с этим.
+При этом в реальности нередки ситуации, когда отдельные части ледяного нароста могут соединяться друг другом, наслаиваться друг на друга, образуя пустоты и полости внутри ледяной 
 \end{abstract}
 
-\subclass{65Y05,65Y20,49M27} % Enter 2010 Mathematics Subject Classification.
+\subclass{TODO} % Enter 2010 Mathematics Subject Classification.
 
 \keywords{supercomputer, unstructured surface computational mesh, decomposition, domain, high-performance computing, scaling of calculations}
 
@@ -86,7 +87,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 % Рис.1
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic. 1_2.png}
+\includegraphics[width=1.0\textwidth]{pics/pic_1.png}
 \captionstyle{center}\caption{КЭ сетка с подкрашенными участками самопересечений.}\label{fig:1}
 \end{figure}
 
@@ -100,7 +101,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 % Рисунок 2. Пересечение двух треугольников в разных плоскостях.
 \begin{figure}[h]
-\includegraphics[width=0.6\textwidth]{pics/pic. 2.png}
+\includegraphics[width=0.6\textwidth]{pics/pic_2.png}
 \captionstyle{center}\caption{Пересечение двух треугольников в разных плоскостях.}\label{fig:2}
 \end{figure}
 
@@ -117,7 +118,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 % Рисунок 3. Бокс описывает пространство треугольников.
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic. 3.png}
+\includegraphics[width=1.0\textwidth]{pics/pic_3.png}
 \captionstyle{center}\caption{Бокс, описывает пространство треугольников.}\label{fig:3}
 \end{figure}
 
@@ -125,7 +126,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 % Рисунок 4. Древовидная структура данных КЭ сетки.
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic. 4.pdf}
+\includegraphics[width=1.0\textwidth]{pics/pic_4.pdf}
 \captionstyle{center}\caption{Древовидная структура данных КЭ сетки.}\label{fig:4}
 \end{figure}
 
@@ -147,7 +148,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 % Рисунок 5. Пересечение треугольника отрезком.
 \begin{figure}[h]
-\includegraphics[width=0.3\textwidth]{pics/pic. 5.png}
+\includegraphics[width=0.3\textwidth]{pics/pic_5.png}
 \captionstyle{center}\caption{Пересечение треугольника отрезком.}\label{fig:5}
 \end{figure}
 
@@ -217,7 +218,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 
 % Рисунок 6. Блок-схема алгоритма перестроения разбиения элементов КЭ сетки по точкам.
 \begin{figure}[h]
-\includegraphics[width=0.8\textwidth]{pics/pic. 6.pdf}
+\includegraphics[width=0.8\textwidth]{pics/pic_6.pdf}
 \captionstyle{center}\caption{Блок-схема алгоритма перестроения разбиения элементов КЭ сетки по точкам.}\label{fig:6}
 \end{figure}
 
@@ -233,19 +234,19 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 Перестроение треугольника по точке Р, находящейся во внутренней области треугольника. На основе точки, принадлежащей внутренней области треугольника и лежащей в плоскости треугольника, формируются три новых треугольника. Для этих треугольников формируются связи с остальными элементами КЭ сетки. Старый треугольник удаляется из сетки Fig.~\ref{fig:7}.
 
 \begin{figure}[h]
-\includegraphics[width=0.5\textwidth]{pics/pic. 7.png}
+\includegraphics[width=0.5\textwidth]{pics/pic_7.png}
 \captionstyle{center}\caption{Перестроение треугольника по внутренней точке пересечения.}\label{fig:7}
 \end{figure}
 
 Перестроение треугольника по точке Р, лежащей на ребре. На основе точки на ребре, происходит разбиение ребра, которому она принадлежала. А также от этой точки формируется новое ребро, соединяющее ее и противоположную ей вершину исходного треугольника. Тем самым формируются два новых треугольника на месте старого Fig.~\ref{fig:8}. Формируются связи в сетке для новых треугольников и их элементов. Исходный треугольник удаляется из сетки. Противоположный треугольник (если он есть), который прилегал к разбитому на две части ребру АС, также будет разбит на две части по этой же точке, когда до него дойдет очередь.
 
 \begin{figure}[h]
-\includegraphics[width=0.5\textwidth]{pics/pic. 8.png}
+\includegraphics[width=0.5\textwidth]{pics/pic_8.png}
 \captionstyle{center}\caption{Перестроение треугольника по точке на ребре.}\label{fig:8}
 \end{figure}
 
 \begin{figure}[h]
-\includegraphics[width=0.8\textwidth]{pics/pic. 9.png}
+\includegraphics[width=0.8\textwidth]{pics/pic_9.png}
 \captionstyle{center}\caption{Визуализация перестроения двух пересекающихся треугольников.}\label{fig:9}
 \end{figure}
 
@@ -258,7 +259,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 После дробления сетки в ней появились ребра, к которым примыкают более двух ячеек. Это значит, что у некоторой ячейки не может однозначным образом быть определен сосед по ребру. На Fig.~\ref{fig:10} приведена расчетная сетка после выполнения дробления ячеек и с подкрашенными проблемными ячейками (для которых не может быть однозначно определен сосед по ребру).
 
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic. 10.png}
+\includegraphics[width=1.0\textwidth]{pics/pic_10.png}
 \captionstyle{center}\caption{Перестроенные элементы сетки с подкрашенными участками, которые необходимо удалить.}\label{fig:10}
 \end{figure}
 
@@ -267,7 +268,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 В результате выполнения всех трех основных шагов по коррекции КЭ сетки, получаем поверхностную сетку, где для каждого элемента сетки можно однозначно определить ближайших соседей – каждое ребро элемента сетки имеет только две соседние ячейки Fig.~\ref{fig:11}.
 
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic. 11.png}
+\includegraphics[width=1.0\textwidth]{pics/pic_11.png}
 \captionstyle{center}\caption{Результирующая корректная КЭ сетка.}\label{fig:11}
 \end{figure}
 
@@ -276,7 +277,7 @@ Using this decomposition algorithm, supercomputer calculations are performed on 
 Предложенный алгоритм коррекции поверхностной расчетной сетки позволяет справляться с ситуациями, в которых во время конструирования ледяного нароста возникают самопересечения поверхности льда. Данная ситуация соответствует затягиванию тонких впадин на поверхности льда и не должна приводить к остановке расчета. Устранение самопересечений и удаление неактивных участков поверхностной сетки позволяет реализовать этот физически оправданный функционал и обеспечить устойчивую работу приложения по расчету ледяного нароста.
 
 \begin{acknowledgments}
-The work has been done at the JSCC RAS as part of the state assignment for the topic 0580-2021-0016.
+The work has been done at the JSCC RAS as part of the state assignment for the to 0580-2021-0016.
 The supercomputer MVS-10P OP (Broadwell, KNL, Skylake and Cascade Lake segments), located at the JSCC RAS, was used during the research.
 \end{acknowledgments}
 
