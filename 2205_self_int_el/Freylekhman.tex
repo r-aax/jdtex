@@ -83,8 +83,11 @@ escapeinside={\%*}{*)}
 Для обработки сложных участков поверхностей, впадин и изломов используются специальные методы сглаживания поверхности и перераспределения массы льда \cite{Thompson}, \cite{Tong}.
 
 Несмотря на все усилия, применяемые при перестроении поверхности, реальные расчетные сетки, которые используются в практических задачах, в процессе перестроения могут пересекать друг друга.
-Это соответствует ситуациям, когда разные участки ледяного нароста при увеличении сталкиваются друг с другом, образуя полости.
-Пересечение расчетных сеток порождает петли, которые оказываются скрытыми под внешней поверхностью, и наличие таких петель делает невозможным корректное продолжение расчетов. 
+Это соответствует ситуациям, когда разные участки ледяного нароста при увеличении сталкиваются друг с другом, образуя внутренние полости.
+Пересечение расчетных сеток порождает петли, которые оказываются скрытыми под внешней поверхностью, и наличие таких петель делает невозможным корректное продолжение расчетов.
+Различные подходы у устранению самопересечений расчетных сеток можно найти в \cite{Charton}, \cite{Jung}, \cite{Skorkovska}.
+Основной проблемой, с которой столкнулись авторы данной статьи при численном решении практических задач, стала сильно изломанная форма поверхности образующегося ледяного покрова и зачастую сильно вытянутые ячейки расчетной сетки ($\frac{max(a, b, c)}{min(a, b, c)} \gg 1$ для треугольных ячеек со сторонами $a$, $b$, $c$).
+В данной статье была сделана попытка привести максимально упрощенный алгоритм устранения самопересечений для таких "плохих" расчетных сеток.
 
 \section{Detection and elimination of self-intersecting sections of a triangular finite element grid}
 
@@ -353,6 +356,19 @@ D.~Thompson, X.~Tong, Q.~Arnoldus, E.~Collins, D.~McLaurin, and E.~Luke, \textqu
 \refitem{article}
 X.~Tong, D.~Thompson, Q.~Arnoldus, E.~Collins, and E.~Luke, \textquotedblleft Three-dimensional surface evolution and mesh deformation for aircraft icing applications,\textquotedblright \ J. Aircraft \textbf{54}, 1--17 (2016).
 
+% self-intersections elimination
+
+\bibitem{Charton}
+\refitem{article}
+J.~Charton, S.~Baek, and Y.~Kim, \textquotedblleft Mesh repairing using topology graphs,\textquotedblright \ J. of Computational Design and Engineering \textbf{8}, 251--267 (2021).
+
+\bibitem{Jung}
+\refitem{article}
+W.~Jung, H.~Shin, and B.~K.~Choi, \textquotedblleft Self-intersection removal in triangular mesh offsettings,\textquotedblright \ CAD J. \textbf{1}, 477--484 (2004).
+
+\bibitem{Skorkovska}
+\refitem{article}
+V.~Skorkovsk\'a, I.~Kolingerov\'a, and B.~Benes, \textquotedblleft A simple and robust approach to computation of meshes intersection,\textquotedblright \ in \textit{Proceedings of the 13th International Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications VISIGRAPP, 2018}.
 
 \end{thebibliography}
 
