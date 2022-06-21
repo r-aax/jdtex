@@ -58,21 +58,33 @@ escapeinside={\%*}{*)}
 \received{TODO}
 
 \begin{abstract}
-Во время численного решения задачи обледенения трехмерного тела возникает проблема описания поверхности этого тела в процессе образования ледяного нароста.
+Во время численного решения задачи обледенения трехмерного тела возникает проблема представления поверхности этого тела в процессе образования ледяного нароста.
 Поверхность обтекаемого тела описывается неструктурированной поверхностной расчетной сеткой, ячейки которой являются треугольниками.
 В процессе расчета обледенения ледяной нарост может принимать произвольные формы, а поверхностная сетка должна перестраиваться в соответствие с этим.
-При этом в реальности нередки ситуации, когда отдельные части ледяного нароста могут соединяться друг другом, наслаиваться друг на друга, образуя пустоты и полости внутри ледяной 
+При этом в реальности нередки ситуации, когда отдельные части ледяного нароста могут соединяться друг другом, наслаиваться друг на друга, образуя пустоты и полости внутри ледяной массы.
+В численном решении данная ситуация выражается в появлении самопересечений поверхностной сетки.
+Возникновение самопересечений расчетной сетки делает невозможным продолжение вычислений на поверхности тела, поэтому самопересечения должны быть обнаружены и устранены.
+Данная работа посвящена практическому алгоритму нахождения и устранения самопересечений неструктурированной поверхностной расчетной сетки при решении задачи обледенения обтекаемого тела.
 \end{abstract}
 
 \subclass{TODO} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{supercomputer, unstructured surface computational mesh, decomposition, domain, high-performance computing, scaling of calculations}
+\keywords{обледенение обтекаемого тела, неструктурированная поверхностная расчетная сетка, перестроение поверхности, самопересечение расчетной сетки}
 
 \maketitle
 
 \section{Introduction}
 
+Расчет обледенения поверхности обтекаемого тела является важной практической задачей, необходимой для обеспечения функциональности и безопасности летательных аппаратов \cite{Myers}, \cite{Farzaneh}, \cite{Dong}, \cite{Beaugendre}.
+Компьютерное моделирование процессов обледенения может быть выполнено с использованием широкого набора инструментов, среди которых можно отметить FENSAP-ICE \cite{Bourgault}, LEWICE \cite{Wright}, OpenFOAM \cite{Beld}, AIPAC \cite{Domingos}, IceVision \cite{Aksenov} и другие.
+Результатом проведения расчетов обледенения поверхности тела становятся значения массы (или объема льда), накопленного в той или иной ячейке расчетной сетки.
+В соответствие с этой информацией поверхность тела должна быть перестроена таким образом, чтобы новая поверхность отражала характер и количественные показатели ледяного нароста.
+Перестроение поверхности по значениям массы льда в ячейках расчетной сетки обычно выполняется итерационно (ледяной нарост моделируется последовательно с помощью отдельных слоев \cite{BourgaultCote}, \cite{Fortin}).
+Для обработки сложных участков поверхностей, впадин и изломов используются специальные методы сглаживания поверхности и перераспределения массы льда \cite{Thompson}, \cite{Tong}.
 
+Несмотря на все усилия, применяемые при перестроении поверхности, реальные расчетные сетки, которые используются в практических задачах, в процессе перестроения могут пересекать друг друга.
+Это соответствует ситуациям, когда разные участки ледяного нароста при увеличении сталкиваются друг с другом, образуя полости.
+Пересечение расчетных сеток порождает петли, которые оказываются скрытыми под внешней поверхностью, и наличие таких петель делает невозможным корректное продолжение расчетов. 
 
 \section{Detection and elimination of self-intersecting sections of a triangular finite element grid}
 
@@ -283,88 +295,64 @@ The supercomputer MVS-10P OP (Broadwell, KNL, Skylake and Cascade Lake segments)
 
 \begin{thebibliography}{99}
 
-% 1. Intruduction.
+% ice accretion task
 
-\bibitem{Fadeev_Wheather}
+\bibitem{Myers}
 \refitem{article}
-R.~Fadeev, K.~Ushakov, M.~Tolstykh, R.~Ibrayev, V.~Shashkin, and G.~Goyman, \textquotedblleft Supercomputing the seasonal weather prediction,\textquotedblright \ in \textit{Supercomputing. RuSCDays 2019}, Ed. by V.~Voevodin and S.~Sobolev, Commun. Comput. Inform. Sci. \textbf{1129} (2019).
+T.~Myers, \textquotedblleft Extension to the Messinger model for aircraft icing,\textquotedblright \ AIAA J. \textbf{39}, 211--218 (2001).
 
-\bibitem{Hu_Seismic}
+\bibitem{Farzaneh}
 \refitem{article}
-Y.~Hu, H.~Yang, Z.~Luan, L.~Gan, G.~Yang, and D.~Qian, \textquotedblleft Massively scaling seismic processing on Sunway TaihuLight supercomputer,\textquotedblright \ IEEE Trans. Parallel Distrib. Syst. \textbf{31}, 1194--1208 (2020).
+P.~Farzaneh and G.~Bouchard, \textquotedblleft Modeling a water flow on an icing surface,\textquotedblright \ in \textit{Proceedings of the International Workshop on Atmospheric Icing of Structures IWAIS XI, Montr\'eal, 2005}.
 
-\bibitem{Golovchecnko_Decomposition}
+\bibitem{Dong}
 \refitem{article}
-E.~Golovchenko, E.~Dorofeeva, I.~Gasilova, and A.~Boldareva, \textquotedblleft Numerical experiments with new algorithms for parallel decomposition of large computational meshes,\textquotedblright \ Advances in Parallel Computing, \textbf{25}, 441--450 (2014).
+W.~Dong, J.~Zhu, and X.~Min, \textquotedblleft Calculation of the heat transfer and temperature on the aircraft anti-icing surface,\textquotedblleft \ in \textit{Proceedings of the 27th International Congress of the Aeronautical Sciences, 2010}.
 
-\bibitem{Dorris_OpenMP}
-\refitem{article}
-J.~Dorris, J.~Kurzak, and P.~Luszczek, \textquotedblleft Task-based Cholesky decomposition on Knights Corner using OpenMP,\textquotedblright \ ISC High Performance, LNCS~\textbf{9945}, 544--562 (2016).
-
-\bibitem{Shabanov_Vec}
-\refitem{article}
-B.~Shabanov, A.~Rybakov, and S.~Shumilin, \textquotedblleft Vectorization of high-performance scientific calculations using AVX-512 intruction set,\textquotedblright \ Lobachevskii J Math {\bf 40}, 580--598 (2019).
-
-\bibitem{Kalantzis_MPI}
-\refitem{article}
-V.~Kalantzis, \textquotedblleft Data analytics, accelerators, and supercomputing: the challenges and future of MPI,\textquotedblright \ XRDS {\bf 23}, 50--52 (2017).
-
-\bibitem{Rybakov_Heterogenous}
-\refitem{article}
-A.~Rybakov, \textquotedblleft Distribution of the computational load between the nodes of a heterogeneous computational cluster,\textquotedblright \ Software Journal:
-Theory and Applications, \textbf{1}, 1--7 (2018) [In Russian].
-
-% 3. Unstructured computational mesh decomposition.
-
-\bibitem{Golovchenko_Review}
-\refitem{article}
-E.~Golovchenko, \textquotedblleft Review of graph decomposition algorithms,\textquotedblright \ Preprints of Keldysh Institute of Appl. Math. \textbf{002} (2020) [In Russian].
-
-\bibitem{Stanford}
+\bibitem{Beaugendre}
 \refitem{misc}
-The Stanford 3D scanning repository. \url{http://graphics.stanford.edu/data/3Dscanrep/}. Accessed 2021.
+H.~Beaugendre, \textquotedblleft A PDE-based approach to in-flight ice accretion,\textquotedblright \ PhD Thesis (Dep. of Mech. Eng., McGill Univ., Montr\'eal, Qu\'ebec, 2003).
 
-\bibitem{Wright_Icing}
+% ice accretion software
+
+\bibitem{Bourgault}
 \refitem{article}
-W.~Wright, P.~Struck, T.~Bartkus, and G.~Addy, \textquotedblleft Recent advances in the LEWICE icing model,\textquotedblright \ SAE Technical Paper (2015).
+Y.~Bourgault, H.~Beaugendre, and W.~Habashi, \textquotedblleft Development of a shallow-water icing model in FENSAP-ICE,\textquotedblright \ J. Aircraft \textbf{37}, 640--646 (2000).
 
-\bibitem{Bourgault_Icing}
+\bibitem{Wright}
 \refitem{article}
-Y.~Bourgault, H.~Beaugendre, W.~Habashi, \textquotedblleft Development of a shallow-water icing model in FENSAP-ICE,\textquotedblleft \ Journal of Aircraft, \textbf{37}, 640--646 (2000).
+W.~Wright, P.~Struck, T.~Bartkus, and G.~Addy, \textquotedblleft Recent advances in the LEWICE icing model,\textquotedblright \ SAE Int. Technical Paper (2015).
 
-% 4. Organization of interprocess exchanges.
-
-\bibitem{Rybakov_InnerRepresentation}
-\refitem{article}
-A.~Rybakov, \textquotedblleft Inner respresentation and crossprocess exchange mechanism for block-structured grid for supercomputer calculations,\textquotedblleft \  Program systems: Theory and Application~{\bf 32} (8:1), 121--134 (2017) [In Russian].
-
-% 5. Efficiency of scaling supercomputer calculations.
-
-\bibitem{JSCC_Supercomputers}
+\bibitem{Beld}
 \refitem{misc}
-JSCC RAS Supercomputing resources. \url{http://www.jscc.ru/supercomputing-resources/}. Accessed 2021.
+E.~Beld, \textquotedblleft Droplet impingement and film layer modeling as a basis for aircraft icing simulations in OpenFOAM,\textquotedblright \ Internship Report (Eng. Fluid Dynamics Department, Univ. Twente, 2013).
 
-\bibitem{Intel_SDM}
-\refitem{manual}
-Intel 64 and IA-32 Architectures software developer's manual, Combined volumes: 1, 2A, 2B, 2C, 2D, 3A, 3B, 3C, 3D and 4, Intel Corporation (2019).
-
-\bibitem{Savin_Vec}
+\bibitem{Domingos}
 \refitem{article}
-G.~Savin, B.~Shabanov, A.~Rybakov, and S.~Shumilin, \textquotedblleft Vectorization of flat loops of arbitrary structure using instructions AVX-512,\textquotedblright \ Lobachevskii J Math {\bf 41}, 2566--2574 (2020).
+R.~Domingos and S.~Silva, \textquotedblleft 3D computational methodology for bleed air ice protection system parametric analysis,\textquotedblright \ SAE Int. technical paper (2015).
 
-\bibitem{Jeffers_KNL}
-\refitem{book}
-J.~Jeffers, J.~Reinders, and A.~Sodani, \emph{Intel Xeon Phi processor high performance programming, Knights Landing Edition} (Morgan Kaufmann, 2016).
-
-\bibitem{Benderskiy_Scaling}
+\bibitem{Aksenov}
 \refitem{article}
-L.~Benderskiy, D.~Lyubimov, and A.~Rybakov, \textquotedblleft Analysis of scaling efficiency in high-speed turbulent flow calculations on a RANS/ILES supercomputer using the high resolution method,\textquotedblright \ Trudy SRISA RAS~{\bf 7} (4), 32--40 (2017) [In Russian].
+A.~A.~Aksenov, P.~M.~Byvaltsev, S.~V.~Zhluktov, K.~E.~Sorokin, A.~A.~Babulin, and V.~I.~Shevyakov, \textquotedblleft Numerical simulation of ice accretion on airplane surface,\textquotedblright \ in \textit{Proceedings of AIP Conference, 2019}.
 
-\bibitem{Van_DynamicLoadBalance}
+% remeshing
+
+\bibitem{BourgaultCote}
 \refitem{article}
-R.~Van der Wijngaart, E.~Georganas, T.~Mattson, et al., \textquotedblleft A new parallel research kernel to expand research on dynamic load-balancing capabilities,\textquotedblright \ ISC High Performance, LNCS~{\bf 10266}, 256--274 (2017).
+S.~Bourgault-C\^ot\'e, K.~Hasanzadeh, P.~Lavoie, and E.~Laurendeau, \textquotedblleft Multi-layer icing methodologies for conservative ice growth,\textquotedblright \ in \textit{Proceedings of 7th European Conference for Aeronautics and Aerospace Sciences EUCASS, 2017}.
 
-% 6. Conclusion.
+\bibitem{Fortin}
+\refitem{article}
+G.~Fortin, A.~Ilinca, J.-L.~Laforte, and V.~Brandi, \textquotedblleft New roughness computation method and geometric accretion model for airfoil icing,\textquotedblright \ J. Aircraft \textbf{41}, 119--1127 (2004).
+
+\bibitem{Thompson}
+\refitem{article}
+D.~Thompson, X.~Tong, Q.~Arnoldus, E.~Collins, D.~McLaurin, and E.~Luke, \textquotedblleft Discrete surface evolution and mesh deformation for aircraft icing applications,\textquotedblright \ in \textit{Proceedings of 5th AIAA Atmospheric and Space Environments Conference, 2013}.
+
+\bibitem{Tong}
+\refitem{article}
+X.~Tong, D.~Thompson, Q.~Arnoldus, E.~Collins, and E.~Luke, \textquotedblleft Three-dimensional surface evolution and mesh deformation for aircraft icing applications,\textquotedblright \ J. Aircraft \textbf{54}, 1--17 (2016).
+
 
 \end{thebibliography}
 
