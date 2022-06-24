@@ -59,12 +59,12 @@ escapeinside={\%*}{*)}
 
 \begin{abstract}
 During the numerical solution of the problem of icing a three-dimensional body, the problem arises of representing the surface of this body in the process of an ice buildup formation.
-The surface of the streamlined body is described by an unstructured surface computational grid, the cells of which are triangles.
+The surface of the streamlined body is described by an unstructured surface computational mesh, the cells of which are triangles.
 In the process of icing calculation, the ice buildup can take arbitrary shapes, and the surface mesh must be rebuilt in accordance with this.
 At the same time, in reality, situations are not uncommon when individual parts of the ice buildup can connect with each other, layer on each other, forming voids and cavities inside the ice massif.
 In the numerical solution, this situation is expressed in the appearance of self-intersections of the surface mesh.
-The occurrence of self-intersections of the computational grid makes it impossible to continue calculations on the surface of the body, so self-intersections must be detected and eliminated.
-This work is devoted to a practical algorithm for finding and eliminating self-intersections of an unstructured surface computational grid in solving the problem of icing a streamlined body.
+The occurrence of self-intersections of the computational mesh makes it impossible to continue calculations on the surface of the body, so self-intersections must be detected and eliminated.
+This work is devoted to a practical algorithm for finding and eliminating self-intersections of an unstructured surface computational mesh in solving the problem of icing a streamlined body.
 \end{abstract}
 
 \subclass{65L50} % Enter 2010 Mathematics Subject Classification.
@@ -75,19 +75,19 @@ This work is devoted to a practical algorithm for finding and eliminating self-i
 
 \section{Introduction}
 
-Расчет обледенения поверхности обтекаемого тела является важной практической задачей, необходимой для обеспечения функциональности и безопасности летательных аппаратов \cite{Myers, Farzaneh, Dong, Beaugendre}.
-Компьютерное моделирование процессов обледенения может быть выполнено с использованием широкого набора инструментов, среди которых можно отметить FENSAP-ICE \cite{Bourgault}, LEWICE \cite{Wright}, OpenFOAM \cite{Beld}, AIPAC \cite{Domingos}, IceVision \cite{Aksenov} и другие.
-Результатом проведения расчетов обледенения поверхности тела становятся значения массы (или объема льда), накопленного в той или иной ячейке расчетной сетки.
-В соответствие с этой информацией поверхность тела должна быть перестроена таким образом, чтобы новая поверхность отражала характер и количественные показатели ледяного нароста.
-Перестроение поверхности по значениям массы льда в ячейках расчетной сетки обычно выполняется итерационно (ледяной нарост моделируется последовательно с помощью отдельных слоев \cite{BourgaultCote, Fortin}).
-Для обработки сложных участков поверхностей, впадин и изломов используются специальные методы сглаживания поверхности и перераспределения массы льда \cite{Thompson, Tong}.
+Calculation of icing of a streamlined body surface is an important practical task necessary to ensure the functionality and safety of aircraft \cite{Myers, Farzaneh, Dong, Beaugendre}.
+Computer modeling of icing processes can be performed using a wide range of tools, among which are FENSAP-ICE \cite{Bourgault}, LEWICE \cite{Wright}, OpenFOAM \cite{Beld}, AIPAC \cite{Domingos}, IceVision \cite{Aksenov} and others.
+The result of the body surface icing calculations are the values of the mass (or volume of ice) accumulated in the different cells of the computational mesh.
+In accordance with this information, the surface of the body must be rebuilt in such a way that the new surface reflects the nature and quantitative indicators of the ice buildup.
+Rebuilding the surface based on the values of the ice mass in the cells of the computational mesh is usually performed iteratively (the ice buildup is modeled sequentially using separate layers \cite{BourgaultCote, Fortin}).
+Special methods of surface smoothing and ice mass redistribution are used to process complex surface areas, depressions and fractures \cite{Thompson, Tong}.
 
-Несмотря на все усилия, применяемые при перестроении поверхности, реальные расчетные сетки, которые используются в практических задачах, в процессе перестроения могут пересекать друг друга.
-Это соответствует ситуациям, когда разные участки ледяного нароста при увеличении сталкиваются друг с другом, образуя внутренние полости.
-Пересечение расчетных сеток порождает петли, которые оказываются скрытыми под внешней поверхностью, и наличие таких петель делает невозможным корректное продолжение расчетов.
-Различные подходы у устранению самопересечений расчетных сеток можно найти в \cite{Charton, Jung, Skorkovska}.
-Основной проблемой, с которой столкнулись авторы данной статьи при численном решении практических задач, стала сильно изломанная форма поверхности образующегося ледяного покрова и зачастую сильно вытянутые ячейки расчетной сетки (ячейки, величина хотя бы одного у которых близка к нулю).
-В данной статье была сделана попытка привести максимально упрощенный алгоритм устранения самопересечений для таких "плохих" расчетных сеток.
+Despite all the efforts used in surface rebuilding, parts of real computational meshes that are used in practical problems can intersect each other during rebuilding.
+This corresponds to situations where different parts of the ice buildup collide with each other upon magnification, forming internal cavities.
+The intersection of computational meshes generates loops that are hidden under the outer surface, and the presence of such loops makes it impossible to continue the calculations correctly.
+Various approaches to the elimination of self-intersections of computational meshes can be found in \cite{Charton, Jung, Skorkovska}.
+The main problem faced by the authors of this article in the numerical solution of practical problems was the strongly broken shape of the surface of the formed ice cover and often highly elongated cells of the computational mesh (cells with at least one angle close to zero).
+In this article, an attempt was made to give the most simplified algorithm for eliminating self-intersections for such "bad" computational meshes.
 
 \section{Общая схема алгоритма устранения самопересечений расчетной сетки}
 
