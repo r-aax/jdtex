@@ -200,7 +200,7 @@ After that, the transition to the next phase of the algorithm is performed.
 After the execution of the previous phase of the algorithm, self-intersection points were plotted on some elements of the computational mesh (edges and triangles).
 At this phase of the algorithm, it is necessary to refine the mesh in such a way that all such plotted points become nodes of the new refined mesh.
 This is the simplest procedure of all steps of the algorithm.
-If some plotted point $P$ is inside the triangle $ABC$ (fig.~\ref{fig:pic_split_s}, a), then it is enough to split $ABC \rightarrow ABP, BCP, ACP$ (fig.~\ref{fig: pic_split_s}, b).
+If some plotted point $P$ is inside the triangle $ABC$ (fig.~\ref{fig:pic_split_s}, a), then it is enough to split $ABC \rightarrow ABP, BCP, ACP$ (fig.~\ref{fig:pic_split_s}, b).
 If several points fall inside the triangle at once, the partition is performed recursively.
 If some plotted point $P$ falls on some edge $AC$ of triangle $ABC$ (fig.~\ref{fig:pic_split_s}, c), then $ABC \rightarrow ABP, CBP$ must be split.
 In this case, if the edge $AC$ is not the boundary of the computational mesh, then it is incident to another triangle, which must also be split along this point $P$ (fig.~\ref{fig:pic_split_s}, d).
@@ -214,39 +214,47 @@ It should be noted that with this approach, triangles with angles close to zero 
 In order for the quality of the mesh not to decrease significantly, such triangles should be disposed of.
 For example, if the point $P$ inside the triangle $ABC$ is too close to the side $AC$ (fig.~\ref{fig:pic_split_s}, a), then the angle $\angle APC$ will be close to 180 degrees, and in this In this case, to preserve the grid quality, it is expedient to move the point $P$ to the side $AC$.
 
-\section{Удаление лишних ячеек}
+\section{Removing extra cells}
 
 \begin{figure}[h]
-\includegraphics[width=0.7\textwidth]{pics/pic_del_extra_s.pdf}
-\captionstyle{center}\caption{Удаление лишних ячеек.}\label{fig:pic_del_extra_s}
+\includegraphics[width=0.6\textwidth]{pics/pic_del_extra_s.pdf}
+\captionstyle{center}\caption{Removing extra cells.}\label{fig:pic_del_extra_s}
 \end{figure}
 
-Последним шагом алгоритма является удаление лишних ячеек после измельчения сетки.
-В местах самопересения сетки после ее измельчения образуются ребра, которые могут быть инцидентны более чем двум ячейкам (в классическом случае это 4 ячейки, как показано на рис.~\ref{fig:pic_del_extra_s}).
-При этом для корректного представления поверхности требуется, чтобы данное ребро было инцидентно только двум ячейкам (остальные ячейки относятся к скрытой области самопересечения и описывают полость, которая должна быть вырезана).
+The last step of the algorithm is to remove extra cells after mesh refinement.
+In places where the mesh self-intersects, after its refinement, edges are formed that can be incident to more than two cells (in the classical case, these are 4 cells, as shown in fig.~\ref{fig:pic_del_extra_s}).
+In this case, for the correct representation of the surface, it is required that this edge be incident to only two cells (the remaining cells belong to the hidden self-intersection region and describe the cavity that must be cut out).
 
-Для определения лишних ячеек необходимо уметь идентифицировать хотя бы одну ячейку, которая точно относится к поверхности (на рис.~\ref{fig:pic_del_extra_s} для такой ячейки обозначена внешняя нормаль).
-Этого можно достичь путем обхода поверхности из области, где точно отсутствуют самопересечения.
-То есть, если известно, что какая-то ячейка расчетной сетки точно относится к поверхности и одна имеет ровно одну смежную ячейку по некоторому ребру, то эта смежная ячейка также относится к поверхности (однозначно определяется с какой на какую ячейку осуществляется перетекание потока).
-Выполняя обход таким образом рано или поздно мы либо обойдем все ячейки (тогда самопересечений нет и сетку корректировать не надо), либо придем к ребру через которое нельзя однозначно определить перетекание потока (как показана на рис.\ref{fig:pic_del_extra_s}).
-Для таких ребер будем поступать следующим образом.
-Ячейку, про которую точно известна ее принадлежность поверхности, будем называть "хорошей".
-В качестве второго претендента на принадлежность к поверхности выберем ту ячейку, для которой угол поворота хорошей ячейки в направлении внешней нормали хорошей ячейки до совпадения будем минимальным.
+To determine extra cells, it is necessary to be able to identify at least one cell that is exactly related to the surface (in fig.~\ref{fig:pic_del_extra_s} the outward normal is indicated for such a cell).
+This can be achieved by traversing the surface from a region where there are definitely no self-intersections.
+That is, if it is known that some cell of the computational mesh exactly refers to the surface and one has exactly one adjacent cell along some edge, then this adjacent cell also refers to the surface (it is uniquely determined from which to which cell the flow is flowing).
+Performing a traversal in this way, sooner or later we will either bypass all the cells (then there are no self-intersections and the grid does not need to be repaired), or we will come to an edge for which it is impossible to uniquely determine the flow direction through the edge (as shown in fig.~\ref{fig:pic_del_extra_s}).
+For such edges, we will proceed as follows.
+A cell about which it is actually known that it belongs to the surface will be called "good".
+As the second contender for belonging to the surface, we choose the cell for which the angle of rotation of a good cell in the direction of the outer normal of a good cell before the coincidence will be minimal.
 
-\section{Заключение}
+\section{Conclusion}
 
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic_example_before.png}
-\captionstyle{center}\caption{Пример расчетной сетки с самопересечением.}\label{fig:pic_example_before}
+\includegraphics[width=0.8\textwidth]{pics/pic_example_before.png}
+\captionstyle{center}\caption{An example of a computational grid with self-intersection.}\label{fig:pic_example_before}
 \end{figure}
 
 \begin{figure}[h]
-\includegraphics[width=1.0\textwidth]{pics/pic_example_after.png}
-\captionstyle{center}\caption{Результата устранения самопересечения.}\label{fig:pic_example_after}
+\includegraphics[width=0.8\textwidth]{pics/pic_example_after.png}
+\captionstyle{center}\caption{The result of self-intersection elimination.}\label{fig:pic_example_after}
 \end{figure}
+
+In the article, an algorithm for eliminating self-intersections of an unstructured surface computational mesh with triangular cells was considered.
+The main goal of this work was to determine the simplest possible sequence of actions that allows to reliably and fast eliminate mesh self-intersections in the process of calculating ice buildup on the surface of a streamlined body.
+The speed of this algorithm is of critical importance, since the presence of self-intersections of the computational grid makes it impossible to continue the calculation, therefore, it is necessary to eliminate such anomalies as often as possible.
+The proposed algorithm contains simple operations for determining the intersections of geometric primitives, subdividing the mesh cells and identifying the actual new surface on which the liquid film flows.
+The use of this algorithm makes it possible to prevent accidental termination of icing calculations due to the occurrence of self-intersections on meshes with complex geometry that are formed during a long simulation time.
+
+Fig.~\ref{fig:pic_example_before} and fig.~\ref{fig:pic_example_after} show an example of the occurrence of mesh self-intersection during the calculation and the result of removing the internal cavity using the proposed algorithm.
 
 \begin{acknowledgments}
-TODO
+The work was carried out at the JSCC RAS as part of the government assignment (topic FNEF-2022-0016). Supercomputer MVS-10P was used in research.
 \end{acknowledgments}
 
 \begin{thebibliography}{99}
