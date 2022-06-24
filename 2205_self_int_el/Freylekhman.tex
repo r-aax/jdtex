@@ -195,35 +195,35 @@ In this case, the situation of an infinite number of solutions also requires spe
 After searching for intersections of all geometric objects, it is necessary to place the found intersection points on the edges of the computational mesh (if the intersection occurred along the edge), or in cells (if the intersection occurred along the internal point of the triangle).
 After that, the transition to the next phase of the algorithm is performed.
 
-\section{Разбиение треугольников на более мелкие}
+\section{Splitting triangles into smaller ones}
 
-После выполнения предыдущей фазы алгоритма на некоторое элементы расчетной сетки (ребра и треугольники) были нанесены точки самопересечения.
-На данной фазе алгоритма необходимо таким образом измельчить сетку, чтобы все такие нанесенные точки стали узлами новой сетки.
-Это наиболее простая процедура из всех шагов алгоритма.
-Если некоторая нанесенная точка $P$ попала внутрь треугольника $ABC$ (рис.~\ref{fig:pic_split_s}, a) то достаточно сделать разбиение $ABC \rightarrow ABP, BCP, ACP$ (рис.~\ref{fig:pic_split_s}, b).
-В случае попадания сразу нельскольких точек внутрь треугольника разбиение выполняется рекурсивно.
-Если некоторая нанесенная точка $P$ попала на некоторое ребро $AC$ треугольника $ABC$ (рис.~\ref{fig:pic_split_s}, c), то необходимо выполнить разбиение $ABC \rightarrow ABP, CBP$.
-При этом, если ребро $AC$ не является границой расчетной сетки, то оно инцидентно еще одному треугольнику, который также должен быть разбит по этой точке $P$ (рис.~\ref{fig:pic_split_s}, d).
+After the execution of the previous phase of the algorithm, self-intersection points were plotted on some elements of the computational mesh (edges and triangles).
+At this phase of the algorithm, it is necessary to refine the mesh in such a way that all such plotted points become nodes of the new refined mesh.
+This is the simplest procedure of all steps of the algorithm.
+If some plotted point $P$ is inside the triangle $ABC$ (fig.~\ref{fig:pic_split_s}, a), then it is enough to split $ABC \rightarrow ABP, BCP, ACP$ (fig.~\ref{fig: pic_split_s}, b).
+If several points fall inside the triangle at once, the partition is performed recursively.
+If some plotted point $P$ falls on some edge $AC$ of triangle $ABC$ (fig.~\ref{fig:pic_split_s}, c), then $ABC \rightarrow ABP, CBP$ must be split.
+In this case, if the edge $AC$ is not the boundary of the computational mesh, then it is incident to another triangle, which must also be split along this point $P$ (fig.~\ref{fig:pic_split_s}, d).
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/pic_split_s.pdf}
-\captionstyle{center}\caption{Разбиение треугольников по точкам пересечения.}\label{fig:pic_split_s}
+\captionstyle{center}\caption{Splitting of triangles by intersection points.}\label{fig:pic_split_s}
 \end{figure}
 
-Следует отметить, что при таком подходе могут появляться треугольники с углами, близкими к нулевым.
-Для того, чтобы качество сеток сильно не понижалось от таких треугольников следует избавляться.
-Например, если точка $P$ внутри треугольника $ABC$ окажется слишком близко к стороне $AC$ (рис.~\ref{fig:pic_split_s}, a), то угол $\angle APC$ окажется близок к развернутому, и в этом случае для сохранения качества сетки целесообразно переместить точку $P$ на сторону $AC$.
+It should be noted that with this approach, triangles with angles close to zero may appear.
+In order for the quality of the mesh not to decrease significantly, such triangles should be disposed of.
+For example, if the point $P$ inside the triangle $ABC$ is too close to the side $AC$ (fig.~\ref{fig:pic_split_s}, a), then the angle $\angle APC$ will be close to 180 degrees, and in this In this case, to preserve the grid quality, it is expedient to move the point $P$ to the side $AC$.
 
 \section{Удаление лишних ячеек}
-
-Последним шагом алгоритма является удаление лишних ячеек после измельчения сетки.
-В местах самопересения сетки после ее измельчения образуются ребра, которые могут быть инцидентны более чем двум ячейкам (в классическом случае это 4 ячейки, как показано на рис.~\ref{fig:pic_del_extra_s}).
-При этом для корректного представления поверхности требуется, чтобы данное ребро было инцидентно только двум ячейкам (остальные ячейки относятся к скрытой области самопересечения и описывают полость, которая должна быть вырезана).
 
 \begin{figure}[h]
 \includegraphics[width=0.7\textwidth]{pics/pic_del_extra_s.pdf}
 \captionstyle{center}\caption{Удаление лишних ячеек.}\label{fig:pic_del_extra_s}
 \end{figure}
+
+Последним шагом алгоритма является удаление лишних ячеек после измельчения сетки.
+В местах самопересения сетки после ее измельчения образуются ребра, которые могут быть инцидентны более чем двум ячейкам (в классическом случае это 4 ячейки, как показано на рис.~\ref{fig:pic_del_extra_s}).
+При этом для корректного представления поверхности требуется, чтобы данное ребро было инцидентно только двум ячейкам (остальные ячейки относятся к скрытой области самопересечения и описывают полость, которая должна быть вырезана).
 
 Для определения лишних ячеек необходимо уметь идентифицировать хотя бы одну ячейку, которая точно относится к поверхности (на рис.~\ref{fig:pic_del_extra_s} для такой ячейки обозначена внешняя нормаль).
 Этого можно достичь путем обхода поверхности из области, где точно отсутствуют самопересечения.
