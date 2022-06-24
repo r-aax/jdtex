@@ -109,57 +109,57 @@ It is obvious that after the execution of the third phase of the algorithm, edge
 Therefore, at the fourth phase of the algorithm (fig.~\ref{fig:pic_algorithm_phases_s}, d), extra mesh cells are removed (sets of cells that form internal mesh cavities are removed).
 Next, we consider in more detail each of the above phases of the algorithm separately.
 
-\section{Поиск пар потенциально пересекающихся треугольников}
+\section{Finding pairs of potentially intersecting triangles}
 
-Сначала для устранения самопересечений сетки необходимо найти все пары пересекающихся (но не смежных) треугольников.
-Конечно к этому вопросу можно подойти напрямую, рассмотрев все $n$ треугольников из расчетной сетки и выполнив анализ на пересечение всех $\frac{1}{2}n(n - 1)$ пар.
-Однако, такой подход займет большое количество времени, так как количество треугольников в расчетной сетке велико, а сама процедура определения пересечения двух треугольников нетривиальна.
-Будем решать поставленную задачу по-другому.
+First, to eliminate self-intersections of the mesh, it is necessary to find all pairs of intersecting (but not adjacent) triangles.
+Of course, this issue can be approached directly by considering all $n$ triangles from the computational mesh and performing an intersection analysis of all $\frac{1}{2}n(n - 1)$ pairs.
+However, this approach will take a lot of time, since the number of triangles in the computational mesh is large, and the procedure for determining the intersection of two triangles is not trivial.
+Let's solve the problem in a different way.
 
-Во-первых, вместо пар пересекающихся треугольников будем искать пары потенциально пересекающихся треугольников.
-Для этого введем следующие понятия.
-Для треугольника $ABC$ назовем его боксом прямоугольный параллелепипед $[min(A_x, B_x, C_x), max(A_x, B_x, C_x)] \times [min(A_y, B_y, C_y), max(A_y, B_y, C_y)] \times [min(A_z, B_z, C_z), max(A_z, B_z, C_z)]$.
-Будем говорить, что два треугольника потенциально пересекаются, если пересекаются их боксы.
-В отличие от пересечения треугольников, определение пересечения прямоугольных параллелепипедов (со сторонами, параллельными осям координат) это простая операция.
-По аналогии с боксом треугольника можно определить бокс произвольной геометрической фигуры, а также множества таких геометрических фигур.
-Мы будем использовать бокс множества треугольников.
+First, instead of pairs of intersecting triangles, we will look for pairs of potentially intersecting triangles.
+To do this, we introduce the following concepts.
+For triangle $ABC$ let's consider cuboid $[min(A_x, B_x, C_x), max(A_x, B_x, C_x)] \times [min(A_y, B_y, C_y), max(A_y, B_y, C_y) ] \times [min(A_z, B_z, C_z), max(A_z, B_z, C_z)]$ and call it the box of this triangle.
+We will say that two triangles potentially intersect if their boxes intersect.
+Unlike the intersection of triangles, determining the intersection of rectangular boxes (with sides parallel to the coordinate axes) is a simple operation.
+By analogy with the box of a triangle, one can define a box of an arbitrary geometric figure, as well as of a set of such geometric figures.
+We will use a box for set of triangles.
 
-Построим вспомогательный объект, называемый облаком треугольников.
-В данное облако включим все треугольники расчетной сетки.
-В качестве дополнительного поля данных облака треугольников будем использовать его бокс.
-Теперь разделим облако треугольников на два подоблака с помощью сечения произвольной плоскостью (на рис.~\ref{fig:pic_triangles_cloud_s} показан двумерная иллюстрация данного процесса).
-Каждый треугольник исходного облака отнесем в то подоблако, которое соответствует той части полупространства, в которую попал центр треугольника.
-Таким образом, для рассматриваемого облака треугольников образованы два дочерних подоблака.
-Заметим, что делить подоблако не обязательно ровно на два дочерних подоблака, число дочерних подоблаков может быть произвольным.
-Продолжая процесс деления облаков треугольников далее, получим структуру, называемую деревом облаков, в корне которого находится все множество треугольников, а в листах -- отдельные треугольники.
+Let's build an auxiliary object called a cloud of triangles.
+In this cloud, we include all the triangles of the computational mesh.
+As an additional data field of the triangle cloud, we will use its box.
+Now let's divide the cloud of triangles into two subclouds using a section by an arbitrary plane (fig.~\ref{fig:pic_triangles_cloud_s} shows a two-dimensional illustration of this process).
+Each triangle of the original cloud will be assigned to the subcloud that corresponds to that part of the half-space in which the center of the triangle fell.
+Thus, for the cloud of triangles under consideration, two child subclouds are formed.
+Note that it is not necessary to divide a subcloud into exactly two child subclouds; the number of child subclouds can be arbitrary.
+Continuing the process of dividing the clouds of triangles further, we obtain a structure called a cloud tree, at the root of which is the entire set of triangles, and in the leaves -- individual triangles.
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/pic_triangles_cloud_s.pdf}
-\captionstyle{center}\caption{Формирование облака треугольников.}\label{fig:pic_triangles_cloud_s}
+\captionstyle{center}\caption{Forming of a triangles cloud.}\label{fig:pic_triangles_cloud_s}
 \end{figure}
 
-С помощью образованного вспомогательного дерева облаков треугольников можно быстро находить потенциально пересекающиеся треугольники.
-Для этого достаточно воспользоваться следующим фактом: если два облака треугольников $T_1$ и $T_2$ не являются потенциально пересекающимися (то есть их боксы не пересекаются), то любые два треугольника $t_1 \in T_1$ и $t_2 \in T_2$ не являются потенциально пересекающимися.
-При используя древовидного поиска потенциально пересекающихся треугольников с помощью вложенных боксов облаков треугольников время перебора всех треугольников в множестве меняется с линейного на логарифмическое, что сильно ускоряет расчеты.
+With the help of the formed auxiliary tree of triangle clouds, we can quickly find potentially intersecting triangles.
+To do this, it suffices to use the following fact: if two clouds of triangles $T_1$ and $T_2$ are not potentially intersecting (that is, their boxes do not intersect), then any two triangles $t_1 \in T_1$ and $t_2 \in T_2$ are not potentially intersecting.
+When using a tree-like search for potentially intersecting triangles using nested triangle cloud boxes, the time it takes to search through all the triangles in the set changes from linear to logarithmic, which greatly speeds up the calculations.
 
-\section{Поиск точек пересечения треугольников}
+\section{Finding triangle intersection points}
 
-После того, как определены все пары потенциально пересекающихся треугольников, необходимо определить точки их пересечения.
-Отметим следующий факт: если два треугольника пересекаются в пространстве, то обязательно хотя бы одна сторона одного треугольника должна пересекать другой треугольник.
-Другими словами, все точки пересечения двух треугольников не могут быть одновременно внутренними точками одного треугольника и внутренними точками второго треугольника.
-Поэтому задача поиска пересечений двух треугольников сводится к задаче пересечения одного треугольника со сторонами второго (и наоборот).
+After all pairs of potentially intersecting triangles have been determined, it is necessary to determine their intersection points.
+Note the following fact: if two triangles intersect in space, then at least one side of one triangle must intersect the other triangle.
+In other words, all intersection points of two triangles cannot be both interior points of one triangle and interior points of a second triangle.
+Therefore, the problem of finding the intersections of two triangles is reduced to the problem of the intersection of one triangle with the sides of the second one (and vice versa).
 
-Исходя из этого простого факта, для определения всех точек пересечения треугольников достаточно решить следующие частные задачи: установление факта совпадения двух вершин (рис.~\ref{fig:pic_intersection_s}, a), установление факта попадания точки на отрезок (рис.~\ref{fig:pic_intersection_s}, b), установление пересечения двух отрезков в пространстве (рис.~\ref{fig:pic_intersection_s}, c), установление факта пересечения отрезка с треугольником (рис.~\ref{fig:pic_intersection_s}, d). 
+Based on this simple fact, to determine all points of intersection of triangles, it is enough to solve the following particular problems: establishing the fact that two vertices coincide (fig.~\ref{fig:pic_intersection_s}, a), establishing the fact that a point lays inside a segment (fig.~\ref {fig:pic_intersection_s}, b), establishing the intersection of two segments in space (fig.~\ref{fig:pic_intersection_s}, c), establishing the fact of the intersection of a segment with a triangle (fig.~\ref{fig:pic_intersection_s}, d).
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/pic_intersection_s.pdf}
-\captionstyle{center}\caption{Поиск точек пересечения разных геометрических примитивов.}\label{fig:pic_intersection_s}
+\captionstyle{center}\caption{Search for intersection points of different geometric primitives.}\label{fig:pic_intersection_s}
 \end{figure}
 
-Из приведенных частных задач внимания заслуживают только две последние.
-Для их решения будем использовать представление геометрических объектов в виде геометрического места точек, а именно: отрезок $PQ$ в пространстве будем представлять в виде геометрического места точек $P + \phi(Q - P), 0 \le \phi \le 1$, а треугольник $ABC$ в пространстве будем записывать в виде $A + \alpha(B - A) + \beta(C - A), \alpha \ge 0, \beta \ge 0, \alpha + \beta \le 1$ (данные записи понимаются в векторном виде).
+Of the above particular problems, only the last two deserve attention.
+To solve them, we will use the representation of geometric objects in the form of the locus of points, namely: the segment $PQ$ in space will be represented as the locus of points $P + \phi(Q - P), 0 \le \phi \le 1$ , and the triangle $ABC$ in space will be written as $A + \alpha(B - A) + \beta(C - A), \alpha \ge 0, \beta \ge 0, \alpha + \beta \le 1$ (record data are understood in vector form).
 
-Тогда для поиска пересечений двух отрезков $AB$ и $PQ$ в пространстве достаточно решить следующую систему:
+Then, to find intersections of two segments $AB$ and $PQ$ in space, it suffices to solve the following system:
 
 \begin{equation}
 \begin{cases}
@@ -171,11 +171,11 @@ A_z + \psi(B_z - A_z) = P_z + \phi(Q_z - P_z) \\
 \end{cases}
 \end{equation}
 
-У данной системы может не быть решений, быть ровно одно решение и быть бесконечно много решений.
-Внимания заслуживает случай бесконечного количества решений.
-В этом случае мы имеем дело с наложением двух отрезков друг на друга, и задача поиска пересечений сводится к задачам определения совпадения двух точек и определения попадания точки на отрезок.
+A given system may have no solutions, exactly one solution, or infinitely many solutions.
+The case of an infinite number of solutions deserves attention.
+In this case, we are dealing with the imposition of two segments on top of each other, and the problem of finding intersections is reduced to the tasks of determining the coincidence of two points and determining whether a point lays inside a segment.
 
-Для поиска пересечений треугольника $ABC$ с отрезком $PQ$ необходимо решить следующую систему уравнений:
+To search for intersections of the triangle $ABC$ with the segment $PQ$, it is necessary to solve the following system of equations:
 
 \begin{equation}
 \begin{cases}
@@ -189,11 +189,11 @@ A_z + \alpha(B_z - A_z) + \beta(C_z - A_z) = P_z + \phi(Q_z - P_z) \\
 \end{cases}
 \end{equation}
 
-Данная система может не иметь решений, иметь ровно одно решение и иметь бесконечное количество решений.
-В данном случае также особой обработки требует ситуация бесконечного количества решений, в которой задача сводится к определению точек пересечения двух отрезков.
+A given system may have no solutions, have exactly one solution, or have an infinite number of solutions.
+In this case, the situation of an infinite number of solutions also requires special processing, in which the problem is reduced to determining the intersection points of two segments.
 
-После выполнения поиска пересечений всех геометрических объектов необходимо поместить найденные точки пересечения на ребра расчетной сетки (если пересечение произошло по ребру), либо в ячейки (если пересечение произошло по внутренной точке треугольника).
-После чего выполняется переход к следующей фазе алгоритма.
+After searching for intersections of all geometric objects, it is necessary to place the found intersection points on the edges of the computational mesh (if the intersection occurred along the edge), or in cells (if the intersection occurred along the internal point of the triangle).
+After that, the transition to the next phase of the algorithm is performed.
 
 \section{Разбиение треугольников на более мелкие}
 
