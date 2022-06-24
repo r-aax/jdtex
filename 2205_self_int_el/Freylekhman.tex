@@ -89,26 +89,25 @@ Various approaches to the elimination of self-intersections of computational mes
 The main problem faced by the authors of this article in the numerical solution of practical problems was the strongly broken shape of the surface of the formed ice cover and often highly elongated cells of the computational mesh (cells with at least one angle close to zero).
 In this article, an attempt was made to give the most simplified algorithm for eliminating self-intersections for such "bad" computational meshes.
 
-\section{Общая схема алгоритма устранения самопересечений расчетной сетки}
+\section{General scheme of the algorithm for eliminating self-intersections of the computational mesh}
 
-Перед определением общей схемы алгоритмы приведем описание неструктурированной поверхностной расчетной сетки.
-Объектами такой сетки являются вершины (с ними ассоциированы три декартовы координаты $x$, $y$, $z$), ребра и треугольные ячейки.
-При этом выполняются обязательные соглашения: каждое ребро соединяет ровно две вершины, каждая треугольная ячейка инцидентна трем вершинам и трем ребрам, ребро может быть инцидентно не более чем двум ячейкам.
-Последнее требование позволяет разделить внутреннюю и внешнюю область поверхностьи, образованную парой ячеек, которые сходятся в некотором ребре.
+Before defining the general scheme of the algorithm, let us describe the unstructured surface computational mesh.
+The objects of such a mesh are vertices (they are associated with three Cartesian coordinates $x$, $y$, $z$), edges and triangular cells.
+In this case, the obligatory conventions are fulfilled: each edge connects exactly two vertices, each triangular cell is incident to three vertices and three edges, and an edge can be incident to at most two cells.
+The last requirement allows us to separate the inner and outer regions of the surface formed by a pair of cells that converge in some edge.
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/pic_algorithm_phases_s.pdf}
-\captionstyle{center}\caption{Стадии устранения самопересечений.}\label{fig:pic_algorithm_phases_s}
+\captionstyle{center}\caption{Phases of self-intersections elimination.}\label{fig:pic_algorithm_phases_s}
 \end{figure}
 
-На рис.~\ref{fig:pic_algorithm_phases_s} представлены 4 фазы алгоритма устранения пересечений.
-На первой фазе (рис.~\ref{fig:pic_algorithm_phases_s}, a) выполняется поиск всех пар ячеек (треугольников) которые потенциально пересекаются.
-На второй фазе (рис.~\ref{fig:pic_algorithm_phases_s}, b) ищутся все точки пересечения треугольников (на данном рисунке показаны точки пересечения $P$ и $Q$).
-На третьей фазе (рис.~\ref{fig:pic_algorithm_phases_s}, с) выполнятся разбиение пересекающихся треугольников на более мелкие таким образом, чтобы в получившейся измельченной сетке были только смежные по ребрам и вершинам треугольники (не было пересечений по внутренним точкам).
-Очевидно, что после выполнения третьей фазы алгоритма в сетке могут образоваться ребра, инцидентные более чем двух ячейкам (на рис.~\ref{fig:pic_algorithm_phases_s}, с ребро $PQ$ инцидентно сразу четырем ячейкам).
-Поэтому на четвертой фазе алгоритма (рис.~\ref{fig:pic_algorithm_phases_s}, d) осуществляется удаление лишних ячеек сетки (удаляются множества ячеек, которые образуют внутренние полости сетки).
-
-Далее рассмотрим подробнее каждую из приведенных фаз алгоритма по-отдельности.
+Fig.~\ref{fig:pic_algorithm_phases_s} shows 4 phases of the intersection elimination algorithm.
+At the first phase (fig.~\ref{fig:pic_algorithm_phases_s}, a), all pairs of cells (triangles) that potentially intersect are searched.
+In the second phase (fig.~\ref{fig:pic_algorithm_phases_s}, b) all triangles' intersection points are searched (this figure shows the intersection points of $P$ and $Q$).
+In the third phase (fig.~\ref{fig:pic_algorithm_phases_s}, c), intersecting triangles are split into smaller ones so that the resulting refined mesh contains only triangles adjacent to edges and vertices (there is no intersections at internal points).
+It is obvious that after the execution of the third phase of the algorithm, edges incident to more than two cells can form in the mesh (in fig.~\ref{fig:pic_algorithm_phases_s}, the $PQ$ edge is incident to four cells at once).
+Therefore, at the fourth phase of the algorithm (fig.~\ref{fig:pic_algorithm_phases_s}, d), extra mesh cells are removed (sets of cells that form internal mesh cavities are removed).
+Next, we consider in more detail each of the above phases of the algorithm separately.
 
 \section{Поиск пар потенциально пересекающихся треугольников}
 
