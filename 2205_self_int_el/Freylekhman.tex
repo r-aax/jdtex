@@ -212,7 +212,7 @@ In this case, if the edge $AC$ is not the boundary of the computational mesh, th
 
 It should be noted that with this approach, triangles with angles close to zero may appear.
 In order for the quality of the mesh not to decrease significantly, such triangles should be disposed of.
-For example, if the point $P$ inside the triangle $ABC$ is too close to the side $AC$ (fig.~\ref{fig:pic_split_s}, a), then the angle $\angle APC$ will be close to 180 degrees, and in this In this case, to preserve the grid quality, it is expedient to move the point $P$ to the side $AC$.
+For example, if the point $P$ inside the triangle $ABC$ is too close to the side $AC$ (fig.~\ref{fig:pic_split_s}, a), then the angle $\angle APC$ will be close to 180 degrees, and in this In this case, to preserve the mesh quality, it is expedient to move the point $P$ to the side $AC$.
 
 \section{Removing extra cells}
 
@@ -228,7 +228,7 @@ In this case, for the correct representation of the surface, it is required that
 To determine extra cells, it is necessary to be able to identify at least one cell that is exactly related to the surface (in fig.~\ref{fig:pic_del_extra_s} the outward normal is indicated for such a cell).
 This can be achieved by traversing the surface from a region where there are definitely no self-intersections.
 That is, if it is known that some cell of the computational mesh exactly refers to the surface and one has exactly one adjacent cell along some edge, then this adjacent cell also refers to the surface (it is uniquely determined from which to which cell the flow is flowing).
-Performing a traversal in this way, sooner or later we will either bypass all the cells (then there are no self-intersections and the grid does not need to be repaired), or we will come to an edge for which it is impossible to uniquely determine the flow direction through the edge (as shown in fig.~\ref{fig:pic_del_extra_s}).
+Performing a traversal in this way, sooner or later we will either bypass all the cells (then there are no self-intersections and the mesh does not need to be repaired), or we will come to an edge for which it is impossible to uniquely determine the flow direction through the edge (as shown in fig.~\ref{fig:pic_del_extra_s}).
 For such edges, we will proceed as follows.
 A cell about which it is actually known that it belongs to the surface will be called "good".
 As the second contender for belonging to the surface, we choose the cell for which the angle of rotation of a good cell in the direction of the outer normal of a good cell before the coincidence will be minimal.
@@ -237,7 +237,7 @@ As the second contender for belonging to the surface, we choose the cell for whi
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/pic_example_before.png}
-\captionstyle{center}\caption{An example of a computational grid with self-intersection.}\label{fig:pic_example_before}
+\captionstyle{center}\caption{An example of a computational mesh with self-intersection.}\label{fig:pic_example_before}
 \end{figure}
 
 \begin{figure}[h]
@@ -247,7 +247,7 @@ As the second contender for belonging to the surface, we choose the cell for whi
 
 In the article, an algorithm for eliminating self-intersections of an unstructured surface computational mesh with triangular cells was considered.
 The main goal of this work was to determine the simplest possible sequence of actions that allows to reliably and fast eliminate mesh self-intersections in the process of calculating ice buildup on the surface of a streamlined body.
-The speed of this algorithm is of critical importance, since the presence of self-intersections of the computational grid makes it impossible to continue the calculation, therefore, it is necessary to eliminate such anomalies as often as possible.
+The speed of this algorithm is of critical importance, since the presence of self-intersections of the computational mesh makes it impossible to continue the calculation, therefore, it is necessary to eliminate such anomalies as often as possible.
 The proposed algorithm contains simple operations for determining the intersections of geometric primitives, subdividing the mesh cells and identifying the actual new surface on which the liquid film flows.
 The use of this algorithm makes it possible to prevent accidental termination of icing calculations due to the occurrence of self-intersections on meshes with complex geometry that are formed during a long simulation time.
 
