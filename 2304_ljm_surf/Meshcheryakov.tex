@@ -67,33 +67,56 @@ TODO abstract
 
 \maketitle
 
+%---------------------------------------------------------------------------------------------------
+
 \section{Introduction}
+\input{introduction}
 
-TODO section
+%---------------------------------------------------------------------------------------------------
 
-\section{TODO section}
+\section{Mesh architecture}
+\input{architecture}
 
-TODO section
+%---------------------------------------------------------------------------------------------------
 
-\section{TODO section}
+\section{Перестроение}
+\subsection{Классические методы перестроения}
+\input{remesh_classical}
+\subsection{Метод Тонга}
+\input{remesh_tong}
+\subsection{Метод общей огибающей}
+\input{remesh_envelope}
 
-TODO section
+%---------------------------------------------------------------------------------------------------
 
-\section{TODO section}
+\section{Адаптация}
+\subsection{Дробление ячеек}
+\input{adaptation_cut}
+\subsection{Стягивание по ребру}
+\input{adaptation_reduce}
+\subsection{Загрубление}
+\input{adaptation_coarsening}
 
-TODO section
+%---------------------------------------------------------------------------------------------------
 
-\section{TODO section}
+\section{Устранение самопересечений}
+\subsection{Поиск треугольников}
+\input{sle_triangles}
+\subsection{Zipper}
+\input{sle_zipper}
+\subsection{Дробление ячеек}
+\input{sle_cut}
 
-TODO section
+%---------------------------------------------------------------------------------------------------
 
 \section{Conclusion}
-
-TODO section
+\input{conclusion}
 
 \begin{acknowledgments}
 The work was carried out at the JSCC RAS as part of the government assignment (topic FNEF-2022-0016). Supercomputer MVS-10P was used in research.
 \end{acknowledgments}
+
+%---------------------------------------------------------------------------------------------------
 
 \begin{thebibliography}{99}
 
