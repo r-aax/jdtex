@@ -4,7 +4,7 @@
 \end{figure}
 
 Решение задачи перестроения поверхности будем рассматривать на неструктурированной поверхностной расчетной сетке.
-Элементами расчетной сетки являются узлы ($N_i$), ребра ($e_i$)  и ячейки ($f_i$).
+Элементами расчетной сетки являются узлы ($N$), ребра ($e$)  и ячейки ($f$).
 Для удобства каждый элемент сетки связан со всеми своими инцидентными элементами: так связаны между собой инцидентные узлы и ребра, узлы и ячейки, ребра и ячейки. Множество инцидентных узлов будем обозначать $\mathscr{N}$, множество инцидентных ребер будем обозначать $\mathscr{E}$, а множество инцидентных ячеек будем обозначать $\mathscr{F}$.
 
 К расчетной сетке предъявляются следующие требования.
@@ -14,9 +14,9 @@
 
 \begin{equation}
 \begin{cases}
-\forall N_i \Rightarrow \mathscr{E}(N_i) > 2, \mathscr{F}(N_i) > 2 \\
-\forall e_i \Rightarrow \mathscr{N}(e_i) = 2 , \mathscr{F}(e_i) = 2 \\
-\forall f_i \Rightarrow \mathscr{N}(f_i) = 3 , \mathscr{E}(f_i) = 3 \\
+\forall N \Rightarrow \mathscr{E}(N) > 2, \mathscr{F}(N) > 2 \\
+\forall e \Rightarrow \mathscr{N}(e) = 2 , \mathscr{F}(e) = 2 \\
+\forall f \Rightarrow \mathscr{N}(f) = 3 , \mathscr{E}(f) = 3 \\
 \end{cases}
 \end{equation}
 
@@ -25,5 +25,5 @@
 Для узла сетки будем рассматривать понятие нормали к поверхности и определять эту нормаль как
 
 \begin{equation}
-\vec{n}_n(N_i) = \frac{1}{|\mathscr{F}(N_i)|} \sum_{f_i \in \mathscr{F}(N_i)}{\vec{n}_f(f_i)}
+\vec{n}_n(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{\vec{n}_f(f)}
 \end{equation}
