@@ -8,3 +8,21 @@ Q(f) = \frac{4\sqrt{3} S_{ABC}}{|\vec{AB}|^2 + |\vec{BC}|^2 + |\vec{AC}|^2}
 \end{equation}
 
 где $Q(f) = 1$ соответствует идеальному случаю равносторонней ячейки, а $Q(f) = 0$ -- худший случай для ячеек с нулевой площадью \cite{Borouchaki}.
+
+\begin{figure}
+  \centering
+  \begin{minipage}[h]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{pics/pic_delaunay_size.pdf}
+    \caption{Разбиение ячейки с помощью триангуляции Делоне.}\label{fig:pic_delaunay}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[h]{0.35\textwidth}
+    \includegraphics[width=\textwidth]{pics/pic_delaunay_2_size.pdf}
+    \caption{Дробление ячейки на более мелкие.}\label{fig:pic_delaunay_2}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[h]{0.28\textwidth}
+    \includegraphics[width=\textwidth]{pics/pic_reduce_edge_size.pdf}
+    \caption{Стягивание ребра.}\label{fig:pic_reduce_edge}
+  \end{minipage}
+\end{figure}
