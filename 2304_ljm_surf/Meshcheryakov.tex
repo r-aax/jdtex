@@ -59,14 +59,14 @@ escapeinside={\%*}{*)}
 
 \begin{abstract}
 Задача моделирования обледенения поверхности обтекаемого тела является критической для обеспечения безопасности полетов в условия ледообразования.
-Формирования ледяных наростов на несущих частях и элементах силовых установок летальных аппаратов может существенно влиять на летные характеристики.
+Формирование ледяных наростов на несущих частях и элементах силовых установок летальных аппаратов может существенно влиять на летные характеристики.
 Сам процесс ледообразования является комплексным.
 Для получения качественной картины профиля ледяного нароста необходимо учитывать множество физических процессов, включая динамику газа, теплопроводность, динамику капель, выпадающих на поверхность, течение жидкости по поверхности.
 Расчет ледяного покрова должен выполняться итерационно, так как образующийся лед существенно влияет на газодинамические характеристики, которые должны пересчитываться с ростом льда.
 Важной частью моделирования является эволюция поверхности тела в процессе ледообразования.
 В настоящей статье рассматриваются различные подходы к моделированию эволюции поверхности, предлагается новый алгоритм построения новой поверхности с помощью общей огибающей семейства сфер, центры которых находятся на исходной поверхности.
 В процессе эволюции на поверхности могут образовываться различные артефакты и аномалии, из-за которых проведение дальнейших расчетов может стать невозможным.
-Для устранения этих препятствий в статье рассматриваются методы адаптации расчетной сетки в процессе эволюции, а также устранение потенциальных самопересечений, препятствующих дальнейшим расчетам.
+Для устранения этих препятствий в статье рассматриваются методы адаптации расчетной сетки в процессе эволюции, а также устранения потенциальных самопересечений, препятствующих дальнейшим расчетам.
 \end{abstract}
 
 %\subclass{TODO subclass} % Enter 2010 Mathematics Subject Classification.
@@ -142,6 +142,24 @@ F.~Martini, H.~Ibrahim, L.~T.~C.~Montoya, P.~Rizk, and A.~Ilinca, \textquotedbll
 \bibitem{Strijhak}
 \refitem{article}
 S.~Strijhak, V.~Melnikova, and K.~Koshelev, \textquotedblleft Development of iceFoam solver for modeling ice accretion,\textquotedblright \ in \textit{Proceedings of the Institute for System Programming of RAS, 2020}.
+
+\bibitem{Sorokin}
+\refitem{article}
+K.~E.~Sorokin, P.~M.~Byvaltsev, A.~A.~Aksenov, S.~V.~Zhluktov, D.~V.~Savitskiy, A.~A.~Babulin, and V.~I.~Shevyakov, \textquotedblleft Numerical simulation of ice accretion if FlowVision sotfware,\textquotedblright \ Computer Research and Modeling, {\bf 12}, №~1, 83--96 (2020).
+
+\bibitem{Galanov}
+\refitem{article}
+N.~G.~Galanov, A.~V.~Sarazov, R.~N.~Zhukov, and A.~S.~Kozelkov, \textquotedblleft Application of various ice accretion simulation approaches in the LOGOS software package,\textquotedblright \ Journal of Physics: Conference Series, {\bf 2099}, 012029 (2021).
+
+\bibitem{Bartkus}
+T.~P.~Bartkus, P.~M.~Struk, and J.-C.~Tsao, \textquotedblleft Evaluation of a thermodynamic ice-crystal icing model using experimental ice accretion data,\textquotedblright \ in \textit{Proceedings of the Atmospheric and Space Environments Conference, 2018}
+
+\bibitem{Zhang}
+X.~Zhang, X.~Wu, and J.~Min, \textquotedblleft Aircraft icing model considering both rime ice property variability and runback water effect,\textquotedblright \ International Journal of Heat and Mass Transfer, {\bf 104}, 510--516 (2017).
+
+\bibitem{Pena}
+D.~Pena, Y.~Hoarau, and E.~Laurendeau, \textquotedblleft A single step ice accretion model using level-set method,\textquotedblright \ Journal of Fluids and Structures, {\bf 65}, 278--294 (2016).
+
 
 % Rest.
 
