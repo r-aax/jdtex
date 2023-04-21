@@ -89,6 +89,22 @@
 То есть после поиска всех ячеек пересечения, их необходимо раздробить на более мелкие (как показано на Fig.~\ref{fig:pic_delaunay_2}), после чего повторить процедуру удаления скрытых ячеек и ячеек пересечения и выполнить восстановление сетки.
 Процесс дробления ячеек пересечения можно повторять многократно, при этом качество результирующей сетки будет повышаться, как это показано на Fig.~\ref{fig:pic_zip_15}.
 
+При другом подходе устранения самопересечений никакие ячейки из сетки не удаляются, а дробятся на более мелкие по всем точкам пересечения \cite{Skvorkovska}.
+В качестве примера на Fig.~\ref{fig:pic_after_cut} показаны два треугольника, которые пересекаются по отрезку (две точки пересечения).
+После выполнения дробления получаем конструкцию, показанную на Fig.~\ref{fig:pic_after_cut}.
+
+\begin{figure}
+  \centering
+  \begin{minipage}[h]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{pics/pic_before_cut.png}
+    \caption{Два пересекающихся треугольника до дробления.}\label{fig:pic_before_cut}
+  \end{minipage}
+  \begin{minipage}[h]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{pics/pic_after_cut.png}
+    \caption{Ячейки после дробления по точкам пересечения.}\label{fig:pic_after_cut}
+  \end{minipage}
+\end{figure}
+
 \begin{figure}
   \centering
   \begin{minipage}[h]{0.49\textwidth}
