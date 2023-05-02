@@ -702,12 +702,16 @@ Of course, the mere presence of common points in two faces cannot serve as a cri
 %Так как смежными могут быть только ячейки, имеющие общие инцидентные объекты (общую инцидентную вершину или общее инцидентное ребро), а все отношения инцидентности прописаны в расчетной сетке, то не представляет труда отделить пересечение ячеек по общему инцидентному объекту от самопересечения.
 Since only faces that have common incident objects (a common incident vertex or a common incident edge) can be adjacent, and all incidence relations are written in the computational mesh, it is not difficult to separate the intersection of faces by a common incident object from self-intersection.
 
-\subsection{Поиск пар пересекающихся треугольников}
+\subsection{Search for pairs of intersecting triangles}
 
-В любом случае для идентификации всех фактов самопересечения сетки требуется проанализировать все пары ячеек и проверить пересечение ячеек в паре (то есть проверить пересечение каждой ячейки с каждой).
-Так как прямой перебор всех пар ячеек имеет квадратичную сложность по количеству ячеек в сетке, то его использование на крупных сетках невозможно.
-В этом случае целесообразно выполнять поиск пар пересекающихся ячеек с помощью представления множества ячеек в виде специальной древовидной структуры, связанной с ограничением геометрических объектов прямоугольными параллелепипедами в пространстве.
-Для начала определим понятие контейнера для произвольного множества точек $M$ в пространстве (будем обозначать его через $[M]$): $[M]$ -- это прямоугольный параллелепипед, являющийся декартовым произведением трех сегментов
+%В любом случае для идентификации всех фактов самопересечения сетки требуется проанализировать все пары ячеек и проверить пересечение ячеек в паре (то есть проверить пересечение каждой ячейки с каждой).
+In any case, to identify all facts of mesh self-intersection, it is required to analyze all pairs of faces and check the intersection of faces in the pair (that is, check the intersection of each face with each).
+%Так как прямой перебор всех пар ячеек имеет квадратичную сложность по количеству ячеек в сетке, то его использование на крупных сетках невозможно.
+Since direct enumeration of all pairs of faces has quadratic complexity in terms of the number of faces in the mesh, its use on large meshes is impossible.
+%В этом случае целесообразно выполнять поиск пар пересекающихся ячеек с помощью представления множества ячеек в виде специальной древовидной структуры, связанной с ограничением геометрических объектов прямоугольными параллелепипедами в пространстве.
+In this case, it is advisable to search for pairs of intersecting faces using the representation of a set of faces in the form of a special tree structure associated with the restriction of geometric objects by rectangular parallelepipeds in space.
+%Для начала определим понятие контейнера для произвольного множества точек $M$ в пространстве (будем обозначать его через $[M]$): $[M]$ -- это прямоугольный параллелепипед, являющийся декартовым произведением трех сегментов
+First, let's define the concept of a container for an arbitrary set of points $M$ in space (we will denote it by $[M]$): $[M]$ is a rectangular parallelepiped that is the Cartesian product of three segments
 
 \begin{equation}
 [M] = \left[\min_{P \in M}{P_x}, \max_{P \in M}{P_x}\right]
@@ -715,38 +719,62 @@ Since only faces that have common incident objects (a common incident vertex or 
       \times \left[\min_{P \in M}{P_z}, \max_{P \in M}{P_z}\right]
 \end{equation}
 
-Контейнер можно рассматривать для произвольного множества точек.
-Мы будем его использовать для ячейки расчетной сетки, а также для множества ячеек.
-Так как любой треугольник является выпуклой фигурой, то $[ABC] = [\{A, B, C\}]$, то есть для построения контейнера для треугольника достаточно рассмотреть только его вершины.
-При поиске пар пересекающихся ячеек будем использовать следующий факт: если два треугольника пересекаются, то пересекаются и их контейнеры: $ABC \cap A'B'C' \ne \emptyset \Rightarrow [ABC] \cap [A'B'C'] \ne \emptyset$.
-А значит если не пересекаются контейнеры двух треугольников, то не пересекаются и сами треугольники: $[ABC] \cap [A'B'C'] = \emptyset \Rightarrow ABC \cap A'B'C' = \emptyset$.
-В отличие от анализа пары треугольников на пересечение, проверка на пересечение двух прямоугольных параллелепипедов со сторонами, параллельными координатным осям, не представляет проблем.
-То есть па первом этапе будем искать такие пары ячеек, чьи контейнеры пересекаются (будем называть их потенциально пересекающимися ячейками).
+%Контейнер можно рассматривать для произвольного множества точек.
+The container can be considered for an arbitrary set of points.
+%Мы будем его использовать для ячейки расчетной сетки, а также для множества ячеек.
+We will use it for a face of the computational mesh, as well as for a set of faces.
+%Так как любой треугольник является выпуклой фигурой, то $[ABC] = [\{A, B, C\}]$, то есть для построения контейнера для треугольника достаточно рассмотреть только его вершины.
+Since any triangle is a convex figure, then $[ABC] = [\{A, B, C\}]$, that is, to construct a container for a triangle, it is enough to consider only its vertices.
+%При поиске пар пересекающихся ячеек будем использовать следующий факт: если два треугольника пересекаются, то пересекаются и их контейнеры: $ABC \cap A'B'C' \ne \emptyset \Rightarrow [ABC] \cap [A'B'C'] \ne \emptyset$.
+When searching for pairs of intersecting faces, we will use the following fact: if two triangles intersect, then their containers also intersect: $ABC \cap A'B'C' \ne \emptyset \Rightarrow [ABC] \cap [A'B'C'] \ne\emptyset$.
+%А значит если не пересекаются контейнеры двух треугольников, то не пересекаются и сами треугольники: $[ABC] \cap [A'B'C'] = \emptyset \Rightarrow ABC \cap A'B'C' = \emptyset$.
+This means that if the containers of two triangles do not intersect, then the triangles themselves do not intersect: $[ABC] \cap [A'B'C'] = \emptyset \Rightarrow ABC \cap A'B'C' = \emptyset$.
+%В отличие от анализа пары треугольников на пересечение, проверка на пересечение двух прямоугольных параллелепипедов со сторонами, параллельными координатным осям, не представляет проблем.
+Unlike the analysis of a pair of triangles for intersection, checking for the intersection of two rectangular boxes with sides parallel to the coordinate axes is not a problem.
+%То есть па первом этапе будем искать такие пары ячеек, чьи контейнеры пересекаются (будем называть их потенциально пересекающимися ячейками).
+That is, at the first stage, we will look for such pairs of faces whose containers intersect (we will call them potentially intersecting faces).
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/pic_box_size.pdf}
-\captionstyle{center}\caption{Схема построения дерева контейнеров.}\label{fig:pic_box}
+\captionstyle{center}\caption{Scheme for building a container tree.}\label{fig:pic_box}
 \end{figure}
 
-Для поиска потенциально пересекающихся ячеек построим дерево контейнеров всех ячеек сетки.
-Корнем данного дерева будет являться контейнер всех ячеек расчетной сетки.
-Рассмотрим процедуру разделения контейнера на два более мелких на примере двумерного случая, проиллюстрированного на Fig.~\ref{fig:pic_box}.
-Путь мы хотим разделить контейнер некоторого множества треугольников ($M$) по горизонтальной прямой на два множества: верхнее ($U$) и нижнее ($D$).
-Тогда в верхнее множество попадут все треугольники, лежащие выше прямой, либо пересекающие ее.
-Аналогично в нижнее множество попадут все треугольники, лежащие ниже прямой, либо пересекающие ее.
-После выделения верхнего и нижнего множества треугольников, для каждого из них строятся свои контейнеры, которые становятся дочерними контейнерами исходного.
-После этого получившиеся контейнеры можно делить дальше, используя произвольное направление разбиения ($X$, $Y$, $Z$).
-В частности на Fig.~\ref{fig:pic_box} продемонстрировано разбиение исходного контейнера по схеме $[M] \rightarrow \{[U], [D]\} \rightarrow \{\{[UL], [UR]\}, \{[DL], [DR]\}\}$.
-Следует заметить, что за одну операцию контейнер можно разбивать на произвольное количество дочерних контейнеров аналогичным образом.
-В качестве же направления разбиения контейнера целесообразно выбирать наиболее протяженное (вдоль которого длина контейнера имеет наибольшее значение).
+%Для поиска потенциально пересекающихся ячеек построим дерево контейнеров всех ячеек сетки.
+To search for potentially intersecting faces, we build a tree of containers for all mesh faces.
+%Корнем данного дерева будет являться контейнер всех ячеек расчетной сетки.
+The root of this tree will be the container of all faces of the computational mesh.
+%Рассмотрим процедуру разделения контейнера на два более мелких на примере двумерного случая, проиллюстрированного на Fig.~\ref{fig:pic_box}.
+Consider the procedure for dividing a container into two smaller ones using the two-dimensional case illustrated in Fig.~\ref{fig:pic_box} as an example.
+%Путь мы хотим разделить контейнер некоторого множества треугольников ($M$) по горизонтальной прямой на два множества: верхнее ($U$) и нижнее ($D$).
+We want to divide the container of some set of triangles ($M$) along a horizontal straight line into two sets: upper set ($U$ -- up) and lower set ($D$ -- down).
+%Тогда в верхнее множество попадут все треугольники, лежащие выше прямой, либо пересекающие ее.
+Then all triangles that lie above the line or intersect it will fall into the upper set.
+%Аналогично в нижнее множество попадут все треугольники, лежащие ниже прямой, либо пересекающие ее.
+Similarly, all triangles that lie below the line or intersect it will fall into the lower set.
+%После выделения верхнего и нижнего множества треугольников, для каждого из них строятся свои контейнеры, которые становятся дочерними контейнерами исходного.
+After selecting the upper and lower sets of triangles, for each of them their own containers are built, which become child containers of the original one.
+%После этого получившиеся контейнеры можно делить дальше, используя произвольное направление разбиения ($X$, $Y$, $Z$).
+After that, the resulting containers can be divided further using an arbitrary splitting direction ($X$, $Y$, $Z$).
+%В частности на Fig.~\ref{fig:pic_box} продемонстрировано разбиение исходного контейнера по схеме $[M] \rightarrow \{[U], [D]\} \rightarrow \{\{[UL], [UR]\}, \{[DL], [DR]\}\}$.
+In particular, Fig.~\ref{fig:pic_box} demonstrates the splitting of the original container according to the scheme $[M] \rightarrow \{[U], [D]\} \rightarrow \{\{[UL], [UR]\}, \{[DL], [DR]\}\}$.
+%Следует заметить, что за одну операцию контейнер можно разбивать на произвольное количество дочерних контейнеров аналогичным образом.
+It should be noted that in one operation, a container can be split into an arbitrary number of child containers in a similar way.
+%В качестве же направления разбиения контейнера целесообразно выбирать наиболее протяженное (вдоль которого длина контейнера имеет наибольшее значение).
+As the direction of splitting the container, it is advisable to choose the most extended one (along which the length of the container has the greatest value).
 
-Построенное дерево контейнеров позволяет существенно сократить количество проверяемых потенциальных пересечений треугольников \cite{Jung}, так как если $[M] \cap [M'] = \emptyset$, $[T]$ -- дочерний контейнер для $[M]$, а $[T']$ -- дочерний контейнер для $[M']$, то $[T] \cap [T'] = \emptyset$.
+%Построенное дерево контейнеров позволяет существенно сократить количество проверяемых потенциальных пересечений треугольников \cite{Jung}, так как если $[M] \cap [M'] = \emptyset$, $[T]$ -- дочерний контейнер для $[M]$, а $[T']$ -- дочерний контейнер для $[M']$, то $[T] \cap [T'] = \emptyset$.
+The constructed container tree makes it possible to significantly reduce the number of tested potential intersections of \cite{Jung} triangles, since if $[M] \cap [M'] = \emptyset$, $[T]$ is a child container for $[M]$ , and $[T']$ is a child container for $[M']$, then $[T] \cap [T'] = \emptyset$.
 
-После того, как найдены все пары потенциально пересекающихся треугольников, необходимо проверить, пересекаются ли они на самом деле.
-Так как треугольник является выпуклой фигурой, то пересечение двух треугольников также является выпуклой фигурой (это может быть любая плоская фигура с количеством вершин от 1 до 6).
-Вершинами пересечения двух треугольников являются точки пересечения сторон одного треугольника с другим треугольником и наоборот.
-Таким образом задача поиска пересечения двух треугольников сводится к поиску точек пересечения треугольника и отрезка.
-Данная задача может быть решена, с помощью представления треугольника $ABC$ в виде геометрического места точек $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, представления отрезка $QR$ в виде геометрического места точек $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ и поиска решения системы уравнений $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ относительно неизвестных $\beta$, $\gamma$, $\phi$ с учетом ограничений \cite{Freylekhman}.
+%После того, как найдены все пары потенциально пересекающихся треугольников, необходимо проверить, пересекаются ли они на самом деле.
+After all pairs of potentially intersecting triangles have been found, it is necessary to check whether they actually intersect.
+%Так как треугольник является выпуклой фигурой, то пересечение двух треугольников также является выпуклой фигурой (это может быть любая плоская фигура с количеством вершин от 1 до 6).
+Since a triangle is a convex figure, the intersection of two triangles is also a convex figure (it can be any flat figure with 1 to 6 vertices).
+%Вершинами пересечения двух треугольников являются точки пересечения сторон одного треугольника с другим треугольником и наоборот.
+The vertices of the intersection of two triangles are the points of intersection of the sides of one triangle with another triangle and vice versa.
+%Таким образом задача поиска пересечения двух треугольников сводится к поиску точек пересечения треугольника и отрезка.
+Thus, the task of finding the intersection of two triangles is reduced to finding the intersection points of a triangle and a segment.
+%Данная задача может быть решена, с помощью представления треугольника $ABC$ в виде геометрического места точек $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, представления отрезка $QR$ в виде геометрического места точек $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ и поиска решения системы уравнений $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ относительно неизвестных $\beta$, $\gamma$, $\phi$ с учетом ограничений \cite{Freylekhman}.
+This problem can be solved by representing triangle $ABC$ as a locus of points $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\ beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, representations of the segment $QR$ as the locus of points $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ and finding a solution to the system of equations $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ with respect to the unknowns $\beta$, $\gamma$, $\phi$ subject to \cite{Freylekhman} constraints.
 
 \subsection{Фиксация пересекающихся треугольников}
 
