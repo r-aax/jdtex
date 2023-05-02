@@ -776,106 +776,151 @@ Thus, the task of finding the intersection of two triangles is reduced to findin
 %Данная задача может быть решена, с помощью представления треугольника $ABC$ в виде геометрического места точек $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, представления отрезка $QR$ в виде геометрического места точек $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ и поиска решения системы уравнений $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ относительно неизвестных $\beta$, $\gamma$, $\phi$ с учетом ограничений \cite{Freylekhman}.
 This problem can be solved by representing triangle $ABC$ as a locus of points $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\ beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, representations of the segment $QR$ as the locus of points $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ and finding a solution to the system of equations $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ with respect to the unknowns $\beta$, $\gamma$, $\phi$ subject to \cite{Freylekhman} constraints.
 
-\subsection{Фиксация пересекающихся треугольников}
+\subsection{Fixing intersecting triangles}
 
-После того, как найдены все пары пересекающихся ячеек и области их пересечения, необходимо определить стратегию их устранения.
-Все ячейки расчетной сетки можно разделить на три категории.
-Первая категория -- ячейки, которые не пересекаются ни с какими другими ячейками, и которые должны стать частью итоговой поверхности (будем считать, что в любой момент времени у нас есть возможность указать произвольное количество таких ячеек).
-Будем такие ячейки называть статические.
-Вторая категория -- ячейки, которые не пересекаются ни с какими другими ячейками, но которые не должны стать частью итоговой поверхности (ячейки внутренних петель самопересечения поверхности, которые должны быть удалены).
-Такие ячейки будем называть скрытыми.
-Третья категория -- ячейки, которые пересекаются с какими-то другими ячейками. 
-Такие ячейки будем называть ячейками пересечения.
+%После того, как найдены все пары пересекающихся ячеек и области их пересечения, необходимо определить стратегию их устранения.
+After all pairs of intersecting faces and areas of their intersection are found, it is necessary to determine a strategy for their elimination.
+%Все ячейки расчетной сетки можно разделить на три категории.
+All faces of the computational mesh can be divided into three categories.
+%Первая категория -- ячейки, которые не пересекаются ни с какими другими ячейками, и которые должны стать частью итоговой поверхности (будем считать, что в любой момент времени у нас есть возможность указать произвольное количество таких ячеек).
+The first category is faces that do not intersect with any other faces, and which should become part of the final surface (we will assume that at any time we have the opportunity to specify an arbitrary number of such faces).
+%Будем такие ячейки называть статические.
+We will call such faces static.
+%Вторая категория -- ячейки, которые не пересекаются ни с какими другими ячейками, но которые не должны стать частью итоговой поверхности (ячейки внутренних петель самопересечения поверхности, которые должны быть удалены).
+The second category is faces that do not intersect with any other faces, but that should not become part of the final surface (faces of internal self-intersection loops of the surface that must be removed).
+%Такие ячейки будем называть скрытыми.
+We will call such faces hidden.
+%Третья категория -- ячейки, которые пересекаются с какими-то другими ячейками. 
+The third category is faces that intersect with some other faces.
+%Такие ячейки будем называть ячейками пересечения.
+Such faces will be called intersection faces.
 
 \begin{figure}[h]
   \centering
   \begin{minipage}[h]{0.32\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_zip_01.png}
-    \caption{Пересечение расчетных сеток для двух сфер.}\label{fig:pic_zip_01}
+    \caption{Intersection of computational meshes for two spheres.}\label{fig:pic_zip_01}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.32\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_zip_09.png}
-    \caption{Грубое удаление ячеек пересечения.}\label{fig:pic_zip_09}
+    \caption{Rough removal of intersection faces.}\label{fig:pic_zip_09}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.32\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_zip_15.png}
-    \caption{Удаление ячеек пересечения после дробления.}\label{fig:pic_zip_15}
+    \caption{Removing intersection faces after splitting.}\label{fig:pic_zip_15}
   \end{minipage}
 \end{figure}
 
-Одним из подходов к устранению самопересечений сетки является просто удаление всех ячеек пересечения.
-После выполнения этой операции сетка распадается на области статических и скрытых ячеек.
-При этом скрытые ячейки являются недостижимыми из статических при выполнении обхода ячеек расчетной сетки (если в процессе обхода соседними считаются только ячейки, смежные по ребру).
-После удаления из сетки скрытых ячеек расчетная сетка состоит только из статических ячеек, однако требуется добавление новых ячеек для восстановления целостности сетки \cite{Charton}.
-Такой подход к устранению самопересечений сетки может применяться для сравнительно простых поверхностей, но в общем случае он не гарантирует получение корректного результата.
-В качестве иллюстрации такого способа устранения пересечений на Fig.~\ref{fig:pic_zip_01}, Fig.~\ref{fig:pic_zip_09} приведен пример работы для устранения пересечений расчетных сеток двух сфер (новые ячейки, появляющиеся при восстановлении сетки отмечены зеленым цветом).
-На Fig.~\ref{fig:pic_zip_09} можно отметить, достаточно низкое качество результирующей сетки.
-Повысить качество можно с помощью дробления ячеек пересечения.
-То есть после поиска всех ячеек пересечения, их необходимо раздробить на более мелкие (как показано на Fig.~\ref{fig:pic_delaunay_2}), после чего повторить процедуру удаления ячеек пересечения и скрытых ячеек и выполнить восстановление сетки.
-Процесс дробления ячеек пересечения можно повторять многократно, при этом качество результирующей сетки будет повышаться, как это показано на Fig.~\ref{fig:pic_zip_15}.
+%Одним из подходов к устранению самопересечений сетки является просто удаление всех ячеек пересечения.
+One approach to eliminating mesh self-intersections is to simply remove all intersection faces.
+%После выполнения этой операции сетка распадается на области статических и скрытых ячеек.
+After performing this operation, the mesh is divided into areas of static and hidden faces.
+%При этом скрытые ячейки являются недостижимыми из статических при выполнении обхода ячеек расчетной сетки (если в процессе обхода соседними считаются только ячейки, смежные по ребру).
+In this case, the hidden faces are unreachable from the static ones when the faces of the computational mesh are bypassed (if only the faces adjacent along the edge are considered neighbors during the bypass).
+%После удаления из сетки скрытых ячеек расчетная сетка состоит только из статических ячеек, однако требуется добавление новых ячеек для восстановления целостности сетки \cite{Charton}.
+After the hidden faces are removed from the mesh, the computational mesh consists only of static faces, but new faces must be added to restore the integrity of the mesh \cite{Charton}.
+%Такой подход к устранению самопересечений сетки может применяться для сравнительно простых поверхностей, но в общем случае он не гарантирует получение корректного результата.
+This approach to eliminating mesh self-intersections can be used for relatively simple surfaces, but in general it does not guarantee a correct result.
+%В качестве иллюстрации такого способа устранения пересечений на Fig.~\ref{fig:pic_zip_01}, Fig.~\ref{fig:pic_zip_09} приведен пример работы для устранения пересечений расчетных сеток двух сфер (новые ячейки, появляющиеся при восстановлении сетки отмечены зеленым цветом).
+As an illustration of such a way to eliminate intersections, Fig.~\ref{fig:pic_zip_01}, Fig.~\ref{fig:pic_zip_09} shows an example of work to eliminate intersections of the computational meshes of two spheres (new faces that appear when the mesh is restored are marked in green).
+%На Fig.~\ref{fig:pic_zip_09} можно отметить, достаточно низкое качество результирующей сетки.
+In Fig.~\ref{fig:pic_zip_09} we can note the rather low quality of the resulting mesh.
+%Повысить качество можно с помощью дробления ячеек пересечения.
+It is possible to improve the quality by splitting the intersection faces.
+%То есть после поиска всех ячеек пересечения, их необходимо раздробить на более мелкие (как показано на Fig.~\ref{fig:pic_delaunay_2}), после чего повторить процедуру удаления ячеек пересечения и скрытых ячеек и выполнить восстановление сетки.
+That is, after searching for all intersection faces, they must be split into smaller ones (as shown in Fig.~\ref{fig:pic_delaunay_2}), then repeat the procedure for deleting intersection faces and hidden faces and restore the mesh.
+%Процесс дробления ячеек пересечения можно повторять многократно, при этом качество результирующей сетки будет повышаться, как это показано на Fig.~\ref{fig:pic_zip_15}.
+The process of splitting the intersection faces can be repeated many times, while the quality of the resulting mesh will increase, as shown in Fig.~\ref{fig:pic_zip_15}.
 
-При другом подходе устранения самопересечений никакие ячейки из сетки не удаляются, а дробятся на более мелкие по всем точкам пересечения \cite{Skvorkovska}.
-В качестве примера на Fig.~\ref{fig:pic_before_cut} показаны два треугольника, которые пересекаются по отрезку (две точки пересечения).
-После выполнения дробления получаем конструкцию, показанную на Fig.~\ref{fig:pic_after_cut}.
-В общем случае точек, по которым необходимо разбивать ячейку, может быть сколь угодно много, и дробление должно выполняться с помощью выполнения триангуляции по этим точкам, причем некоторые ребра триангуляции должны быть фиксированы.
+%При другом подходе устранения самопересечений никакие ячейки из сетки не удаляются, а дробятся на более мелкие по всем точкам пересечения \cite{Skvorkovska}.
+With another approach to eliminate self-intersections, no faces are removed from the mesh, but are split into smaller ones at all intersection points \cite{Skvorkovska}.
+%В качестве примера на Fig.~\ref{fig:pic_before_cut} показаны два треугольника, которые пересекаются по отрезку (две точки пересечения).
+As an example, Fig.~\ref{fig:pic_before_cut} shows two triangles that intersect along a segment (two points of intersection).
+%После выполнения дробления получаем конструкцию, показанную на Fig.~\ref{fig:pic_after_cut}.
+After crushing, we get the construction shown in Fig.~\ref{fig:pic_after_cut}.
+%В общем случае точек, по которым необходимо разбивать ячейку, может быть сколь угодно много, и дробление должно выполняться с помощью выполнения триангуляции по этим точкам, причем некоторые ребра триангуляции должны быть фиксированы.
+In the general case, there can be an arbitrarily large number of points at which it is necessary to split a face, and splitting should be performed by triangulating over these points, and some edges of the triangulation should be fixed.
 
 \begin{figure}[h]
   \centering
   \begin{minipage}[h]{0.4\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_before_cut.png}
-    \caption{Два пересекающихся треугольника до дробления.}\label{fig:pic_before_cut}
+    \caption{Two intersecting triangles before splitting.}\label{fig:pic_before_cut}
   \end{minipage}
   \begin{minipage}[h]{0.4\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_after_cut.png}
-    \caption{Ячейки после дробления по точкам пересечения.}\label{fig:pic_after_cut}
+    \caption{Faces after splitting by intersection points.}\label{fig:pic_after_cut}
   \end{minipage}
 \end{figure}
 
-После дробления ячеек по точкам пересечения, между ячейками сетки могут остаться только следующие виды отношений: две ячейки не имеют общих точек, две ячейки имеют одну общую вершину, две ячейки имеют одно общее ребро.
-При этом в сетке появляются ребра, имеющие более двух инцидентных ячеек.
-Если наложить на исходную сетку два дополнительных условия, которые могут быть достигнуты с помощью локальных преобразований сетки, то можно добиться достаточно простой структуры сетки (такие сетки будем называть простыми).
-Первым условием будем считать отсутствие в сетке совпадающих вершин.
-Вторым условием будем считать то, что никакой узел сетки не находится ни в какой другой ячейке.
-При выполнении этих двух дополнительных условий можно утверждать, что если ребро имеет более двух инцидентных ячеек, то это количество в точности равно 4, причем эти 4 инцидетные ячейки попарно находятся в одной плоскости.
+%После дробления ячеек по точкам пересечения, между ячейками сетки могут остаться только следующие виды отношений: две ячейки не имеют общих точек, две ячейки имеют одну общую вершину, две ячейки имеют одно общее ребро.
+After splitting the faces by intersection points, only the following types of relations can remain between the faces of the mesh: two faces do not have common points, two faces have one common vertex, two faces have one common edge.
+%При этом в сетке появляются ребра, имеющие более двух инцидентных ячеек.
+In this case, edges appear in the mesh that have more than two incident faces.
+%Если наложить на исходную сетку два дополнительных условия, которые могут быть достигнуты с помощью локальных преобразований сетки, то можно добиться достаточно простой структуры сетки (такие сетки будем называть простыми).
+If we impose two additional conditions on the original mesh, which can be achieved using local mesh transformations, then we can achieve a fairly simple mesh structure (we will call such meshes simple).
+%Первым условием будем считать отсутствие в сетке совпадающих вершин.
+The first condition is the absence of matching vertices in the mesh.
+%Вторым условием будем считать то, что никакой узел сетки не находится ни в какой другой ячейке.
+The second condition is that no mesh node is located in any other face.
+%При выполнении этих двух дополнительных условий можно утверждать, что если ребро имеет более двух инцидентных ячеек, то это количество в точности равно 4, причем эти 4 инцидетные ячейки попарно находятся в одной плоскости.
+If these two additional conditions are satisfied, we can state that if an edge has more than two incident faces, then this number is exactly 4, and these 4 incident faces are pairwise in the same plane.
 
 \begin{figure}[h]
 \includegraphics[width=1.0\textwidth]{pics/pic_walk_1_size.pdf}
-\captionstyle{center}\caption{Схема обхода результирующей поверхности.}\label{fig:pic_walk}
+\captionstyle{center}\caption{Scheme for bypassing the resulting surface.}\label{fig:pic_walk}
 \end{figure}
 
-Для получения результирующей поверхности необходимо избавиться от лишних ячеек, чтобы у каждого ребра вновь осталось ровно по 2 инцидентные ячейки.
-Для этого нужно выполнить обход сетки, начиная с любой статической ячейки, считая соседними две ячейки, имеющие общее инцидентное ребро (помечаемые в процессе обхода ячейки попадут в результирующую сетку).
-При движении от некоторой ячейки через ребро, имеющее более двух инцидентных ячеек, возникает вопрос выбора ячейки, которая должна войти в результирующую сетку (при этом все остальные ячейки должны быть удалены).
+%Для получения результирующей поверхности необходимо избавиться от лишних ячеек, чтобы у каждого ребра вновь осталось ровно по 2 инцидентные ячейки.
+To obtain the resulting surface, it is necessary to get rid of extra faces so that each edge again has exactly 2 incident faces.
+%Для этого нужно выполнить обход сетки, начиная с любой статической ячейки, считая соседними две ячейки, имеющие общее инцидентное ребро (помечаемые в процессе обхода ячейки попадут в результирующую сетку).
+To do this, it is necessary to traverse the mesh, starting from any static face, considering two faces adjacent that have a common incident edge (the faces marked during the traversal will fall into the resulting mesh).
+%При движении от некоторой ячейки через ребро, имеющее более двух инцидентных ячеек, возникает вопрос выбора ячейки, которая должна войти в результирующую сетку (при этом все остальные ячейки должны быть удалены).
+When moving from a certain face through an edge that has more than two incident faces, the question arises of choosing a face that should enter the resulting mesh (while all other faces should be deleted).
 
-Рассмотрим процедуру выбора следующей ячейки обхода сетки для ребер, имеющих количество инцидентных ячеек, больше двух (Fig.~\ref{fig:pic_walk}, в центре).
-На данном рисунке обозначено направление обхода слева направо, вслед за ячейкой, инцидентной вершине $A$, в результирующую сетку должна войти ячейка, инцидентная вершине $B$.
-Рассмотрим эту процедуру для простых сеток, а также для сеток в общем виде.
-Для простоты будем рассматривать задачу в проекции на плоскость, перпендикулярную ребру.
+%Рассмотрим процедуру выбора следующей ячейки обхода сетки для ребер, имеющих количество инцидентных ячеек, больше двух (Fig.~\ref{fig:pic_walk}, в центре).
+Consider the procedure for selecting the next mesh walk face for edges with more than two incident faces (Fig.~\ref{fig:pic_walk}, center).
+%На данном рисунке обозначено направление обхода слева направо, вслед за ячейкой, инцидентной вершине $A$, в результирующую сетку должна войти ячейка, инцидентная вершине $B$.
+In this figure, the direction of traversal is indicated from left to right, after the face incident with the vertex $A$, the face incident with the vertex $B$ should enter the resulting mesh.
+%Рассмотрим эту процедуру для простых сеток, а также для сеток в общем виде.
+Consider this procedure for simple meshes, as well as for meshes in general.
+%Для простоты будем рассматривать задачу в проекции на плоскость, перпендикулярную ребру.
+For simplicity, we will consider the problem in projection onto a plane perpendicular to the edge.
 
-Для начала будем считать, что имеет место случай простой сетки (Fig.~\ref{fig:pic_walk}, слева).
-Пусть уже известно, что ячейка, инцидентная вершине $A$, помечена, а ее внешняя нормаль равна $\vec{n}_A$.
-Из оставшихся трех ячеек (инцидентных вершинам $B$, $C$, $D$ соответственно) необходимо выбрать только одну для продолжения обхода сетки, а остальные удалить.
-Так как сетка у нас простая, то $\angle AOC = \angle BOD = 2 \pi$, а значит $(\vec{n}_A, \vec{OB}) > 0$, $(\vec{n}_A, \vec{OC}) = 0$, $(\vec{n}_A, \vec{OD}) < 0$.
-Таким образом, из всех ячеек, необходимо выбрать ту, для которой значение $(\vec{n}_A, \vec{OP})$ максимально.
+%Для начала будем считать, что имеет место случай простой сетки (Fig.~\ref{fig:pic_walk}, слева).
+To begin with, we will assume that the case of a simple mesh takes place (Fig.~\ref{fig:pic_walk}, left).
+%Пусть уже известно, что ячейка, инцидентная вершине $A$, помечена, а ее внешняя нормаль равна $\vec{n}_A$.
+Let it be already known that the face incident to the vertex $A$ is labeled and its outward normal equals $\vec{n}_A$.
+%Из оставшихся трех ячеек (инцидентных вершинам $B$, $C$, $D$ соответственно) необходимо выбрать только одну для продолжения обхода сетки, а остальные удалить.
+Of the remaining three faces (incidental to the vertices $B$, $C$, $D$, respectively), it is necessary to choose only one to continue traversing the mesh, and delete the rest.
+%Так как сетка у нас простая, то $\angle AOC = \angle BOD = 2 \pi$, а значит $(\vec{n}_A, \vec{OB}) > 0$, $(\vec{n}_A, \vec{OC}) = 0$, $(\vec{n}_A, \vec{OD}) < 0$.
+Since we have a simple mesh, then $\angle AOC = \angle BOD = 2 \pi$, which means $(\vec{n}_A, \vec{OB}) > 0$, $(\vec{n} _A, \vec{OC}) = 0$, $(\vec{n}_A, \vec{OD}) < 0$.
+%Таким образом, из всех ячеек, необходимо выбрать ту, для которой значение $(\vec{n}_A, \vec{OP})$ максимально.
+Thus, from all faces, it is necessary to choose the one for which the value of $(\vec{n}_A, \vec{OP})$ is maximum.
 
-Теперь рассмотрим расчетную сетку в общем виде.
-В этом случае количество ячеек, инцидентных рассматриваемому ребру, может быть произвольным, больше двух, а про значение функции $(\vec{n}_A, \vec{OP})$ сказать ничего нельзя.
-Для выбора следующей ячейки для обхода сетки будем поворачивать текущую ячейку вокруг рассматриваемого ребра в направлении $\vec{n}_A$ до совпадения с первой ячейкой (Fig.~\ref{fig:pic_walk}, справа).
-Первая ячейка и должна быть выбрана в качестве следующей для продолжения обхода.
-Если через $\phi(A \rightarrow P)$  обозначить угол поворота исходной ячейки в направлении $\vec{n}_A$ до ячеки, инцидентной вершине $P$, то в качестве следующей ячейки для обхода необходимо выбрать ту, для которой $\phi(A \rightarrow B)$ будет минимально.
+%Теперь рассмотрим расчетную сетку в общем виде.
+Now consider the computational mesh in general case.
+%В этом случае количество ячеек, инцидентных рассматриваемому ребру, может быть произвольным, больше двух, а про значение функции $(\vec{n}_A, \vec{OP})$ сказать ничего нельзя.
+In this case, the number of faces incident to the considered edge can be arbitrary, more than two, and nothing can be said about the value of the function $(\vec{n}_A, \vec{OP})$.
+%Для выбора следующей ячейки для обхода сетки будем поворачивать текущую ячейку вокруг рассматриваемого ребра в направлении $\vec{n}_A$ до совпадения с первой ячейкой (Fig.~\ref{fig:pic_walk}, справа).
+To select the next face to bypass the mesh, we will rotate the current face around the considered edge in the direction of $\vec{n}_A$ until it coincides with the first face (Fig.~\ref{fig:pic_walk}, on the right).
+%Первая ячейка и должна быть выбрана в качестве следующей для продолжения обхода.
+The first face must be selected as the next one to continue the mesh traverse.
+%Если через $\phi(A \rightarrow P)$  обозначить угол поворота исходной ячейки в направлении $\vec{n}_A$ до ячеки, инцидентной вершине $P$, то в качестве следующей ячейки для обхода необходимо выбрать ту, для которой $\phi(A \rightarrow B)$ будет минимально.
+If we denote by $\phi(A \rightarrow P)$ the angle of rotation of the original face in the direction $\vec{n}_A$ to the face incident with the vertex $P$, then as the next face to be traversed, one must choose the one for which $ \phi(A \rightarrow B)$ will be minimal.
 
 \begin{figure}[h]
   \centering
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_self_intersection_on.png}
-    \caption{Поверхность до удаления самопересечения.}\label{fig:pic_self_intersection_on}
+    \caption{The surface before removing the self-intersection.}\label{fig:pic_self_intersection_on}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_self_intersection_off.png}
-    \caption{Поверхность после удаления самопересечения.}\label{fig:pic_self_intersection_off}
+    \caption{The surface after removing the self-intersection.}\label{fig:pic_self_intersection_off}
   \end{minipage}
 \end{figure}
 
@@ -883,28 +928,32 @@ This problem can be solved by representing triangle $ABC$ as a locus of points $
   \centering
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_self_intersection_on_2.png}
-    \caption{Поверхность до удаления самопересечения.}\label{fig:pic_self_intersection_on_2}
+    \caption{The surface before removing the self-intersection.}\label{fig:pic_self_intersection_on_2}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_self_intersection_off_2.png}
-    \caption{Поверхность после удаления самопересечения.}\label{fig:pic_self_intersection_off_2}
+    \caption{The surface after removing the self-intersection.}\label{fig:pic_self_intersection_off_2}
   \end{minipage}
 \end{figure}
 
-Объединяя вместе оба рассмотренных случая, получаем критерий выбора следующей для обхода ячейки: должна быть выбрана ячейка, для которой значение показателя $f(P)$ максимально, где
+%Объединяя вместе оба рассмотренных случая, получаем критерий выбора следующей для обхода ячейки: должна быть выбрана ячейка, для которой значение показателя $f(P)$ максимально, где
+Combining both considered cases together, we obtain a criterion for choosing the next face to bypass: a face must be chosen for which the value of the function $f(P)$ is maximum, where
 
 \begin{equation}
 f(P) = 
 \begin{cases}
-(\vec{n}_A, \vec{OP}), \text{для простых сеток}, \\
--\phi(A \rightarrow P), \text{для сеток общего вида}
+(\vec{n}_A, \vec{OP}), \text{for simple meshes}, \\
+-\phi(A \rightarrow P), \text{for general case meshes}
 \end{cases}
 \end{equation}
 
-После завершения обхода расчетной сетки все помеченные ячейки считаются ячейками целевой поверхности, а все остальные ячейки должны быть удалены.
-На рисунках Fig.~\ref{fig:pic_self_intersection_on} -- Fig.~\ref{fig:pic_self_intersection_off_2} проиллюстрированы примеры устранения самопересечений сетки в виде скрытых петель.
-После удаления скрытых ячеек целевая расчетная сетка снова становится корректной, удовлетворяет соотношениям (\ref{eq_arch}) и может быть использована для дальнейшего моделирования ледообразования.
+%После завершения обхода расчетной сетки все помеченные ячейки считаются ячейками целевой поверхности, а все остальные ячейки должны быть удалены.
+After completion of the computational mesh bypass, all marked faces are considered to be faces of the target surface, and all other faces must be deleted.
+%На рисунках Fig.~\ref{fig:pic_self_intersection_on} -- Fig.~\ref{fig:pic_self_intersection_off_2} проиллюстрированы примеры устранения самопересечений сетки в виде скрытых петель.
+Figures Fig.~\ref{fig:pic_self_intersection_on} -- Fig.~\ref{fig:pic_self_intersection_off_2} illustrate examples of eliminating mesh self-intersections in the form of hidden loops.
+%После удаления скрытых ячеек целевая расчетная сетка снова становится корректной, удовлетворяет соотношениям (\ref{eq_arch}) и может быть использована для дальнейшего моделирования ледообразования.
+After removing the hidden faces, the target computational mesh again becomes correct, satisfies the relations (\ref{eq_arch}) and can be used for further ice formation modeling.
 
 %---------------------------------------------------------------------------------------------------
 
