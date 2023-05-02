@@ -186,53 +186,74 @@ Next, we consider individual methods for rebuilding surfaces in more detail.
 
 \subsection{Classical remeshing methods}
 
-Простейшие классические методы перестроения выполняются в предположении, что направление смещения узла совпадает с нормалью, проведенной из этого узла.
-Таким образом, необходимо лишь определить величину смещения.
-Отметим, что в двумерной постановке можно найти оптимальное решение (обеспечивающее минимальное отклонение по объему от целевого значения) поставленной задачи \cite{Rybakov_2D}.
+%Простейшие классические методы перестроения выполняются в предположении, что направление смещения узла совпадает с нормалью, проведенной из этого узла.
+The simplest classical rebuilding methods are performed under the assumption that the direction of displacement of a node coincides with the normal drawn from this node.
+%Таким образом, необходимо лишь определить величину смещения.
+Thus, it is only necessary to determine the magnitude of the offset.
+%Отметим, что в двумерной постановке можно найти оптимальное решение (обеспечивающее минимальное отклонение по объему от целевого значения) поставленной задачи \cite{Rybakov_2D}.
+Note that in the two-dimensional formulation, we can find the optimal solution (providing the minimum deviation in volume from the target value) of the problem posed \cite{Rybakov_2D}.
 
 \begin{figure}[h]
   \centering
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_classical_methods_rectangles_size.pdf}
-    \caption{Перестроение поверхности с помощью метода прямоугольников в 2D.}\label{fig:pic_classical_methods_rectangles}
+    \caption{Rebuilding the surface using the method of rectangles in 2D.}\label{fig:pic_classical_methods_rectangles}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_classical_methods_trapezoids_size.pdf}
-    \caption{Перестроение поверхности с помощью метода трапеций в 2D.}\label{fig:pic_classical_methods_trapezoids}
+    \caption{Surface rebuilding using the trapezoids method in 2D.}\label{fig:pic_classical_methods_trapezoids}
   \end{minipage}
 \end{figure}
 
-В качестве первого метода рассмотрим метод призм (в двумерной постановке аналогом данного метода является метод прямоугольников, продемонстрированный на Fig.~\ref{fig:pic_classical_methods_rectangles}).
-В этом методе входными данными является объем накопленного льда в каждой ячейке сетки ($V(f)$).
-На первым шаге в каждой ячейке ищется толщина ледяного покрова в предположении, что лед в пределах одной ячейки имеет форму призмы, и ячейка является основанием этой призмы.
-Тогда толщина ледяного покрова равняется $h(f) = \frac{V(f)}{S(f)}$, где $S(f)$ -- площадь ячейки.
-После чего величина смещения каждого узла вычисляется просто как среднее арифметическое высот ледяного покрова во всех инцидентных ячейках:
+%В качестве первого метода рассмотрим метод призм (в двумерной постановке аналогом данного метода является метод прямоугольников, продемонстрированный на Fig.~\ref{fig:pic_classical_methods_rectangles}).
+As the first method, let's consider the prisms method (in the two-dimensional setting, this method is analogous to the method of rectangles, shown in Fig.~\ref{fig:pic_classical_methods_rectangles}).
+%В этом методе входными данными является объем накопленного льда в каждой ячейке сетки ($V(f)$).
+In this method, the input data is the amount of accumulated ice in each mesh face ($V(f)$).
+%На первым шаге в каждой ячейке ищется толщина ледяного покрова в предположении, что лед в пределах одной ячейки имеет форму призмы, и ячейка является основанием этой призмы.
+At the first step, the thickness of the ice cover is searched for in each face, assuming that the ice within one cell has the shape of a prism, and the face is the base of this prism.
+%Тогда толщина ледяного покрова равняется $h(f) = \frac{V(f)}{S(f)}$, где $S(f)$ -- площадь ячейки.
+Then the thickness of the ice cover is equal to $h(f) = \frac{V(f)}{S(f)}$, where $S(f)$ is the face area.
+%После чего величина смещения каждого узла вычисляется просто как среднее арифметическое высот ледяного покрова во всех инцидентных ячейках:
+After that, the displacement value of each node is calculated simply as the arithmetic average of the ice cover heights in all incident faces:
 
 \begin{equation}
 h(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{h(f)}
 \end{equation}
 
-Второй метод можно назвать методом пирамид (в двумерной постановке аналогом данного метод является метод трапеций, показанный на Fig.~\ref{fig:pic_classical_methods_trapezoids}).
-Входными данными также является объем накопленного льда в каждой ячейке сетки ($V(f)$).
-Однако в отличие от предыдущего метода объем накопленного в ячейке льда представляется не призмой, а усеченной пирамидой, основанием которой является ячейка, а боковые ребра направлены вдоль нормалей узлов.
-Высота этой усеченной пирамиды ищется из соотношения $V(f) = \frac{1}{3} h (2S + hS'_h + \sqrt{S(S + hS'_h)})$, где величина $S'_h$ определяется направлениями нормалей узлов ячейки.
-Тогда как узлы ячейки являются точками первого основания построенной пирамиды, точки второго основания представляют собой новые положения узлов, вычисленных относительно рассматриваемой ячейки.
-Таким образом, у каждого узла сетки вычисляется несколько новых положений (каждое из которых вычислено относительно своей инцидентной ячейки).
-Для двумерного случая получается ровно два таких новых положения (так как в двумерном случае каждый узел имеет ровно две инцидентные ячейки), для трехмерного случае таких точек более двух.
-Для выбора единственного нового положения узла сетки берется среднее значение из всех положений, вычисленных относительно инцидентных ячеек.
+%Второй метод можно назвать методом пирамид (в двумерной постановке аналогом данного метод является метод трапеций, показанный на Fig.~\ref{fig:pic_classical_methods_trapezoids}).
+The second method can be called the pyramids method (in a two-dimensional setting, this method is analogous to the trapezoids method shown in Fig.~\ref{fig:pic_classical_methods_trapezoids}).
+%Входными данными также является объем накопленного льда в каждой ячейке сетки ($V(f)$).
+The input data is also the volume of accumulated ice in each mesh face ($V(f)$).
+%Однако в отличие от предыдущего метода объем накопленного в ячейке льда представляется не призмой, а усеченной пирамидой, основанием которой является ячейка, а боковые ребра направлены вдоль нормалей узлов.
+However, unlike the previous method, the volume of ice accumulated in the face is represented not by a prism, but by a truncated pyramid, the base of which is the face, and the side edges are directed along the normals of the nodes.
+%Высота этой усеченной пирамиды ищется из соотношения $V(f) = \frac{1}{3} h (2S + hS'_h + \sqrt{S(S + hS'_h)})$, где величина $S'_h$ определяется направлениями нормалей узлов ячейки.
+The height of this truncated pyramid is found from the relation $V(f) = \frac{1}{3} h (2S + hS'_h + \sqrt{S(S + hS'_h)})$, where $S'_h$ is determined by the directions of the normals of the nodes of the face.
+%Тогда как узлы ячейки являются точками первого основания построенной пирамиды, точки второго основания представляют собой новые положения узлов, вычисленных относительно рассматриваемой ячейки.
+While the nodes of the face are the points of the first base of the constructed pyramid, the points of the second base are the new positions of the nodes computed relative to the face in question.
+%Таким образом, у каждого узла сетки вычисляется несколько новых положений (каждое из которых вычислено относительно своей инцидентной ячейки).
+Thus, for each mesh node, several new positions are calculated (each of which is calculated relative to its incident cell).
+%Для двумерного случая получается ровно два таких новых положения (так как в двумерном случае каждый узел имеет ровно две инцидентные ячейки), для трехмерного случае таких точек более двух.
+For the two-dimensional case, exactly two such new positions are obtained (since in the two-dimensional case each node has exactly two incident faces), for the three-dimensional case there are more than two such points.
+%Для выбора единственного нового положения узла сетки берется среднее значение из всех положений, вычисленных относительно инцидентных ячеек.
+To select a single new mesh node position, the average of all positions computed with respect to the incident faces is taken.
 
-Из рассмотренных двух методов интуитивно создается впечатление, что метод пирамид должен быть более точным, так как он учитывает потери и избыток объема льда, образующиеся из-за изломов сетки (так как соседние ячейки не лежат в одной плоскости, то представление льда в ячейках в виде призм неизбежно приводит к образованию пробелов или наложений частей льда в виде призм друг на друга).
-Но по крайней мере в двумерном случае это предположение оказывается неверным, так как метод прямоугольников демонстрирует меньшее отклонение от точного решения по сравнению с методом трапеций \cite{Rybakov_2D}.
+%Из рассмотренных двух методов интуитивно создается впечатление, что метод пирамид должен быть более точным, так как он учитывает потери и избыток объема льда, образующиеся из-за изломов сетки (так как соседние ячейки не лежат в одной плоскости, то представление льда в ячейках в виде призм неизбежно приводит к образованию пробелов или наложений частей льда в виде призм друг на друга).
+From the two methods considered, it intuitively gives the impression that the pyramids method should be more accurate, since it takes into account the loss and excess volume of ice formed due to mesh sharp fractures (since neighboring faces do not lie in the same plane, the representation of ice in faces in the form prisms inevitably leads to the formation of gaps or overlapping of ice parts in the form of prisms on top of each other).
+%Но по крайней мере в двумерном случае это предположение оказывается неверным, так как метод прямоугольников демонстрирует меньшее отклонение от точного решения по сравнению с методом трапеций \cite{Rybakov_2D}.
+But at least in the two-dimensional case, this assumption turns out to be wrong, since the method of rectangles shows a smaller deviation from the exact solution compared to the trapezoids method \cite{Rybakov_2D}.
 
 \begin{figure}[h]
 \includegraphics[width=0.48\textwidth]{pics/pic_classical_methods_multilayer_size.pdf}
-\captionstyle{center}\caption{Многослойное перестроение сетки.}\label{fig:pic_classical_methods_multilayer}
+\captionstyle{center}\caption{Multilayer mesh rebuilding.}\label{fig:pic_classical_methods_multilayer}
 \end{figure}
 
-Вне зависимости от используемого метода перестроения значительно повысить точность можно с помощью многослойного подхода \cite{BourgaultCote}.
-В этом случае вместо однократного перестроения сетки по объему накопленного льда в каждой ячейке ($V(f)$), выбирается фиксированное количество шагов перестроения $k$, а дальше процедура выполняется $k$ раз подряд, но с использованием объема накопленного в ячейке льда $\frac{V(f)}{k}$.
-Точность повышается из-за того, что после каждого шага перестроения нормали в узлах сетки меняют свое направление, и общий объем наращиваемого льда становится более криволинейным, лучше учитывает геометрию сетки и, как следствие, точнее соответствует исходному значению $V(f)$ (см. Fig.~\ref{fig:pic_classical_methods_multilayer}).
+%Вне зависимости от используемого метода перестроения значительно повысить точность можно с помощью многослойного подхода \cite{BourgaultCote}.
+Regardless of the rebuilding method used, a significant increase in accuracy can be achieved using a layered \cite{BourgaultCote} approach.
+%В этом случае вместо однократного перестроения сетки по объему накопленного льда в каждой ячейке ($V(f)$), выбирается фиксированное количество шагов перестроения $k$, а дальше процедура выполняется $k$ раз подряд, но с использованием объема накопленного в ячейке льда $\frac{V(f)}{k}$.
+In this case, instead of a single rebuilding of the mesh by the volume of accumulated ice in each face ($V(f)$), a fixed number of rebuilding steps $k$ is chosen, and then the procedure is performed $k$ times in a row, but using the volume of ice accumulated in the face $\frac{V(f)}{k}$.
+%Точность повышается из-за того, что после каждого шага перестроения нормали в узлах сетки меняют свое направление, и общий объем наращиваемого льда становится более криволинейным, лучше учитывает геометрию сетки и, как следствие, точнее соответствует исходному значению $V(f)$ (см. Fig.~\ref{fig:pic_classical_methods_multilayer}).
+The accuracy increases due to the fact that after each rebuilding step, the normals at the mesh nodes change their direction, and the total volume of the growing ice becomes more curvilinear, takes into account the mesh geometry better, and, as a result, more accurately corresponds to the initial value of $V(f)$ (Fig.~\ref{fig:pic_classical_methods_multilayer}).
 
 \subsection{Перестроение сохранением объема}
 
