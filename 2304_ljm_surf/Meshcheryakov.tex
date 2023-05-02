@@ -107,7 +107,7 @@ Among commercial products, the IceVision package has been actively developed in 
 %Моделирование процесса ледяного покрова осуществляется, как правило, на поверхностной расчетной сетке и состоит из двух основных частей.
 Modeling of the ice cover process is carried out, as a rule, on a surface computational mesh and consists of two main parts.
 %Первой частью является вычисление интенсивности нарастания льда в отдельных элементах сетки (это может быть вычисление массы скопившегося льда в каждой ячейке расчетной сетки за единицу времени, либо скорость образования ледяного покрова в узлах сетки, либо другие аналогичные характеристики).
-The first part is the calculation of the intensity of ice growth in individual mesh elements (this can be the calculation of the mass of accumulated ice in each face of the computational mesh per unit of time, or the rate of ice cover formation at the grid nodes, or other similar characteristics).
+The first part is the calculation of the intensity of ice growth in individual mesh elements (this can be the calculation of the mass of accumulated ice in each face of the computational mesh per unit of time, or the rate of ice cover formation at the mesh nodes, or other similar characteristics).
 %Для выполнения вычисления интенсивности нарастания льда в элементах расчетной сетки существует множество моделей ледообразования \cite{Bartkus,Zhang,Pena}, учитывающих разные состояния льда, динамику водяной пленки, тепловые потоки и другие факторы.
 To calculate the intensity of ice growth in the elements of the computational mesh, there are many models of ice formation \cite{Bartkus,Zhang,Pena} that take into account different states of ice, water film dynamics, heat fluxes, and other factors.
 %Модели ледообразования не рассматриваются в рамках данной работы.
@@ -128,7 +128,7 @@ The elements of the computational mesh are nodes ($N$), edges ($e$), and faces (
 %Для удобства каждый элемент сетки связан со всеми своими инцидентными элементами: так связаны между собой инцидентные узлы и ребра, узлы и ячейки, ребра и ячейки.
 For convenience, each mesh element is associated (linked) with all its incident elements: nodes are linked with incident edges, nodes are linked with incident faces, edges are linked with incident faces.
 %Множество инцидентных узлов будем обозначать $\mathscr{N}$, множество инцидентных ребер будем обозначать $\mathscr{E}$, а множество инцидентных ячеек будем обозначать $\mathscr{F}$.
-The set of incident nodes will be denoted by $\mathscr{N}$, the set of incident edges will be denoted by $\mathscr{E}$, and the set of incident cells will be denoted by $\mathscr{F}$.
+The set of incident nodes will be denoted by $\mathscr{N}$, the set of incident edges will be denoted by $\mathscr{E}$, and the set of incident faces will be denoted by $\mathscr{F}$.
 
 \begin{figure}[h]
 \includegraphics[width=0.48\textwidth]{pics/pic_architecture_size.pdf}
@@ -211,7 +211,7 @@ As the first method, let's consider the prisms method (in the two-dimensional se
 %В этом методе входными данными является объем накопленного льда в каждой ячейке сетки ($V(f)$).
 In this method, the input data is the amount of accumulated ice in each mesh face ($V(f)$).
 %На первым шаге в каждой ячейке ищется толщина ледяного покрова в предположении, что лед в пределах одной ячейки имеет форму призмы, и ячейка является основанием этой призмы.
-At the first step, the thickness of the ice cover is searched for in each face, assuming that the ice within one cell has the shape of a prism, and the face is the base of this prism.
+At the first step, the thickness of the ice cover is searched for in each face, assuming that the ice within one face has the shape of a prism, and the face is the base of this prism.
 %Тогда толщина ледяного покрова равняется $h(f) = \frac{V(f)}{S(f)}$, где $S(f)$ -- площадь ячейки.
 Then the thickness of the ice cover is equal to $h(f) = \frac{V(f)}{S(f)}$, where $S(f)$ is the face area.
 %После чего величина смещения каждого узла вычисляется просто как среднее арифметическое высот ледяного покрова во всех инцидентных ячейках:
@@ -232,7 +232,7 @@ The height of this truncated pyramid is found from the relation $V(f) = \frac{1}
 %Тогда как узлы ячейки являются точками первого основания построенной пирамиды, точки второго основания представляют собой новые положения узлов, вычисленных относительно рассматриваемой ячейки.
 While the nodes of the face are the points of the first base of the constructed pyramid, the points of the second base are the new positions of the nodes computed relative to the face in question.
 %Таким образом, у каждого узла сетки вычисляется несколько новых положений (каждое из которых вычислено относительно своей инцидентной ячейки).
-Thus, for each mesh node, several new positions are calculated (each of which is calculated relative to its incident cell).
+Thus, for each mesh node, several new positions are calculated (each of which is calculated relative to its incident face).
 %Для двумерного случая получается ровно два таких новых положения (так как в двумерном случае каждый узел имеет ровно две инцидентные ячейки), для трехмерного случае таких точек более двух.
 For the two-dimensional case, exactly two such new positions are obtained (since in the two-dimensional case each node has exactly two incident faces), for the three-dimensional case there are more than two such points.
 %Для выбора единственного нового положения узла сетки берется среднее значение из всех положений, вычисленных относительно инцидентных ячеек.
@@ -376,7 +376,7 @@ Further, we will assume that the calculation of new positions of the nodes is pe
 Since the elements of the computational mesh are triangles, it is necessary to determine the radius of advance of the ice front for each internal point of the triangle according to its vertices.
 
 %Рассмотрим ячейку расчетной сетки, вершинами которой являются точки $\vec{A}$, $\vec{B}$, $\vec{C}$.
-Consider a computational mesh cell whose vertices are the points $\vec{A}$, $\vec{B}$, $\vec{C}$.
+Consider a computational mesh face whose vertices are the points $\vec{A}$, $\vec{B}$, $\vec{C}$.
 %Точки треугольника представляют собой геометрическое место точек, описываемое следующим образом:
 The points of a triangle are the locus of points described as follows:
 
@@ -394,7 +394,7 @@ Let us define for each point of the triangle $\vec{P}(\beta, \gamma)$ the radius
 %Фронт продвижения льда от точки $\vec{P}(\beta, \gamma)$ представляет собой сферу $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta, \gamma))$.
 The front of ice advance from the point $\vec{P}(\beta, \gamma)$ is a sphere $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta,\gamma))$.
 %Фронтом продвижения льда всей треугольной ячейки будем считать общую огибающую сфер, построенных на всех точках этой ячейки, что показано на Fig.~\ref{fig:pic_general_envelope_size}.
-The ice advance front of the entire triangular cell is the common envelope of the spheres built on all points of this cell, which is shown in Fig.~\ref{fig:pic_general_envelope_size}.
+The ice advance front of the entire triangular face is the common envelope of the spheres built on all points of this face, which is shown in Fig.~\ref{fig:pic_general_envelope_size}.
 
 \begin{figure}
   \centering
@@ -412,7 +412,7 @@ The ice advance front of the entire triangular cell is the common envelope of th
 %При изменении положения узлов расчетной сетки (точки $\vec{A}$, $\vec{B}$, $\vec{C}$) будем исходить из предположения, что после перемещения узлы будут находиться на общей огибающей поверхности множества сфер $S(\beta, \gamma)$ (новые положения узлов -- точки $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
 When changing the position of the nodes of the computational mesh (points $\vec{A}$, $\vec{B}$, $\vec{C}$), we will proceed from the assumption that after moving the nodes will be on the common envelope surface of the set of spheres $ S(\beta, \gamma)$ (new node positions -- points $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
 %Пока в расчете не учитываем влияние соседних расчетных ячеек.
-So far, we do not take into account the influence of neighboring computational cells in the calculation.
+So far, we do not take into account the influence of neighboring computational faces in the calculation.
 %Без ограничения общности можно рассмотреть только одну вершину ячейки (точка $\vec{A}$).
 Without loss of generality, we can consider only one face vertex (point $\vec{A}$).
 %Пусть траектория движения точки $\vec{A}$ описывается уравнением полупрямой $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ при $\alpha \ge 0$.
@@ -634,12 +634,12 @@ For the time being, we will omit the self-intersections of the mesh and consider
   \centering
   \begin{minipage}[h]{0.35\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_delaunay_size.pdf}
-    \caption{Splitting a cell using Delaunay triangulation.}\label{fig:pic_delaunay}
+    \caption{Splitting a face using Delaunay triangulation.}\label{fig:pic_delaunay}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.35\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_delaunay_2_size.pdf}
-    \caption{Breaking up a cell into smaller ones.}\label{fig:pic_delaunay_2}
+    \caption{Breaking up a face into smaller ones.}\label{fig:pic_delaunay_2}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.28\textwidth}
