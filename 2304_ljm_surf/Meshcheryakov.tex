@@ -689,13 +689,18 @@ By applying the reducing of the shortest edges in the computational mesh, we can
 
 %---------------------------------------------------------------------------------------------------
 
-\section{Устранение самопересечений}
+\section{Self-intersections elimination}
 
-Основной проблемой, с которой можно потенциально столкнуться при эволюции расчетной сетки, является возникновение самопересечений.
-Самопересечение является критическим дефектом сетки, при котором невозможно производить дальнейшие вычисления по моделированию ледообразования, поэтому самопересечения необходимо удалять.
-Во-первых, необходимо определить, какое отношение двух ячеек сетки можно трактовать как самопересечение.
-Конечно, простое наличие общих точек у двух ячеек не может служить критерием самопересечения, так как у каждой ячейки есть смежные ячейки (то есть две ячейки могут иметь как общую вершину, так и общее ребро).
-Так как смежными могут быть только ячейки, имеющие общие инцидентные объекты (общую инцидентную вершину или общее инцидентное ребро), а все отношения инцидентности прописаны в расчетной сетке, то не представляет труда отделить пересечение ячеек по общему инцидентному объекту от самопересечения.
+%Основной проблемой, с которой можно потенциально столкнуться при эволюции расчетной сетки, является возникновение самопересечений.
+The main problem that can potentially be encountered in the evolution of the computational mesh is the occurrence of self-intersections.
+%Самопересечение является критическим дефектом сетки, при котором невозможно производить дальнейшие вычисления по моделированию ледообразования, поэтому самопересечения необходимо удалять.
+Self-intersection is a critical mesh defect, which makes it impossible to perform further calculations on ice formation modeling, so self-intersections must be removed.
+%Во-первых, необходимо определить, какое отношение двух ячеек сетки можно трактовать как самопересечение.
+First, it is necessary to determine what ratio of two mesh faces can be interpreted as self-intersection.
+%Конечно, простое наличие общих точек у двух ячеек не может служить критерием самопересечения, так как у каждой ячейки есть смежные ячейки (то есть две ячейки могут иметь как общую вершину, так и общее ребро).
+Of course, the mere presence of common points in two faces cannot serve as a criterion for self-intersection, since each face has adjacent faces (that is, two faces can have both a common vertex and a common edge).
+%Так как смежными могут быть только ячейки, имеющие общие инцидентные объекты (общую инцидентную вершину или общее инцидентное ребро), а все отношения инцидентности прописаны в расчетной сетке, то не представляет труда отделить пересечение ячеек по общему инцидентному объекту от самопересечения.
+Since only faces that have common incident objects (a common incident vertex or a common incident edge) can be adjacent, and all incidence relations are written in the computational mesh, it is not difficult to separate the intersection of faces by a common incident object from self-intersection.
 
 \subsection{Поиск пар пересекающихся треугольников}
 
