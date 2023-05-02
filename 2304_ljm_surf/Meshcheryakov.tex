@@ -88,21 +88,34 @@ To eliminate these obstacles, the article considers methods for adapting the com
 
 \section{Introduction}
 
-Численное моделирование процесса обледенения поверхности тела является сложной мультифизичной задачей, включающей в себя моделирование процессов газовой динамики, теплообмена, течения жидкости, динамики капель в воздушном потоке и других.
-Исследование процессов ледообразования имеет важное практическое значение.
-В частности характер и интенсивность образования льда на поверхности летательного аппарата критическим образом влияет на его летные характеристики, что напрямую связано с безопасностью полетов \cite{Raj}.
+%Численное моделирование процесса обледенения поверхности тела является сложной мультифизичной задачей, включающей в себя моделирование процессов газовой динамики, теплообмена, течения жидкости, динамики капель в воздушном потоке и других.
+Numerical simulation of the body surface icing process is a complex multiphysics problem, which includes modeling the processes of gas dynamics, heat transfer, fluid flow, droplet dynamics in an air flow, and others.
+%Исследование процессов ледообразования имеет важное практическое значение.
+The study of ice formation processes is of great practical importance.
+%В частности характер и интенсивность образования льда на поверхности летательного аппарата критическим образом влияет на его летные характеристики, что напрямую связано с безопасностью полетов \cite{Raj}.
+In particular, the nature and intensity of ice formation on the surface of an aircraft critically affects its flight characteristics, which is directly related to flight safety \cite{Raj}.
 
-На сегодняшний день среди зарубежного программного обеспечения для моделирования процесса ледообразования лидером является программный комплекс ANSYS (включая модули FENSAP-ICE, DROP3D, ICE3D) \cite{Martini}.
-В России также активно ведется разработка математических алгоритмов и программного обеспечения по этому направлению.
-Можно отметить исследования по разработке модуля iceFoam в составе открытого пакета OpenFOAM~\cite{Strijhak}.
-Среди коммерческих продуктов в последние годы активно развивается пакет IceVision в составе программного комплекса FlowVision~\cite{Sorokin}, а также решение в составе пакета инженерного анализа ЛОГОС \cite{Galanov}.
+%На сегодняшний день среди зарубежного программного обеспечения для моделирования процесса ледообразования лидером является программный комплекс ANSYS (включая модули FENSAP-ICE, DROP3D, ICE3D) \cite{Martini}.
+Today, among foreign software for modeling the process of ice formation, the leader is the ANSYS software package (including modules FENSAP-ICE, DROP3D, ICE3D) \cite{Martini}.
+%В России также активно ведется разработка математических алгоритмов и программного обеспечения по этому направлению.
+In Russia there are also a lot of mathematical algorithms and software in this area beeing actively developed.
+%Можно отметить исследования по разработке модуля iceFoam в составе открытого пакета OpenFOAM~\cite{Strijhak}.
+We can note the research on the development of the iceFoam module as part of the open source package OpenFOAM~\cite{Strijhak}.
+%Среди коммерческих продуктов в последние годы активно развивается пакет IceVision в составе программного комплекса FlowVision~\cite{Sorokin}, а также решение в составе пакета инженерного анализа ЛОГОС \cite{Galanov}.
+Among commercial products, the IceVision package has been actively developed in recent years as part of the FlowVision~\cite{Sorokin} software package, and a solution as part of the LOGOS \cite{Galanov} engineering analysis package.
 
-Моделирование процесса ледяного покрова осуществляется, как правило, на поверхностной расчетной сетке и состоит из двух основных частей.
-Первой частью является вычисление интенсивности нарастания льда в отдельных элементах сетки (это может быть вычисление массы скопившегося льда в каждой ячейке расчетной сетки за единицу времени, либо скорость образования ледяного покрова в узлах сетки, либо другие аналогичные характеристики).
-Для выполнения вычисления интенсивности нарастания льда в элементах расчетной сетки существует множество моделей ледообразования \cite{Bartkus,Zhang,Pena}, учитывающих разные состояния льда, динамику водяной пленки, тепловые потоки и другие факторы.
-Модели ледообразования не рассматриваются в рамках данной работы.
-Второй важной составляющей моделирования ледяного нароста является определение изменения поверхности тела после нарастания на ней слоя льда.
-В данной статье рассматриваются наиболее известные подходы к моделированию эволюции поверхности обледеневающего тела, а также предлагается новый алгоритм эволюции поверхности, основанный на принципе общей огибающей семейства сфер, центры которых лежат на исходной поверхности, и алгоритм устранения самопересечений сетки, которые могут возникать из-за изменения положения узлов в процессе эволюции.
+%Моделирование процесса ледяного покрова осуществляется, как правило, на поверхностной расчетной сетке и состоит из двух основных частей.
+Modeling of the ice cover process is carried out, as a rule, on a surface computational mesh and consists of two main parts.
+%Первой частью является вычисление интенсивности нарастания льда в отдельных элементах сетки (это может быть вычисление массы скопившегося льда в каждой ячейке расчетной сетки за единицу времени, либо скорость образования ледяного покрова в узлах сетки, либо другие аналогичные характеристики).
+The first part is the calculation of the intensity of ice growth in individual mesh elements (this can be the calculation of the mass of accumulated ice in each face of the computational mesh per unit of time, or the rate of ice cover formation at the grid nodes, or other similar characteristics).
+%Для выполнения вычисления интенсивности нарастания льда в элементах расчетной сетки существует множество моделей ледообразования \cite{Bartkus,Zhang,Pena}, учитывающих разные состояния льда, динамику водяной пленки, тепловые потоки и другие факторы.
+To calculate the intensity of ice growth in the elements of the computational mesh, there are many models of ice formation \cite{Bartkus,Zhang,Pena} that take into account different states of ice, water film dynamics, heat fluxes, and other factors.
+%Модели ледообразования не рассматриваются в рамках данной работы.
+Ice formation models are not considered within the scope of this paper.
+%Второй важной составляющей моделирования ледяного нароста является определение изменения поверхности тела после нарастания на ней слоя льда.
+The second important component of ice build-up modeling is the determination of changes in the body surface after the growth of an ice layer on it.
+%В данной статье рассматриваются наиболее известные подходы к моделированию эволюции поверхности обледеневающего тела, а также предлагается новый алгоритм эволюции поверхности, основанный на принципе общей огибающей семейства сфер, центры которых лежат на исходной поверхности, и алгоритм устранения самопересечений сетки, которые могут возникать из-за изменения положения узлов в процессе эволюции.
+This article discusses the most well-known approaches to modeling the evolution of the surface of an icing body, and also proposes a new surface evolution algorithm based on the principle of a common envelope of a family of spheres whose centers lie on the original surface, and an algorithm for eliminating mesh self-intersections that may occur due to changes in positions of nodes in the process of evolution.
 
 %---------------------------------------------------------------------------------------------------
 
