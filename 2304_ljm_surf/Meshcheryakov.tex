@@ -167,15 +167,22 @@ For a mesh node, we will consider the concept of a normal to the surface and def
 
 \section{Remeshing}
 
-Центральная задача перестроения поверхности из-за нарастания ледяного покрова выглядит следующим образом.
-Пусть известно, что в результате численного решения задачи ледообразования конечно-объемным методом \cite{Beaugendre} в каждой ячейке сетки была вычислена масса накопленного льда ($m$).
-Будем считать плотность льда постоянной, то есть в каждой ячейке также известен объем накопленного льда ($V$).
-Для каждого узла сетки $N$ требуется найти его новое положение в пространстве $N'$, чтобы для каждой ячейки с узлами $ABC$ объем пространства, ограниченный фигурой $ABCA'B'C'$ соответствовал объему льда, накопленному в данной ячейке.
+%Центральная задача перестроения поверхности из-за нарастания ледяного покрова выглядит следующим образом.
+The central task of rebuilding the surface due to the growth of the ice cover is as follows.
+%Пусть известно, что в результате численного решения задачи ледообразования конечно-объемным методом \cite{Beaugendre} в каждой ячейке сетки была вычислена масса накопленного льда ($m$).
+Let it be known that as a result of the numerical solution of the problem of ice formation by the finite volume method \cite{Beaugendre}, the mass of accumulated ice ($m$) was calculated in each face of the mesh.
+%Будем считать плотность льда постоянной, то есть в каждой ячейке также известен объем накопленного льда ($V$).
+We will assume that the density of ice is constant, that is, the volume of accumulated ice ($V$) is also known in each face.
+%Для каждого узла сетки $N$ требуется найти его новое положение в пространстве $N'$, чтобы для каждой ячейки с узлами $ABC$ объем пространства, ограниченный фигурой $ABCA'B'C'$ соответствовал объему льда, накопленному в данной ячейке.
+For each mesh node $N$, it is required to find its new position $N'$ in space so that for each face with nodes $A$, $B$, $C$ the volume of space bounded by the figure $ABCA'B'C'$ corresponds to the volume of ice accumulated in this face.
 
-Следует отметить, что поставленная задача может не иметь точного решения, и в этом случае следует стремиться к минимизации ошибки по объему (когда фактически образовавшийся объем льда не слишком сильно отличается от целевого объема, то есть разница $V_{ABCA'B'C'} - V$ мала).
+%Следует отметить, что поставленная задача может не иметь точного решения, и в этом случае следует стремиться к минимизации ошибки по объему (когда фактически образовавшийся объем льда не слишком сильно отличается от целевого объема, то есть разница $V_{ABCA'B'C'} - V$ мала).
+It should be noted that the problem posed may not have an exact solution, in which case we should strive to minimize the volume error (when the actually formed volume of ice does not differ too much from the target volume, that is, the difference $V_{ABCA'B'C'} - V$ is relatively small).
 
-Задачу определения новых положений узлов расчетной сетки можно разделить на две задачи: определение направлений смещения узлов и определение величин смещения.
-Далее рассмотрим отдельные методы перестроения поверхностей более подробно.
+%Задачу определения новых положений узлов расчетной сетки можно разделить на две задачи: определение направлений смещения узлов и определение величин смещения.
+The task of determining the new positions of the nodes of the computational mesh can be divided into two tasks: determining the directions of displacement of the nodes and determining the displacement values.
+%Далее рассмотрим отдельные методы перестроения поверхностей более подробно.
+Next, we consider individual methods for rebuilding surfaces in more detail.
 
 \subsection{Classical remeshing methods}
 
