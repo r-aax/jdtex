@@ -58,20 +58,29 @@ escapeinside={\%*}{*)}
 \received{TODO}
 
 \begin{abstract}
-Задача моделирования обледенения поверхности обтекаемого тела является критической для обеспечения безопасности полетов в условия ледообразования.
-Формирование ледяных наростов на несущих частях и элементах силовых установок летальных аппаратов может существенно влиять на летные характеристики.
-Сам процесс ледообразования является комплексным.
-Для получения качественной картины профиля ледяного нароста необходимо учитывать множество физических процессов, включая динамику газа, теплопроводность, динамику капель, выпадающих на поверхность, течение жидкости по поверхности.
-Расчет ледяного покрова должен выполняться итерационно, так как образующийся лед существенно влияет на газодинамические характеристики, которые должны пересчитываться с ростом льда.
-Важной частью моделирования является эволюция поверхности тела в процессе ледообразования.
-В настоящей статье рассматриваются различные подходы к моделированию эволюции поверхности, предлагается новый алгоритм построения новой поверхности с помощью общей огибающей семейства сфер, центры которых находятся на исходной поверхности.
-В процессе эволюции на поверхности могут образовываться различные артефакты и аномалии, из-за которых проведение дальнейших расчетов может стать невозможным.
-Для устранения этих препятствий в статье рассматриваются методы адаптации расчетной сетки в процессе эволюции, а также устранения потенциальных самопересечений, препятствующих дальнейшим расчетам.
+%Задача моделирования обледенения поверхности обтекаемого тела является критической для обеспечения безопасности полетов в условия ледообразования.
+The task of modeling the ice accretion of the surface of a streamlined body is critical for ensuring flight safety in conditions of ice formation.
+%Формирование ледяных наростов на несущих частях и элементах силовых установок летальных аппаратов может существенно влиять на летные характеристики.
+The formation of ice growths on the bearing parts and elements of the power systems of aircraft can significantly affect the flight characteristics.
+%Сам процесс ледообразования является комплексным.
+The process of ice formation itself is complex.
+%Для получения качественной картины профиля ледяного нароста необходимо учитывать множество физических процессов, включая динамику газа, теплопроводность, динамику капель, выпадающих на поверхность, течение жидкости по поверхности.
+To obtain a qualitative picture of the ice buildup profile, it is necessary to take into account many physical processes, including gas dynamics, thermal conductivity, the dynamics of drops falling to the surface, and the flow of liquid over the surface.
+%Расчет ледяного покрова должен выполняться итерационно, так как образующийся лед существенно влияет на газодинамические характеристики, которые должны пересчитываться с ростом льда.
+The calculation of the ice cover must be performed iteratively, since the resulting ice significantly affects the gas-dynamic characteristics, which must be recalculated with ice growth.
+%Важной частью моделирования является эволюция поверхности тела в процессе ледообразования.
+An important part of modeling is the evolution of the ice surface in the process of ice formation.
+%В настоящей статье рассматриваются различные подходы к моделированию эволюции поверхности, предлагается новый алгоритм построения новой поверхности с помощью общей огибающей семейства сфер, центры которых находятся на исходной поверхности.
+This article discusses various approaches to modeling the evolution of a surface and proposes a new algorithm for constructing a new surface using a common envelope of a family of spheres whose centers are located on the original surface.
+%В процессе эволюции на поверхности могут образовываться различные артефакты и аномалии, из-за которых проведение дальнейших расчетов может стать невозможным.
+In the process of evolution, various artifacts and anomalies may form on the surface, due to which further calculations may become impossible.
+%Для устранения этих препятствий в статье рассматриваются методы адаптации расчетной сетки в процессе эволюции, а также устранения потенциальных самопересечений, препятствующих дальнейшим расчетам.
+To eliminate these obstacles, the article considers methods for adapting the computational mesh in the process of evolution, as well as eliminating potential self-intersections that impede further calculations.
 \end{abstract}
 
 %\subclass{TODO subclass} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{Ледообразование, неструктурированная поверхностная расчетная сетка, эволюция поверхности.}
+\keywords{Ice formation, unstructured surface computational mesh, surface evolution.}
 
 \maketitle
 
