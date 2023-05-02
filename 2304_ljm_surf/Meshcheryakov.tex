@@ -623,50 +623,69 @@ Fig.~\ref{fig:pic_envelope_peak} shows the opposite effect - smoothing of sharp 
 
 \section{Adaptation}
 
-Все рассмотренные в предыдущем разделе методы перестроения поверхностей объединяет одно сходство -- они сохраняют количество элементов расчетной сетки (узлы, ребра, грани) и связи между ними.
-Несмотря на некоторые специальные методы по предотвращению конфликтов между гранями сетки и методы сглаживания, после формирования новой поверхности возможно возникновение самопересечений, появление граней неправильной формы, а также неравномерное распределение граней в сетке по размеру.
-Пока опустим самопересечения сетки и будем рассматривать только вопросы, касающиеся формы и размера ячеек.
+%Все рассмотренные в предыдущем разделе методы перестроения поверхностей объединяет одно сходство -- они сохраняют количество элементов расчетной сетки (узлы, ребра, грани) и связи между ними.
+All methods of rebuilding surfaces considered in the previous section have one thing in common -- they preserve the number of elements of the computational mesh (nodes, edges, faces) and the connections between them.
+%Несмотря на некоторые специальные методы по предотвращению конфликтов между гранями сетки и методы сглаживания, после формирования новой поверхности возможно возникновение самопересечений, появление граней неправильной формы, а также неравномерное распределение граней в сетке по размеру.
+Despite some special methods for preventing collisions between mesh faces and smoothing methods, after the formation of a new surface, self-intersections, irregularly shaped faces, and uneven distribution of faces in the mesh in size can occur.
+%Пока опустим самопересечения сетки и будем рассматривать только вопросы, касающиеся формы и размера ячеек.
+For the time being, we will omit the self-intersections of the mesh and consider only questions concerning the shape and size of the faces.
 
 \begin{figure}[h]
   \centering
   \begin{minipage}[h]{0.35\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_delaunay_size.pdf}
-    \caption{Разбиение ячейки с помощью триангуляции Делоне.}\label{fig:pic_delaunay}
+    \caption{Splitting a cell using Delaunay triangulation.}\label{fig:pic_delaunay}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.35\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_delaunay_2_size.pdf}
-    \caption{Дробление ячейки на более мелкие.}\label{fig:pic_delaunay_2}
+    \caption{Breaking up a cell into smaller ones.}\label{fig:pic_delaunay_2}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.28\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_reduce_edge_size.pdf}
-    \caption{Стягивание ребра.}\label{fig:pic_reduce_edge}
+    \caption{Edge reducing.}\label{fig:pic_reduce_edge}
   \end{minipage}
 \end{figure}
 
-Первая операция, которая нам потребуется -- разбиение ячейки на более мелкие.
-Во всех случаях будем выполнять разбиение ячеек с помощью триангуляции Делоне, считая что для разбиения нам известен набор точек внутри разбиваемой ячейки (Fig.~\ref{fig:pic_delaunay}) \cite{Rivara}.
-Стоит отметить, что разбиение ячейки можно производить с сохранением локальной кривизны сетки, как это показано в \cite{Rakotoarivelo}, но для простоты будем производить разбиение исключительно в плоскости ячейки.
-Если точка разбиения находится не внутри ячейки, а на ее ребре, то разбить придется также вторую инцидентную ячейку этого ребра (рассматриваются только сетки, ребра которых имеют ровно по две инцидентные ячейки, как это указано в (\ref{eq_arch}).
-Иногда для уменьшения размера требуется просто разбить ячейку на более мелкие без задания точек разбиения.
-В этом случае необходимо следить за качеством результирующих ячеек.
-Для определения качества формы ячейки треугольной формы с узлами $\vec{A}$, $\vec{B}$, $\vec{C}$ можно пользоваться простым критерием качества
+%Первая операция, которая нам потребуется -- разбиение ячейки на более мелкие.
+The first operation that we need is to split the face into smaller ones.
+%Во всех случаях будем выполнять разбиение ячеек с помощью триангуляции Делоне, считая что для разбиения нам известен набор точек внутри разбиваемой ячейки (Fig.~\ref{fig:pic_delaunay}) \cite{Rivara}.
+In all cases, we will split the faces using Delaunay triangulation, assuming that for splitting we know a set of points inside the split face (Fig.~\ref{fig:pic_delaunay}) \cite{Rivara}.
+%Стоит отметить, что разбиение ячейки можно производить с сохранением локальной кривизны сетки, как это показано в \cite{Rakotoarivelo}, но для простоты будем производить разбиение исключительно в плоскости ячейки.
+It is worth noting that face partitioning can be performed while preserving the local curvature of the mesh, as shown in \cite{Rakotoarivelo}, but for simplicity, we will partition only in the face plane.
+%Если точка разбиения находится не внутри ячейки, а на ее ребре, то разбить придется также вторую инцидентную ячейку этого ребра (рассматриваются только сетки, ребра которых имеют ровно по две инцидентные ячейки, как это указано в (\ref{eq_arch}).
+If the split point is located not inside the face, but on its edge, then the second incident face of this edge will also have to be split (only meshes are considered whose edges have exactly two incident faces, as indicated in (\ref{eq_arch}).
+%Иногда для уменьшения размера требуется просто разбить ячейку на более мелкие без задания точек разбиения.
+Sometimes, to reduce the size, you simply need to split the face into smaller ones without setting split points.
+%В этом случае необходимо следить за качеством результирующих ячеек.
+In this case, it is necessary to monitor the quality of the resulting faces.
+%Для определения качества формы ячейки треугольной формы с узлами $\vec{A}$, $\vec{B}$, $\vec{C}$ можно пользоваться простым критерием качества
+To determine the shape quality of a triangular face with nodes $\vec{A}$, $\vec{B}$, $\vec{C}$, we can use a simple quality criterion
 
 \begin{equation}
 Q(f) = \frac{4\sqrt{3} S_{ABC}}{|\vec{AB}|^2 + |\vec{BC}|^2 + |\vec{AC}|^2}
 \end{equation}
 
-где $Q(f) = 1$ соответствует идеальному случаю равносторонней ячейки, а $Q(f) = 0$ -- худший случай для ячеек с нулевой площадью \cite{Borouchaki}.
-Для выполнения разбиения ячейки на более мелкие с сохранением их качества просто выполним разбиение по серединам всех ее сторон (Fig.~\ref{fig:pic_delaunay_2}).
+%где $Q(f) = 1$ соответствует идеальному случаю равносторонней ячейки, а $Q(f) = 0$ -- худший случай для ячеек с нулевой площадью \cite{Borouchaki}.
+where $Q(f) = 1$ corresponds to the ideal case of an equilateral face, and $Q(f) = 0$ is the worst case for faces with zero area \cite{Borouchaki}.
+%Для выполнения разбиения ячейки на более мелкие с сохранением их качества просто выполним разбиение по серединам всех ее сторон (Fig.~\ref{fig:pic_delaunay_2}).
+To split a face into smaller ones while maintaining their quality, simply perform a split in the middle of all its sides (Fig.~\ref{fig:pic_delaunay_2}).
 
-Вторая операция, которая необходима для адаптации сетки, связана с огрублением.
-Достаточно часто во время выполнения триангуляции по множеству заданных точек могут появляться ячейки с низким показателем качества (у них могут присутствовать либо слишком острые углы, либо близкий к развернутому угол).
-Если в ячейке присутствует угол, близкий к развернутому, то избавиться от него поможет разбиение по наибольшей стороне (при этом в качестве точки разбиения следует выбрать основание высоты, опущенной из противолежащего узла).
-Если же в треугольнике присутствуют лишь близкие к острым углы, то значит в нем есть слишком короткая сторона, которая может быть удалена.
-При удалении ребра $AB$ удаляются обе инцидентные ей грани, узлы $A$ и $B$ соединяются в единый узел $A'$, а все ребра из множества $\mathscr{E}(A) \cup \mathscr{E}(B)$ перенаправляются на узел $A'$ с учетом удаления повторных (Fig.~\ref{fig:pic_reduce_edge}).
-Данную операцию будем называть стягиванием ребра \cite{Panchal}.
-Путем применения стягивания наиболее коротких ребер в расчетной сетке можно добиться произвольной степени огрубления.
+%Вторая операция, которая необходима для адаптации сетки, связана с огрублением.
+The second operation, which is necessary for mesh adaptation, is related to coarsening.
+%Достаточно часто во время выполнения триангуляции по множеству заданных точек могут появляться ячейки с низким показателем качества (у них могут присутствовать либо слишком острые углы, либо близкий к развернутому угол).
+Quite often, when performing triangulation over a set of given points, faces with a low quality indicator may appear (they may have either too sharp corners or a corner close to $2 \pi$).
+%Если в ячейке присутствует угол, близкий к развернутому, то избавиться от него поможет разбиение по наибольшей стороне (при этом в качестве точки разбиения следует выбрать основание высоты, опущенной из противолежащего узла).
+If the face contains an angle close to $2 \pi$, then splitting along the largest side will help to get rid of it (in this case, the base of the height lowered from the opposite node should be chosen as the splitting point).
+%Если же в треугольнике присутствуют лишь близкие к острым углы, то значит в нем есть слишком короткая сторона, которая может быть удалена.
+If the triangle contains only close to acute angles, then it has a side that is too short, which can be removed.
+%При удалении ребра $AB$ удаляются обе инцидентные ей грани, узлы $A$ и $B$ соединяются в единый узел $A'$, а все ребра из множества $\mathscr{E}(A) \cup \mathscr{E}(B)$ перенаправляются на узел $A'$ с учетом удаления повторных (Fig.~\ref{fig:pic_reduce_edge}).
+When an edge $AB$ is removed, both faces incident to it are removed, nodes $A$ and $B$ are connected into a single node $A'$, and all edges from the set $\mathscr{E}(A) \cup \mathscr{E} (B)$ are redirected to node $A'$, taking into account the removal of repeats (Fig.~\ref{fig:pic_reduce_edge}).
+%Данную операцию будем называть стягиванием ребра \cite{Panchal}.
+This operation will be called edge reducing \cite{Panchal}.
+%Путем применения стягивания наиболее коротких ребер в расчетной сетке можно добиться произвольной степени огрубления.
+By applying the reducing of the shortest edges in the computational mesh, we can achieve an arbitrary degree of coarsening.
 
 %---------------------------------------------------------------------------------------------------
 
