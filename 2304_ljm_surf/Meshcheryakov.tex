@@ -121,19 +121,28 @@ This article discusses the most well-known approaches to modeling the evolution 
 
 \section{Mesh architecture}
 
-Решение задачи перестроения поверхности будем рассматривать на неструктурированной поверхностной расчетной сетке.
-Элементами расчетной сетки являются узлы ($N$), ребра ($e$)  и ячейки ($f$).
-Для удобства каждый элемент сетки связан со всеми своими инцидентными элементами: так связаны между собой инцидентные узлы и ребра, узлы и ячейки, ребра и ячейки. Множество инцидентных узлов будем обозначать $\mathscr{N}$, множество инцидентных ребер будем обозначать $\mathscr{E}$, а множество инцидентных ячеек будем обозначать $\mathscr{F}$.
+%Решение задачи перестроения поверхности будем рассматривать на неструктурированной поверхностной расчетной сетке.
+The solution of the surface rebuilding problem will be considered on an unstructured surface computational mesh.
+%Элементами расчетной сетки являются узлы ($N$), ребра ($e$)  и ячейки ($f$).
+The elements of the computational mesh are nodes ($N$), edges ($e$), and faces ($f$).
+%Для удобства каждый элемент сетки связан со всеми своими инцидентными элементами: так связаны между собой инцидентные узлы и ребра, узлы и ячейки, ребра и ячейки.
+For convenience, each mesh element is associated (linked) with all its incident elements: nodes are linked with incident edges, nodes are linked with incident faces, edges are linked with incident faces.
+%Множество инцидентных узлов будем обозначать $\mathscr{N}$, множество инцидентных ребер будем обозначать $\mathscr{E}$, а множество инцидентных ячеек будем обозначать $\mathscr{F}$.
+The set of incident nodes will be denoted by $\mathscr{N}$, the set of incident edges will be denoted by $\mathscr{E}$, and the set of incident cells will be denoted by $\mathscr{F}$.
 
 \begin{figure}[h]
 \includegraphics[width=0.48\textwidth]{pics/pic_architecture_size.pdf}
-\captionstyle{center}\caption{Архитектура расчетной сетки.}\label{fig:pic_architecture}
+\captionstyle{center}\caption{The architecture of the computational mesh.}\label{fig:pic_architecture}
 \end{figure}
 
-К расчетной сетке предъявляются следующие требования.
-Во-первых, сетка должна быть целостной, то есть каждое ребро имеет ровно два инцидентных узла, отсутствуют изолированные и висячие узлы, а также изолированные ребра.
-Во-вторых, все ячейки должны представлять собой треугольники (это гарантирует, что ячейка является плоской, так как четыре и более произвольных узлов могут не лежать в одной плоскости).
-И в-третьих, рассматриваются только замкнутые сетки, представляющие собой поверхности, то есть каждое ребро имеет ровно две инцидентные ячейки.
+%К расчетной сетке предъявляются следующие требования.
+The following requirements are imposed on the computational mesh.
+%Во-первых, сетка должна быть целостной, то есть каждое ребро имеет ровно два инцидентных узла, отсутствуют изолированные и висячие узлы, а также изолированные ребра.
+First, the mesh must be complete, that is, each edge has exactly two incident nodes, there are no isolated and dangling nodes, and no isolated edges.
+%Во-вторых, все ячейки должны представлять собой треугольники (это гарантирует, что ячейка является плоской, так как четыре и более произвольных узлов могут не лежать в одной плоскости).
+Second, all faces must be triangles (this ensures that the face is flat, since four or more arbitrary nodes may not lie in the same plane).
+%И в-третьих, рассматриваются только замкнутые сетки, представляющие собой поверхности, то есть каждое ребро имеет ровно две инцидентные ячейки.
+And thirdly, only closed meshes are considered, which are surfaces, that is, each edge has exactly two incident faces (there are no border edges).
 
 \begin{equation}\label{eq_arch}
 \begin{cases}
@@ -143,9 +152,12 @@ This article discusses the most well-known approaches to modeling the evolution 
 \end{cases}
 \end{equation}
 
-В качестве дополнения также будем требовать, чтобы сетка представляла собой двустороннюю поверхность, для каждой ячейки однозначно определена нормаль к поверхности $\vec{n}_f$.
-Также никакие два узла сетки не совпадают и отсутствуют ячейки с нулевой площадью (так как это сделает невозможным вычислений нормалей).
-Для узла сетки будем рассматривать понятие нормали к поверхности и определять эту нормаль как
+%В качестве дополнения также будем требовать, чтобы сетка представляла собой двустороннюю поверхность, для каждой ячейки однозначно определена нормаль к поверхности $\vec{n}_f$.
+As a supplement, we will also require that the mesh is a two-sided surface, for each face the normal to the surface $\vec{n}_f$ is uniquely defined.
+%Также никакие два узла сетки не совпадают и отсутствуют ячейки с нулевой площадью (так как это сделает невозможным вычислений нормалей).
+Also, no two mesh nodes are the same and there are no faces with zero area (since this would make it impossible to calculate normals).
+%Для узла сетки будем рассматривать понятие нормали к поверхности и определять эту нормаль как
+For a mesh node, we will consider the concept of a normal to the surface and define this normal as
 
 \begin{equation}
 \vec{n}_n(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{\vec{n}_f(f)}
