@@ -311,7 +311,7 @@ The first smoothing is the smoothing of the normals in the mesh nodes and faces.
 %Чтобы сделать возможным сглаживание в нулевом пространстве, все нормали в узлах рассчитываются так, чтобы они лежали в первичном пространстве, а перемещение узлов при наращивании льда происходит только по их нормалям.
 To make smoothing possible in zero space, all normals at nodes are calculated so that they lie in primary space, and the movement of nodes during ice buildup occurs only along their normals.
 %По мере эволюции, на поверхности может усиливаться шум -- если его не контролировать, может возникнуть ситуация, когда двугранный угол между гранями станет слишком малым и ограничит максимальную долю временного шага обледенения.
-As evolution progresses, surface noise can increase - if left unchecked, a situation can arise where the dihedral angle between the faces becomes too small and limits the maximum fraction of the icing time step.
+As evolution progresses, surface noise can increase -- if left unchecked, a situation can arise where the dihedral angle between the faces becomes too small and limits the maximum fraction of the icing time step.
 %Для уменьшения поверхностного шума, перед наращиванием льда применяется локальное сглаживание, регулирующее направление смещения узла в проблемных областях, чтобы оно более точно совпадало с направлениями его соседей.
 To reduce surface noise, local smoothing is applied before ice builds up, adjusting the direction of node displacement in problem areas so that it more closely matches the directions of its neighbors.
 %Этот метод может улучшить гладкость поверхности в некоторых ситуациях.
@@ -360,17 +360,25 @@ This method is able to redistribute points while maintaining the integrity of th
 %Нулевое пространство определяется касательной плоскостью (для гладких областей), касательной линией (для складок поверхности) или пустым пространством (для углов), движущиеся в нем узлы остаются на поверхности, так что объем и форма поверхности могут быть сохранены (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
 Null space is defined by a tangent plane (for smooth areas), a tangent line (for surface wrinkles), or empty space (for corners), nodes moving in it remain on the surface, so that the volume and shape of the surface can be preserved (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
 
-\subsection{Метод общей огибающей}
+\subsection{Common envelope method}
 
-Рассмотрим задачу определения новых положений узлов расчетной сетки немного в другой постановке.
-Пусть для каждого узла $\vec{N}$ известна линейная скорость нарастания льда $v(\vec{N})$ (в метрах в секунду).
-Будем считать, что нарастание льда в любой точке роста выполняется одновременно во всех направлениях аналогично принципу Гюйгенса-Френеля распространения волн.
-Тогда фронт распространения льда от произвольной точки $\vec{P}$ через промежуток времени $\Delta t$ будет иметь форму сферы с центром в точке $\vec{P}$ и радиусом $v(\vec{P}) \Delta t$.
-Далее будем предполагать, что выполняется расчет новых положений узлов через некоторый фиксированный момент времени $\Delta t$, то есть для каждого узла известен радиус продвижения фронта льда $R(\vec{N}) = v(\vec{N}) \Delta t$.
-Так как элементами расчетной сетки являются треугольники, то необходимо определить радиус продвижения фронта льда для каждой внутренней точки треугольника по данным его вершин.
+%Рассмотрим задачу определения новых положений узлов расчетной сетки немного в другой постановке.
+Let us consider the problem of determining the new positions of the nodes of the computational mesh in a slightly different formulation.
+%Пусть для каждого узла $\vec{N}$ известна линейная скорость нарастания льда $v(\vec{N})$ (в метрах в секунду).
+Let the linear rate of ice growth $v(\vec{N})$ (in meters per second) be known for each node $\vec{N}$.
+%Будем считать, что нарастание льда в любой точке роста выполняется одновременно во всех направлениях аналогично принципу Гюйгенса-Френеля распространения волн.
+We will assume that the growth of ice at any point of growth is carried out simultaneously in all directions, similar to the Huygens-Fresnel principle of wave propagation.
+%Тогда фронт распространения льда от произвольной точки $\vec{P}$ через промежуток времени $\Delta t$ будет иметь форму сферы с центром в точке $\vec{P}$ и радиусом $v(\vec{P}) \Delta t$.
+Then the ice propagation front from an arbitrary point $\vec{P}$ after a time interval $\Delta t$ will have the shape of a sphere centered at the point $\vec{P}$ and radius $v(\vec{P}) \Delta t$.
+%Далее будем предполагать, что выполняется расчет новых положений узлов через некоторый фиксированный момент времени $\Delta t$, то есть для каждого узла известен радиус продвижения фронта льда $R(\vec{N}) = v(\vec{N}) \Delta t$.
+Further, we will assume that the calculation of new positions of the nodes is performed after some fixed time $\Delta t$, that is, for each node, the radius of the ice front advance is known $R(\vec{N}) = v(\vec{N}) \Delta t$.
+%Так как элементами расчетной сетки являются треугольники, то необходимо определить радиус продвижения фронта льда для каждой внутренней точки треугольника по данным его вершин.
+Since the elements of the computational mesh are triangles, it is necessary to determine the radius of advance of the ice front for each internal point of the triangle according to its vertices.
 
-Рассмотрим ячейку расчетной сетки, вершинами которой являются точки $\vec{A}$, $\vec{B}$, $\vec{C}$.
-Точки треугольника представляют собой геометрическое место точек, описываемое следующим образом:
+%Рассмотрим ячейку расчетной сетки, вершинами которой являются точки $\vec{A}$, $\vec{B}$, $\vec{C}$.
+Consider a computational mesh cell whose vertices are the points $\vec{A}$, $\vec{B}$, $\vec{C}$.
+%Точки треугольника представляют собой геометрическое место точек, описываемое следующим образом:
+The points of a triangle are the locus of points described as follows:
 
 \begin{equation}
 \begin{cases}
@@ -381,54 +389,71 @@ Null space is defined by a tangent plane (for smooth areas), a tangent line (for
 \end{cases}
 \end{equation}
 
-Определим для каждой точки треугольника $\vec{P}(\beta, \gamma)$ радиус продвижения фронта льда как $R(\vec{P}(\beta, \gamma)) = R(\beta, \gamma) = R(\vec{A}) + \beta (R(\vec{B}) - R(\vec{A})) + \gamma (R(\vec{C}) - R(\vec{A})) = R_A + \beta R_{AB} + \gamma R_{AC}$.
-Фронт продвижения льда от точки $\vec{P}(\beta, \gamma)$ представляет собой сферу $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta, \gamma))$.
-Фронтом продвижения льда всей треугольной ячейки будем считать общую огибающую сфер, построенных на всех точках этой ячейки, что показано на Fig.~\ref{fig:pic_general_envelope_size}.
+%Определим для каждой точки треугольника $\vec{P}(\beta, \gamma)$ радиус продвижения фронта льда как $R(\vec{P}(\beta, \gamma)) = R(\beta, \gamma) = R(\vec{A}) + \beta (R(\vec{B}) - R(\vec{A})) + \gamma (R(\vec{C}) - R(\vec{A})) = R_A + \beta R_{AB} + \gamma R_{AC}$.
+Let us define for each point of the triangle $\vec{P}(\beta, \gamma)$ the radius of ice front advance as $R(\vec{P}(\beta, \gamma)) = R(\beta, \gamma) = R(\vec{A}) + \beta (R(\vec{B}) - R(\vec{A})) + \gamma (R(\vec{C}) - R(\vec{A} )) = R_A + \beta R_{AB} + \gamma R_{AC}$.
+%Фронт продвижения льда от точки $\vec{P}(\beta, \gamma)$ представляет собой сферу $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta, \gamma))$.
+The front of ice advance from the point $\vec{P}(\beta, \gamma)$ is a sphere $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta,\gamma))$.
+%Фронтом продвижения льда всей треугольной ячейки будем считать общую огибающую сфер, построенных на всех точках этой ячейки, что показано на Fig.~\ref{fig:pic_general_envelope_size}.
+The ice advance front of the entire triangular cell is the common envelope of the spheres built on all points of this cell, which is shown in Fig.~\ref{fig:pic_general_envelope_size}.
 
 \begin{figure}
   \centering
   \begin{minipage}[b]{0.48\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_general_envelope_size.pdf}
-    \caption{Общая огибающая поверхность сфер, построенных на точках треугольника.}\label{fig:pic_general_envelope_size}
+    \caption{The common envelope surface of the spheres built on the points of the triangle.}\label{fig:pic_general_envelope_size}
   \end{minipage}
   \hfill
   \begin{minipage}[b]{0.48\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_general_envelope_2_size.pdf}
-    \caption{Поиск нового положения узла на общей касательной плосткости трех сфер.}\label{fig:pic_general_envelope_2_size}
+    \caption{Finding a new node position on the common tangent plane of three spheres.}\label{fig:pic_general_envelope_2_size}
   \end{minipage}
 \end{figure}
 
-При изменении положения узлов расчетной сетки (точки $\vec{A}$, $\vec{B}$, $\vec{C}$) будем исходить из предположения, что после перемещения узлы будут находиться на общей огибающей поверхности множества сфер $S(\beta, \gamma)$ (новые положения узлов -- точки $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
-Пока в расчете не учитываем влияние соседних расчетных ячеек.
-Без ограничения общности можно рассмотреть только одну вершину ячейки (точка $\vec{A}$).
-Пусть траектория движения точки $\vec{A}$ описывается уравнением полупрямой $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ при $\alpha \ge 0$.
-$\vec{D}$ -- вектор направления движения точки, можно считать, что $|\vec{D}| = 1$.
-Для поиска точек пересечения траектории движения точки $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с произвольной сферой $S(\beta, \gamma)$ необходимо подставить координаты точки $\vec{P}(\alpha)$ в уравнение сферы $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, где $\vec{C}(\beta, \gamma)$ -- центр рассматриваемой сферы.
-В результате получим следующее уравнение:
+%При изменении положения узлов расчетной сетки (точки $\vec{A}$, $\vec{B}$, $\vec{C}$) будем исходить из предположения, что после перемещения узлы будут находиться на общей огибающей поверхности множества сфер $S(\beta, \gamma)$ (новые положения узлов -- точки $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
+When changing the position of the nodes of the computational mesh (points $\vec{A}$, $\vec{B}$, $\vec{C}$), we will proceed from the assumption that after moving the nodes will be on the common envelope surface of the set of spheres $ S(\beta, \gamma)$ (new node positions -- points $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
+%Пока в расчете не учитываем влияние соседних расчетных ячеек.
+So far, we do not take into account the influence of neighboring computational cells in the calculation.
+%Без ограничения общности можно рассмотреть только одну вершину ячейки (точка $\vec{A}$).
+Without loss of generality, we can consider only one face vertex (point $\vec{A}$).
+%Пусть траектория движения точки $\vec{A}$ описывается уравнением полупрямой $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ при $\alpha \ge 0$.
+Let the trajectory of the point $\vec{A}$ be described by the half-line equation $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ for $\alpha \ge 0$.
+%$\vec{D}$ -- вектор направления движения точки, можно считать, что $|\vec{D}| = 1$.
+$\vec{D}$ is the direction vector of the point, we can assume that $|\vec{D}| = $1.
+%Для поиска точек пересечения траектории движения точки $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с произвольной сферой $S(\beta, \gamma)$ необходимо подставить координаты точки $\vec{P}(\alpha)$ в уравнение сферы $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, где $\vec{C}(\beta, \gamma)$ -- центр рассматриваемой сферы.
+To find the points of intersection of the trajectory of the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with an arbitrary sphere $S(\beta, \gamma)$, it is necessary to substitute the coordinates of the point $ \vec{P}(\alpha)$ into the equation of the sphere $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, where $\vec{C}(\beta, \gamma)$ is the center of the considered sphere.
+%В результате получим следующее уравнение:
+As a result, we get the following equation:
 
 \begin{equation}\label{eqn:intersect}
 |(\vec{A} + \alpha \vec{D}) - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)
 \end{equation}
 
-Это уравнение нужно решить относительно неизвестной $\alpha$ при фиксированных параметрах $\beta$ и $\gamma$.
-Это уравнение является квадратным, оно имеет не более двух корней, которые зависят от параметров $\alpha_{1,2} = \alpha_{1,2}(\beta, \gamma)$.
-Для определения нового положения точки $\vec{A}$ необходимо найти максимальное значение вещественного корня такого уравнения для всех допустимых значений параметров.
-При этом точка пересечения траектории движения точки $\vec{A}$ с общей огибающей семейства сфер может находиться на разных участках этой огибающей, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_size} и связано с условиями, которым удовлетворяют параметры $\beta$ и $\gamma$ (пункты a), b), c) -- пересечение со сферой с центром в вершинах треугольника, пункты d), e), f) -- пересечение со сферой с центром на ребрах треугольника, пункт g) -- пересечение со сферой с центром внутри треугольника).
+%Это уравнение нужно решить относительно неизвестной $\alpha$ при фиксированных параметрах $\beta$ и $\gamma$.
+This equation must be solved for the unknown $\alpha$ with fixed parameters $\beta$ and $\gamma$.
+%Это уравнение является квадратным, оно имеет не более двух корней, которые зависят от параметров $\alpha_{1,2} = \alpha_{1,2}(\beta, \gamma)$.
+This equation is quadratic, it has no more than two roots, which depend on the parameters $\alpha_{1,2} = \alpha_{1,2}(\beta, \gamma)$.
+%Для определения нового положения точки $\vec{A}$ необходимо найти максимальное значение вещественного корня такого уравнения для всех допустимых значений параметров.
+To determine the new position of the point $\vec{A}$, it is necessary to find the maximum value of the real root of such an equation for all admissible values of the parameters.
+%При этом точка пересечения траектории движения точки $\vec{A}$ с общей огибающей семейства сфер может находиться на разных участках этой огибающей, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_size} и связано с условиями, которым удовлетворяют параметры $\beta$ и $\gamma$ (пункты a), b), c) -- пересечение со сферой с центром в вершинах треугольника, пункты d), e), f) -- пересечение со сферой с центром на ребрах треугольника, пункт g) -- пересечение со сферой с центром внутри треугольника).
+In this case, the point of intersection of the trajectory of the movement of the point $\vec{A}$ with the common envelope of the family of spheres can be located in different parts of this envelope, which is shown in Fig.~\ref{fig:pic_general_envelope_size} and is associated with the conditions that the parameters $\beta$ and $\gamma$ (points a), b), c) -- intersection with a sphere centered at the vertices of the triangle, points d), e), f) -- intersection with a sphere centered on the edges of the triangle, point g) -- intersection with the sphere centered inside the triangle).
 
-Уравнение (\ref{eqn:intersect}) можно записать в виде $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ или в явном виде как квадратное уравнение:
+%Уравнение (\ref{eqn:intersect}) можно записать в виде $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ или в явном виде как квадратное уравнение:
+The equation (\ref{eqn:intersect}) can be written as $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ or explicitly as a quadratic equation:
 
 \begin{equation}
 |\vec{D}|^2 \alpha^2 - 2(\beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC})) \alpha + |\beta \vec{AB} + \gamma \vec{AC}|^2 - (R_A + \beta R_{AB} + \gamma R_{AC})^2 = 0
 \end{equation}
 
-Наибольший корень этого уравнения (с учетом условия $|\vec{D}| = 1$) можно выписать в явном виде:
+%Наибольший корень этого уравнения (с учетом условия $|\vec{D}| = 1$) можно выписать в явном виде:
+The largest root of this equation (taking into account the condition $|\vec{D}| = 1$) can be written explicitly:
 
 \begin{multline}
 \alpha(\beta, \gamma) = \beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}) + \\
 \sqrt{(\beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}))^2 - |\beta \vec{AB} + \gamma \vec{AC}|^2 + (R_A + \beta R_{AB} + \gamma R_{AC})^2}
 \end{multline}
 
-или
+%или
+or
 
 \begin{equation}
 \begin{cases}
@@ -441,24 +466,35 @@ q_{\beta} = 2 R_A R_{AB}, q_{\gamma} = 2 R_A R_{AC}, q = R_A^2
 \end{cases}
 \end{equation}
 
-Для поиска нового положения точки $\vec{A}$ требуется найти максимум выражения $\alpha(\beta, \gamma)$ при условии соблюдения ограничений $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
-Максимум выражения $\alpha(\beta, \gamma)$ достигается либо при условии нахождения центра сферы внутри треугольника, либо на одной из его сторон.
+%Для поиска нового положения точки $\vec{A}$ требуется найти максимум выражения $\alpha(\beta, \gamma)$ при условии соблюдения ограничений $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
+To search for a new position of the point $\vec{A}$, it is required to find the maximum of the expression $\alpha(\beta, \gamma)$ subject to the constraints $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
+%Максимум выражения $\alpha(\beta, \gamma)$ достигается либо при условии нахождения центра сферы внутри треугольника, либо на одной из его сторон.
+The maximum of the expression $\alpha(\beta, \gamma)$ is achieved either when the center of the sphere is inside the triangle or on one of its sides.
 
-В случае нахождения центра сферы на стороне $AB$ треугольника $ABC$ выполняется условие $\gamma = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
-В случае нахождения центра сферы на стороне $AC$ треугольника $ABC$ выполняется условие $\beta = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
-В случае нахождения центра сферы на стороне $BC$ треугольника $ABC$ выполняется условие $\beta + \gamma = 1$, и выражение для величины $\alpha$ принимает следующий вид:
+%В случае нахождения центра сферы на стороне $AB$ треугольника $ABC$ выполняется условие $\gamma = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
+If the center of the sphere is on side $AB$ of triangle $ABC$, the condition $\gamma = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\gamma = 0}(\beta) = k_{\ beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
+%В случае нахождения центра сферы на стороне $AC$ треугольника $ABC$ выполняется условие $\beta = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
+If the center of the sphere is on side $AC$ of triangle $ABC$, the condition $\beta = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\beta = 0}(\gamma) = k_{\ gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
+%В случае нахождения центра сферы на стороне $BC$ треугольника $ABC$ выполняется условие $\beta + \gamma = 1$, и выражение для величины $\alpha$ принимает следующий вид:
+If the center of the sphere is on side $BC$ of triangle $ABC$, the condition $\beta + \gamma = 1$ is satisfied, and the expression for $\alpha$ takes the following form:
 
 \begin{multline}
 \alpha_{\beta + \gamma = 1}(\gamma) = (k_{\gamma} - k_{\beta}) \gamma + k_{\beta} + \\
 \sqrt{(q_{\beta^2} + q_{\gamma^2} - q_{\beta \gamma}) \gamma^2 + (-2 q_{\beta^2} + q_{\beta \gamma} - q_{\beta} + q_{\gamma}) \gamma + (q_{\beta^2} + q_{\beta} + q)}
 \end{multline}
 
-Во всех случаях нахождения центра на одной из сторон треугольника задача нахождения максимального значения $\alpha(\beta, \gamma)$ при заданных ограничениях сводится к задаче поиска максимального значения функции вида $\alpha(x) = k_x x + k + \sqrt{q_{x^2} x^2 + q_x x + q}$ (с учетом этих ограничений), что не представляет труда (точкой максимума является либо точка локального экстремума, либо точка границы области определения функции).
+%Во всех случаях нахождения центра на одной из сторон треугольника задача нахождения максимального значения $\alpha(\beta, \gamma)$ при заданных ограничениях сводится к задаче поиска максимального значения функции вида $\alpha(x) = k_x x + k + \sqrt{q_{x^2} x^2 + q_x x + q}$ (с учетом этих ограничений), что не представляет труда (точкой максимума является либо точка локального экстремума, либо точка границы области определения функции).
+In all cases where the center is on one of the sides of the triangle, the problem of finding the maximum value of $\alpha(\beta, \gamma)$ under given constraints is reduced to the problem of finding the maximum value of a function of the form $\alpha(x) = k_x x + k + \sqrt {q_{x^2} x^2 + q_x x + q}$ (taking into account these restrictions), which is not difficult (the maximum point is either a local extremum point or a boundary point of the function's domain).
 
-Отдельно следует рассмотреть вариант, при котором центр искомой сферы находится внутри треугольника. В этом случае точка пересечения траектории $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с общей огибающей находится на общей касательной плоскости к сферам $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (плоскость $A'B'C'$, см. Fig.~\ref{fig:pic_general_envelope_2_size}).
+%Отдельно следует рассмотреть вариант, при котором центр искомой сферы находится внутри треугольника.
+Separately, we should consider the option in which the center of the desired sphere is inside the triangle.
+%В этом случае точка пересечения траектории $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с общей огибающей находится на общей касательной плоскости к сферам $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (плоскость $A'B'C'$, см. Fig.~\ref{fig:pic_general_envelope_2_size}).
+In this case, the point of intersection of the trajectory $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with the common envelope is on the common tangent plane to the spheres $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (plane $A'B'C'$, see Fig.~\ref{fig:pic_general_envelope_2_size}).
 
-Центр искомой сферы находится с точке пересечения плоскости $ABC$ и прямой, проходящей через точку $\vec{P}(\alpha)$ и направленной вдоль нормали к плоскости $A'B'C'$.
-Если вектор единичной нормали плоскости $A'B'C'$ обозначить через $\vec{n}$, то взаимосвязь точек плоскостей $ABC$ и $A'B'C'$ можно выразить следующим образом:
+%Центр искомой сферы находится с точке пересечения плоскости $ABC$ и прямой, проходящей через точку $\vec{P}(\alpha)$ и направленной вдоль нормали к плоскости $A'B'C'$.
+The center of the desired sphere is found at the point of intersection of the plane $ABC$ and the straight line passing through the point $\vec{P}(\alpha)$ and directed along the normal to the plane $A'B'C'$.
+%Если вектор единичной нормали плоскости $A'B'C'$ обозначить через $\vec{n}$, то взаимосвязь точек плоскостей $ABC$ и $A'B'C'$ можно выразить следующим образом:
+If the vector of the unit normal of the plane $A'B'C'$ is denoted by $\vec{n}$, then the relationship between the points of the planes $ABC$ and $A'B'C'$ can be expressed as follows:
 
 \begin{equation}
 \begin{cases}
@@ -468,8 +504,10 @@ q_{\beta} = 2 R_A R_{AB}, q_{\gamma} = 2 R_A R_{AC}, q = R_A^2
 \end{cases}
 \end{equation}
 
-Для нахождения вектора $\vec{n}$ воспользуемся тем фактом, что результат векторного произведения $\vec{A'B'} \times \vec{A'C'}$ коллинеарен вектору $\vec{n}$.
-Запишем это в явном виде
+%Для нахождения вектора $\vec{n}$ воспользуемся тем фактом, что результат векторного произведения $\vec{A'B'} \times \vec{A'C'}$ коллинеарен вектору $\vec{n}$.
+To find the vector $\vec{n}$, we use the fact that the result of the vector product $\vec{A'B'} \times \vec{A'C'}$ is collinear to the vector $\vec{n}$.
+%Запишем это в явном виде
+Let's write it explicitly
 
 \begin{equation}
 (\vec{AB} + \vec{n} R_{AB}) \times (\vec{AC} + \vec{n} R_{AC}) = t \vec{n}
@@ -501,8 +539,10 @@ t
 = \vec{AB} \times \vec{AC}
 \end{equation}
 
-Данное соотношение может выполняться при $t > 0$, либо при $t < 0$, что соответствует существованию двух общих касательных плоскостей к трем сферам.
-Перепишем приведенное соотношение в виде системы линейных уравнений относительно составляющих нормали при произвольном значении параметра $t$.
+%Данное соотношение может выполняться при $t > 0$, либо при $t < 0$, что соответствует существованию двух общих касательных плоскостей к трем сферам.
+This relation can be satisfied for $t > 0$, or for $t < 0$, which corresponds to the existence of two common tangent planes to three spheres.
+%Перепишем приведенное соотношение в виде системы линейных уравнений относительно составляющих нормали при произвольном значении параметра $t$.
+Let us rewrite the above relation as a system of linear equations with respect to the components of the normal for an arbitrary value of the parameter $t$.
 
 \begin{equation}
 \left[ { \begin{array}{ccc}
@@ -518,26 +558,33 @@ t
 = \vec{AB} \times \vec{AC}
 \end{equation}
 
-Из данной системы уравнений находятся два возможных направления нормали к общей касательной плоскости сфер $S(0,0)$, $S(1,0)$, $S(0, 1)$.
-Для каждого направления нормали находится плоскость $A'B'C'$ и точка $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ на ней (и сам искомый параметр $\alpha$).
-Данную точку можно учитывать в общем наборе решений только в том случае, если ей соответствует сфера $S(\beta, \gamma)$, параметры которой удовлетворяют трем условиям $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
-Параметры $\beta$ и $\gamma$ можно определить путем поиска точки пересечения прямой $\vec{P}(\alpha) - x \vec{n}$, $x \in \mathbb{R}$ и плоскости $ABC$.
+%Из данной системы уравнений находятся два возможных направления нормали к общей касательной плоскости сфер $S(0,0)$, $S(1,0)$, $S(0, 1)$.
+From this system of equations, two possible directions of the normal to the common tangent plane of the spheres $S(0,0)$, $S(1,0)$, $S(0, 1)$ are found.
+%Для каждого направления нормали находится плоскость $A'B'C'$ и точка $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ на ней (и сам искомый параметр $\alpha$).
+For each direction of the normal, the plane $A'B'C'$ and the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ on it (and the required parameter $\ alpha$).
+%Данную точку можно учитывать в общем наборе решений только в том случае, если ей соответствует сфера $S(\beta, \gamma)$, параметры которой удовлетворяют трем условиям $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
+This point can be taken into account in the general set of solutions only if it corresponds to the sphere $S(\beta, \gamma)$, whose parameters satisfy the three conditions $\beta \ge 0$, $\gamma \ge 0$, $ \beta + \gamma \le 1$.
+%Параметры $\beta$ и $\gamma$ можно определить путем поиска точки пересечения прямой $\vec{P}(\alpha) - x \vec{n}$, $x \in \mathbb{R}$ и плоскости $ABC$.
+The parameters $\beta$ and $\gamma$ can be determined by finding the intersection point of the line $\vec{P}(\alpha) - x \vec{n}$, $x \in \mathbb{R}$ and the plane $ABC$.
 
-Таким образом, найдя решения всех потенциально возможных частных случаев, представленных на Fig.~\ref{fig:pic_general_envelope_size}, находим множество решений $\alpha$, из которых для определения актуального нового положения точки $A'$ необходимо взять максимальное.
+%Таким образом, найдя решения всех потенциально возможных частных случаев, представленных на Fig.~\ref{fig:pic_general_envelope_size}, находим множество решений $\alpha$, из которых для определения актуального нового положения точки $A'$ необходимо взять максимальное.
+Thus, having found solutions to all potentially possible special cases presented in Fig.~\ref{fig:pic_general_envelope_size}, we find a set of solutions $\alpha$, from which, to determine the actual new position of the point $A'$, it is necessary to take the maximum one.
 
-Изложенный выше алгоритм касается определения смещения узла с учетом только одной инцидентной ячейки.
-При рассмотрении отдельного узла сетки требуется вычислить смещение данного узла относительно каждой инцидентной ячейки и выбрать среди этих смещений максимальное.
+%Изложенный выше алгоритм касается определения смещения узла с учетом только одной инцидентной ячейки.
+The above algorithm concerns the obtaining of the node offset given only one incident face.
+%При рассмотрении отдельного узла сетки требуется вычислить смещение данного узла относительно каждой инцидентной ячейки и выбрать среди этих смещений максимальное.
+When considering a separate mesh node, it is required to calculate the displacement of this node relative to each incident face and choose the maximum among these displacements.
 
 \begin{figure}[h]
   \centering
   \begin{minipage}[h]{0.55\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_general_envelope_3_size.pdf}
-    \caption{Иллюстрация затягивания впадины на 2D схеме.}\label{fig:pic_general_envelope_3_size}
+    \caption{Example of the tightening of a cavity in a 2D diagram.}\label{fig:pic_general_envelope_3_size}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.44\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_general_envelope_4_size.pdf}
-    \caption{Иллюстрация сглаживания острого пика на 2D схеме.}\label{fig:pic_general_envelope_4_size}
+    \caption{Example of smoothing a sharp peak in a 2D diagram.}\label{fig:pic_general_envelope_4_size}
   \end{minipage}
 \end{figure}
 
@@ -545,23 +592,32 @@ t
   \centering
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_envelope_cave.png}
-    \caption{Иллюстрация затягивания впадин для 3D поверхности.}\label{fig:pic_general_envelope_cave}
+    \caption{Example of trough tightening for a 3D surface.}\label{fig:pic_general_envelope_cave}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_envelope_peak.png}
-    \caption{Иллюстрация сглаживания острых пиков для 3D поверхности.}\label{fig:pic_envelope_peak}
+    \caption{Example of smoothing sharp peaks for a 3D surface.}\label{fig:pic_envelope_peak}
   \end{minipage}
 \end{figure}
 
-Алгоритм определения новых положений узлов по общей огибающей семейства сфер является линейным по количеству узлов (считаем, что на пригодных к расчетам сетках количество инцидентных ячеек для одного узла ограничено разумным числом) и не содержит итерационных процедур.
-Алгоритм обладает особенностью затягивать мелкие впадины и шумы на сетке.
-Это происходит из-за того, что узел $\vec{N}$, находясь на дне впадины, имеет возможность смещаться по направлению выхода из этой впадины на расстояние, большее $R(\vec{N})$, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_3_size}.
-Другой интересной особенностью является работа алгоритма на участках сетки с острыми выступами (Fig.~\ref{fig:pic_general_envelope_4_size}).
-Из данного рисунка видно, что в процессе работы алгоритма острые пики имеют тенденцию к сглаживанию. 
-Таким образом, новые положения узлов образуют более гладкую поверхность, чем она была до перестроения.
+%Алгоритм определения новых положений узлов по общей огибающей семейства сфер является линейным по количеству узлов (считаем, что на пригодных к расчетам сетках количество инцидентных ячеек для одного узла ограничено разумным числом) и не содержит итерационных процедур.
+The algorithm for determining the new positions of nodes from the common envelope of a family of spheres is linear in the number of nodes (we assume that on meshes suitable for calculations, the number of incident faces for one node is limited by a reasonable number) and does not contain iterative procedures.
+%Алгоритм обладает особенностью затягивать мелкие впадины и шумы на сетке.
+The algorithm has the peculiarity of tightening small depressions and noise on the mesh.
+%Это происходит из-за того, что узел $\vec{N}$, находясь на дне впадины, имеет возможность смещаться по направлению выхода из этой впадины на расстояние, большее $R(\vec{N})$, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_3_size}.
+This is due to the fact that the node $\vec{N}$, being at the bottom of the cavity, has the ability to move in the direction of exit from this cavity to a distance greater than $R(\vec{N})$, which is shown in Fig .~\ref{fig:pic_general_envelope_3_size}.
+%Другой интересной особенностью является работа алгоритма на участках сетки с острыми выступами (Fig.~\ref{fig:pic_general_envelope_4_size}).
+Another interesting feature is the operation of the algorithm on mesh areas with sharp projections (Fig.~\ref{fig:pic_general_envelope_4_size}).
+%Из данного рисунка видно, что в процессе работы алгоритма острые пики имеют тенденцию к сглаживанию.
+It can be seen from this figure that during the operation of the algorithm, sharp peaks tend to smooth out.
+%Таким образом, новые положения узлов образуют более гладкую поверхность, чем она была до перестроения.
+Thus, the new node positions form a smoother surface than it was before the rebuild.
 
-На Fig.~\ref{fig:pic_general_envelope_cave} продемонстрирован эффект затягивания впадин по сравнению с классическим методом призм (затягивание впадин на сетке отмечено синим цветом). На Fig.~\ref{fig:pic_envelope_peak} показан обратный эффект -- сглаживание острых пиков (по сравнению с тем же классическим методом призм).
+%На Fig.~\ref{fig:pic_general_envelope_cave} продемонстрирован эффект затягивания впадин по сравнению с классическим методом призм (затягивание впадин на сетке отмечено синим цветом).
+Fig.~\ref{fig:pic_general_envelope_cave} demonstrates the effect of cavity tightening compared to the classical prisms method (cavity tightening is marked in blue on the mesh).
+%На Fig.~\ref{fig:pic_envelope_peak} показан обратный эффект -- сглаживание острых пиков (по сравнению с тем же классическим методом призм).
+Fig.~\ref{fig:pic_envelope_peak} shows the opposite effect - smoothing of sharp peaks (compared to the same classical prisms method).
 
 %---------------------------------------------------------------------------------------------------
 
