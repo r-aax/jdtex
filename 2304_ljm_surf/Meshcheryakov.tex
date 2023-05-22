@@ -9,7 +9,7 @@ nofootinbib,%
 superscriptaddress,%
 noshowpacs,%
 centertags]%
-{revtex4}
+{revtex4-2}
 \usepackage{ljm}
 \usepackage{listings}
 \usepackage[utf8]{inputenc}
@@ -126,7 +126,7 @@ The solution of the surface rebuilding problem will be considered on an unstruct
 %Элементами расчетной сетки являются узлы ($N$), ребра ($e$)  и ячейки ($f$).
 The elements of the computational mesh are nodes ($N$), edges ($e$), and faces ($f$).
 %Для удобства каждый элемент сетки связан со всеми своими инцидентными элементами: так связаны между собой инцидентные узлы и ребра, узлы и ячейки, ребра и ячейки.
-For convenience, each mesh element is associated (linked) with all its incident elements: nodes are linked with incident edges, nodes are linked with incident faces, edges are linked with incident faces.
+For convenience, each mesh element is associated with all its incident elements: nodes are linked with incident edges, nodes are linked with incident faces, edges are linked with incident faces.
 %Множество инцидентных узлов будем обозначать $\mathscr{N}$, множество инцидентных ребер будем обозначать $\mathscr{E}$, а множество инцидентных ячеек будем обозначать $\mathscr{F}$.
 The set of incident nodes will be denoted by $\mathscr{N}$, the set of incident edges will be denoted by $\mathscr{E}$, and the set of incident faces will be denoted by $\mathscr{F}$.
 
@@ -142,7 +142,7 @@ First, the mesh must be complete, that is, each edge has exactly two incident no
 %Во-вторых, все ячейки должны представлять собой треугольники (это гарантирует, что ячейка является плоской, так как четыре и более произвольных узлов могут не лежать в одной плоскости).
 Second, all faces must be triangles (this ensures that the face is flat, since four or more arbitrary nodes may not lie in the same plane).
 %И в-третьих, рассматриваются только замкнутые сетки, представляющие собой поверхности, то есть каждое ребро имеет ровно две инцидентные ячейки.
-And thirdly, only closed meshes are considered, which are surfaces, that is, each edge has exactly two incident faces (there are no border edges).
+And thirdly, only closed meshes representing surfaces are considered, that is, each edge has exactly two incident faces (there are no border edges).
 
 \begin{equation}\label{eq_arch}
 \begin{cases}
@@ -230,7 +230,7 @@ However, unlike the previous method, the volume of ice accumulated in the face i
 %Высота этой усеченной пирамиды ищется из соотношения $V(f) = \frac{1}{3} h (2S + hS'_h + \sqrt{S(S + hS'_h)})$, где величина $S'_h$ определяется направлениями нормалей узлов ячейки.
 The height of this truncated pyramid is found from the relation $V(f) = \frac{1}{3} h (2S + hS'_h + \sqrt{S(S + hS'_h)})$, where $S'_h$ is determined by the directions of the normals of the nodes of the face.
 %Тогда как узлы ячейки являются точками первого основания построенной пирамиды, точки второго основания представляют собой новые положения узлов, вычисленных относительно рассматриваемой ячейки.
-While the nodes of the face are the points of the first base of the constructed pyramid, the points of the second base are the new positions of the nodes computed relative to the face in question.
+While the nodes of the face are the points of the first base of the constructed pyramid, the points of the second base are the new positions of the nodes computed relative to the considered face.
 %Таким образом, у каждого узла сетки вычисляется несколько новых положений (каждое из которых вычислено относительно своей инцидентной ячейки).
 Thus, for each mesh node, several new positions are calculated (each of which is calculated relative to its incident face).
 %Для двумерного случая получается ровно два таких новых положения (так как в двумерном случае каждый узел имеет ровно две инцидентные ячейки), для трехмерного случае таких точек более двух.
@@ -371,7 +371,7 @@ We will assume that the growth of ice at any point of growth is carried out simu
 %Тогда фронт распространения льда от произвольной точки $\vec{P}$ через промежуток времени $\Delta t$ будет иметь форму сферы с центром в точке $\vec{P}$ и радиусом $v(\vec{P}) \Delta t$.
 Then the ice propagation front from an arbitrary point $\vec{P}$ after a time interval $\Delta t$ will have the shape of a sphere centered at the point $\vec{P}$ and radius $v(\vec{P}) \Delta t$.
 %Далее будем предполагать, что выполняется расчет новых положений узлов через некоторый фиксированный момент времени $\Delta t$, то есть для каждого узла известен радиус продвижения фронта льда $R(\vec{N}) = v(\vec{N}) \Delta t$.
-Further, we will assume that the calculation of new positions of the nodes is performed after some fixed time $\Delta t$, that is, for each node, the radius of the ice front advance is known $R(\vec{N}) = v(\vec{N}) \Delta t$.
+Further, we will assume that the calculation of new positions of the nodes is performed after some fixed time $\Delta t$, that is, for each node, the radius of the ice front advance $R(\vec{N}) = v(\vec{N}) \Delta t$ is known.
 %Так как элементами расчетной сетки являются треугольники, то необходимо определить радиус продвижения фронта льда для каждой внутренней точки треугольника по данным его вершин.
 Since the elements of the computational mesh are triangles, it is necessary to determine the radius of advance of the ice front for each internal point of the triangle according to its vertices.
 
@@ -420,7 +420,7 @@ Let the trajectory of the point $\vec{A}$ be described by the half-line equation
 %$\vec{D}$ -- вектор направления движения точки, можно считать, что $|\vec{D}| = 1$.
 $\vec{D}$ is the direction vector of the point, we can assume that $|\vec{D}| = $1.
 %Для поиска точек пересечения траектории движения точки $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с произвольной сферой $S(\beta, \gamma)$ необходимо подставить координаты точки $\vec{P}(\alpha)$ в уравнение сферы $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, где $\vec{C}(\beta, \gamma)$ -- центр рассматриваемой сферы.
-To find the points of intersection of the trajectory of the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with an arbitrary sphere $S(\beta, \gamma)$, it is necessary to substitute the coordinates of the point $ \vec{P}(\alpha)$ into the equation of the sphere $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, where $\vec{C}(\beta, \gamma)$ is the center of the considered sphere.
+To find the intersection points of the trajectory of the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with an arbitrary sphere $S(\beta, \gamma)$, it is necessary to substitute the coordinates of the point $\vec{P}(\alpha)$ into the equation of the sphere $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, where $\vec{C}(\beta, \gamma)$ is the center of the considered sphere.
 %В результате получим следующее уравнение:
 As a result, we get the following equation:
 
@@ -435,7 +435,7 @@ This equation is quadratic, it has no more than two roots, which depend on the p
 %Для определения нового положения точки $\vec{A}$ необходимо найти максимальное значение вещественного корня такого уравнения для всех допустимых значений параметров.
 To determine the new position of the point $\vec{A}$, it is necessary to find the maximum value of the real root of such an equation for all admissible values of the parameters.
 %При этом точка пересечения траектории движения точки $\vec{A}$ с общей огибающей семейства сфер может находиться на разных участках этой огибающей, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_size} и связано с условиями, которым удовлетворяют параметры $\beta$ и $\gamma$ (пункты a), b), c) -- пересечение со сферой с центром в вершинах треугольника, пункты d), e), f) -- пересечение со сферой с центром на ребрах треугольника, пункт g) -- пересечение со сферой с центром внутри треугольника).
-In this case, the point of intersection of the trajectory of the movement of the point $\vec{A}$ with the common envelope of the family of spheres can be located in different parts of this envelope, which is shown in Fig.~\ref{fig:pic_general_envelope_size} and is associated with the conditions that the parameters $\beta$ and $\gamma$ (points a), b), c) -- intersection with a sphere centered at the vertices of the triangle, points d), e), f) -- intersection with a sphere centered on the edges of the triangle, point g) -- intersection with the sphere centered inside the triangle).
+In this case, the intersection point of the trajectory of the movement of the point $\vec{A}$ with the common envelope of the family of spheres can be located in different parts of this envelope, which is shown in Fig.~\ref{fig:pic_general_envelope_size} and is associated with the conditions that the parameters $\beta$ and $\gamma$ (points a), b), c) -- intersection with a sphere centered at the vertices of the triangle, points d), e), f) -- intersection with a sphere centered on the edges of the triangle, point g) -- intersection with the sphere centered inside the triangle).
 
 %Уравнение (\ref{eqn:intersect}) можно записать в виде $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ или в явном виде как квадратное уравнение:
 The equation (\ref{eqn:intersect}) can be written as $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ or explicitly as a quadratic equation:
@@ -487,7 +487,7 @@ If the center of the sphere is on side $BC$ of triangle $ABC$, the condition $\b
 In all cases where the center is on one of the sides of the triangle, the problem of finding the maximum value of $\alpha(\beta, \gamma)$ under given constraints is reduced to the problem of finding the maximum value of a function of the form $\alpha(x) = k_x x + k + \sqrt {q_{x^2} x^2 + q_x x + q}$ (taking into account these restrictions), which is not difficult (the maximum point is either a local extremum point or a boundary point of the function's domain).
 
 %Отдельно следует рассмотреть вариант, при котором центр искомой сферы находится внутри треугольника.
-Separately, we should consider the option in which the center of the desired sphere is inside the triangle.
+We should separately consider the option in which the center of the desired sphere is inside the triangle.
 %В этом случае точка пересечения траектории $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с общей огибающей находится на общей касательной плоскости к сферам $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (плоскость $A'B'C'$, см. Fig.~\ref{fig:pic_general_envelope_2_size}).
 In this case, the point of intersection of the trajectory $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with the common envelope is on the common tangent plane to the spheres $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (plane $A'B'C'$, see Fig.~\ref{fig:pic_general_envelope_2_size}).
 
@@ -561,7 +561,7 @@ Let us rewrite the above relation as a system of linear equations with respect t
 %Из данной системы уравнений находятся два возможных направления нормали к общей касательной плоскости сфер $S(0,0)$, $S(1,0)$, $S(0, 1)$.
 From this system of equations, two possible directions of the normal to the common tangent plane of the spheres $S(0,0)$, $S(1,0)$, $S(0, 1)$ are found.
 %Для каждого направления нормали находится плоскость $A'B'C'$ и точка $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ на ней (и сам искомый параметр $\alpha$).
-For each direction of the normal, the plane $A'B'C'$ and the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ on it (and the required parameter $\ alpha$).
+For each direction of the normal, the plane $A'B'C'$ and the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ on it (and the required parameter $\ alpha$) are found.
 %Данную точку можно учитывать в общем наборе решений только в том случае, если ей соответствует сфера $S(\beta, \gamma)$, параметры которой удовлетворяют трем условиям $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
 This point can be taken into account in the general set of solutions only if it corresponds to the sphere $S(\beta, \gamma)$, whose parameters satisfy the three conditions $\beta \ge 0$, $\gamma \ge 0$, $ \beta + \gamma \le 1$.
 %Параметры $\beta$ и $\gamma$ можно определить путем поиска точки пересечения прямой $\vec{P}(\alpha) - x \vec{n}$, $x \in \mathbb{R}$ и плоскости $ABC$.
@@ -931,7 +931,7 @@ To select the next face to bypass the mesh, we will rotate the current face arou
 %Первая ячейка и должна быть выбрана в качестве следующей для продолжения обхода.
 The first face must be selected as the next one to continue the mesh traverse.
 %Если через $\phi(A \rightarrow P)$  обозначить угол поворота исходной ячейки в направлении $\vec{n}_A$ до ячеки, инцидентной вершине $P$, то в качестве следующей ячейки для обхода необходимо выбрать ту, для которой $\phi(A \rightarrow B)$ будет минимально.
-If we denote by $\phi(A \rightarrow P)$ the angle of rotation of the original face in the direction $\vec{n}_A$ to the face incident with the vertex $P$, then as the next face to be traversed, one must choose the one for which $ \phi(A \rightarrow B)$ will be minimal.
+If we denote by $\phi(A \rightarrow P)$ the angle of rotation of the original face in the direction $\vec{n}_A$ to the face incident with the vertex $P$, then the face for which $\phi(A \rightarrow B)$ will be minimal should be selected as the next one for traverse.
 
 %Объединяя вместе оба рассмотренных случая, получаем критерий выбора следующей для обхода ячейки: должна быть выбрана ячейка, для которой значение показателя $f(P)$ максимально, где
 Combining both considered cases together, we obtain a criterion for choosing the next face to bypass: a face must be chosen for which the value of the function $f(P)$ is maximum, where
@@ -956,7 +956,7 @@ After removing the hidden faces, the target computational mesh again becomes cor
 \section{Conclusion}
 
 %В статье рассмотрен геометрический аспект задачи моделирования процесса ледообразования, а именно задача эволюции неструктурированной поверхностной расчетной сетки.
-The article considers the geometric aspect of the problem of modeling the process of ice formation, namely the problem of the evolution of an unstructured surface computational mesh.
+The article considers the geometric aspect of the problem of modeling the ice formation process, namely the problem of the unstructured surface computational mesh evolution.
 %В процессе эволюции изменение положения узлов сетки должно соответствовать объему накопленного льда в ячейках сетки, а сама сетка должна оставаться корректной, целостной и не содержать самопересечений.
 In the process of evolution, the change in the position of the mesh nodes must correspond to the volume of accumulated ice in the mesh faces, and the mesh itself must remain correct, complete, and not contain self-intersections.
 %В противном случае продолжение моделирования процесса ледообразования может оказаться невозможным.
