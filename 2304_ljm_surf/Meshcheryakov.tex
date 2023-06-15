@@ -473,9 +473,9 @@ To search for a new position of the point $\vec{A}$, it is required to find the 
 The maximum of the expression $\alpha(\beta, \gamma)$ is achieved either when the center of the sphere is inside the triangle or on one of its sides.
 
 %В случае нахождения центра сферы на стороне $AB$ треугольника $ABC$ выполняется условие $\gamma = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
-If the center of the sphere is on side $AB$ of triangle $ABC$, the condition $\gamma = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\gamma = 0}(\beta) = k_{\ beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
+If the center of the sphere is on side $AB$ of triangle $ABC$, the condition $\gamma = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
 %В случае нахождения центра сферы на стороне $AC$ треугольника $ABC$ выполняется условие $\beta = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
-If the center of the sphere is on side $AC$ of triangle $ABC$, the condition $\beta = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\beta = 0}(\gamma) = k_{\ gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
+If the center of the sphere is on side $AC$ of triangle $ABC$, the condition $\beta = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
 %В случае нахождения центра сферы на стороне $BC$ треугольника $ABC$ выполняется условие $\beta + \gamma = 1$, и выражение для величины $\alpha$ принимает следующий вид:
 If the center of the sphere is on side $BC$ of triangle $ABC$, the condition $\beta + \gamma = 1$ is satisfied, and the expression for $\alpha$ takes the following form:
 
@@ -562,7 +562,7 @@ Let us rewrite the above relation as a system of linear equations with respect t
 %Из данной системы уравнений находятся два возможных направления нормали к общей касательной плоскости сфер $S(0,0)$, $S(1,0)$, $S(0, 1)$.
 From this system of equations, two possible directions of the normal to the common tangent plane of the spheres $S(0,0)$, $S(1,0)$, $S(0, 1)$ are found.
 %Для каждого направления нормали находится плоскость $A'B'C'$ и точка $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ на ней (и сам искомый параметр $\alpha$).
-For each direction of the normal, the plane $A'B'C'$ and the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ on it (and the required parameter $\ alpha$) are found.
+For each direction of the normal, the plane $A'B'C'$ and the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ on it (and the required parameter $\alpha$) are found.
 %Данную точку можно учитывать в общем наборе решений только в том случае, если ей соответствует сфера $S(\beta, \gamma)$, параметры которой удовлетворяют трем условиям $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
 This point can be taken into account in the general set of solutions only if it corresponds to the sphere $S(\beta, \gamma)$, whose parameters satisfy the three conditions $\beta \ge 0$, $\gamma \ge 0$, $ \beta + \gamma \le 1$.
 %Параметры $\beta$ и $\gamma$ можно определить путем поиска точки пересечения прямой $\vec{P}(\alpha) - x \vec{n}$, $x \in \mathbb{R}$ и плоскости $ABC$.
@@ -580,7 +580,7 @@ When considering a separate mesh node, it is required to calculate the displacem
   \centering
   \begin{minipage}[h]{0.55\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_general_envelope_3_size.pdf}
-    \caption{Example of the tightening of a cavity in a 2D diagram.}\label{fig:pic_general_envelope_3_size}
+    \caption{Example of tightening of a cavity in a 2D diagram.}\label{fig:pic_general_envelope_3_size}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.44\textwidth}
@@ -593,7 +593,7 @@ When considering a separate mesh node, it is required to calculate the displacem
   \centering
   \begin{minipage}[h]{0.49\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_envelope_cave.png}
-    \caption{Example of trough tightening for a 3D surface.}\label{fig:pic_general_envelope_cave}
+    \caption{Example of tightening for a 3D surface.}\label{fig:pic_general_envelope_cave}
   \end{minipage}
   \hfill
   \begin{minipage}[h]{0.49\textwidth}
@@ -607,7 +607,7 @@ The algorithm for determining the new positions of nodes from the common envelop
 %Алгоритм обладает особенностью затягивать мелкие впадины и шумы на сетке.
 The algorithm has the peculiarity of tightening small depressions and noise on the mesh.
 %Это происходит из-за того, что узел $\vec{N}$, находясь на дне впадины, имеет возможность смещаться по направлению выхода из этой впадины на расстояние, большее $R(\vec{N})$, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_3_size}.
-This is due to the fact that the node $\vec{N}$, being at the bottom of the cavity, has the ability to move in the direction of exit from this cavity to a distance greater than $R(\vec{N})$, which is shown in Fig .~\ref{fig:pic_general_envelope_3_size}.
+This is due to the fact that the node $\vec{N}$, being at the bottom of the cavity, has the ability to move in the direction of exit from this cavity to a distance greater than $R(\vec{N})$, which is shown in Fig.~\ref{fig:pic_general_envelope_3_size}.
 %Другой интересной особенностью является работа алгоритма на участках сетки с острыми выступами (Fig.~\ref{fig:pic_general_envelope_4_size}).
 Another interesting feature is the operation of the algorithm on mesh areas with sharp projections (Fig.~\ref{fig:pic_general_envelope_4_size}).
 %Из данного рисунка видно, что в процессе работы алгоритма острые пики имеют тенденцию к сглаживанию.
@@ -764,7 +764,7 @@ It should be noted that in one operation, a container can be split into an arbit
 As the direction of splitting the container, it is advisable to choose the most extended one (along which the length of the container has the greatest value).
 
 %Построенное дерево контейнеров позволяет существенно сократить количество проверяемых потенциальных пересечений треугольников \cite{Jung}, так как если $[M] \cap [M'] = \emptyset$, $[T]$ -- дочерний контейнер для $[M]$, а $[T']$ -- дочерний контейнер для $[M']$, то $[T] \cap [T'] = \emptyset$.
-The constructed container tree makes it possible to significantly reduce the number of tested potential intersections of \cite{Jung} triangles, since if $[M] \cap [M'] = \emptyset$, $[T]$ is a child container for $[M]$ , and $[T']$ is a child container for $[M']$, then $[T] \cap [T'] = \emptyset$.
+The constructed container tree makes it possible to significantly reduce the number of tested potential intersections of triangles \cite{Jung}, since if $[M] \cap [M'] = \emptyset$, $[T]$ is a child container for $[M]$ , and $[T']$ is a child container for $[M']$, then $[T] \cap [T'] = \emptyset$.
 
 %После того, как найдены все пары потенциально пересекающихся треугольников, необходимо проверить, пересекаются ли они на самом деле.
 After all pairs of potentially intersecting triangles have been found, it is necessary to check whether they actually intersect.
@@ -775,12 +775,12 @@ The vertices of the intersection of two triangles are the points of intersection
 %Таким образом задача поиска пересечения двух треугольников сводится к поиску точек пересечения треугольника и отрезка.
 Thus, the problem of finding the intersection of two triangles is reduced to finding the intersection points of a triangle and a segment.
 %Данная задача может быть решена, с помощью представления треугольника $ABC$ в виде геометрического места точек $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, представления отрезка $QR$ в виде геометрического места точек $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ и поиска решения системы уравнений $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ относительно неизвестных $\beta$, $\gamma$, $\phi$ с учетом ограничений \cite{Freylekhman}.
-This problem can be solved by representing triangle $ABC$ as a locus of points $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\ beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, representations of the segment $QR$ as the locus of points $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ and finding a solution to the system of equations $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ with respect to the unknowns $\beta$, $\gamma$, $\phi$ subject to \cite{Freylekhman} constraints.
+This problem can be solved by representing triangle $ABC$ as a locus of points $\vec{P} = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}$, $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$, representations of the segment $QR$ as the locus of points $\vec{P} = \vec{Q} + \phi \vec{QR}$, $0 \le \phi \le 1$ and finding a solution to the system of equations $\vec{A} + \beta \vec{AB} + \gamma \vec{AC} = \vec{Q} + \phi \vec{QR}$ with respect to the unknowns $\beta$, $\gamma$, $\phi$ subject to constraints \cite{Freylekhman}.
 
 \subsection{Fixing intersecting triangles}
 
 %После того, как найдены все пары пересекающихся ячеек и области их пересечения, необходимо определить стратегию их устранения.
-After all pairs of intersecting faces and areas of their intersection are found, it is necessary to determine a strategy for their elimination.
+After all pairs of intersecting faces and areas of their intersections are found, it is necessary to determine a strategy for their elimination.
 %Все ячейки расчетной сетки можно разделить на три категории.
 All faces of the computational mesh can be divided into three categories.
 %Первая категория -- ячейки, которые не пересекаются ни с какими другими ячейками, и которые должны стать частью итоговой поверхности (будем считать, что в любой момент времени у нас есть возможность указать произвольное количество таких ячеек).
