@@ -59,7 +59,7 @@ escapeinside={\%*}{*)}
 
 \begin{abstract}
 %Задача моделирования обледенения поверхности обтекаемого тела является критической для обеспечения безопасности полетов в условия ледообразования.
-The problem of modeling the ice accretion of a streamlined body surface is critical for ensuring flight safety in conditions of ice formation.
+The problem of ice accretion modeling of a streamlined body surface is critical for ensuring flight safety in conditions of ice formation.
 %Формирование ледяных наростов на несущих частях и элементах силовых установок летальных аппаратов может существенно влиять на летные характеристики.
 The formation of ice growths on the bearing parts and elements of the power systems of aircraft can significantly affect the flight characteristics.
 %Сам процесс ледообразования является комплексным.
@@ -73,7 +73,7 @@ An important part of modeling is the evolution of the ice surface in the process
 %В настоящей статье рассматриваются различные подходы к моделированию эволюции поверхности, предлагается новый алгоритм построения новой поверхности с помощью общей огибающей семейства сфер, центры которых находятся на исходной поверхности.
 This article discusses various approaches to modeling the evolution of a surface and proposes a new algorithm for constructing a new surface using a common envelope for family of spheres whose centers are located on the original surface.
 %В процессе эволюции на поверхности могут образовываться различные артефакты и аномалии, из-за которых проведение дальнейших расчетов может стать невозможным.
-In the process of evolution, various artifacts and anomalies may form on the surface, due to which further calculations may become impossible.
+In the process of evolution, various artifacts and anomalies may arise on the surface, due to which further calculations may become impossible.
 %Для устранения этих препятствий в статье рассматриваются методы адаптации расчетной сетки в процессе эволюции, а также устранения потенциальных самопересечений, препятствующих дальнейшим расчетам.
 To eliminate these obstacles, the article considers methods for adapting the computational mesh in the process of evolution, as well as eliminating potential self-intersections that impede further calculations.
 \end{abstract}
@@ -276,7 +276,7 @@ V(h)=ah+bh^2+ch^3
 %где константы $a$, $b$, $c$ определяются позициями узлов грани, их нормалей и нормалью грани.
 where the constants $a$, $b$, $c$ are determined by the positions of the face nodes, their normals, and the face normal.
 %Рассмотрим корни квадратного уравнения, которое получается в результате дифференцирования уравнения \ref{Tong:1}.
-Consider the roots of the quadratic equation, which is obtained as a result of differentiation of the equation \ref{Tong:1}.
+Consider the roots of the quadratic equation, which is obtained as a result of differentiation of the equation (\ref{Tong:1}).
 %Если корни являются положительными вещественными значениями, наименьший положительный корень определяет высоту, на которой достигается максимальный объем, которая обозначается как $V_{max}$, иначе функция монотонна с возрастанием и ограничение на шаг в данной грани не требуется.
 If the roots are positive real values, the smallest positive root determines the height at which the maximum volume is reached, which is denoted as $V_{max}$, otherwise the function is monotonic with increasing and no step restriction is required in this face.
 %Исходя из этого, можно вычислить максимальную долю временного шага обледенения, которая требуется для обеспечения разумного поведения накопления объема.
@@ -349,17 +349,17 @@ Usually, the heights of two triangular faces that share a common edge will not b
 At this step, smoothing of heights is used while preserving the volume by redistributing it between adjacent faces.
 
 %Последним типом сглаживания является сглаживание в нулевом пространстве.
-The last type of smoothing is null space smoothing.
+The last type of smoothing is null-space smoothing.
 %Эволюция поверхности будет стремиться упаковать узлы в вогнутые области, где сходятся нормали к поверхности, тогда как расширение сетки происходит в выпуклых областях, где нормали к поверхности расходятся.
 Surface evolution will tend to pack nodes into concave regions where surface normals converge, while mesh expansion occurs in convex regions where surface normals diverge.
 %Если узлы не будут перераспределены, может стать невозможным продолжать продуктивный, стабильный временной шаг.
 If the nodes are not reallocated, it may become impossible to continue with a productive and stable time step.
 %Для улучшения качества поверхностной сетки узлы перераспределяются на поверхности с помощью сглаживания в нулевом пространстве.
-To improve the quality of the surface mesh, the nodes are redistributed on the surface using null space smoothing.
+To improve the quality of the surface mesh, the nodes are redistributed on the surface using null-space smoothing.
 %Этот метод способен перераспределять точки, сохраняя при этом целостность базовой геометрии.
 This method is able to redistribute points while maintaining the integrity of the base geometry.
 %Нулевое пространство определяется касательной плоскостью (для гладких областей), касательной линией (для складок поверхности) или пустым пространством (для углов), движущиеся в нем узлы остаются на поверхности, так что объем и форма поверхности могут быть сохранены (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
-Null space is defined by a tangent plane (for smooth areas), a tangent line (for surface wrinkles), or empty space (for corners), nodes moving in it remain on the surface, so that the volume and shape of the surface can be preserved (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
+Null-space is defined by a tangent plane (for smooth areas), a tangent line (for surface wrinkles), or empty space (for corners), nodes moving in it remain on the surface, so that the volume and shape of the surface can be preserved (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
 
 \subsection{Common envelope method}
 
@@ -609,7 +609,7 @@ The algorithm has the peculiarity of tightening small depressions and noise on t
 %Это происходит из-за того, что узел $\vec{N}$, находясь на дне впадины, имеет возможность смещаться по направлению выхода из этой впадины на расстояние, большее $R(\vec{N})$, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_3_size}.
 This is due to the fact that the node $\vec{N}$, being at the bottom of the cavity, has the ability to move in the direction of exit from this cavity to a distance greater than $R(\vec{N})$, which is shown in Fig.~\ref{fig:pic_general_envelope_3_size}.
 %Другой интересной особенностью является работа алгоритма на участках сетки с острыми выступами (Fig.~\ref{fig:pic_general_envelope_4_size}).
-Another interesting feature is the operation of the algorithm on mesh areas with sharp projections (Fig.~\ref{fig:pic_general_envelope_4_size}).
+Another interesting feature is the operation of the algorithm on mesh areas with sharp peaks (Fig.~\ref{fig:pic_general_envelope_4_size}).
 %Из данного рисунка видно, что в процессе работы алгоритма острые пики имеют тенденцию к сглаживанию.
 It can be seen from this figure that during the operation of the algorithm, sharp peaks tend to smooth out.
 %Таким образом, новые положения узлов образуют более гладкую поверхность, чем она была до перестроения.
@@ -658,7 +658,7 @@ It is worth noting that face partitioning can be performed while preserving the 
 %Если точка разбиения находится не внутри ячейки, а на ее ребре, то разбить придется также вторую инцидентную ячейку этого ребра (рассматриваются только сетки, ребра которых имеют ровно по две инцидентные ячейки, как это указано в (\ref{eq_arch}).
 If the split point is located not inside the face, but on its edge, then the second incident face of this edge will also have to be split (only meshes are considered whose edges have exactly two incident faces, as indicated in (\ref{eq_arch}).
 %Иногда для уменьшения размера требуется просто разбить ячейку на более мелкие без задания точек разбиения.
-Sometimes, to reduce the size, you simply need to split the face into smaller ones without setting split points.
+Sometimes, to reduce the size, it is simply needed to split the face into smaller ones without setting split points.
 %В этом случае необходимо следить за качеством результирующих ячеек.
 In this case, it is necessary to monitor the quality of the resulting faces.
 %Для определения качества формы ячейки треугольной формы с узлами $\vec{A}$, $\vec{B}$, $\vec{C}$ можно пользоваться простым критерием качества
@@ -875,7 +875,7 @@ If these two additional conditions are satisfied, we can state that if an edge h
 %Для получения результирующей поверхности необходимо избавиться от лишних ячеек, чтобы у каждого ребра вновь осталось ровно по 2 инцидентные ячейки.
 To obtain the resulting surface, it is necessary to get rid of extra faces so that each edge again has exactly 2 incident faces.
 %Для этого нужно выполнить обход сетки, начиная с любой статической ячейки, считая соседними две ячейки, имеющие общее инцидентное ребро (помечаемые в процессе обхода ячейки попадут в результирующую сетку).
-To do this, it is necessary to traverse the mesh, starting from any static face, considering two faces adjacent that have a common incident edge (the faces marked during the traversal will fall into the resulting mesh).
+To do this, it is necessary to traverse the mesh, starting from any static face, considering two faces adjacent that have a common incident edge (the faces marked during the traversal will be included into the resulting mesh).
 %При движении от некоторой ячейки через ребро, имеющее более двух инцидентных ячеек, возникает вопрос выбора ячейки, которая должна войти в результирующую сетку (при этом все остальные ячейки должны быть удалены).
 When moving from a certain face through an edge that has more than two incident faces, the question arises of choosing a face that should enter the resulting mesh (while all other faces should be deleted).
 
