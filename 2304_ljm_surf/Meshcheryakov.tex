@@ -52,10 +52,11 @@ escapeinside={\%*}{*)}
 \email[E-mail: ]{rybakov@jscc.ru, rybakov.aax@gmail.com}
 \affiliation{Joint Supercomputer Center of the Russian Academy of Sciences -- branch of Scientific Research Institute of System Analysis of the Russian Academy of Sciences, Leninsky prospect 32a, Moscow, 119334, Russia}
 
-\firstcollaboration{(Submitted by TODO)} % Add if you know submitter.
+\firstcollaboration{(Submitted by A.~M.~Elizarov)} % Add if you know submitter.
 %\lastcollaboration{ }
 
-\received{TODO}
+\received{June 25, 2023;  revised July 21, 2023; accepted July 30,
+2020}
 
 \begin{abstract}
 %Задача моделирования обледенения поверхности обтекаемого тела является критической для обеспечения безопасности полетов в условия ледообразования.
@@ -131,7 +132,7 @@ For convenience, each mesh element is associated with all its incident elements:
 The set of incident nodes will be denoted by $\mathscr{N}$, the set of incident edges will be denoted by $\mathscr{E}$, and the set of incident faces will be denoted by $\mathscr{F}$.
 
 \begin{figure}[h]
-\includegraphics[width=0.48\textwidth]{pics/pic_architecture_size.pdf}
+\includegraphics[width=0.4\textwidth]{pics/pic_architecture_size.pdf}
 \captionstyle{center}\caption{The architecture of the computational mesh.}\label{fig:pic_architecture}
 \end{figure}
 
@@ -142,25 +143,25 @@ First, the mesh must be complete, that is, each edge has exactly two incident no
 %Во-вторых, все ячейки должны представлять собой треугольники (это гарантирует, что ячейка является плоской, так как четыре и более произвольных узлов могут не лежать в одной плоскости).
 Second, all faces must be triangles (this ensures that the face is flat, since four or more arbitrary nodes may not lie in the same plane).
 %И в-третьих, рассматриваются только замкнутые сетки, представляющие собой поверхности, то есть каждое ребро имеет ровно две инцидентные ячейки.
-And thirdly, only closed meshes representing surfaces are considered, that is, each edge has exactly two incident faces (there are no border edges).
-
+And thirdly, only closed meshes representing  surfaces are
+considered, that is, each edge has exactly two incident faces (there
+are no border edges).
 \begin{equation}\label{eq_arch}
 \begin{cases}
-\forall N \Rightarrow \mathscr{E}(N) > 2, \mathscr{F}(N) > 2 \\
-\forall e \Rightarrow \mathscr{N}(e) = 2 , \mathscr{F}(e) = 2 \\
-\forall f \Rightarrow \mathscr{N}(f) = 3 , \mathscr{E}(f) = 3 \\
+\forall N \Rightarrow \mathscr{E}(N) > 2, \mathscr{F}(N) > 2, \\
+\forall e \Rightarrow \mathscr{N}(e) = 2 , \mathscr{F}(e) = 2, \\
+\forall f \Rightarrow \mathscr{N}(f) = 3 , \mathscr{E}(f) = 3. \\
 \end{cases}
 \end{equation}
-
 %В качестве дополнения также будем требовать, чтобы сетка представляла собой двустороннюю поверхность, для каждой ячейки однозначно определена нормаль к поверхности $\vec{n}_f$.
 As a supplement, we will also require that the mesh is a two-sided surface, for each face the normal vector to the surface $\vec{n}_f$ is uniquely defined.
 %Также никакие два узла сетки не совпадают и отсутствуют ячейки с нулевой площадью (так как это сделает невозможным вычислений нормалей).
 Also, no two mesh nodes are the same and there are no faces with zero area (since this would make it impossible to calculate normals).
 %Для узла сетки будем рассматривать понятие нормали к поверхности и определять эту нормаль как
 For a mesh node, we will consider the concept of a normal to the surface and define this normal as
-
 \begin{equation}
-\vec{n}_n(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{\vec{n}_f(f)}
+\vec{n}_n(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in
+\mathscr{F}(N)}{\vec{n}_f(f)}.
 \end{equation}
 
 %---------------------------------------------------------------------------------------------------
@@ -195,12 +196,12 @@ Note that in the two-dimensional formulation, we can find the optimal solution (
 
 \begin{figure}[h]
   \centering
-  \begin{minipage}[h]{0.49\textwidth}
+  \begin{minipage}[h]{0.6\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_classical_methods_rectangles_size.pdf}
     \caption{Rebuilding the surface using the method of rectangles in 2D.}\label{fig:pic_classical_methods_rectangles}
   \end{minipage}
   \hfill
-  \begin{minipage}[h]{0.49\textwidth}
+  \begin{minipage}[h]{0.6\textwidth}
     \includegraphics[width=\textwidth]{pics/pic_classical_methods_trapezoids_size.pdf}
     \caption{Surface rebuilding using the trapezoids method in 2D.}\label{fig:pic_classical_methods_trapezoids}
   \end{minipage}
@@ -213,12 +214,14 @@ In this method, the input data is the amount of accumulated ice in each mesh fac
 %На первым шаге в каждой ячейке ищется толщина ледяного покрова в предположении, что лед в пределах одной ячейки имеет форму призмы, и ячейка является основанием этой призмы.
 At the first step, the thickness of the ice cover is searched for in each face, assuming that the ice within one face has the shape of a prism, and the face is the base of this prism.
 %Тогда толщина ледяного покрова равняется $h(f) = \frac{V(f)}{S(f)}$, где $S(f)$ -- площадь ячейки.
-Then the thickness of the ice cover is equal to $h(f) = \frac{V(f)}{S(f)}$, where $S(f)$ is the face area.
+Then, the thickness of the ice cover is equal to $h(f) =
+\frac{V(f)}{S(f)}$, where $S(f)$ is the face area.
 %После чего величина смещения каждого узла вычисляется просто как среднее арифметическое высот ледяного покрова во всех инцидентных ячейках:
-After that, the displacement value of each node is calculated simply as the arithmetic average of the ice cover heights in all incident faces:
-
+After that, the displacement value of each node is calculated simply
+as the arithmetic average of the ice cover heights in all incident
+faces
 \begin{equation}
-h(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{h(f)}
+h(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{h(f)}.
 \end{equation}
 
 %Второй метод можно назвать методом пирамид (в двумерной постановке аналогом данного метод является метод трапеций, показанный на Fig.~\ref{fig:pic_classical_methods_trapezoids}).
@@ -267,14 +270,17 @@ The multilayer approach implemented in this method does not use a constant numbe
 %Наиболее очевидный случай возникает, когда проекции нормалей граней пересекаются, в этом случае слишком большой временной шаг приведет к складыванию поверхности.
 The most obvious case occurs when the face normal projections intersect, in which case too large time step will cause the surface to fold.
 %Чтобы идентифицировать грани, которые будут демонстрировать подобное поведение на текущем временном шаге, предполагается, что объем, образованный путем вытягивания треугольной грани с использованием параллельной плоскости смещения, образует призматоид, объем которого определяется кубической функцией высоты $h$:
-In order to identify faces that will exhibit such behavior at the current time step, it is assumed that the volume formed by extruding a triangular face using a parallel displacement plane forms a prismatoid whose volume is given by the cubic function of the height $h$:
-
+In order to  identify faces that will exhibit such behavior at the
+current time step, it is assumed that the volume formed by extruding
+a triangular face using a parallel displacement plane forms a
+prismatoid whose volume is given by the cubic function of the height
+$h$:
 \begin{equation}\label{Tong:1}
-V(h)=ah+bh^2+ch^3
+V(h)=ah+bh^2+ch^3.
 \end{equation}
-
 %где константы $a$, $b$, $c$ определяются позициями узлов грани, их нормалей и нормалью грани.
-where the constants $a$, $b$, $c$ are determined by the positions of the face nodes, their normals, and the face normal.
+where the constants $a$, $b$, $c$ are determined by the  positions
+of the face nodes, their normals, and the face normal.
 %Рассмотрим корни квадратного уравнения, которое получается в результате дифференцирования уравнения \ref{Tong:1}.
 Consider the roots of the quadratic equation, which is obtained as a result of differentiation of the equation (\ref{Tong:1}).
 %Если корни являются положительными вещественными значениями, наименьший положительный корень определяет высоту, на которой достигается максимальный объем, которая обозначается как $V_{max}$, иначе функция монотонна с возрастанием и ограничение на шаг в данной грани не требуется.
@@ -285,20 +291,23 @@ From this, it is possible to calculate the maximum fraction of the icing time st
 In addition to this step size limit, a $\alpha_{jiao}$ stability limit has been introduced.
 This stability limit is based on how normal directions change as the surface evolves \cite{Jiao}.
 %Тогда, допустимая доля временного шага для $i$-й грани определяется как
-Then, the allowable fraction of the time step for the $i$-th face is defined as
-
+Then, the allowable fraction of the time step for the $i$th face is
+defined as
 \begin{equation}\label{Tong:2}
 \alpha_{\Delta t}^i=
 \begin{cases}
-min(s_{\Delta t}\frac{V_{max}^i}{V_f},\alpha_{jiao},1), \text{if $V_{max}^i$ exists}, \\
-\alpha_{jiao}, \text{if $V_{max}^i$ doesn't exist}
+\min(s_{\Delta t}\frac{V_{\max}^i}{V_f},\alpha_{jiao},1), \text{if $V_{\max}^i$ exists}, \\
+\alpha_{jiao}, \text{if $V_{\max}^i$ doesn't exist},
 \end{cases}
 \end{equation}
-
 %где $s_{\Delta t}$ ($0 < s_{\Delta t} < 1$) -- эмпирически определяемый коэффициент, $V_f$ -- текущий оставшийся объем приращения льда для $i$-й грани.
-where $s_{\Delta t}$ ($0 < s_{\Delta t} < 1$) is an empirically determined coefficient, $V_f$ is the current remaining ice increment volume for the $i$-th face.
+where $s_{\Delta t}$ ($0 < s_{\Delta t} < 1$) is an  empirically
+determined coefficient, $V_f$ is the current remaining ice increment
+volume for the $i$th face.
 %Тогда объем, наращенный для текущего шага, равен $\alpha_{\Delta t} V_f$, где $\alpha_{\Delta t}$ представляет собой глобальное минимальное значение для всех граней.
-Then the volume built up for the current step is $\alpha_{\Delta t} V_f$, where $\alpha_{\Delta t}$ is the global minimum value for all faces.
+Then, the volume built up for the current step is $\alpha_{\Delta t}
+V_f$, where $\alpha_{\Delta t}$ is the global minimum value for all
+faces.
 
 %Другой важной особенностью алгоритма является введение первичного и нулевого простанств, описанных в \cite{Jiao_null_space_smooth}.
 Another important feature of the algorithm is the introduction of primary and null spaces, described in \cite{Jiao_null_space_smooth}.
@@ -320,7 +329,9 @@ This method can improve surface smoothness in some situations.
 %Основная цель сглаживания нормалей -— вытолкнуть точки из вогнутых областей, где нормали могут локально сходиться.
 The main purpose of normal smoothing is to push points out of concave areas where normals can converge locally.
 %Сглаживание нормалей достигается с помощью серий взвешенных средних, которые предназначены для придания веса нормалям, генерируемым проблемными областями.
-Normal smoothing is achieved using a series of weighted averages, which are designed to give weight to the normals generated by problem areas.
+Normal smoothing is achieved using a series of weighted averages,
+which are designed to give weight to the normals generated by
+problem areas.
 
 \begin{figure}[h]
   \centering
@@ -359,34 +370,44 @@ To improve the quality of the surface mesh, the nodes are redistributed on the s
 %Этот метод способен перераспределять точки, сохраняя при этом целостность базовой геометрии.
 This method is able to redistribute points while maintaining the integrity of the base geometry.
 %Нулевое пространство определяется касательной плоскостью (для гладких областей), касательной линией (для складок поверхности) или пустым пространством (для углов), движущиеся в нем узлы остаются на поверхности, так что объем и форма поверхности могут быть сохранены (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
-Null-space is defined by a tangent plane (for smooth areas), a tangent line (for surface wrinkles), or empty space (for corners), nodes moving in it remain on the surface, so that the volume and shape of the surface can be preserved (Fig.~\ref{fig:pic_smooth_before}, Fig.~\ref{fig:pic_smooth_after}).
+Null-space is defined by a tangent plane (for smooth areas),  a
+tangent line (for surface wrinkles), or empty space (for corners),
+nodes moving in it remain on the surface, so that the volume and
+shape of the surface can be preserved
+(Figs.~\ref{fig:pic_smooth_before} and \ref{fig:pic_smooth_after}).
 
 \subsection{Common envelope method}
-
 %Рассмотрим задачу определения новых положений узлов расчетной сетки немного в другой постановке.
-Let us consider the problem of determining the new positions of the nodes of the computational mesh in a slightly different formulation.
+Let us consider the problem of determining the new positions of the
+nodes of the computational mesh in a slightly different formulation.
 %Пусть для каждого узла $\vec{N}$ известна линейная скорость нарастания льда $v(\vec{N})$ (в метрах в секунду).
-Let the linear rate of ice growth $v(\vec{N})$ (in meters per second) be known for each node $\vec{N}$.
+Let the linear rate of ice growth $v(\vec{N})$ (in meters per
+second) be  known for each node $\vec{N}$.
 %Будем считать, что нарастание льда в любой точке роста выполняется одновременно во всех направлениях аналогично принципу Гюйгенса-Френеля распространения волн.
-We will assume that the growth of ice at any point of growth is carried out simultaneously in all directions, similar to the Huygens-Fresnel principle of wave propagation.
+We will assume that the growth of ice at any point of growth  is
+carried out simultaneously in all directions, similar to the
+Huygens--Fresnel principle of wave propagation.
 %Тогда фронт распространения льда от произвольной точки $\vec{P}$ через промежуток времени $\Delta t$ будет иметь форму сферы с центром в точке $\vec{P}$ и радиусом $v(\vec{P}) \Delta t$.
-Then the ice propagation front from an arbitrary point $\vec{P}$ after a time interval $\Delta t$ will have the shape of a sphere with center in the point $\vec{P}$ and radius $v(\vec{P}) \Delta t$.
+Then, the ice propagation front from an arbitrary point $\vec{P}$
+after a time interval $\Delta t$ will have the shape of a sphere
+with center in the point $\vec{P}$ and radius $v(\vec{P}) \Delta t$.
 %Далее будем предполагать, что выполняется расчет новых положений узлов через некоторый фиксированный момент времени $\Delta t$, то есть для каждого узла известен радиус продвижения фронта льда $R(\vec{N}) = v(\vec{N}) \Delta t$.
 Further, we will assume that the calculation of new positions of the nodes is performed after some fixed time $\Delta t$, that is, for each node, the radius of the ice front advance $R(\vec{N}) = v(\vec{N}) \Delta t$ is known.
 %Так как элементами расчетной сетки являются треугольники, то необходимо определить радиус продвижения фронта льда для каждой внутренней точки треугольника по данным его вершин.
-Since the elements of the computational mesh are triangles, it is necessary to determine the radius of advance of the ice front for each internal point of the triangle according to its vertices.
+Since the elements of the computational mesh are triangles, it is
+necessary to determine the radius of advance of the ice front for
+each internal point of the triangle according to its vertices.
 
 %Рассмотрим ячейку расчетной сетки, вершинами которой являются точки $\vec{A}$, $\vec{B}$, $\vec{C}$.
 Consider a computational mesh face whose vertices are the points $\vec{A}$, $\vec{B}$, $\vec{C}$.
 %Точки треугольника представляют собой геометрическое место точек, описываемое следующим образом:
-The points of a triangle are the locus of points described as follows:
-
+The points of a triangle are the locus of points described as
+follows
 \begin{equation}
 \begin{cases}
-\vec{P}(\beta, \gamma) = \vec{A} + \beta (\vec{B} - \vec{A}) + \gamma (\vec{C} - \vec{A}) = \vec{A} + \beta \vec{AB} + \gamma \vec{AC} \\
-\beta \ge 0 \\
-\gamma \ge 0 \\
-\beta + \gamma \le 1
+\vec{P}(\beta, \gamma) = \vec{A} + \beta (\vec{B} - \vec{A}) + \gamma (\vec{C} -
+\vec{A}) = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}, \\
+\beta \ge 0, \quad \gamma \ge 0, \quad \beta + \gamma \le 1.
 \end{cases}
 \end{equation}
 
@@ -395,7 +416,9 @@ Let us define for each point of the triangle $\vec{P}(\beta, \gamma)$ the radius
 %Фронт продвижения льда от точки $\vec{P}(\beta, \gamma)$ представляет собой сферу $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta, \gamma))$.
 The front of ice advance from the point $\vec{P}(\beta, \gamma)$ is a sphere $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta,\gamma))$.
 %Фронтом продвижения льда всей треугольной ячейки будем считать общую огибающую сфер, построенных на всех точках этой ячейки, что показано на Fig.~\ref{fig:pic_general_envelope_size}.
-The ice advance front of the entire triangular face is the common envelope of the spheres built on all points of this face, which is shown in Fig.~\ref{fig:pic_general_envelope_size}.
+The ice advance front of the entire triangular face is  the common
+envelope of the spheres built on all points of this face, which is
+shown in Fig.~\ref{fig:pic_general_envelope_size}.
 
 \begin{figure}
   \centering
@@ -411,24 +434,37 @@ The ice advance front of the entire triangular face is the common envelope of th
 \end{figure}
 
 %При изменении положения узлов расчетной сетки (точки $\vec{A}$, $\vec{B}$, $\vec{C}$) будем исходить из предположения, что после перемещения узлы будут находиться на общей огибающей поверхности множества сфер $S(\beta, \gamma)$ (новые положения узлов -- точки $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
-When changing the nodes positions of the computational mesh (points $\vec{A}$, $\vec{B}$, $\vec{C}$), we will proceed from the assumption that after moving the nodes will be on the common envelope surface for set of spheres $ S(\beta, \gamma)$ (new node positions -- points $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
+When changing the nodes positions of the computational  mesh (points
+$\vec{A}$, $\vec{B}$, $\vec{C}$), we will proceed from the
+assumption that after moving the nodes will be on the common
+envelope surface for set of spheres $ S(\beta, \gamma)$ (new node
+positions -- points $\vec{A'}$, $\vec{B'}$, $\vec{C'}$).
 %Пока в расчете не учитываем влияние соседних расчетных ячеек.
-So far, we do not take into account the influence of neighboring computational faces in the calculation.
+So far, we do not take into account the influence of neighboring
+computational faces in the calculation.
 %Без ограничения общности можно рассмотреть только одну вершину ячейки (точка $\vec{A}$).
 Without loss of generality, we can consider only one face vertex (point $\vec{A}$).
 %Пусть траектория движения точки $\vec{A}$ описывается уравнением полупрямой $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ при $\alpha \ge 0$.
-Let the trajectory of the point $\vec{A}$ be described by the half-line equation $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ for $\alpha \ge 0$.
+Let the trajectory of the point $\vec{A}$ be described by the
+half-line equation $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ for
+$\alpha \ge 0$.
 %$\vec{D}$ -- вектор направления движения точки, можно считать, что $|\vec{D}| = 1$.
-$\vec{D}$ is the direction vector of the point, we can assume that $|\vec{D}| = $1.
+$\vec{D}$ is the direction vector of the point, we can assume  that
+$|\vec{D}| = $1.
 %Для поиска точек пересечения траектории движения точки $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с произвольной сферой $S(\beta, \gamma)$ необходимо подставить координаты точки $\vec{P}(\alpha)$ в уравнение сферы $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, где $\vec{C}(\beta, \gamma)$ -- центр рассматриваемой сферы.
-To find the intersection points of the trajectory of the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with an arbitrary sphere $S(\beta, \gamma)$, it is necessary to substitute the coordinates of the point $\vec{P}(\alpha)$ into the equation of the sphere $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$, where $\vec{C}(\beta, \gamma)$ is the center of the considered sphere.
+To find the intersection points of the trajectory of the point
+$\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with an arbitrary
+sphere $S(\beta, \gamma)$, it is necessary to substitute the
+coordinates of the point $\vec{P}(\alpha)$ into the equation of the
+sphere $|\vec{P} - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)$,
+where $\vec{C}(\beta, \gamma)$ is the center of the considered
+sphere.
 %В результате получим следующее уравнение:
-As a result, we get the following equation:
-
+As a result, we get the following equation
 \begin{equation}\label{eqn:intersect}
-|(\vec{A} + \alpha \vec{D}) - \vec{C}(\beta, \gamma)| = R(\beta, \gamma)
+|(\vec{A} + \alpha \vec{D}) - \vec{C}(\beta, \gamma)| = R(\beta,
+\gamma).
 \end{equation}
-
 %Это уравнение нужно решить относительно неизвестной $\alpha$ при фиксированных параметрах $\beta$ и $\gamma$.
 This equation must be solved for the unknown $\alpha$ with fixed parameters $\beta$ and $\gamma$.
 %Это уравнение является квадратным, оно имеет не более двух корней, которые зависят от параметров $\alpha_{1,2} = \alpha_{1,2}(\beta, \gamma)$.
@@ -436,88 +472,125 @@ This equation is quadratic, it has no more than two roots, which depend on the p
 %Для определения нового положения точки $\vec{A}$ необходимо найти максимальное значение вещественного корня такого уравнения для всех допустимых значений параметров.
 To determine the new position of the point $\vec{A}$, it is necessary to find the maximum value of the real root of such an equation for all admissible values of the parameters.
 %При этом точка пересечения траектории движения точки $\vec{A}$ с общей огибающей семейства сфер может находиться на разных участках этой огибающей, что продемонстрировано на Fig.~\ref{fig:pic_general_envelope_size} и связано с условиями, которым удовлетворяют параметры $\beta$ и $\gamma$ (пункты a), b), c) -- пересечение со сферой с центром в вершинах треугольника, пункты d), e), f) -- пересечение со сферой с центром на ребрах треугольника, пункт g) -- пересечение со сферой с центром внутри треугольника).
-In this case, the intersection point of the trajectory of the movement of the point $\vec{A}$ with the common envelope of the family of spheres can be located in different parts of this envelope, which is shown in Fig.~\ref{fig:pic_general_envelope_size} and is associated with the conditions that the parameters $\beta$ and $\gamma$ (points a), b), c) -- intersection with a sphere with center in the triangle vertices, points d), e), f) -- intersection with a sphere with center on the triangle edges, point g) -- intersection with the sphere centered inside the triangle).
+In this case, the intersection point of the trajectory of the
+movement of the point  $\vec{A}$ with the common envelope of the
+family of spheres can be located in different parts of this
+envelope, which is shown in Fig.~\ref{fig:pic_general_envelope_size}
+and is associated with the conditions that the parameters $\beta$
+and $\gamma$ (points a), b), c) -- intersection with a sphere with
+center in the triangle vertices, points d), e), f) -- intersection
+with a sphere with center on the triangle edges, point g) --
+intersection with the sphere centered inside the triangle).
 
 %Уравнение (\ref{eqn:intersect}) можно записать в виде $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ или в явном виде как квадратное уравнение:
-The equation (\ref{eqn:intersect}) can be written as $|\alpha \vec{D} - (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta R_{AB} + \gamma R_{AC})^2$ or explicitly as a quadratic equation:
-
+The equation (\ref{eqn:intersect}) can be written as $|\alpha
+\vec{D} -  (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta
+R_{AB} + \gamma R_{AC})^2$ or explicitly as a quadratic equation
 \begin{equation}
-|\vec{D}|^2 \alpha^2 - 2(\beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC})) \alpha + |\beta \vec{AB} + \gamma \vec{AC}|^2 - (R_A + \beta R_{AB} + \gamma R_{AC})^2 = 0
+|\vec{D}|^2 \alpha^2 - 2(\beta (\vec{D}, \vec{AB}) +  \gamma
+(\vec{D}, \vec{AC})) \alpha + |\beta \vec{AB} + \gamma \vec{AC}|^2 -
+(R_A + \beta R_{AB} + \gamma R_{AC})^2 = 0
 \end{equation}
-
 %Наибольший корень этого уравнения (с учетом условия $|\vec{D}| = 1$) можно выписать в явном виде:
-The largest root of this equation (taking into account the condition $|\vec{D}| = 1$) can be written explicitly:
-
+The largest root of this equation (taking into account the condition
+$|\vec{D}| = 1$) can be written explicitly
 \begin{multline}
-\alpha(\beta, \gamma) = \beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}) + \\
-\sqrt{(\beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}))^2 - |\beta \vec{AB} + \gamma \vec{AC}|^2 + (R_A + \beta R_{AB} + \gamma R_{AC})^2}
+\alpha(\beta, \gamma) = \beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}) \\
++\sqrt{(\beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}))^2 -
+|\beta \vec{AB} + \gamma \vec{AC}|^2 + (R_A + \beta R_{AB} + \gamma
+R_{AC})^2}
 \end{multline}
-
-%или
 or
-
 \begin{equation}
 \begin{cases}
-\alpha(\beta, \gamma) = k_{\beta} \beta + k_{\gamma} \gamma + \sqrt{T} \\
-T = q_{\beta^2} \beta^2 + q_{\gamma^2} \gamma^2 + q_{\beta \gamma} \beta \gamma + q_{\beta} \beta + q_{\gamma} \gamma + q \\
-k_{\beta} = (\vec{D}, \vec{AB}), k_{\gamma} = (\vec{D}, \vec{AC}) \\
-q_{\beta^2} = (\vec{D}, \vec{AB})^2 - |\vec{AB}|^2 + R_{AB}^2, q_{\gamma^2} = (\vec{D}, \vec{AC})^2 - |\vec{AC}|^2 + R_{AC}^2 \\
-q_{\beta \gamma} = 2 ((\vec{D}, \vec{AB})(\vec{D}, \vec{AC}) - (\vec{AB}, \vec{AC}) + R_{AB} R_{AC}) \\
-q_{\beta} = 2 R_A R_{AB}, q_{\gamma} = 2 R_A R_{AC}, q = R_A^2
+\alpha(\beta, \gamma) = k_{\beta} \beta + k_{\gamma} \gamma + \sqrt{T}, \\
+T = q_{\beta^2} \beta^2 + q_{\gamma^2} \gamma^2 + q_{\beta \gamma} \beta \gamma + q_{\beta} \beta + q_{\gamma}
+\gamma + q, \\
+k_{\beta} = (\vec{D}, \vec{AB}), k_{\gamma} = (\vec{D}, \vec{AC}), \\
+q_{\beta^2} = (\vec{D}, \vec{AB})^2 - |\vec{AB}|^2 + R_{AB}^2, q_{\gamma^2} = (\vec{D}, \vec{AC})^2 -
+|\vec{AC}|^2 + R_{AC}^2, \\
+q_{\beta \gamma} = 2 ((\vec{D}, \vec{AB})(\vec{D}, \vec{AC}) - (\vec{AB}, \vec{AC}) + R_{AB} R_{AC}), \\
+q_{\beta} = 2 R_A R_{AB}, q_{\gamma} = 2 R_A R_{AC}, q = R_A^2.
 \end{cases}
 \end{equation}
-
-%Для поиска нового положения точки $\vec{A}$ требуется найти максимум выражения $\alpha(\beta, \gamma)$ при условии соблюдения ограничений $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
-To search for a new position of the point $\vec{A}$, it is required to find the maximum of the expression $\alpha(\beta, \gamma)$ subject to the constraints $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
+To search for a new position of the point $\vec{A}$, it is required
+to find the maximum of the expression $\alpha(\beta, \gamma)$
+subject to the constraints $\beta \ge 0$, $\gamma \ge 0$, $\beta +
+\gamma \le 1$.
 %Максимум выражения $\alpha(\beta, \gamma)$ достигается либо при условии нахождения центра сферы внутри треугольника, либо на одной из его сторон.
-The maximum of the expression $\alpha(\beta, \gamma)$ is achieved either when the center of the sphere is inside the triangle or on one of its sides.
+The maximum of the expression $\alpha(\beta, \gamma)$ is achieved
+either when the center of the sphere is inside the triangle or on
+one of its sides.
 
 %В случае нахождения центра сферы на стороне $AB$ треугольника $ABC$ выполняется условие $\gamma = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
-If the center of the sphere is on side $AB$ of triangle $ABC$, the condition $\gamma = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2} \beta^2 + q_{\beta} \beta + q}$.
+If the center of the sphere is on side $AB$ of triangle  $ABC$, the
+condition $\gamma = 0$ is satisfied, and the expression for $\alpha$
+is $\alpha_{\gamma = 0}(\beta) = k_{\beta} \beta + \sqrt{q_{\beta^2}
+\beta^2 + q_{\beta} \beta + q}$.
 %В случае нахождения центра сферы на стороне $AC$ треугольника $ABC$ выполняется условие $\beta = 0$, и выражение для величины $\alpha$ имеет вид $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
-If the center of the sphere is on side $AC$ of triangle $ABC$, the condition $\beta = 0$ is satisfied, and the expression for $\alpha$ is $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma + \sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
+If the center of the sphere is on side $AC$ of triangle $ABC$,  the
+condition $\beta = 0$ is satisfied, and the expression for $\alpha$
+is $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma +
+\sqrt{q_{\gamma^2} \gamma^2 + q_{\gamma} \gamma + q}$.
 %В случае нахождения центра сферы на стороне $BC$ треугольника $ABC$ выполняется условие $\beta + \gamma = 1$, и выражение для величины $\alpha$ принимает следующий вид:
-If the center of the sphere is on side $BC$ of triangle $ABC$, the condition $\beta + \gamma = 1$ is satisfied, and the expression for $\alpha$ takes the following form:
-
+If the center of the sphere is on side $BC$ of triangle $ABC$,  the
+condition $\beta + \gamma = 1$ is satisfied, and the expression for
+$\alpha$ takes the following form
 \begin{multline}
-\alpha_{\beta + \gamma = 1}(\gamma) = (k_{\gamma} - k_{\beta}) \gamma + k_{\beta} + \\
-\sqrt{(q_{\beta^2} + q_{\gamma^2} - q_{\beta \gamma}) \gamma^2 + (-2 q_{\beta^2} + q_{\beta \gamma} - q_{\beta} + q_{\gamma}) \gamma + (q_{\beta^2} + q_{\beta} + q)}
+\alpha_{\beta + \gamma = 1}(\gamma) = (k_{\gamma} - k_{\beta}) \gamma + k_{\beta}  \\
++\sqrt{(q_{\beta^2} + q_{\gamma^2} - q_{\beta \gamma}) \gamma^2 +
+(-2 q_{\beta^2} + q_{\beta \gamma} - q_{\beta} + q_{\gamma}) \gamma
++ (q_{\beta^2} + q_{\beta} + q)}.
 \end{multline}
-
-%Во всех случаях нахождения центра на одной из сторон треугольника задача нахождения максимального значения $\alpha(\beta, \gamma)$ при заданных ограничениях сводится к задаче поиска максимального значения функции вида $\alpha(x) = k_x x + k + \sqrt{q_{x^2} x^2 + q_x x + q}$ (с учетом этих ограничений), что не представляет труда (точкой максимума является либо точка локального экстремума, либо точка границы области определения функции).
-In all cases where the center is on one of the triangle sides, the problem of finding the maximum value of $\alpha(\beta, \gamma)$ under given constraints is reduced to the problem of finding the maximum value of a function which has a form $\alpha(x) = k_x x + k + \sqrt {q_{x^2} x^2 + q_x x + q}$ (taking into account these restrictions), which is not difficult (the maximum point is either a local extremum point or a boundary point of the function's domain).
+In all cases, where the center is on one of the triangle sides, the
+problem of finding the maximum value of $\alpha(\beta, \gamma)$
+under given constraints is reduced to the problem of finding the
+maximum value of a function which has a form $\alpha(x) = k_x x + k
++ \sqrt {q_{x^2} x^2 + q_x x + q}$ (taking into account these
+restrictions), which is not difficult (the maximum point is either a
+local extremum point or a boundary point of the function's domain).
 
 %Отдельно следует рассмотреть вариант, при котором центр искомой сферы находится внутри треугольника.
-We should separately consider the option in which the center of the desired sphere is inside the triangle.
+We should separately consider the option in which the center of  the
+desired sphere is inside the triangle.
 %В этом случае точка пересечения траектории $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ с общей огибающей находится на общей касательной плоскости к сферам $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (плоскость $A'B'C'$, см. Fig.~\ref{fig:pic_general_envelope_2_size}).
-In this case, the intersection point of the trajectory $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with the common envelope is on the common tangent plane to the spheres $S(0, 0)$, $S(1, 0)$, $S(0, 1)$ (plane $A'B'C'$, see Fig.~\ref{fig:pic_general_envelope_2_size}).
+In this case, the intersection point of the trajectory
+$\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ with the common
+envelope is on the common tangent plane to the spheres $S(0, 0)$,
+$S(1, 0)$, $S(0, 1)$ (plane $A'B'C'$, see
+Fig.~\ref{fig:pic_general_envelope_2_size}).
 
 %Центр искомой сферы находится с точке пересечения плоскости $ABC$ и прямой, проходящей через точку $\vec{P}(\alpha)$ и направленной вдоль нормали к плоскости $A'B'C'$.
-The center of the desired sphere is found at the intersection point of the plane $ABC$ and the straight line passing through the point $\vec{P}(\alpha)$ and directed along the normal to the plane $A'B'C'$.
+The center of the desired sphere is found at the intersection  point
+of the plane $ABC$ and the straight line passing through the point
+$\vec{P}(\alpha)$ and directed along the normal to the plane
+$A'B'C'$.
 %Если вектор единичной нормали плоскости $A'B'C'$ обозначить через $\vec{n}$, то взаимосвязь точек плоскостей $ABC$ и $A'B'C'$ можно выразить следующим образом:
-If the vector of the unit normal of the plane $A'B'C'$ is denoted by $\vec{n}$, then the relationship between the points of the planes $ABC$ and $A'B'C'$ can be expressed as follows:
-
+If the vector of the unit normal of the plane $A'B'C'$ is  denoted
+by $\vec{n}$, then the relationship between the points of the planes
+$ABC$ and $A'B'C'$ can be expressed as follows
 \begin{equation}
 \begin{cases}
-\vec{A'} = \vec{A} + \vec{n} R_A \\
-\vec{B'} = \vec{B} + \vec{n} R_B \\
-\vec{C'} = \vec{C} + \vec{n} R_C
+\vec{A'} = \vec{A} + \vec{n} R_A, \\
+\vec{B'} = \vec{B} + \vec{n} R_B, \\
+\vec{C'} = \vec{C} + \vec{n} R_C.
 \end{cases}
 \end{equation}
 
 %Для нахождения вектора $\vec{n}$ воспользуемся тем фактом, что результат векторного произведения $\vec{A'B'} \times \vec{A'C'}$ коллинеарен вектору $\vec{n}$.
-To find the vector $\vec{n}$, we use the fact that the result of the vector product $\vec{A'B'} \times \vec{A'C'}$ is collinear to the vector $\vec{n}$.
+To find the vector $\vec{n}$, we use the fact that  the result of
+the vector product $\vec{A'B'} \times \vec{A'C'}$ is collinear to
+the vector $\vec{n}$.
 %Запишем это в явном виде
 Let's write it explicitly
-
 \begin{equation}
-(\vec{AB} + \vec{n} R_{AB}) \times (\vec{AC} + \vec{n} R_{AC}) = t \vec{n}
+(\vec{AB} + \vec{n} R_{AB}) \times (\vec{AC} + \vec{n} R_{AC}) = t
+\vec{n},
 \end{equation}
-
 \begin{equation}
-\vec{AB} \times \vec{AC} + R_{AB} (\vec{n} \times \vec{AC}) - R_{AC} (\vec{n} \times \vec{AB}) = t \vec{n}
+\vec{AB} \times \vec{AC} + R_{AB} (\vec{n} \times \vec{AC}) - R_{AC}
+(\vec{n} \times \vec{AB}) = t \vec{n},
 \end{equation}
-
 \begin{equation}
 t
 \left[ { \begin{array}{c}
@@ -537,14 +610,17 @@ t
             n_z AC_x - n_x AC_z \\
             n_x AC_y - n_y AC_x \\
          \end{array} } \right]
-= \vec{AB} \times \vec{AC}
+= \vec{AB} \times \vec{AC}.
 \end{equation}
 
 %Данное соотношение может выполняться при $t > 0$, либо при $t < 0$, что соответствует существованию двух общих касательных плоскостей к трем сферам.
-This relation can be satisfied for $t > 0$, or for $t < 0$, which corresponds to the existence of two common tangent planes to three spheres.
+This relation can be satisfied for $t > 0$, or for  $t < 0$, which
+corresponds to the existence of two common tangent planes to three
+spheres.
 %Перепишем приведенное соотношение в виде системы линейных уравнений относительно составляющих нормали при произвольном значении параметра $t$.
-Let us rewrite the above relation as a system of linear equations with respect to the components of the normal for an arbitrary value of the parameter $t$.
-
+Let us rewrite the above relation as a system  of linear equations
+with respect to the components of the normal for an arbitrary value
+of the parameter $t$:
 \begin{equation}
 \left[ { \begin{array}{ccc}
              t & R_{AC} AB_z - R_{AB} AC_z & R_{AB} AC_y - R_{AC} AB_y \\
@@ -556,11 +632,11 @@ Let us rewrite the above relation as a system of linear equations with respect t
             n_y \\
             n_z \\
          \end{array} } \right]
-= \vec{AB} \times \vec{AC}
+= \vec{AB} \times \vec{AC}.
 \end{equation}
-
-%Из данной системы уравнений находятся два возможных направления нормали к общей касательной плоскости сфер $S(0,0)$, $S(1,0)$, $S(0, 1)$.
-From this system of equations, two possible directions of the normal to the common tangent plane of the spheres $S(0,0)$, $S(1,0)$, $S(0, 1)$ are found.
+From this system of equations, two possible directions of the normal
+to the common tangent plane of the spheres $S(0,0)$, $S(1,0)$, $S(0,
+1)$ are found.
 %Для каждого направления нормали находится плоскость $A'B'C'$ и точка $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ на ней (и сам искомый параметр $\alpha$).
 For each direction of the normal, the plane $A'B'C'$ and the point $\vec{P}(\alpha) = \vec{A} + \alpha \vec{D}$ on it (and the required parameter $\alpha$) are found.
 %Данную точку можно учитывать в общем наборе решений только в том случае, если ей соответствует сфера $S(\beta, \gamma)$, параметры которой удовлетворяют трем условиям $\beta \ge 0$, $\gamma \ge 0$, $\beta + \gamma \le 1$.
@@ -569,7 +645,10 @@ This point can be taken into account in the general set of solutions only if it 
 The parameters $\beta$ and $\gamma$ can be determined by finding the intersection point of the line $\vec{P}(\alpha) - x \vec{n}$, $x \in \mathbb{R}$ and the plane $ABC$.
 
 %Таким образом, найдя решения всех потенциально возможных частных случаев, представленных на Fig.~\ref{fig:pic_general_envelope_size}, находим множество решений $\alpha$, из которых для определения актуального нового положения точки $A'$ необходимо взять максимальное.
-Thus, having found solutions to all potentially possible special cases presented in Fig.~\ref{fig:pic_general_envelope_size}, we find a set of solutions $\alpha$, from which, to determine the actual new position of the point $A'$, it is necessary to take the maximum one.
+Thus, having found solutions to all potentially possible special
+cases presented in Fig.~\ref{fig:pic_general_envelope_size}, we find
+a set of solutions $\alpha$, from which, to determine the actual new
+position of the point $A'$, it is necessary to take the maximum one.
 
 %Изложенный выше алгоритм касается определения смещения узла с учетом только одной инцидентной ячейки.
 The above algorithm concerns the obtaining of the node offset given only one incident face.
@@ -616,9 +695,13 @@ It can be seen from this figure that during the operation of the algorithm, shar
 Thus, the new node positions form a smoother surface than it was before the rebuild.
 
 %На Fig.~\ref{fig:pic_general_envelope_cave} продемонстрирован эффект затягивания впадин по сравнению с классическим методом призм (затягивание впадин на сетке отмечено синим цветом).
-Fig.~\ref{fig:pic_general_envelope_cave} demonstrates the effect of cavity tightening compared to the classical prisms method (cavity tightening is marked in blue on the mesh).
+Figure~\ref{fig:pic_general_envelope_cave} demonstrates the effect
+of cavity tightening compared to the classical prisms method (cavity
+tightening is marked in blue on the mesh).
 %На Fig.~\ref{fig:pic_envelope_peak} показан обратный эффект -- сглаживание острых пиков (по сравнению с тем же классическим методом призм).
-Fig.~\ref{fig:pic_envelope_peak} shows the opposite effect - smoothing of sharp peaks (compared to the same classical prisms method).
+Figure~\ref{fig:pic_envelope_peak} shows the opposite effect --
+smoothing of sharp peaks (compared to the same classical prisms
+method).
 
 %---------------------------------------------------------------------------------------------------
 
@@ -662,14 +745,16 @@ Sometimes, to reduce the size, it is simply needed to split the face into smalle
 %В этом случае необходимо следить за качеством результирующих ячеек.
 In this case, it is necessary to monitor the quality of the resulting faces.
 %Для определения качества формы ячейки треугольной формы с узлами $\vec{A}$, $\vec{B}$, $\vec{C}$ можно пользоваться простым критерием качества
-To determine the shape quality of a triangular face with nodes $\vec{A}$, $\vec{B}$, $\vec{C}$, we can use a simple quality criterion
-
+To determine the shape quality of a triangular face with nodes
+$\vec{A}$, $\vec{B}$, $\vec{C}$, we can use a simple quality
+criterion
 \begin{equation}
-Q(f) = \frac{4\sqrt{3} S_{ABC}}{|\vec{AB}|^2 + |\vec{BC}|^2 + |\vec{AC}|^2}
+Q(f) = \frac{4\sqrt{3} S_{ABC}}{|\vec{AB}|^2 + |\vec{BC}|^2 +
+|\vec{AC}|^2},
 \end{equation}
-
-%где $Q(f) = 1$ соответствует идеальному случаю равносторонней ячейки, а $Q(f) = 0$ -- худший случай для ячеек с нулевой площадью \cite{Borouchaki}.
-where $Q(f) = 1$ corresponds to the ideal case of an equilateral face, and $Q(f) = 0$ is the worst case for faces with zero area \cite{Borouchaki}.
+where $Q(f) = 1$ corresponds to the ideal case of an equilateral
+face, and $Q(f) = 0$ is the worst case for faces with zero area
+\cite{Borouchaki}.
 %Для выполнения разбиения ячейки на более мелкие с сохранением их качества просто выполним разбиение по серединам всех ее сторон (Fig.~\ref{fig:pic_delaunay_2}).
 To split a face into smaller ones while maintaining their quality, simply perform a split in the middle of all its sides (Fig.~\ref{fig:pic_delaunay_2}).
 
@@ -686,7 +771,8 @@ When an edge $AB$ is removed, both faces incident to it are removed, nodes $A$ a
 %Данную операцию будем называть стягиванием ребра \cite{Panchal}.
 This operation will be called edge reducing \cite{Panchal}.
 %Путем применения стягивания наиболее коротких ребер в расчетной сетке можно добиться произвольной степени огрубления.
-By applying the reducing of the shortest edges in the computational mesh, we can achieve an arbitrary degree of coarsening.
+By applying the reducing of the shortest edges in the  computational
+mesh, we can achieve an arbitrary degree of coarsening.
 
 %---------------------------------------------------------------------------------------------------
 
@@ -701,7 +787,11 @@ First, it is necessary to determine what ratio of two mesh faces can be interpre
 %Конечно, простое наличие общих точек у двух ячеек не может служить критерием самопересечения, так как у каждой ячейки есть смежные ячейки (то есть две ячейки могут иметь как общую вершину, так и общее ребро).
 Of course, the mere presence of common points in two faces cannot serve as a criterion for self-intersection, since each face has adjacent faces (that is, two faces can have both a common vertex and a common edge).
 %Так как смежными могут быть только ячейки, имеющие общие инцидентные объекты (общую инцидентную вершину или общее инцидентное ребро), а все отношения инцидентности прописаны в расчетной сетке, то не представляет труда отделить пересечение ячеек по общему инцидентному объекту от самопересечения.
-Since only faces that have common incident objects (a common incident vertex or a common incident edge) can be adjacent, and all incidence relations are written in the computational mesh, it is not difficult to separate the intersection of faces by a common incident object from self-intersection.
+Since only faces that have common incident objects  (a common
+incident vertex or a common incident edge) can be adjacent, and all
+incidence relations are written in the computational mesh, it is not
+difficult to separate the intersection of faces by a common incident
+object from self-intersection.
 
 \subsection{Search for pairs of intersecting triangles}
 
@@ -712,12 +802,14 @@ Since direct enumeration of all faces pairs has quadratic complexity in terms of
 %В этом случае целесообразно выполнять поиск пар пересекающихся ячеек с помощью представления множества ячеек в виде специальной древовидной структуры, связанной с ограничением геометрических объектов прямоугольными параллелепипедами в пространстве.
 In this case, it is advisable to search for pairs of intersecting faces using the representation of a set of faces in the form of a special tree structure associated with boxing of geometric objects by rectangular parallelepipeds in space.
 %Для начала определим понятие контейнера для произвольного множества точек $M$ в пространстве (будем обозначать его через $[M]$): $[M]$ -- это прямоугольный параллелепипед, являющийся декартовым произведением трех сегментов
-First, let's define the concept of a container for an arbitrary set of points $M$ in space (we will denote it by $[M]$): $[M]$ is a rectangular parallelepiped that is the Cartesian product of three segments
-
+First, let's define the concept of a container for an  arbitrary set
+of points $M$ in space (we will denote it by $[M]$): $[M]$ is a
+rectangular parallelepiped that is the Cartesian product of three
+segments
 \begin{equation}
 [M] = \left[\min_{P \in M}{P_x}, \max_{P \in M}{P_x}\right]
       \times \left[\min_{P \in M}{P_y}, \max_{P \in M}{P_y}\right]
-      \times \left[\min_{P \in M}{P_z}, \max_{P \in M}{P_z}\right]
+      \times \left[\min_{P \in M}{P_z}, \max_{P \in M}{P_z}\right].
 \end{equation}
 
 %Контейнер можно рассматривать для произвольного множества точек.
@@ -729,11 +821,17 @@ Since any triangle is a convex figure, then $[ABC] = [\{A, B, C\}]$, that is, to
 %При поиске пар пересекающихся ячеек будем использовать следующий факт: если два треугольника пересекаются, то пересекаются и их контейнеры: $ABC \cap A'B'C' \ne \emptyset \Rightarrow [ABC] \cap [A'B'C'] \ne \emptyset$.
 When searching for pairs of intersecting faces, we will use the following fact: if two triangles intersect, then their containers also intersect: $ABC \cap A'B'C' \ne \emptyset \Rightarrow [ABC] \cap [A'B'C'] \ne\emptyset$.
 %А значит если не пересекаются контейнеры двух треугольников, то не пересекаются и сами треугольники: $[ABC] \cap [A'B'C'] = \emptyset \Rightarrow ABC \cap A'B'C' = \emptyset$.
-This means that if the containers of two triangles do not intersect, then the triangles themselves do not intersect: $[ABC] \cap [A'B'C'] = \emptyset \Rightarrow ABC \cap A'B'C' = \emptyset$.
+This means that if the containers of two triangles do not
+intersect, then the triangles themselves do not intersect: $[ABC]
+\cap [A'B'C'] = \emptyset \Rightarrow ABC \cap A'B'C' = \emptyset$.
 %В отличие от анализа пары треугольников на пересечение, проверка на пересечение двух прямоугольных параллелепипедов со сторонами, параллельными координатным осям, не представляет проблем.
-Unlike the analysis of a pair of triangles for intersection, checking for the intersection of two rectangular boxes with sides parallel to the coordinate axes is not a problem.
+Unlike the analysis of a pair of triangles for intersection,
+checking for  the intersection of two rectangular boxes with sides
+parallel to the coordinate axes is not a problem.
 %То есть па первом этапе будем искать такие пары ячеек, чьи контейнеры пересекаются (будем называть их потенциально пересекающимися ячейками).
-That is, at the first stage, we will look for such pairs of faces whose containers intersect (we will call them potentially intersecting faces).
+That is, at the first stage, we will look for such pairs of faces
+whose  containers intersect (we will call them potentially
+intersecting faces).
 
 \begin{figure}[h]
 \includegraphics[width=0.8\textwidth]{pics/pic_box_size.pdf}
@@ -741,15 +839,22 @@ That is, at the first stage, we will look for such pairs of faces whose containe
 \end{figure}
 
 %Для поиска потенциально пересекающихся ячеек построим дерево контейнеров всех ячеек сетки.
-To search for potentially intersecting faces, we build a tree of containers for all mesh faces.
+To search for potentially intersecting faces, we build a tree of
+containers  for all mesh faces.
 %Корнем данного дерева будет являться контейнер всех ячеек расчетной сетки.
-The root of this tree will be the container of all faces of the computational mesh.
+The root of this tree will be the container of all faces of the
+computational  mesh.
 %Рассмотрим процедуру разделения контейнера на два более мелких на примере двумерного случая, проиллюстрированного на Fig.~\ref{fig:pic_box}.
-Consider the procedure for dividing a container into two smaller containers using the two-dimensional case illustrated in Fig.~\ref{fig:pic_box} as an example.
+Consider the procedure for dividing a container into two smaller
+containers  using the two-dimensional case illustrated in
+Fig.~\ref{fig:pic_box} as an example.
 %Путь мы хотим разделить контейнер некоторого множества треугольников ($M$) по горизонтальной прямой на два множества: верхнее ($U$) и нижнее ($D$).
-We want to divide the container of some set of triangles ($M$) along a horizontal straight line into two sets: upper set ($U$ -- up) and lower set ($D$ -- down).
+We want to divide the container of some set of triangles ($M$) along
+a  horizontal straight line into two sets: upper set ($U$ -- up) and
+lower set ($D$ -- down).
 %Тогда в верхнее множество попадут все треугольники, лежащие выше прямой, либо пересекающие ее.
-Then all triangles that lie above the line or intersect it will fall into the upper set.
+Then, all triangles that lie above the line or intersect it will
+fall into the upper set.
 %Аналогично в нижнее множество попадут все треугольники, лежащие ниже прямой, либо пересекающие ее.
 Similarly, all triangles that lie below the line or intersect it will fall into the lower set.
 %После выделения верхнего и нижнего множества треугольников, для каждого из них строятся свои контейнеры, которые становятся дочерними контейнерами исходного.
@@ -791,7 +896,7 @@ We will call such faces static.
 The second category is faces that do not intersect with any other faces, but that should not become part of the final surface (faces of internal self-intersection loops of the surface that must be removed).
 %Такие ячейки будем называть скрытыми.
 We will call such faces hidden.
-%Третья категория -- ячейки, которые пересекаются с какими-то другими ячейками. 
+%Третья категория -- ячейки, которые пересекаются с какими-то другими ячейками.
 The third category is faces that intersect with some other faces.
 %Такие ячейки будем называть ячейками пересечения.
 Such faces will be called intersection faces.
@@ -823,7 +928,11 @@ After the hidden faces are removed from the mesh, the computational mesh consist
 %Такой подход к устранению самопересечений сетки может применяться для сравнительно простых поверхностей, но в общем случае он не гарантирует получение корректного результата.
 This approach to eliminating mesh self-intersections can be used for relatively simple surfaces, but in general it does not guarantee a correct result.
 %В качестве иллюстрации такого способа устранения пересечений на Fig.~\ref{fig:pic_zip_01}, Fig.~\ref{fig:pic_zip_09} приведен пример работы для устранения пересечений расчетных сеток двух сфер (новые ячейки, появляющиеся при восстановлении сетки отмечены зеленым цветом).
-As an illustration of such a way to eliminate intersections, Fig.~\ref{fig:pic_zip_01}, Fig.~\ref{fig:pic_zip_09} shows an example of work to eliminate intersections of the computational meshes of two spheres (new faces that appear when the mesh is restored are marked in green).
+As an illustration of such a way to eliminate intersections,
+Figs.~\ref{fig:pic_zip_01} and~\ref{fig:pic_zip_09} shows an example
+of work to eliminate intersections of the computational meshes of
+two spheres (new faces that appear when the mesh is restored are
+marked in green).
 %На Fig.~\ref{fig:pic_zip_09} можно отметить, достаточно низкое качество результирующей сетки.
 In Fig.~\ref{fig:pic_zip_09} we can note the rather low quality of the resulting mesh.
 %Повысить качество можно с помощью дробления ячеек пересечения.
@@ -935,26 +1044,29 @@ The first face must be selected as the next one to continue the mesh traverse.
 If we denote by $\phi(A \rightarrow P)$ the angle of rotation of the original face in the direction $\vec{n}_A$ to the face incident with the vertex $P$, then the face for which $\phi(A \rightarrow B)$ will be minimal should be selected as the next one for traverse.
 
 %Объединяя вместе оба рассмотренных случая, получаем критерий выбора следующей для обхода ячейки: должна быть выбрана ячейка, для которой значение показателя $f(P)$ максимально, где
-Combining both considered cases together, we obtain a criterion for choosing the next face to bypass: a face must be chosen for which the value of the function $f(P)$ is maximum, where
-
+Combining both considered cases together, we obtain  a criterion for
+choosing the next face to bypass: a face must be chosen for which
+the value of the function $f(P)$ is maximum, where
 \begin{equation}
-f(P) = 
+f(P) =
 \begin{cases}
 (\vec{n}_A, \vec{OP}), \text{for simple meshes}, \\
 -\phi(A \rightarrow P), \text{for general case meshes}
 \end{cases}
 \end{equation}
-
 %После завершения обхода расчетной сетки все помеченные ячейки считаются ячейками целевой поверхности, а все остальные ячейки должны быть удалены.
 After completion of the computational mesh bypass, all marked faces are considered to be faces of the target surface, and all other faces must be deleted.
 %На рисунках Fig.~\ref{fig:pic_self_intersection_on} -- Fig.~\ref{fig:pic_self_intersection_off_2} проиллюстрированы примеры устранения самопересечений сетки в виде скрытых петель.
-Figures Fig.~\ref{fig:pic_self_intersection_on} -- Fig.~\ref{fig:pic_self_intersection_off_2} illustrate examples of eliminating mesh self-intersections in the form of hidden loops.
+Figures
+\ref{fig:pic_self_intersection_on}--\ref{fig:pic_self_intersection_off_2}
+illustrate examples of eliminating mesh self-intersections in the
+form of hidden loops.
 %После удаления скрытых ячеек целевая расчетная сетка снова становится корректной, удовлетворяет соотношениям (\ref{eq_arch}) и может быть использована для дальнейшего моделирования ледообразования.
 After removing the hidden faces, the target computational mesh again becomes correct, satisfies the relations (\ref{eq_arch}) and can be used for further ice formation modeling.
 
 %---------------------------------------------------------------------------------------------------
 
-\section{Conclusion}
+\section{Conclusions}
 
 %В статье рассмотрен геометрический аспект задачи моделирования процесса ледообразования, а именно задача эволюции неструктурированной поверхностной расчетной сетки.
 The article considers the geometric aspect of the problem of modeling the ice formation process, namely the problem of the unstructured surface computational mesh evolution.
@@ -1000,9 +1112,10 @@ As an algorithm for eliminating mesh self-intersections, preference was given to
 %Данный алгоритм, хоть и является достаточно медленным (за счет необходимости анализа на пересечение всех потенциально конфликтующих пар ячеек), однако применим к расчетным сеткам произвольной геометрии и сложности.
 This algorithm, although rather slow (due to the need to analyze for the intersection of all potentially conflicting pairs of faces), is applicable to computational meshes of arbitrary geometry and complexity.
 
-\begin{acknowledgments}
-The work was carried out at the JSCC RAS as part of the government assignment (topic FNEF-2022-0016). Supercomputer MVS-10P was used in research.
-\end{acknowledgments}
+{\bf Funding.} The work was carried out at the JSCC RAS as part of
+the government assignment (topic FNEF-2022-0016). Supercomputer
+MVS-10P was used in research.
+%\end{acknowledgments}
 
 %---------------------------------------------------------------------------------------------------
 
@@ -1011,100 +1124,151 @@ The work was carried out at the JSCC RAS as part of the government assignment (t
 % Introduction.
 
 \bibitem{Raj}
-\refitem{article}
-L.~Prince Raj, K.~Yee, and R.~S.~Myong, \textquotedblleft Sensivity of ice and aerodynamic performance degradation to critical physical and modeling parameters affecting airfoil icing,\textquotedblright \ Aerospace Science and Technology, {\bf 98}, 105659 (2020).
+\refitem{article} L.~Prince Raj, K.~Yee, and R.~S.~Myong,
+\textquotedblleft Sensivity of  ice and aerodynamic performance
+degradation to critical physical and modeling parameters affecting
+airfoil icing\textquotedblright, \ Aerospace Science and Technology
+{\bf 98}, 105659 (2020).
 
 \bibitem{Martini}
-\refitem{article}
-F.~Martini, H.~Ibrahim, L.~T.~C.~Montoya, P.~Rizk, and A.~Ilinca, \textquotedblleft Turbulence modeling of iced wind turbine airfoils,\textquotedblright \ Energies, {\bf 15}, 8325 (2022).
+\refitem{article} F.~Martini, H.~Ibrahim, L.~T.~C.~Montoya, P.~Rizk,
+and A.~Ilinca, \textquotedblleft Turbulence  modeling of iced wind
+turbine airfoils\textquotedblright, \ Energies {\bf 15}, 8325
+(2022).
 
 \bibitem{Strijhak}
-\refitem{article}
-S.~Strijhak, V.~Melnikova, and K.~Koshelev, \textquotedblleft Development of iceFoam solver for modeling ice accretion,\textquotedblright \ in \textit{Proceedings of the Institute for System Programming of RAS, 2020}.
+\refitem{article} S.~Strijhak, V.~Melnikova, and K.~Koshelev,
+\textquotedblleft Development of iceFoam  solver for modeling ice
+accretion,\textquotedblright \ in \textit{Proceedings of the
+Institute for System Programming of RAS, 2020}.
 
 \bibitem{Sorokin}
-\refitem{article}
-K.~E.~Sorokin, P.~M.~Byvaltsev, A.~A.~Aksenov, S.~V.~Zhluktov, D.~V.~Savitskiy, A.~A.~Babulin, and V.~I.~Shevyakov, \textquotedblleft Numerical simulation of ice accretion if FlowVision sotfware,\textquotedblright \ Computer Research and Modeling, {\bf 12}, №~1, 83--96 (2020).
+\refitem{article} K.~E.~Sorokin, P.~M.~Byvaltsev, A.~A.~Aksenov,
+S.~V.~Zhluktov, D.~V.~Savitskiy, A.~A.~Babulin,  and
+V.~I.~Shevyakov, \textquotedblleft Numerical simulation of ice
+accretion if FlowVision sotfware,\textquotedblright \ Computer
+Research and Modeling {\bf 12} (1), 83--96 (2020).
 
 \bibitem{Galanov}
 \refitem{article}
 N.~G.~Galanov, A.~V.~Sarazov, R.~N.~Zhukov, and A.~S.~Kozelkov, \textquotedblleft Application of various ice accretion simulation approaches in the LOGOS software package,\textquotedblright \ Journal of Physics: Conference Series, {\bf 2099}, 012029 (2021).
 
 \bibitem{Bartkus}
-T.~P.~Bartkus, P.~M.~Struk, and J.-C.~Tsao, \textquotedblleft Evaluation of a thermodynamic ice-crystal icing model using experimental ice accretion data,\textquotedblright \ in \textit{Proceedings of the Atmospheric and Space Environments Conference, 2018}
+T.~P.~Bartkus, P.~M.~Struk, and J.-C.~Tsao, \textquotedblleft
+Evaluation of  a thermodynamic ice-crystal icing model using
+experimental ice accretion data,\textquotedblright \ in
+\textit{Proceedings of the Atmospheric and Space Environments
+Conference, 2018}.
 
 \bibitem{Zhang}
-X.~Zhang, X.~Wu, and J.~Min, \textquotedblleft Aircraft icing model considering both rime ice property variability and runback water effect,\textquotedblright \ International Journal of Heat and Mass Transfer, {\bf 104}, 510--516 (2017).
+X.~Zhang, X.~Wu, and J.~Min, \textquotedblleft Aircraft icing  model
+considering both rime ice property variability and runback water
+effect,\textquotedblright \ International J. of Heat and Mass
+Transfer {\bf 104}, 510--516 (2017).
 
 \bibitem{Pena}
-D.~Pena, Y.~Hoarau, and E.~Laurendeau, \textquotedblleft A single step ice accretion model using level-set method,\textquotedblright \ Journal of Fluids and Structures, {\bf 65}, 278--294 (2016).
+D.~Pena, Y.~Hoarau, and E.~Laurendeau, \textquotedblleft A  single
+step ice accretion model using level-set method,\textquotedblright \
+J. of Fluids and Structures {\bf 65}, 278--294 (2016).
 
 
 % Remesh.
 
 \bibitem{Beaugendre}
-\refitem{misc}
-H.~Beaugendre, \textquotedblleft A PDE-based approach to in-flight ice accretion,\textquotedblright \ PhD Thesis (Dep. of Mech. Eng., McGill Univ., Montr\'eal, Qu\'ebec, 2003).
+\refitem{misc} H.~Beaugendre, \textquotedblleft A PDE-based approach
+to in-flight ice accretion,\textquotedblright \ PhD Thesis (Dep. of
+Mech. Eng., McGill Univ., Montr\'eal, Qu\'ebec, 2003).
 
 \bibitem{Rybakov_2D}
-\refitem{article}
-A.~Rybakov and S.~Shumilin, \textquotedblleft Approximate methods of the surface mesh deformation in two-dimensional case,\textquotedblright \ Lobachevskii J Math {\bf 40}, 1848--1852 (2019).
+\refitem{article} A.~Rybakov and S.~Shumilin, \textquotedblleft
+Approximate  methods of the surface mesh deformation in
+two-dimensional case,\textquotedblright \ Lobachevskii J. Math. {\bf
+40}, 1848--1852 (2019).
 
 \bibitem{BourgaultCote}
-\refitem{article}
-S.~Bourgault-C\^ot\'e, K.~Hasanzadeh, P.~Lavoie, and E.~Laurendeau, \textquotedblleft Multi-layer icing methodologies for conservative ice growth,\textquotedblright \ in \textit{Proceedings of 7th European Conference for Aeronautics and Aerospace Sciences EUCASS, 2017}.
+\refitem{article} S.~Bourgault-C\^ot\'e, K.~Hasanzadeh, P.~Lavoie,
+and E.~Laurendeau, \textquotedblleft Multi-layer  icing
+methodologies for conservative ice growth,\textquotedblright \ in
+\textit{Proceedings of 7th European Conference for Aeronautics and
+Aerospace Sciences EUCASS, 2017}.
 
 \bibitem{Thompson}
-\refitem{article}
-D.~Thompson, X.~Tong, Q.~Arnoldus, E.~Collins, D.~McLaurin, and E.~Luke, \textquotedblleft Discrete surface evolution and mesh deformation for aircraft icing applications,\textquotedblright \ in \textit{Proceedings of the 5th AIAA Atmospheric and Space Environments Conference, 2013}.
+\refitem{article} D.~Thompson, X.~Tong, Q.~Arnoldus, E.~Collins,
+D.~McLaurin, and E.~Luke, \textquotedblleft Discrete  surface
+evolution and mesh deformation for aircraft icing
+applications,\textquotedblright \ in \textit{Proceedings of the 5th
+AIAA Atmospheric and Space Environments Conference, 2013}.
 
 \bibitem{Tong}
-\refitem{article}
-X.~Tong, D.~Thompson, Q.~Arnoldus, E.~Collins, and E.~Luke, \textquotedblleft Three-dimensional surface evolution and mesh deformation for aircraft icing applications,\textquotedblright \ Journal of Aircraft, {\bf 54}, 1047--1063 (2017).
+\refitem{article} X.~Tong, D.~Thompson, Q.~Arnoldus, E.~Collins, and
+E.~Luke, \textquotedblleft Three-dimensional  surface evolution and
+mesh deformation for aircraft icing applications,\textquotedblright
+\ J. of Aircraft {\bf 54}, 1047--1063 (2017).
 
 \bibitem{Jiao}
-\refitem{article}
-X.~Jiao, \textquotedblleft Face offsetting: a unified approach for explicit moving interfaces,\textquotedblright \ Journal of Computational Physiscs, {\bf 220}, 612--625 (2007).
+\refitem{article} X.~Jiao, \textquotedblleft Face offsetting: a
+unified approach  for explicit moving interfaces,\textquotedblright
+\ J. of Computational Physiscs {\bf 220}, 612--625 (2007).
 
 \bibitem{Jiao_null_space_smooth}
-\refitem{article}
-X.~Jiao, \textquotedblleft Volume and feature preservation in surface mesh optimization,\textquotedblright \ in \textit{Proceedings of the 15th International Meshing Roundtable, 2006}.
+\refitem{article} X.~Jiao, \textquotedblleft Volume and feature
+preservation in  surface mesh optimization,\textquotedblright \ in
+\textit{Proceedings of the 15th International Meshing Roundtable,
+2006}.
 
 % Adaptation.
 
 \bibitem{Rivara}
-\refitem{article}
-M.-C.~Rivara and P.~A.~Rodrigez-Moreno, \textquotedblleft Tuned terminal triangles centroid Delaunay algorithm for quality triangulation,\textquotedblright \ in \textit{27th International Meshing Roundtable, 2019}.
+\refitem{article} M.-C.~Rivara and P.~A.~Rodrigez-Moreno,
+\textquotedblleft Tuned terminal  triangles centroid Delaunay
+algorithm for quality triangulation,\textquotedblright \ in
+\textit{27th International Meshing Roundtable, 2019}.
 
 \bibitem{Rakotoarivelo}
-\refitem{article}
-H.~Rakotoarivelo and F.~Ledoux, \textquotedblleft Accurate manycore-accelerated manifold surface remesh kernels,\textquotedblright \ in \textit{27th International Meshing Roundtable, 2019}.
+\refitem{article} H.~Rakotoarivelo and F.~Ledoux, \textquotedblleft
+Accurate manycore-accelerated  manifold surface remesh
+kernels,\textquotedblright \ in \textit{27th International Meshing
+Roundtable, 2019}.
 
 \bibitem{Borouchaki}
-\refitem{article}
-H.~Borouchaki, P.~Laug, and P.-L.~George, \textquotedblleft Parametric surface meshing using a combined advancing-front generalized Delaunay approach,\textquotedblright \ International Journal for Numerical Methods in Engineering, {\bf 49}, 233--259 (2000).
+\refitem{article} H.~Borouchaki, P.~Laug, and P.-L.~George,
+\textquotedblleft Parametric surface  meshing using a combined
+advancing-front generalized Delaunay approach,\textquotedblright \
+International J. for Numerical Methods in Engineering {\bf 49},
+233--259 (2000).
 
 \bibitem{Panchal}
-\refitem{article}
-D.~Panchal and D.~Jayaswal, \textquotedblleft Feature sensitive geometrically faithful highly regular direct triangular isotropic surface remeshing,\textquotedblright \ S$\bar{a}$dhan$\bar{a}$, {\bf 47}, 94 (2022).
+\refitem{article} D.~Panchal and D.~Jayaswal, \textquotedblleft
+Feature  sensitive geometrically faithful highly regular direct
+triangular isotropic surface remeshing,\textquotedblright \
+S$\bar{a}$dhan$\bar{a}$ {\bf 47}, 94 (2022).
 
 % SLE
 
 \bibitem{Jung}
-\refitem{article}
-W.~Jung, H.~Shin, and B.~K.~Choi, \textquotedblleft Self-intersection removal in triangular mesh offsettings,\textquotedblright \ CAD Journal, {\bf 1}, № 1, 477--484 (2004).
+\refitem{article} W.~Jung, H.~Shin, and B.~K.~Choi,
+\textquotedblleft Self-intersection  removal in triangular mesh
+offsettings,\textquotedblright \ CAD J. {\bf 1} (1), 477--484
+(2004).
 
 \bibitem{Freylekhman}
-\refitem{article}
-S.~A.~Freylekhman and A.~A.~Rybakov, \textquotedblleft Self-intersection elimination for unstructured surface computational meshes,\textquotedblright \ Lobachevskii J Math {\bf 43}, 134--140 (2022).
+\refitem{article} S.~A.~Freylekhman and A.~A.~Rybakov,
+\textquotedblleft Self-intersection elimination  for unstructured
+surface computational meshes,\textquotedblright \ Lobachevskii J.
+Math. {\bf 43}, 134--140 (2022).
 
 \bibitem{Charton}
-\refitem{article}
-J.~Charton, S.~Baek, and Y.~Kim, \textquotedblleft Mesh repairing using topology graphs,\textquotedblright \ Journal of Computational Design and Engineering, {\bf 8}, 251--267 (2021).
+\refitem{article} J.~Charton, S.~Baek, and Y.~Kim, \textquotedblleft
+Mesh  repairing using topology graphs,\textquotedblright \ J. of
+Computational Design and Engineering {\bf 8}, 251--267 (2021).
 
 \bibitem{Skvorkovska}
-\refitem{article}
-V.~Skorkovsk\'a, I.~Kolingerov\'a, and B.~Benes, \textquotedblleft A Simple and robust approach to computation of meshes intersection,\textquotedblright \ in \textit{Proceedings of the 13th International Joint Conference on Computer Vision, Imaging and Computer Graphics Theory and Applications, {\bf 1}, 175--182 (2018)}.
+\refitem{article} V.~Skorkovsk\'a, I.~Kolingerov\'a, and B.~Benes,
+\textquotedblleft A Simple  and robust approach to computation of
+meshes intersection,\textquotedblright \ in \textit{Proceedings of
+the 13th International Joint Conference on Computer Vision, Imaging
+and Computer Graphics Theory and Applications {\bf 1}, 175--182
+(2018)}.
 
 \end{thebibliography}
 
