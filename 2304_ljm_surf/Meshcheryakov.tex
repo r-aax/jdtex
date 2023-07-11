@@ -9,7 +9,7 @@ nofootinbib,
 superscriptaddress,
 noshowpacs,
 centertags]
-{revtex4-2}
+{revtex4}
 \usepackage{ljm}
 \usepackage{listings}
 \usepackage[utf8]{inputenc}
@@ -101,10 +101,10 @@ are no border edges).
 As a supplement, we will also require that the mesh is a two-sided surface, for each face the normal vector to the surface $\vec{n}_f$ is uniquely defined.
 Also, no two mesh nodes are the same and there are no faces with zero area (since this would make it impossible to calculate normals).
 For a mesh node, we will consider the concept of a normal to the surface and define this normal as
-\begin{equation}
+\begin{equation*}
 \vec{n}_n(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in
 \mathscr{F}(N)}{\vec{n}_f(f)}.
-\end{equation}
+\end{equation*}
 
 %---------------------------------------------------------------------------------------------------
 
@@ -147,9 +147,9 @@ Then, the thickness of the ice cover is equal to $h(f) =
 After that, the displacement value of each node is calculated simply
 as the arithmetic average of the ice cover heights in all incident
 faces
-\begin{equation}
+\begin{equation*}
 h(N) = \frac{1}{|\mathscr{F}(N)|} \sum_{f \in \mathscr{F}(N)}{h(f)}.
-\end{equation}
+\end{equation*}
 
 The second method can be called the pyramids method (in a two-dimensional setting, this method is analogous to the trapezoids method shown in Fig.~\ref{fig:pic_classical_methods_trapezoids}).
 The input data is also the volume of accumulated ice in each mesh face ($V(f)$).
@@ -196,13 +196,13 @@ In addition to this step size limit, a $\alpha_{jiao}$ stability limit has been 
 This stability limit is based on how normal directions change as the surface evolves \cite{Jiao}.
 Then, the allowable fraction of the time step for the $i$th face is
 defined as
-\begin{equation}\label{Tong:2}
+\begin{equation*}
 \alpha_{\Delta t}^i=
 \begin{cases}
 \min(s_{\Delta t}\frac{V_{\max}^i}{V_f},\alpha_{jiao},1), \text{if $V_{\max}^i$ exists}, \\
 \alpha_{jiao}, \text{if $V_{\max}^i$ doesn't exist},
 \end{cases}
-\end{equation}
+\end{equation*}
 where $s_{\Delta t}$ ($0 < s_{\Delta t} < 1$) is an  empirically
 determined coefficient, $V_f$ is the current remaining ice increment
 volume for the $i$th face.
@@ -274,13 +274,13 @@ each internal point of the triangle according to its vertices.
 Consider a computational mesh face whose vertices are the points $\vec{A}$, $\vec{B}$, $\vec{C}$.
 The points of a triangle are the locus of points described as
 follows
-\begin{equation}
+\begin{equation*}
 \begin{cases}
 \vec{P}(\beta, \gamma) = \vec{A} + \beta (\vec{B} - \vec{A}) + \gamma (\vec{C} -
 \vec{A}) = \vec{A} + \beta \vec{AB} + \gamma \vec{AC}, \\
 \beta \ge 0, \quad \gamma \ge 0, \quad \beta + \gamma \le 1.
 \end{cases}
-\end{equation}
+\end{equation*}
 
 Let us define for each point of the triangle $\vec{P}(\beta, \gamma)$ the radius of ice front advance as $R(\vec{P}(\beta, \gamma)) = R(\beta, \gamma) = R(\vec{A}) + \beta (R(\vec{B}) - R(\vec{A})) + \gamma (R(\vec{C}) - R(\vec{A} )) = R_A + \beta R_{AB} + \gamma R_{AC}$.
 The front of ice advance from the point $\vec{P}(\beta, \gamma)$ is a sphere $S(\beta, \gamma) = S(\vec{P}(\beta, \gamma), R(\beta,\gamma))$.
@@ -342,21 +342,21 @@ intersection with the sphere centered inside the triangle).
 The equation (\ref{eqn:intersect}) can be written as $|\alpha
 \vec{D} -  (\beta \vec{AB} + \gamma \vec{AC})|^2 = (R_A + \beta
 R_{AB} + \gamma R_{AC})^2$ or explicitly as a quadratic equation
-\begin{equation}
+\begin{equation*}
 |\vec{D}|^2 \alpha^2 - 2(\beta (\vec{D}, \vec{AB}) +  \gamma
 (\vec{D}, \vec{AC})) \alpha + |\beta \vec{AB} + \gamma \vec{AC}|^2 -
 (R_A + \beta R_{AB} + \gamma R_{AC})^2 = 0
-\end{equation}
+\end{equation*}
 The largest root of this equation (taking into account the condition
 $|\vec{D}| = 1$) can be written explicitly
-\begin{multline}
+\begin{multline*}
 \alpha(\beta, \gamma) = \beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}) \\
 +\sqrt{(\beta (\vec{D}, \vec{AB}) + \gamma (\vec{D}, \vec{AC}))^2 -
 |\beta \vec{AB} + \gamma \vec{AC}|^2 + (R_A + \beta R_{AB} + \gamma
 R_{AC})^2}
-\end{multline}
+\end{multline*}
 or
-\begin{equation}
+\begin{equation*}
 \begin{cases}
 \alpha(\beta, \gamma) = k_{\beta} \beta + k_{\gamma} \gamma + \sqrt{T}, \\
 T = q_{\beta^2} \beta^2 + q_{\gamma^2} \gamma^2 + q_{\beta \gamma} \beta \gamma + q_{\beta} \beta + q_{\gamma}
@@ -367,7 +367,7 @@ q_{\beta^2} = (\vec{D}, \vec{AB})^2 - |\vec{AB}|^2 + R_{AB}^2, q_{\gamma^2} = (\
 q_{\beta \gamma} = 2 ((\vec{D}, \vec{AB})(\vec{D}, \vec{AC}) - (\vec{AB}, \vec{AC}) + R_{AB} R_{AC}), \\
 q_{\beta} = 2 R_A R_{AB}, q_{\gamma} = 2 R_A R_{AC}, q = R_A^2.
 \end{cases}
-\end{equation}
+\end{equation*}
 To search for a new position of the point $\vec{A}$, it is required
 to find the maximum of the expression $\alpha(\beta, \gamma)$
 subject to the constraints $\beta \ge 0$, $\gamma \ge 0$, $\beta +
@@ -387,12 +387,12 @@ is $\alpha_{\beta = 0}(\gamma) = k_{\gamma} \gamma +
 If the center of the sphere is on side $BC$ of triangle $ABC$,  the
 condition $\beta + \gamma = 1$ is satisfied, and the expression for
 $\alpha$ takes the following form
-\begin{multline}
+\begin{multline*}
 \alpha_{\beta + \gamma = 1}(\gamma) = (k_{\gamma} - k_{\beta}) \gamma + k_{\beta}  \\
 +\sqrt{(q_{\beta^2} + q_{\gamma^2} - q_{\beta \gamma}) \gamma^2 +
 (-2 q_{\beta^2} + q_{\beta \gamma} - q_{\beta} + q_{\gamma}) \gamma
 + (q_{\beta^2} + q_{\beta} + q)}.
-\end{multline}
+\end{multline*}
 In all cases, where the center is on one of the triangle sides, the
 problem of finding the maximum value of $\alpha(\beta, \gamma)$
 under given constraints is reduced to the problem of finding the
@@ -416,27 +416,27 @@ $A'B'C'$.
 If the vector of the unit normal of the plane $A'B'C'$ is  denoted
 by $\vec{n}$, then the relationship between the points of the planes
 $ABC$ and $A'B'C'$ can be expressed as follows
-\begin{equation}
+\begin{equation*}
 \begin{cases}
 \vec{A'} = \vec{A} + \vec{n} R_A, \\
 \vec{B'} = \vec{B} + \vec{n} R_B, \\
 \vec{C'} = \vec{C} + \vec{n} R_C.
 \end{cases}
-\end{equation}
+\end{equation*}
 
 To find the vector $\vec{n}$, we use the fact that  the result of
 the vector product $\vec{A'B'} \times \vec{A'C'}$ is collinear to
 the vector $\vec{n}$.
 Let's write it explicitly
-\begin{equation}
+\begin{equation*}
 (\vec{AB} + \vec{n} R_{AB}) \times (\vec{AC} + \vec{n} R_{AC}) = t
 \vec{n},
-\end{equation}
-\begin{equation}
+\end{equation*}
+\begin{equation*}
 \vec{AB} \times \vec{AC} + R_{AB} (\vec{n} \times \vec{AC}) - R_{AC}
 (\vec{n} \times \vec{AB}) = t \vec{n},
-\end{equation}
-\begin{equation}
+\end{equation*}
+\begin{equation*}
 t
 \left[ { \begin{array}{c}
             n_x \\
@@ -456,7 +456,7 @@ t
             n_x AC_y - n_y AC_x \\
          \end{array} } \right]
 = \vec{AB} \times \vec{AC}.
-\end{equation}
+\end{equation*}
 
 This relation can be satisfied for $t > 0$, or for  $t < 0$, which
 corresponds to the existence of two common tangent planes to three
@@ -464,7 +464,7 @@ spheres.
 Let us rewrite the above relation as a system  of linear equations
 with respect to the components of the normal for an arbitrary value
 of the parameter $t$:
-\begin{equation}
+\begin{equation*}
 \left[ { \begin{array}{ccc}
              t & R_{AC} AB_z - R_{AB} AC_z & R_{AB} AC_y - R_{AC} AB_y \\
              R_{AB} AC_z - R_{AC} AB_z & t & R_{AC} AB_x - R_{AB} AC_x \\
@@ -476,7 +476,7 @@ of the parameter $t$:
             n_z \\
          \end{array} } \right]
 = \vec{AB} \times \vec{AC}.
-\end{equation}
+\end{equation*}
 From this system of equations, two possible directions of the normal
 to the common tangent plane of the spheres $S(0,0)$, $S(1,0)$, $S(0,
 1)$ are found.
@@ -567,10 +567,10 @@ In this case, it is necessary to monitor the quality of the resulting faces.
 To determine the shape quality of a triangular face with nodes
 $\vec{A}$, $\vec{B}$, $\vec{C}$, we can use a simple quality
 criterion
-\begin{equation}
+\begin{equation*}
 Q(f) = \frac{4\sqrt{3} S_{ABC}}{|\vec{AB}|^2 + |\vec{BC}|^2 +
 |\vec{AC}|^2},
-\end{equation}
+\end{equation*}
 where $Q(f) = 1$ corresponds to the ideal case of an equilateral
 face, and $Q(f) = 0$ is the worst case for faces with zero area
 \cite{Borouchaki}.
@@ -608,11 +608,11 @@ First, let's define the concept of a container for an  arbitrary set
 of points $M$ in space (we will denote it by $[M]$): $[M]$ is a
 rectangular parallelepiped that is the Cartesian product of three
 segments
-\begin{equation}
+\begin{equation*}
 [M] = \left[\min_{P \in M}{P_x}, \max_{P \in M}{P_x}\right]
       \times \left[\min_{P \in M}{P_y}, \max_{P \in M}{P_y}\right]
       \times \left[\min_{P \in M}{P_z}, \max_{P \in M}{P_z}\right].
-\end{equation}
+\end{equation*}
 
 The container can be considered for an arbitrary set of points.
 We will use it for a face of the computational mesh, as well as for a set of faces.
@@ -779,13 +779,13 @@ If we denote by $\phi(A \rightarrow P)$ the angle of rotation of the original fa
 Combining both considered cases together, we obtain  a criterion for
 choosing the next face to bypass: a face must be chosen for which
 the value of the function $f(P)$ is maximum, where
-\begin{equation}
+\begin{equation*}
 f(P) =
 \begin{cases}
 (\vec{n}_A, \vec{OP}), \text{for simple meshes}, \\
 -\phi(A \rightarrow P), \text{for general case meshes}
 \end{cases}
-\end{equation}
+\end{equation*}
 After completion of the computational mesh bypass, all marked faces are considered to be faces of the target surface, and all other faces must be deleted.
 Figures
 \ref{fig:pic_self_intersection_on}--\ref{fig:pic_self_intersection_off_2}
