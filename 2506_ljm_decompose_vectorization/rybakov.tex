@@ -15,9 +15,33 @@ centertags]%
 {revtex4}
 \usepackage{ljm}
 \usepackage{listings}
+\usepackage{xcolor}
 
 \usepackage[utf8]{inputenc}
 \usepackage[russian]{babel}
+
+\lstset{
+language=C++,
+basewidth=0.5em,
+xleftmargin=45pt,
+xrightmargin=45pt,
+basicstyle=\small\ttfamily,
+%keywordstyle=\bfseries\underbar,
+keywordstyle=\color[rgb]{0,0,1},
+numbers=left,
+numberstyle=\tiny,
+stepnumber=1,
+numbersep=10pt,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+frame=trBL,
+tabsize=2,
+captionpos=t,
+breaklines=true,
+breakatwhitespace=false,
+escapeinside={\%*}{*)}
+}
 
 \begin{document}
 
@@ -118,6 +142,28 @@ centertags]%
 Структура vector<queue<int>> q -- список очередей вершин, ожидающих попадания в домены, в начале работы алгоритма очередь q[i] содержит только одну инициирующую вершину i-го домена.
 Пусть требуется выполнить декомпозицию (или раскраску графа) на \texttt{domains\_count} доменов.
 Тогда реализация алгоритма пузырькового роста доменов от инициирующих вершин может иметь следующий вид (см. листинг 1):
+
+\begin{lstlisting}[caption={Реализация алгоритма пузырькового роста доменов.},label={lst:impl}]
+while (is_q)
+{
+    is_q = false;
+
+    for (size_t c = 0; c < domains_count; ++c)
+    {
+        if (q[c].empty()) continue;
+
+        is_q = true;
+        n = q[c].front();
+        q[c].pop();
+
+        if (domains[n] == -1)
+        {
+            domains[n] = c;
+            for (auto ngh : inc[n]) q[c].push(ngh);
+        }
+    }
+}
+\end{lstlisting}
 
 Реализация алгоритма представляет собой гнездо из 3 циклов.
 Внешний цикл выполняется до тех пор, пока найдется хотя бы одна непустая очередь домена.
