@@ -29,22 +29,21 @@ centertags]%
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
-\author{\firstname{A.~A.}~\surname{First-Author}}
-\email[E-mail: ]{First.Author@email.com}
-\affiliation{Place of work and/or the address of the first and second authors}
-\affiliation{Example: N.I. Lobachevskii Institute of Mathematics and Mechanics, Kazan (Volga Region) Federal University, Kremlevskaya ul. 18, Kazan, Tatarstan, 420008 Russia}
+\author{\firstname{А.~А.}~\surname{Рыбаков}}
+\email[E-mail: ]{rybakov_aa@nrcki.ru,rybakov@jscc.ru,rybakov.aax@gmail.com}
+%\affiliation{Place of work and/or the address of the first and second authors}
+\affiliation{Национальный исследовательский центр «Курчатовский институт», 123182, Москва, пл. Академика Курчатова, д. 1, Россия.}
 
-\author{\firstname{B.}~\surname{Second-Author}}
-\email[E-mail: ]{Second.Author@email.com}
-\affiliation{Place of work and/or the address of the first and second authors}
-\affiliation{Place of work and/or the address of second authors}
+%\author{\firstname{B.}~\surname{Second-Author}}
+%\email[E-mail: ]{Second.Author@email.com}
+%\affiliation{Place of work and/or the address of the first and second authors}
+%\affiliation{Place of work and/or the address of second authors}
 %\noaffiliation % If the author does not specify a place of work.
 
-\firstcollaboration{(Submitted by A.~A.~Editor-name)} % Add if you know submitter.
+\firstcollaboration{(Submitted by TODO)} % Add if you know submitter.
 %\lastcollaboration{ }
 
-\received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
-
+%\received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
 
 \begin{abstract} % You shouldn't use formulas and citations in the abstract.
 Статья посвящена проблеме векторизации программного контекста, преимущественно работающего с целыми числами и содержащего большое количество операций передачи управления.
@@ -67,263 +66,139 @@ centertags]%
 
 \section{Introduction}
 
-To prepare your manuscript, use REV\TeX{} package. The latest version can be downloaded at the project homepage \cite{RTeXHome}.
-The process of processing an article using REV\TeX{} is described in detail in the package manuals \cite{RTeX}. Great help in resolving technical
-issues on \TeX{} can be found in books \cite{texbook,L,GG,KD}.
-Use the ``House Style Guide: Version 2.0'' \cite{hsg} for more help on how to format article.
+Высокопроизводительные вычисления позволяют производить моделирование природных и технологических процессов с высокой степенью детализации, одновременно учитывать множество факторов различного происхождения, быстро анализировать многочисленные варианты.
+Это позволяет получать картину исследуемого процесса с требуемой точностью, максимально отражая реально существующую ситуацию взамен дорогостоящих, опасных или просто невозможных натурных экспериментов.
+Использование суперкомпьютерных технологий позволяет существенно снизить стоимость и сроки создания новых конкурентоспособных изделий, объектов и систем.
+Спектр областей применения высокопроизводительных вычислений очень широк.
+Так, с помощью суперкомпьютерного моделирования решаются задачи газовой и гидродинамики [1], молекулярной динамики [2], физики плазмы [3], механики твердого тела [4], математики [5] и другие.
+Высокопроизводительные вычисления применяются для решения таких больших расчетных научно-технических задач, как моделирование атмосферы [6], проектирование летательных аппаратов [7], исследование нефтяных и газовых месторождений [8], моделирование крупных молекул и многоатомных систем [9] и многих других.
+При решении расчетной задачи на вычислительном кластере необходимо выполнять распараллеливание между его узлами для ускорения вычислений [10].
+Следующий уровень распараллеливания вычислений -- распараллеливание в рамках одного вычислительного узла на общей памяти [11].
+Самым низким уровнем распараллеливания вычислений можно считать векторизацию – распараллеливание на уровне отдельных инструкций [12].
 
-\section{First level Heading\protect\\
-broken into lines}
+\section{Векторизация алгоритма пузырькового роста декомпозиции графа}
 
-There are three levels of Headings that are set by the commands
-\verb|\section|, \verb|\subsection|, and \verb|\subsubsection|
-(Chapter, subchapter, subsection). Split header into lines
-is done with the command \verb+\protect\\+.
-Second level heading as the title of article is written in accordance with the rules of capitalization \cite{cap}.
+В настоящее время существует большое разнообразие алгоритмов декомпозиции графов, которые применяются в зависимости от размера обрабатываемого графа и требований, предъявляемых к качеству декомпозиции [13].
+При этом требования к размеру обрабатываемых графов постоянно увеличиваются, и сегодня задача декомпозиции рассматривается для графов, содержащих десятки миллионов ячеек и более [14].
+При выполнении обработки графов основной операцией является получение по заданной вершине инцидентных ей ребер и соседних с ней вершин.
+Способ выполнения этого действия зависит от внутреннего представления графа в памяти компьютера [15,16].
+Будем рассматривать такое представление неориентированного графа, в котором для каждого индекса вершины доступен список соседних с ней вершин.
+Рассмотрим следующий алгоритм декомпозиции графа -- алгоритм пузырькового роста -- являющийся одним из наиболее простых с точки зрения логики работы.
 
-\subsection{Second Level Heading}
+Алгоритм пузырькового роста декомпозиции графа [17] основан на обходе графа в ширину, выполняемом одновременно, начиная с нескольких вершин.
+В начале работы алгоритма случайным образом выбираются инициирующие вершины (по требуемому количеству доменов).
+Каждая из выбранных вершин относится к соответствующему домену.
+После этого начинается процесс одновременного наращивания доменов, при котором на каждой итерации алгоритма к каждому домену добавляется одна соседняя еще не раскрашенная вершина (при условии, что это можно сделать).
+Процесс завершается, когда все вершины графа оказываются распределенными по доменам.
+На рис. 1 проиллюстрирован процесс наращивания доменов от случайно выбранных вершин для графа на плоскости.
 
-References in the text are by using the commands
-\verb+\cite{#1}+ or \verb+\onlinecite{#1}+. Label \verb+#1+
-can have a name consisting of both letters and numbers. In
-the bibliography section\footnote{See the end of the article.} this link also has a label \verb+#1+ and starts the command \verb+\bibitem{#1}+.
+После распределения всех вершин по доменам для каждого домена вычисляется его центр, после чего центры доменов принимаются за новые инициирующие вершины, раскраска графа сбрасывается, а далее выполняется наращивание доменов от этих новых инициирующих вершин.
+Этот процесс может продолжаться либо фиксированное количество раз, либо до момента достижения определенного условия (стабилизация инициирующих вершин, достижение сбалансированного разбиения, повторение ранее полученной конфигурации) [18].
+Алгоритм пузырькового роста не гарантирует получение сбалансированного разбиения на домены или формирование коротких границ между доменами.
+Однако этот алгоритм отличается своей простотой, что позволяет использовать его в качестве базовой операции в комплексных подходах к декомпозиции [19].
 
-With the command \verb+\cite{texbook}+ get a reference \cite{texbook},
-if you need to refer to several sources:
-\cite{texbook,L}, the curly brackets indicate references
-separated by commas: \verb+\cite{texbook,L}+. When
-use the command \verb|\onlinecite{#1}| link will not be
-in brackets: see~\onlinecite{texbook}, p.~8.
-If there is a link to the sources with serial numbers,
-e.g. [1,2,3,6,7,8], then print automatically following links will take
-[1--3,6--8].
+Отметим кратко потенциал использования алгоритма пузырькового роста в семействе генетических алгоритмов [20].
+Генетические алгоритмы являются природоподобными эвристическими алгоритмами, которые активно применяются для решения оптимизационных задач с большим количеством параметров [21].
+Во время работы генетического алгоритма моделируется процесс выживания популяции, состоящей из отдельных особей, каждая из которых представляет собой решение некоторой оптимизационной задачи.
+Для реализации алгоритма должно быть определено понятие генотипа (некоторого кода особи), реализован процесс создания особи по его генотипу, определена функция пригодности особи, а также реализованы операции скрещивания и мутации особей на уровне генотипов.
+В процессе развития популяции наиболее слабые особи вымирают, а более приспособленные оставляют потомство, что приводит к повышению среднего значения функции пригодности особей в популяции.
+Генетические алгоритмы применимы для решения задач комбинаторной оптимизации, в частности для задачи декомпозиции графа.
+Однако зачастую при использовании генетического алгоритма для решения задачи декомпозиции графа происходит смешивание понятия генотипа и особи.
+Например, в работе [22] при декомпозиции графа в генотипе кодируется каждое ребро, а в работе [23] в генотипе кодируется явное распределение вершин по доменам.
+То есть генотип практически подменяет собой понятие особи, что приводит к существенному замедлению работы генетического алгоритма и невозможности его применения для декомпозиции больших графов.
+Также применение механизмов скрещивания и мутаций непосредственно к особям вызывает сомнение с точки зрения корректности.
+Простота и скорость работы алгоритма пузырькового роста позволяет использовать его в генетических алгоритмах в качестве операции построения особи из генотипа, представленного набором инициирующих вершин.
+При этом в роли мутации генотипа может рассматриваться смещение инициирующей вершины к случайному соседу.
+Такой подход применения алгоритма пузырькового роста внутри генетического алгоритма был апробирован на практике и решение доступно в открытом репозитории.
 
-\section{Standalone formulae}
+Использование алгоритма пузырькового роста в качестве отдельной операции в комплексных подходах к декомпозиции графов предъявляет повышенные требования к его быстродействию.
+Рассмотрим возможности по ускорению этого алгоритма с помощью векторизации.
+Пусть мы имеем граф, информация о его ребрах записана в структуре vector<vector<int>> inc, где inc[i] -- список номеров всех вершин, смежных с вершиной i.
+Номера доменов, к которым относятся конкретные вершины хранятся в структуре vector<int> domains.
+Структура vector<queue<int>> q -- список очередей вершин, ожидающих попадания в домены, в начале работы алгоритма очередь q[i] содержит только одну инициирующую вершину i-го домена.
+Пусть требуется выполнить декомпозицию (или раскраску графа) на \texttt{domains\_count} доменов.
+Тогда реализация алгоритма пузырькового роста доменов от инициирующих вершин может иметь следующий вид (см. листинг 1):
 
-\subsection{Another second-level heading}
+Реализация алгоритма представляет собой гнездо из 3 циклов.
+Внешний цикл выполняется до тех пор, пока найдется хотя бы одна непустая очередь домена.
+Средний цикл выполнятся по номерам доменов.
+Для каждого домена берется первая необработанная вершина из соответствующей очереди, и если она еще не отнесена ни к одному домену, то она заносится в текущий домен, а все ее соседи отправляются в очередь.
+Внутренний цикл -- цикл по всем соседям только что обработанной вершины, которые должны быть занесены в очередь.
+Будем выполнять векторизацию представленного кода по среднему циклу, и для простоты анализа приведем реализацию для фиксированного значения \texttt{domains\_count = 16} (это позволит избавиться от среднего цикла, и заменить его набором отдельных векторных операций).
 
-In \LaTeX, there are many ways to embed standalone formulas
-on the page and align them. By default, formulas always
-centered.
+Для выполнения векторизации вначале необходимо избавиться от STL структур vector и queue, так как они имеют свою внутреннюю реализацию, и векторизация операций по работе с ними невозможна.
+Вместо структуры vector<int> будем хранить информацию о списке соседних вершин просто в массиве, 0-м элементом которого будет его размер.
+Очередь queue также будет имитировать с помощью массива и индексов front и back, указывающих на первый и последний элементы очереди соответственно.
+Тогда операция push(v) будет соответствовать записи в массив по индексу back с его продвижением, а операция pop будет соответствовать просто продвижению индекса front.
+Очередь пуста если ее индекс front больше индекса back.
 
-\subsubsection{One-line formulas}
+На рис. 2 представлены скалярная и векторная версии программного кода реализации алгоритма пузырькового роста.
+В векторной версии через ADD, GTH, SCT обозначаются функции-интринсики \texttt{\_mm512\_mask\_add\_epi32}, \texttt{\_mm512\_mask\_i32gather\_epi32}, \texttt{\_mm512\_i32scatter\_epi32} соответственно (GTH2 и SCT2 это те же операции GTH и SCT, только использующие сразу два смещения от базового адреса).
+Через CMPLE, CMPLT обозначены вызовы функции-интринсика \texttt{\_mm512\_mask\_cmp\_epi32\_mask} с параметрами сравнения \texttt{\_MM\_CMPINT\_LE} и \texttt{\_MM\_CMPINT\_LT} соответственно.
+На рис. 2 цифрой «1» обозначена векторизация условия продолжения выполнения внешнего цикла (цикл завершает работу, если все очереди доменов пусты).
+Цифрой «2» обозначена векторизация извлечения следующей вершины из каждой очереди.
+Цифрой «3» обозначена проверка принадлежности извлеченных вершин к какому-либо домену (в векторной версии формируется маска \texttt{is\_no\_domain} -- маска с номерами доменов, в которые добавляется новая вершина).
+Цифрой «4» обозначена векторизация помещения рассматриваемой вершины в текущий домен и получение количества ее соседей.
+Цифра «5» -- обработка всех соседей только что помещенной в домен вершины, и цифра «6» -- добавление этих соседей в соответствующие очереди.
 
-Below are examples of one-line equations:
-\begin{eqnarray}
-\chi_+(p)\alt{\bf [}2|{\bf p}|(|{\bf p}|+p_z){\bf ]}^{-1/2}
-\left(
-\begin{array}{c}
-|{\bf p}|+p_z\\
-px+ip_y
-\end{array}\right)\;,
-\\
-\left\{%
-\openone234567890abc123\alpha\beta\gamma\delta1234556\alpha\beta
-\frac{1\sum^{a}_{b}}{A^2}%
-\right\}%
-\label{one}.
-\end{eqnarray}
-The second formula has the number~(\ref{one}), which is set by command
-\verb|\label{one}|. The first formula is assigned a number~(1), but
-it cannot be applied with the help of automatic links,
-as it has no label.
+Стоит отметить, что векторизованная версия представленного алгоритма не является полностью эквивалентной скалярной версии.
+Вполне может оказаться, что на какой-то итерации внешнего цикла из двух или более разных очередей одновременно будет извлечена одна и та же вершина.
+В этом случае в векторной версии она будет отнесена к домену с наибольшим номером (хотя в скалярном аналоге, она бы попала в домен с меньшим номером).
+Это несоответствие можно устранить путем разворачивания векторов vn и vc при записи в массив domains (цифра «4» на рис. 2), но это не делалось, чтобы не усложнять код.
 
-If the formula number is not necessary, use the environment
-\verb+\[+, \verb+\]+, (or \$...\$) which obtained the following formula:
-\[g^+g^+ \rightarrow g^+g^+g^+g^+ \dots ~,~~q^+q^+\rightarrow
-q^+g^+g^+ \dots ~. \] % You also can use the dollar sign ($).
+Для оценки эффективности проведенной векторизации были произведены запуски на дуальных графах поверхностных прямоугольных расчетных сеток со стороной от 20 до 2000 ячеек (то есть на графах с количеством вершин от 400 до 4 млн).
+На рис. 3 представлена собранная статистика плотности масок (доля выставленных битов) векторных операций различных типов.
+Из графиков на рис. 3 можно сразу сделать вывод о невысокой эффективности векторизации, так как плотность масок арифметических операций и операций записи в память оказались довольно низкими (примерно 0,3 и 0,25 соответственно).
 
-\subsubsection{Multiline formulae}
-
-Multiline formulas are typed using the environment
-eqnarray:
-\begin{eqnarray}
-{\cal M}=&&ig_Z^2(4E_1E_2)^{1/2}(l_i^2)^{-1}
-\delta_{\sigma_1,-\sigma_2}
-(g_{\sigma_2}^e)^2\chi_{-\sigma_2}(p_2)\nonumber\\
-&&\times
-[\epsilon_jl_i\epsilon_i]_{\sigma_1}\chi_{\sigma_1}(p_1),
-\end{eqnarray}
-\begin{eqnarray}
-\sum \vert M^{\rm viol}_g \vert ^2&=&g^{2n-4}_S(Q^2)~N^{n-2}
-(N^2-1)\nonumber \\
- & &\times \left( \sum_{i<j}\right)
-\sum_{\rm perm}
-\frac{1}{S_{12}}
-\frac{1}{S_{12}}
-\sum_\tau c^f_\tau~.
-\end{eqnarray}
-If the formula number is not necessary, then at the end of the row in front of the sign
-\verb|\\| you need to put the command \verb|\nonumber|. Never
-use one line command \verb|\nonumber| and
-\verb|\label{#1}|, as this may cause error in automatic
-the numbering of references.
-
-If you want to gain a few formulas without number,
-use the eqnarray environment* (the asterisk means the abolition
-numbering):
-\begin{eqnarray*}
-\sum \vert M^{\rm viol}_g \vert ^2&=&g^{2n-4}_S(Q^2)~N^{n-2}
-(N^2-1)\\
-& &\times \left( \sum_{i<j}\right)
-\left(
-\sum_{\rm perm}\frac{1}{S_{12}S_{23}S_{n1}}
-\right)
-\frac{1}{S_{12}}~.
-\end{eqnarray*}
-To add numbers to the formula manually, use the command
-\verb+\tag{#1}+, where \verb+#1+~--- the desired equation number.
-Here how is the formula with the number of~(\ref{eq:mynum}):
-\begin{equation}
-g^+g^+ \rightarrow g^+g^+g^+g^+ \dots ~,~~q^+q^+\rightarrow
-q^+g^+g^+ \dots ~. \tag{2.6$'$}\label{eq:mynum}
-\end{equation}
-
-When you enable single-line and multi-line formulas are surrounded by
-subequations, each formula `numbered" with a letter,
-as shown in equations~(\ref{mlett:1}) and (\ref{mlett:2}):
-\begin{subequations}
-\label{generallabel}
-\begin{equation}
-\left\{
-abc123456abcdef\alpha\beta\gamma\delta1234556\alpha\beta
-\frac{1\sum^{a}_{b}}{A^2}
-\right\},\label{mlett:1}
-\end{equation}
-\begin{eqnarray}
-{\cal M}=&&ig_Z^2(4E_1E_2)^{1/2}(l_i^2)^{-1}
-(g_{\sigma_2}^e)^2\chi_{-\sigma_2}(p_2)\nonumber\\
-&&\times
-[\epsilon_i]_{\sigma_1}\chi_{\sigma_1}(p_1).\label{mlett:2}
-\end{eqnarray}
-\end{subequations}
-If you put the label right after the \verb+\begin{subequations}+,
-it can be used further as a reference to all the equations in this
-environment. For example, you can refer to
-equation~(\ref{generallabel}) this example.
-
-\section{Variables}
-For the writing of definitions, theorems, lemmas and their proofs use the following variables. If necessary, you can add your variables in the sample.
-
-\begin{definition}\label{D:1}
-Define ...
-\end{definition}
-
-\begin{lemma}\label{L:1}
-If ...
-\end{lemma}
-
-\begin{theorem}\label{Th:1}
-Let ...
-\end{theorem}
-\begin{proof}
-Consider...
-\end{proof}
+Замеры реального ускорения выполнялись для тех же графов на микропроцессоре Intel Xeon Phi 7290 Knights Landing, результаты представлены на рис. 4, для удобства приведен также график сглаженного показателя ускорения.
+Анализирую график сглаженного показателя ускорения, можно отметить, что максимум наблюдается при размере стороны расчетной сетки в районе 750 и равен при мерно 1,95.
+Снижение ускорения при уменьшении стороны расчетной сетки связано с увеличение количества конфликтов при обработке следующих вершин из очередей доменов.
+Снижение ускорения при увеличении стороны расчетной сетки связано с увеличением разброса смещений при выполнении операций gather/scatter, что приводит к промахам в кэш-память.
 
 \section{Figures and tables}
-REV\TeX~4 will automatically number sections, equations, tables, and
-drawings. Figure captions are made after the image and the signature
-tables~--- before a table, as shown in the examples at the end. In
-tables footnotes \footnote{Footnotes in tables, you can try
-to do this manually.} not working.
 
-Graphics and diagrams should be monochrome in black-and-white color and saved in EPS format.
-%You can include a picture in the article using the figure environment:
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.85\textwidth]{deform.eps}
-\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:1}
+\includegraphics[width=0.65\textwidth]{pics/incr.pdf}
+\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:incr}
 \end{figure}
 
-\begin{table}[!h]
-\setcaptionmargin{0mm}
-\onelinecaptionsfalse
-\captionstyle{flushleft}
-\caption{ For the insertion of tables, the table environment is used,
- the signatures to the tables are made in the same way as the captions
- for the figures. This is an example of a table whose multi-line name
- is decorated with the \textbf{caption2} package.}
-\bigskip
-\begin{tabular}{|c|c|c|c|c|c|c|c|}
-\hline
- &$r_c$ (\AA)&$r_0$ (\AA)&$\kappa r_0$&
- &$r_c$ (\AA) &$r_0$ (\AA)&$\kappa r_0$\\
-\hline
-Cu& 0.800 & 14.10 & 2.550 &Sn
-& 0.680 & 1.870 & 3.700 \\
-Ag& 0.990 & 15.90 & 2.710 &Pb
-& 0.450 & 1.930 & 3.760 \\
-Au& 1.150 & 15.90 & 2.710 &Ca
-& 0.750 & 2.170 & 3.560 \\
-Mg& 0.490 & 17.60 & 3.200 &Sr
-& 0.900 & 2.370 & 3.720 \\
-Zn& 0.300 & 15.20 & 2.970 &Li
-& 0.380 & 1.730 & 2.830 \\
-Cd& 0.530 & 17.10 & 3.160 &Na
-& 0.760 & 2.110 & 3.120 \\
-Hg& 0.550 & 17.80 & 3.220 &K &  1.120 & 2.620 & 3.480 \\
-Al& 0.230 & 15.80 & 3.240 &Rb & 1.330 & 2.800 & 3.590 \\
-Ga& 0.310 & 16.70 & 3.330 &Cs & 1.420 & 3.030 & 3.740 \\
-In& 0.460 & 18.40 & 3.500 &Ba & 0.960 & 2.460 & 3.780 \\
-Tl& 0.480 & 18.90 & 3.550 & & & & \\[1mm]
-\hline
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
+\includegraphics[width=0.85\textwidth]{pics/code.pdf}
+\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:code}
+\end{figure}
+
+\begin{figure}[h]
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
+\begin{tabular}{ll}
+\includegraphics[width=0.45\textwidth]{pics/chart_statistics_eng.png}
+&
+\includegraphics[width=0.45\textwidth]{pics/chart_speedup_eng.png}
 \end{tabular}
-\end{table}
+\captionstyle{normal}\caption{Please write your figure caption here.}\label{fig:chart_speedup}
+\end{figure}
 
-\begin{table}[!htb]
-\setcaptionmargin{0mm}
-\onelinecaptionstrue
-\captionstyle{flushleft}
-\caption{The name of this table is --- one-line.}
-\bigskip
-\begin{tabular}{|c|c|c|c|c|c|c|}
-  \hline
-    & 1 & 2 & 3 & 4 & 5 & 6\\
-  \hline
-  1 & 1 & 2 & 3 & 4 & 5 & 6\\
-  2 & 2 & 4 & 6 & 8 & 10 & 12\\
-  3 & 3 & 6 & 9 & 12 & 15 & 18\\[1mm]
-  \hline
-\end{tabular}
-\end{table}
+\section{Conclusion}
 
-\section{Bibliography}
-The following rules apply for references to books:
-
-\begin{itemize}
-  \item Autho initials go before the surname with a space between the initials. Use and between the last two authors. All authors listed in the original reference should be cited.
-  \item The title of the book is written in italics. If the book is originally published in Russian, only the English translation of the title is cited and after citation the original language may be indicated in square brackets, e.g.: [in Russian].
-  \item Examples of bibliographic references can be found at the end of this page (i.e. article \cite{ex}, PhD thesis \cite{maguire-76}).
-\end{itemize}
-
+В статье был рассмотрен алгоритм пузырькового роста, используемый для декомпозиции графа.
+Этот алгоритм применяется для выполнения декомпозиции как в роли самостоятельного метода, так и в составе других, более комплексных подходов к декомпозиции.
+Была рассмотрена реализация, в которой для каждого домена поддерживается своя очередь обрабатываемых вершин графа.
+Такой подход допускает одновременную обработку очередей доменов, что делает возможным применение векторизации для ускорения вычислений.
+Был предложен вариант векторизации алгоритма по среднему циклу гнезда для фиксированного количества доменов, равного 16.
+Для полученного варианта векторизации была собрана статистика плотности векторных масок векторных операций в результирующем коде, которая показала крайне низкие значения для арифметических операций (около 0,3) и операций записи в память (около 0,25).
+Замеры ускорения на микропроцессоре Intel Xeon Phi 7290 продемонстрировали ускорение в диапазоне 1,7-2,2 раза для рассматриваемых графов с количеством ячеек от 400 до 4 млн.
+Такие невысокие результаты ускорения объясняются прежде всего нерегулярным количеством итераций циклов в гнезде, а также обилием операций множественного обращения в память gather/scatter.
 
 \begin{acknowledgments}
-At the end of the articles are written thanks.\\
-For example:\\
-We thank A.~A.~Surname1 and B.~B.~Surname2 for their participation in discussions of the results.\\
-We are grateful to C.~C.~Surname3 and the reviewers for careful reading of the manuscript and helpful remarks.
-
-Links to grants are also listed here.
+Работа выполнена в рамках государственного задания НИЦ «Курчатовский институт».
 \end{acknowledgments}
-
-% Text of article ends here.
-
-\appendix
-
-\section{Applications}
-
-To switch to the tab application, you need to use the command
-\verb+\appendix+. After all the sections will be referred to the word
-The application and the corresponding letter in the command \verb+\section+
-you don't specify, then the application will have
-names.
-
-\section{}
-
-The application may contain subchapters and subsections.
-
 
 %
 % The Bibliography
@@ -341,7 +216,7 @@ Z.~Guo, D.~Lu, Y.~Yan et al., \textquotedblleft Extending the limit of molecular
 
 \bibitem{Asch}
 \refitem{article}
-C.~Asch, E.~Francesquini, E.~Meneses, \textquotedblleft An implementation of a plasma physiscs application for distributed-memory supercomputers using a directive-based programming framework,\textquotedblright Revista Colombiana de Computaci\'on \textbf{25} (1), 39--47 (2024). https://doi.org/10.29375/25392115.5053
+C.~Asch, E.~Francesquini, and E.~Meneses, \textquotedblleft An implementation of a plasma physiscs application for distributed-memory supercomputers using a directive-based programming framework,\textquotedblright Revista Colombiana de Computaci\'on \textbf{25} (1), 39--47 (2024). https://doi.org/10.29375/25392115.5053
 
 \bibitem{Morgan}
 \refitem{article}
@@ -349,11 +224,11 @@ N.~Morgan, C.~Yanusah, A.~Diaz et al., \textquotedblleft Enabling parallel perfo
 
 \bibitem{Lohiya}
 \refitem{article}
-R.~Lohiya, N.~Kumar, \textquotedblleft Harnessing the power of supercomputers: solving complex mathematical problems and queueing theory,\textquotedblright International Journal for Research Publication and Seminar \textbf{15} (1), 166--172. https://doi.org/10.36676/jrps.v15.il.1398
+R.~Lohiya, and N.~Kumar, \textquotedblleft Harnessing the power of supercomputers: solving complex mathematical problems and queueing theory,\textquotedblright International Journal for Research Publication and Seminar \textbf{15} (1), 166--172. https://doi.org/10.36676/jrps.v15.il.1398
 
 \bibitem{Kang}
 \refitem{article}
-J.-S.~Kang, H.~Myung, J.-H.~Yuk, \textquotedblleft Examination of computational performance and potential applications of a global numerical weather prediction model MPAS using KISTI supercomputer NURION,\textquotedblright Journal of Marine Science and Engineering \textbf{9}, 1147 (2021). https://doi.org/10.3390/jmse9101147
+J.-S.~Kang, H.~Myung, and J.-H.~Yuk, \textquotedblleft Examination of computational performance and potential applications of a global numerical weather prediction model MPAS using KISTI supercomputer NURION,\textquotedblright Journal of Marine Science and Engineering \textbf{9}, 1147 (2021). https://doi.org/10.3390/jmse9101147
 
 \bibitem{Morad}
 \refitem{article}
@@ -369,7 +244,7 @@ Y.-J.~Yan, H.-B.~Li, T.~Zhao et al., \textquotedblleft 10-million atoms simulati
 
 \bibitem{Voevodin}
 \refitem{article}
-V.~V.~Voevodin, D.~I.~Shaikhislamov, D.~A.~Nikitenko, \textquotedblleft How to assess the quality of supercomputer resource usage,\textquotedblright Supercomputing Frontiers and Innovations \textbf{9} (3), 4--18 (2022). https://doi.org/10.14529/jsfi220301
+V.~V.~Voevodin, D.~I.~Shaikhislamov, and D.~A.~Nikitenko, \textquotedblleft How to assess the quality of supercomputer resource usage,\textquotedblright Supercomputing Frontiers and Innovations \textbf{9} (3), 4--18 (2022). https://doi.org/10.14529/jsfi220301
 
 \bibitem{Zhou}
 \refitem{article}
@@ -377,7 +252,7 @@ Q.-W.~Zhou, J.-N.~Li, R.-C.~Zhao et al., \textquotedblleft Compilation optimizat
 
 \bibitem{Feng}
 \refitem{article}
-J.~Feng, Y.~He, Q.~Tao, \textquotedblleft Evaluation of compilers’ capability of automatic vectorization based on source code analysis,\textquotedblright Scientific Programming \textbf{6}, 1--15 (2021). https://doi.org/10.1155/2021/3264624
+J.~Feng, Y.~He, and Q.~Tao, \textquotedblleft Evaluation of compilers’ capability of automatic vectorization based on source code analysis,\textquotedblright Scientific Programming \textbf{6}, 1--15 (2021). https://doi.org/10.1155/2021/3264624
 
 \bibitem{Ayall}
 \refitem{article}
@@ -405,19 +280,19 @@ W.~Fan, M.~Liu, C.~Tian et al., \textquotedblleft Incrementalization of graph pa
 
 \bibitem{Wu}
 \refitem{article}
-Y.~Wu, J.~Du, D.~Ni, \textquotedblleft Balanced domain partitioning for software defined networks,\textquotedblright IEEE Access \textbf{11}, 6467--6476 (2023). https://doi.org/10.1109/ACCESS.2023.3237733
+Y.~Wu, J.~Du, and D.~Ni, \textquotedblleft Balanced domain partitioning for software defined networks,\textquotedblright IEEE Access \textbf{11}, 6467--6476 (2023). https://doi.org/10.1109/ACCESS.2023.3237733
 
 \bibitem{Katosh}
 \refitem{article}
-S.~Katosh, S.~Chauhan, V.~Kumar, \textquotedblleft A review on genetic algorithm: past, present and future,\textquotedblright Multimedia Tools and Applications \textbf{80}, 8091--8126 (2020). https://doi.org/10.1007/s11042-020-10139-6
+S.~Katosh, S.~Chauhan, and V.~Kumar, \textquotedblleft A review on genetic algorithm: past, present and future,\textquotedblright Multimedia Tools and Applications \textbf{80}, 8091--8126 (2020). https://doi.org/10.1007/s11042-020-10139-6
 
 \bibitem{Wirayanti}
 \refitem{article}
-N.~Wirayanti, H.~Sriwindono, \textquotedblleft Implementation of hybrid genetic algorithm for solving the teacher placement problem,\textquotedblright Social Science and Humanities Journal. \textbf{9} (1), 6341--6347 (2025). https://doi.org/10.18535/sshj.v9i01.1460
+N.~Wirayanti, and H.~Sriwindono, \textquotedblleft Implementation of hybrid genetic algorithm for solving the teacher placement problem,\textquotedblright Social Science and Humanities Journal. \textbf{9} (1), 6341--6347 (2025). https://doi.org/10.18535/sshj.v9i01.1460
 
 \bibitem{Chaouche}
 \refitem{article}
-A.~Chaouche, M.~Boulif, \textquotedblleft Edge-set reduction to efficiently solve the graph partitioning problem with the genetic algorithm,\textquotedblright arXiv 2307.10410 (2023). https://doi.org/10.48550/arXiv.2307.10410
+A.~Chaouche, and M.~Boulif, \textquotedblleft Edge-set reduction to efficiently solve the graph partitioning problem with the genetic algorithm,\textquotedblright arXiv 2307.10410 (2023). https://doi.org/10.48550/arXiv.2307.10410
 
 \bibitem{Li}
 \refitem{article}
