@@ -154,17 +154,19 @@ The simplicity and speed of the bubble growth algorithm allows it to be used in 
 In this case, the shift of the initiating vertex to a random neighbor can be considered as a genotype mutation.
 This approach of using the bubble growth algorithm inside the genetic algorithm has been approbated in practice, and the solution is available in an open repository https://github.com/r-aax/mendel.
 
-\section{Векторизация алгоритма пузырькового роста}
+\section{Bubble growth algorithm vectorization}
 
-Использование алгоритма пузырькового роста в качестве отдельной операции в комплексных подходах к декомпозиции графов предъявляет повышенные требования к его быстродействию.
-Рассмотрим возможности по ускорению этого алгоритма с помощью векторизации.
-Пусть мы имеем граф, информация о его ребрах записана в структуре \texttt{vector$<$vector$<$int$>>$ inc}, где \texttt{inc[i]} -- список номеров всех вершин, смежных с вершиной \texttt{i}.
-Номера доменов, к которым относятся конкретные вершины хранятся в структуре \texttt{vector$<$int$>$ domains}.
-Структура \texttt{vector$<$queue$<$int$>>$ q} -- список очередей вершин, ожидающих попадания в домены, в начале работы алгоритма очередь \texttt{q[i]} содержит только одну инициирующую вершину \texttt{i}-го домена.
-Пусть требуется выполнить декомпозицию (или раскраску) на \texttt{domains\_count} доменов.
-Тогда реализация алгоритма пузырькового роста доменов от инициирующих вершин может иметь следующий вид (см. листинг~\ref{lst:impl}):
+The use of the bubble growth algorithm as a single operation in complex approaches to graph decomposition (like the genetic algorithm) places increased demands on its performance.
+Let's consider the possibilities of speeding up this algorithm using AVX-512 instructions set for vectorization.
+Let's say we have a graph, information about its edges is written in the structure \texttt{vector$<$vector$<$int$>>$ inc}, where \texttt{inc[i]} is a list of numbers of all vertices adjacent to the vertex \texttt{i} (vertex neighborhood).
+The domain numbers that specific vertices belong to are stored in the \texttt{vector$<$int$>$ domains} structure.
+The \texttt{vector$<$queue$<$int$>>$ q} structure is a list of queues.
+Each queue \texttt{q[i]} is queue of vertices waiting to enter \texttt{i}-th domain.
+At the beginning of the algorithm, the \texttt{q[i]} queue contains only one initiating vertex of the \texttt{i}th domain.
+Let's say we need to decompose the graph (or color the graph) into \texttt{domains\_count} domains.
+Then the simple implementation of the bubble growth algorithm for domains from the initiating vertices may be written as following (see listing~\ref{lst:impl}):
 
-\begin{lstlisting}[caption={Реализация алгоритма пузырькового роста доменов.},label={lst:impl}]
+\begin{lstlisting}[caption={Implementation of the bubble domain growth algorithm.},label={lst:impl}]
 while (is_q)
 {
     is_q = false;
@@ -186,40 +188,40 @@ while (is_q)
 }
 \end{lstlisting}
 
-Реализация алгоритма представляет собой гнездо из 3 циклов.
-Внешний цикл выполняется до тех пор, пока найдется хотя бы одна непустая очередь домена (то есть остались нераспределенные по доменам вершины).
-Средний цикл выполнятся по номерам доменов.
-Для каждого домена берется первая необработанная вершина из соответствующей очереди, и если она еще не отнесена ни к одному домену, то она заносится в текущий домен, а все ее соседи отправляются в очередь.
-Внутренний цикл -- цикл по всем соседям только что обработанной вершины, которые должны быть занесены в очередь.
-Будем выполнять векторизацию представленного кода по среднему циклу, и для простоты анализа приведем реализацию для фиксированного значения \texttt{domains\_count = 16} (это позволит избавиться от среднего цикла, и заменить его набором отдельных векторных операций).
+The implementation of the algorithm is performed as a nest of 3 loops.
+The outer loop is executed until there is at least one non-empty domain queue (that is, there are vertices unallocated by domains).
+The middle cycle is performed by domain numbers.
+For each domain, the first unallocated vertex is taken from the corresponding queue, and if it has not yet been assigned to any domain, it is entered into the current domain, and all its neighbors are sent to the queue.
+The inner loop is a loop through all the neighbors of the newly processed vertex that should be queued.
+We will perform vectorization of the presented code by the middle cycle, and for ease of analysis, we will provide an implementation for a fixed value \texttt{domains\_count = 16} (this will get rid of the middle cycle and replace it with a set of separate vector operations).
 
-Для выполнения векторизации вначале необходимо избавиться от STL структур vector и queue, так как они имеют свою внутреннюю реализацию, и векторизация операций по работе с ними невозможна.
-Вместо структуры \texttt{vector$<$int$>$} будем хранить информацию о списке соседних вершин просто в массиве, 0-м элементом которого будет его размер.
-Очередь queue также будет имитировать с помощью массива и индексов \texttt{front} и \texttt{back}, указывающих на первый и последний элементы очереди соответственно.
-Тогда операция \texttt{push(v)} будет соответствовать записи в массив по индексу \texttt{back} с его продвижением, а операция \texttt{pop} будет соответствовать просто продвижению индекса \texttt{front}.
-Очередь пуста если ее индекс \texttt{front} больше индекса \texttt{back}.
+To perform vectorization, we first need to get rid of the STL structures (\texttt{vector} and \texttt{queue}), since they have their own internal implementation, and vectorization of operations for working with them is impossible.
+Instead of the \texttt{vector$<$int$>$} structure, we will store information about the list of neighboring vertices simply in an array, the 0-th element of which will be its size.
+The queue will also be simulated using an array and indexes \texttt{front} and \texttt{back}, pointing to the first and last elements of the queue, respectively.
+Then the operation \texttt{push(v)} will correspond to writing into the array at the index \texttt{back} with its incrementation, and the operation \texttt{pop} will correspond simply to the incrementation of the index \texttt{front}.
+The queue is empty if its index \texttt{front} is greater than the index \texttt{back}.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 %\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.85\textwidth]{pics/code.pdf}
-\captionstyle{normal}\caption{Векторизация программного кода алгоритма пузырькового роста путем замены скалярных инструкций на векторные аналоги.}\label{fig:code}
+\captionstyle{normal}\caption{Vectorization of the bubble growth algorithm program code by replacing scalar instructions with vector analogues.}\label{fig:code}
 \end{figure}
 
-На рис.~\ref{fig:code} представлены скалярная и векторная версии программного кода реализации алгоритма пузырькового роста.
-В векторной версии через \texttt{ADD}, \texttt{GTH}, \texttt{SCT} обозначаются функции-интринсики \texttt{\_mm512\_mask\_add\_epi32}, \texttt{\_mm512\_mask\_i32gather\_epi32}, \texttt{\_mm512\_i32scatter\_epi32} соответственно (\texttt{GTH2} и \texttt{SCT2} это те же операции \texttt{GTH} и \texttt{SCT}, только использующие сразу два смещения от базового адреса).
-Через \texttt{CMPLE}, \texttt{CMPLT} обозначены вызовы функции-интринсика \texttt{\_mm512\_mask\_cmp\_epi32\_mask} с параметрами сравнения \texttt{\_MM\_CMPINT\_LE} и \texttt{\_MM\_CMPINT\_LT} соответственно.
-На рис.~\ref{fig:code} цифрой <<1>> обозначена векторизация условия продолжения выполнения внешнего цикла (цикл завершает работу, если все очереди доменов пусты).
-Цифрой <<2>> обозначена векторизация извлечения следующей вершины из каждой очереди.
-Цифрой <<3>> обозначена проверка принадлежности извлеченных вершин к какому-либо домену (в векторной версии формируется маска \texttt{is\_no\_domain} -- маска с номерами доменов, в которые добавляется новая вершина).
-Цифрой <<4>> обозначена векторизация помещения рассматриваемой вершины в текущий домен и получение количества ее соседей.
-Цифра <<5>> -- обработка всех соседей только что помещенной в домен вершины, и цифра <<6>> -- добавление этих соседей в соответствующие очереди.
+On fig.~\ref{fig:code} the scalar and vector versions of the software code for implementing the bubble growth algorithm are presented.
+In the vector version, \texttt{ADD}, \texttt{GTH}, \texttt{SCT} are used to denote the intrinsic functions \texttt{\_mm512\_mask\_add\_epi32}, \texttt{\_mm512\_mask\_i32gather\_epi32}, \texttt{\_mm512\_i32scatter\_epi32} respectively (\texttt{GTH2} and \texttt{SCT2} are the same operations \texttt{GTH} and \texttt{SCT}, only using two offsets from the base address at once).
+Using \texttt{CMPLE}, \texttt{CMPLT}, the calls to the intrinsic function \texttt{\_mm512\_mask\_cmp\_epi32\_mask} are indicated with the comparison parameters \texttt{\_MM\_CMPINT\_LE} and \texttt{\_MM\_CMPINT\_LT}, respectively.
+On fig.~\ref{fig:code} the digit <<1>> indicates the vectorization of the condition for continuing execution of the outer loop (the loop terminates if all domain queues are empty).
+The number <<2>> indicates the vectorization of extracting the next vertex from each queue.
+The number <<3>> indicates that the extracted vertices belong to a domain (in the vector version, a mask \texttt{is\_no\_domain} is formed -- a mask with the numbers of the domains to which the new vertex is added).
+The number <<4>> indicates the vectorization of placing the vertex into the current domain and obtaining the number of its neighbors.
+The digit <<5>> is processing all the neighbors of the vertex just placed in the domain, and the digit <<6>> is adding these neighbors to the corresponding queues.
 
-Стоит отметить, что векторизованная версия представленного алгоритма не является полностью эквивалентной скалярной версии.
-Вполне может оказаться, что на какой-то итерации внешнего цикла из двух или более разных очередей одновременно будет извлечена одна и та же вершина.
-В этом случае в векторной версии она будет отнесена к домену с наибольшим номером (хотя в скалярном аналоге, она бы попала в домен с меньшим номером).
-Это несоответствие можно устранить путем разворачивания векторов \texttt{vn} и \texttt{vc} при записи в массив \texttt{domains} (цифра <<4>> на рис.~\ref{fig:code}), но это не делалось, чтобы не усложнять код.
+It is worth noting that the vectorized version of the presented algorithm is not fully equivalent to the scalar version.
+It may well turn out that at some iteration of the outer loop, the same vertex will be extracted from two or more different queues at the same time.
+In this case, in the vector version, it will be assigned to the domain with the highest number (although in the scalar equivalent, it would fall into the domain with the lowest number).
+This discrepancy can be eliminated by turning around the vectors \texttt{vn} and \texttt{vc} when writing to the array \texttt{domains} (figure <<4>> on fig.~\ref{fig:code}), but this operation was not implemented for code simplification.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -230,32 +232,34 @@ while (is_q)
 &
 \includegraphics[width=0.45\textwidth]{pics/chart_speedup_eng.png}
 \end{tabular}
-\captionstyle{normal}\caption{Средняя плотность масок операций AVX-512 разных классов (слева) и ускорение вычислений, полученное на Intel Xeon Phi 7290 Knights Landing (справа).}\label{fig:chart}
+\captionstyle{normal}\caption{The average density of masks for different AVX-512 operations classes (on the left) and the acceleration of calculations obtained on Intel Xeon Phi 7290 Knights Landing (on the right).}\label{fig:chart}
 \end{figure}
 
-Для оценки эффективности проведенной векторизации были произведены запуски на дуальных графах поверхностных прямоугольных расчетных сеток со стороной от 20 до 2000 ячеек (то есть на графах с количеством вершин от 400 до 4 млн).
-На рис.~\ref{fig:chart} слева представлена собранная статистика плотности масок (доля выставленных битов) векторных операций различных типов.
-Из этих графиков можно сразу сделать вывод о невысокой эффективности векторизации, так как плотность масок арифметических операций и операций записи в память оказались довольно низкими (примерно 0,3 и 0,25 соответственно).
+To evaluate the effectiveness of the vectorization, test runs were performed for dual graphs of surface rectangular computational meshes with sides from 20 to 2000 cells (that is, on graphs with a number of vertices from 400 to 4 million).
+In fig.~\ref{fig:chart} on the left is the collected statistics on the masks density (fraction of set bits) of various operations types.
+From these charts, we can immediately conclude that vectorization is not very efficient, since the density of masks for arithmetic operations and write operations to memory turned out to be quite low (about 0.3 and 0.25, respectively).
 
-Замеры реального ускорения выполнялись для тех же графов на микропроцессоре Intel Xeon Phi 7290 Knights Landing, результаты представлены на рис.~\ref{fig:chart} справа, для удобства приведен также график сглаженного показателя ускорения.
-Анализирую график сглаженного показателя ускорения, можно отметить, что максимум наблюдается при размере стороны расчетной сетки в районе 750 и равен примерно 1,95.
-Снижение ускорения при уменьшении стороны расчетной сетки связано с увеличение количества конфликтов при обработке следующих вершин из очередей доменов.
-Снижение ускорения при увеличении стороны расчетной сетки связано с увеличением разброса смещений при выполнении операций gather/scatter, что приводит к промахам в кэш-память.
+Measurements of the actual acceleration were performed for the same graphs on an Intel Xeon Phi 7290 Knights Landing microprocessor, the results are shown on fig.~\ref{fig:chart} on the right.
+For convenience, there is also a chart of the smoothed acceleration indicator.
+Analyzing the chart of the smoothed acceleration indicator, it can be noted that the maximum is observed when the side of the computational mesh is around 750 and is approximately 1.95.
+The decrease in acceleration when reducing the side of the computational mesh is associated with an increase in the number of conflicts when processing the next vertices from the domain queues.
+The decrease in acceleration with an increase in the side of the computational mesh is associated with an increase in the spread of offsets when performing gather/scatter operations, which leads to cache misses.
 
 \section{Conclusion}
 
-В статье был рассмотрен алгоритм пузырькового роста, используемый для декомпозиции графа.
-Этот алгоритм применяется для выполнения декомпозиции как в роли самостоятельного метода, так и в составе других, более комплексных подходов к декомпозиции.
-Была рассмотрена реализация, в которой для каждого домена поддерживается своя очередь обрабатываемых вершин графа.
-Такой подход допускает одновременную обработку очередей доменов, что делает возможным применение векторизации для ускорения вычислений.
-Был предложен вариант векторизации алгоритма по среднему циклу гнезда для фиксированного количества доменов, равного 16.
-Для полученного варианта векторизации была собрана статистика плотности векторных масок векторных операций в результирующем коде, которая показала крайне низкие значения для арифметических операций (около 0,3) и операций записи в память (около 0,25).
-Такая низкая плотность масок связана с поведением внутреннего цикла, количество итераций которого можно охарактеризовать как нерегулярное, то есть никак не зависящее от номера итерации среднего цикла.
-Замеры ускорения на микропроцессоре Intel Xeon Phi 7290 Knights Landing продемонстрировали ускорение в диапазоне 1,7-2,2 раза для рассматриваемых графов с количеством ячеек от 400 до 4 млн.
-Такие невысокие результаты ускорения объясняются прежде всего нерегулярным количеством итераций циклов в гнезде, а также обилием операций множественного обращения в память gather/scatter.
+The article reviewed the bubble growth algorithm used for graph decomposition.
+This algorithm is used to perform decomposition both as an independent method and as part of other, more complexed approaches to decomposition.
+An implementation was considered in which each domain maintains its own queue of processed graph vertices.
+This approach allows simultaneous processing of domain queues, which makes it possible to use vectorization to speed up calculations.
+A variant of the algorithm vectorization for a fixed number of domains equal to 16 was proposed.
+Vectorization is performed for the middle cycle by replacing scalar operations with vector analogues.
+For the obtained vectorization variant, statistics on the vector operations masks density in the resulting code were collected, which showed extremely low values for arithmetic operations (about 0.3) and write operations to memory (about 0.25).
+Such a low mask density is associated with the behavior of the inner loop, the number of iterations of which can be described as irregular, that is, it does not depending on the iteration number of the middle cycle.
+Acceleration measurements on the Intel Xeon Phi 7290 Knights Landing microprocessor demonstrated acceleration in the range of 1.7 -- 2.2 times for the graphs under consideration with a number of vertices from 400 to 4 million.
+Such low acceleration results are primarily due to the irregular number of loop iterations in the nest, as well as the abundance of multiple access operations to memory (gather/scatter).
 
 \begin{acknowledgments}
-Работа выполнена в рамках государственного задания НИЦ «Курчатовский институт».
+The work was carried out as part of the state assignment of the National Research Centre \textquotedblleft Kurchatov Institute\textquotedblright.
 \end{acknowledgments}
 
 %
@@ -294,7 +298,7 @@ A.~Morad, \textquotedblleft Multidisciplinary conceptual investigation for integ
 
 \bibitem{08Eremin}
 \refitem{article}
-Н.~А.~Еремин, \textquotedblleft Эволюция цифровой нефтегазовой экосистемы от суперкомпьютинга к метакомпьютингу\textquotedblright, Известия Тульского государственного университета. Науки о Земле \textbf{1}, 190--201 (2023).
+N.~A.~Eremin, \textquotedblleft Evolution of the digital oil and gas ecosystem from supercomputing to metacomputing\textquotedblright, Proceedings of the Tula states university -- Sciences of Earch \textbf{1}, 190--201 (2023) (In Russ.).
 
 \bibitem{09Yan}
 \refitem{article}
@@ -358,7 +362,7 @@ W.~Fan, M.~Liu, C.~Tian et al., \textquotedblleft Incrementalization of graph pa
 
 \bibitem{18Golovchenko}
 \refitem{article}
-Е.~Н.~Головченко, \textquotedblleft Обзор алгоритмов декомпозиции графов\textquotedblright ,Препринты ИПМ им.~М.~В.~Келдыша \textbf{2} (2020). https://doi.org/10.20948/prepr-2020-2
+E.~N.~Golovchenko, \textquotedblleft Overview of graph decomposition algorithms\textquotedblright, Keldysh Institute Preprints \textbf{2} (2020) (In Russ.). https://doi.org/10.20948/prepr-2020-2
 
 \bibitem{19Wu}
 \refitem{article}
