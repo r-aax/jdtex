@@ -70,7 +70,7 @@ The article is devoted to the problem of integer calculations vectorization.
 Integer calculations is a program context which mainly works with integers and contains a large number of control transfer operations.
 Such a program context is often found in combinatorial optimization problems where one has to work with discrete data structures, memory access indirection, and loop nests with an irregular number of iterations.
 These factors negatively affect the use of vectorization, and automatic vectorization is almost impossible for such a context.
-The article discusses the possibility of using the AVX-512 instruction set to vectorize code with the listed features, since the advantages of masked vector operations make it possible to achieve acceleration even in the presence of such bottlenecks.
+The article discusses the possibility of using the AVX-512 instructions set to vectorize code with the listed features, since the advantages of masked vector operations make it possible to achieve acceleration even in the presence of such bottlenecks.
 The application of vectorization is considered using the example of a bubble growth algorithm for graph decomposition, where the graph is represented as lists of vertex adjacencies.
 For the algorithm under consideration, a method is described for applying vectorization to loop nests using integer masked vector instructions from the AVX-512F set.
 The vectorized decomposition algorithm has been tested on graphs with up to 4 million vertices.
@@ -96,17 +96,16 @@ High-performance computing is used to solve such large computational scientific 
 
 When solving a computational problem on a supercomputer system, parallelization must be performed between its nodes to speed up calculations \cite{10Voevodin}.
 The next level of computing parallelization is parallelization within a single computing node on shared memory \cite{11Zhou}.
-The lowest level of parallelization of calculations can be considered vectorization – parallelization at the level of individual instructions \cite{12Feng}.
+The lowest level of parallelization of calculations can be considered vectorization -- parallelization at the level of individual instructions \cite{12Feng}.
 
 Vectorization is an important low-level optimization of software code, which can be used to achieve multiple acceleration of supercomputer applications.
-All major modern microprocessor architectures (x86, ARM, Power, <<Elbrus>>, LoongArch, Sunway, and others) support vector computing, and there is a tendency to increase the size of the vector (today the maximum length is 512 bits, but now this length is logically unlimited, given the sets of vector instructions with a variable the length
-of the vector).
+All major modern microprocessor architectures (x86, ARM, Power, <<Elbrus>>, LoongArch, Sunway, and others) support vector computing, and there is a tendency to increase the size of the vector (today the maximum length is 512 bits, but now this length is logically unlimited, given the sets of vector instructions with a variable length of the vector).
 
-Currently, the most advantageous set of vector instructions is the AVX-512 set, as it supports the possibility of selective processing of vector elements using vector masks.
-This unique feature allows you to vectorize a complex programming context containing control transfer commands, loop nests, and function calls.
-It can be considered that for the first time the AVX-512 vector instruction set was supported in 2016 in Intel Xeon Phi Knights Landing (KNL) microprocessors, since the earlier generation Intel Xeon Phi Knights Corner (KNC) is an accelerator, and the vector code for it is not x86 compatible.
+Currently, the most advantageous set of vector instructions is the AVX-512, as it supports the possibility of selective processing of vector elements using vector masks.
+This unique feature allows to vectorize a complex programming context containing control transfer commands, loop nests, and function calls.
+It can be considered that for the first time the AVX-512 vector instructions set was supported in 2016 in Intel Xeon Phi Knights Landing (KNL) microprocessors, since the earlier generation Intel Xeon Phi Knights Corner (KNC) is an accelerator, and the vector code for it is not x86 compatible.
 Since that moment, the issues of application vectorization have been actively discussed in the scientific community.
-There are many papers on the vectorization of the software contest in application to various subject areas: gas dynamic solvers \cite{12-1Kulikov}, encryption tools \cite{12-2Buhrow}, time series analysis \cite{12-3Quislant}, sorting of an array of numbers \cite{12-4Blacher}, fast Fourier transform \cite{12-5Sansone} and more.
+There are many papers on the vectorization of the software in application to various subject areas: gas dynamic solvers \cite{12-1Kulikov}, encryption tools \cite{12-2Buhrow}, time series analysis \cite{12-3Quislant}, sorting of an array of numbers \cite{12-4Blacher}, fast Fourier transform \cite{12-5Sansone} and more.
 
 In this paper, we will consider the application of vectorization using the AVX-512 instruction set to an integer calculations containing loops with an irregular number of iterations.
 As such, we will take the bubble growth algorithm of graph decomposition, in which a simultaneous breadth-first traversal of the graph is performed from randomly located initiating vertices.
@@ -116,7 +115,7 @@ As such, we will take the bubble growth algorithm of graph decomposition, in whi
 Currently, there is a wide variety of graph decomposition algorithms that are applied depending on the size of the graph being processed and the requirements for the quality of decomposition \cite{13Ayall}.
 At the same time, the size requirements of the processed graphs are constantly increasing, and today the decomposition problem is considered for graphs containing tens of millions of vertices or more \cite{14Lee}.
 When performing graph processing, the main operation is to obtain incident edges and neighboring vertices of a given vertex.
-The way this action is performed depends on the internal representation of the graph in the computer's memory \cite{15Ahmed,16Salwasser}.
+The way this action is performed depends on the internal representation of the graph in the computer memory \cite{15Ahmed,16Salwasser}.
 We will consider a representation of an undirected graph in which a list of neighboring vertices is available for each vertex index.
 Let's consider the following graph decomposition algorithm -- the bubble growth algorithm -- which is one of the simplest in terms of work logic.
 
@@ -138,13 +137,13 @@ In Fig.~\ref{fig:incr} illustrates the process of building domains from randomly
 After distributing all the vertices by domain, its center is calculated for each domain, after which the domain centers are taken as new initiating vertices, the graph coloring is reset, and then the domains are built from these new initiating vertices.
 This process can continue either a fixed number of times, or until a certain condition is reached (stabilization of the initiating vertices, achieving a balanced partition, repeating the previously obtained configuration) \cite{18Golovchenko}.
 The bubble growth algorithm does not guarantee a balanced division into domains or the formation of short boundaries between domains.
-However, this algorithm is distinguished by its simplicity, which allows it to be used as a basic operation in complex approaches to the decomposition of \cite{19Wu}.
+However, this algorithm is distinguished by its simplicity, which allows it to be used as a basic operation in complex approaches to the graph decomposition \cite{19Wu}.
 
 Let us briefly note the potential of using the bubble growth algorithm in the family of genetic algorithms \cite{20Katosh}.
 Genetic algorithms are nature-like heuristic algorithms that are actively used to solve optimization problems with a large number of parameters \cite{21Wirayanti}.
 During the operation of the genetic algorithm, the survival process of a population consisting of individual individuals is modeled, each of which represents a solution to some optimization problem.
 To implement the algorithm, the concept of a genotype (some code of an individual) must be defined, the process of creating an individual based on its genotype must be implemented, the fitness function of the individual must be determined, and the operations of crossing and mutating individuals at the genotype level must be implemented.
-In the process of population development, the weakest individuals die out, while the more fit ones leave offspring, which leads to an increase in the average value of the fitness function of individuals in the population.
+In the process of population evolution, the weakest individuals die out, while the more fit ones leave offspring, which leads to an increase in the average value of the fitness function of individuals in the population.
 Genetic algorithms are applicable for solving combinatorial optimization problems, in particular for graph decomposition problems.
 However, when using a genetic algorithm to solve the graph decomposition problem, the concepts of genotype and individual are often mixed.
 For example, in \cite{22Chaouche}, when decomposing a graph, each edge is encoded in the genotype, and in \cite{23Li}, the explicit distribution of vertices across domains is encoded in the genotype.
@@ -162,9 +161,9 @@ Let's say we have a graph, information about its edges is written in the structu
 The domain numbers that specific vertices belong to are stored in the \texttt{vector$<$int$>$ domains} structure.
 The \texttt{vector$<$queue$<$int$>>$ q} structure is a list of queues.
 Each queue \texttt{q[i]} is queue of vertices waiting to enter \texttt{i}-th domain.
-At the beginning of the algorithm, the \texttt{q[i]} queue contains only one initiating vertex of the \texttt{i}th domain.
+At the beginning of the algorithm, the \texttt{q[i]} queue contains only one initiating vertex of the \texttt{i}-th domain.
 Let's say we need to decompose the graph (or color the graph) into \texttt{domains\_count} domains.
-Then the simple implementation of the bubble growth algorithm for domains from the initiating vertices may be written as following (see listing~\ref{lst:impl}):
+Then the simple implementation of the bubble growth algorithm for domains from the initiating vertices may be written as following (see Listing~\ref{lst:impl}):
 
 \begin{lstlisting}[caption={Implementation of the bubble domain growth algorithm.},label={lst:impl}]
 while (is_q)
@@ -188,10 +187,10 @@ while (is_q)
 }
 \end{lstlisting}
 
-The implementation of the algorithm is performed as a nest of 3 loops.
-The outer loop is executed until there is at least one non-empty domain queue (that is, there are vertices unallocated by domains).
+The implementation of the algorithm is performed as the nest of 3 loops.
+The outer loop is executed until there is at least one non-empty domain queue (that is, there are vertices not allocated by domains).
 The middle cycle is performed by domain numbers.
-For each domain, the first unallocated vertex is taken from the corresponding queue, and if it has not yet been assigned to any domain, it is entered into the current domain, and all its neighbors are sent to the queue.
+For each domain, the first vertex is taken from the corresponding queue, and if it has not yet been assigned to any domain, it is entered into the current domain, and all its neighbors are sent to the queue.
 The inner loop is a loop through all the neighbors of the newly processed vertex that should be queued.
 We will perform vectorization of the presented code by the middle cycle, and for ease of analysis, we will provide an implementation for a fixed value \texttt{domains\_count = 16} (this will get rid of the middle cycle and replace it with a set of separate vector operations).
 
@@ -209,10 +208,10 @@ The queue is empty if its index \texttt{front} is greater than the index \texttt
 \captionstyle{normal}\caption{Vectorization of the bubble growth algorithm program code by replacing scalar instructions with vector analogues.}\label{fig:code}
 \end{figure}
 
-On fig.~\ref{fig:code} the scalar and vector versions of the software code for implementing the bubble growth algorithm are presented.
+On Fig.~\ref{fig:code} the scalar and vector versions of the software code for implementing the bubble growth algorithm are presented.
 In the vector version, \texttt{ADD}, \texttt{GTH}, \texttt{SCT} are used to denote the intrinsic functions \texttt{\_mm512\_mask\_add\_epi32}, \texttt{\_mm512\_mask\_i32gather\_epi32}, \texttt{\_mm512\_i32scatter\_epi32} respectively (\texttt{GTH2} and \texttt{SCT2} are the same operations \texttt{GTH} and \texttt{SCT}, only using two offsets from the base address at once).
 Using \texttt{CMPLE}, \texttt{CMPLT}, the calls to the intrinsic function \texttt{\_mm512\_mask\_cmp\_epi32\_mask} are indicated with the comparison parameters \texttt{\_MM\_CMPINT\_LE} and \texttt{\_MM\_CMPINT\_LT}, respectively.
-On fig.~\ref{fig:code} the digit <<1>> indicates the vectorization of the condition for continuing execution of the outer loop (the loop terminates if all domain queues are empty).
+On Fig.~\ref{fig:code} the digit <<1>> indicates the vectorization of the condition for continuing execution of the outer loop (the loop terminates if all domain queues are empty).
 The number <<2>> indicates the vectorization of extracting the next vertex from each queue.
 The number <<3>> indicates that the extracted vertices belong to a domain (in the vector version, a mask \texttt{is\_no\_domain} is formed -- a mask with the numbers of the domains to which the new vertex is added).
 The number <<4>> indicates the vectorization of placing the vertex into the current domain and obtaining the number of its neighbors.
@@ -221,7 +220,7 @@ The digit <<5>> is processing all the neighbors of the vertex just placed in the
 It is worth noting that the vectorized version of the presented algorithm is not fully equivalent to the scalar version.
 It may well turn out that at some iteration of the outer loop, the same vertex will be extracted from two or more different queues at the same time.
 In this case, in the vector version, it will be assigned to the domain with the highest number (although in the scalar equivalent, it would fall into the domain with the lowest number).
-This discrepancy can be eliminated by turning around the vectors \texttt{vn} and \texttt{vc} when writing to the array \texttt{domains} (figure <<4>> on fig.~\ref{fig:code}), but this operation was not implemented for code simplification.
+This discrepancy can be eliminated by turning around the vectors \texttt{vn} and \texttt{vc} when writing to the array \texttt{domains} (digit <<4>> on Fig.~\ref{fig:code}), but this operation was not implemented for code simplification.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
@@ -236,10 +235,10 @@ This discrepancy can be eliminated by turning around the vectors \texttt{vn} and
 \end{figure}
 
 To evaluate the effectiveness of the vectorization, test runs were performed for dual graphs of surface rectangular computational meshes with sides from 20 to 2000 cells (that is, on graphs with a number of vertices from 400 to 4 million).
-In fig.~\ref{fig:chart} on the left is the collected statistics on the masks density (fraction of set bits) of various operations types.
+On Fig.~\ref{fig:chart} on the left is the collected statistics on the masks density (fraction of set bits) of various operations types.
 From these charts, we can immediately conclude that vectorization is not very efficient, since the density of masks for arithmetic operations and write operations to memory turned out to be quite low (about 0.3 and 0.25, respectively).
 
-Measurements of the actual acceleration were performed for the same graphs on an Intel Xeon Phi 7290 Knights Landing microprocessor, the results are shown on fig.~\ref{fig:chart} on the right.
+Measurements of the actual acceleration were performed for the same graphs on an Intel Xeon Phi 7290 Knights Landing microprocessor, the results are shown on Fig.~\ref{fig:chart} on the right.
 For convenience, there is also a chart of the smoothed acceleration indicator.
 Analyzing the chart of the smoothed acceleration indicator, it can be noted that the maximum is observed when the side of the computational mesh is around 750 and is approximately 1.95.
 The decrease in acceleration when reducing the side of the computational mesh is associated with an increase in the number of conflicts when processing the next vertices from the domain queues.
@@ -248,7 +247,7 @@ The decrease in acceleration with an increase in the side of the computational m
 \section{Conclusion}
 
 The article reviewed the bubble growth algorithm used for graph decomposition.
-This algorithm is used to perform decomposition both as an independent method and as part of other, more complexed approaches to decomposition.
+This algorithm is used to perform decomposition both as an independent method and as part of other, more complex approaches to decomposition.
 An implementation was considered in which each domain maintains its own queue of processed graph vertices.
 This approach allows simultaneous processing of domain queues, which makes it possible to use vectorization to speed up calculations.
 A variant of the algorithm vectorization for a fixed number of domains equal to 16 was proposed.
