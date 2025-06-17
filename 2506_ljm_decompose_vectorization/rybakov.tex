@@ -74,7 +74,7 @@ The article discusses the possibility of using the AVX-512 instruction set to ve
 The application of vectorization is considered using the example of a bubble growth algorithm for graph decomposition, where the graph is represented as lists of vertex adjacencies.
 For the algorithm under consideration, a method is described for applying vectorization to loop nests using integer masked vector instructions from the AVX-512F set.
 The vectorized decomposition algorithm has been tested on graphs with up to 4 million vertices.
-Practical results were obtained on an Intel Xeon Phi 7290 Knights Landing microprocessor, and they demonstrated acceleration of the program code in the range of 1.7 - 2.2 times, depending on the size of the computational mesh.
+Practical results were obtained on an Intel Xeon Phi 7290 Knights Landing microprocessor, and they demonstrated acceleration of the program code in the range of 1.7 -- 2.2 times, depending on the size of the computational mesh.
 \end{abstract}
 
 \subclass{68W10, 68R10} % Enter 2010 Mathematics Subject Classification.
@@ -111,48 +111,48 @@ There are many papers on the vectorization of the software contest in applicatio
 In this paper, we will consider the application of vectorization using the AVX-512 instruction set to an integer calculations containing loops with an irregular number of iterations.
 As such, we will take the bubble growth algorithm of graph decomposition, in which a simultaneous breadth-first traversal of the graph is performed from randomly located initiating vertices.
 
-\section{Алгоритм пузырькового роста декомпозиции графа}
+\section{Bubble growth graph decomposition algorithm}
 
-В настоящее время существует большое разнообразие алгоритмов декомпозиции графов, которые применяются в зависимости от размера обрабатываемого графа и требований, предъявляемых к качеству декомпозиции \cite{13Ayall}.
-При этом требования к размеру обрабатываемых графов постоянно увеличиваются, и сегодня задача декомпозиции рассматривается для графов, содержащих десятки миллионов ячеек и более \cite{14Lee}.
-При выполнении обработки графов основной операцией является получение по заданной вершине инцидентных ей ребер и соседних с ней вершин.
-Способ выполнения этого действия зависит от внутреннего представления графа в памяти компьютера \cite{15Ahmed,16Salwasser}.
-Будем рассматривать такое представление неориентированного графа, в котором для каждого индекса вершины доступен список соседних с ней вершин.
-Рассмотрим следующий алгоритм декомпозиции графа -- алгоритм пузырькового роста -- являющийся одним из наиболее простых с точки зрения логики работы.
+Currently, there is a wide variety of graph decomposition algorithms that are applied depending on the size of the graph being processed and the requirements for the quality of decomposition \cite{13Ayall}.
+At the same time, the size requirements of the processed graphs are constantly increasing, and today the decomposition problem is considered for graphs containing tens of millions of vertices or more \cite{14Lee}.
+When performing graph processing, the main operation is to obtain incident edges and neighboring vertices of a given vertex.
+The way this action is performed depends on the internal representation of the graph in the computer's memory \cite{15Ahmed,16Salwasser}.
+We will consider a representation of an undirected graph in which a list of neighboring vertices is available for each vertex index.
+Let's consider the following graph decomposition algorithm -- the bubble growth algorithm -- which is one of the simplest in terms of work logic.
 
 \begin{figure}[h]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.65\textwidth]{pics/incr.pdf}
-\captionstyle{normal}\caption{Нарастание доменов при работе пузырькового алгоритма декомпозиции.}\label{fig:incr}
+\captionstyle{normal}\caption{Domain growth during the bubble decomposition algorithm.}\label{fig:incr}
 \end{figure}
 
-Алгоритм пузырькового роста декомпозиции графа \cite{17Fan} основан на обходе графа в ширину, выполняемом одновременно, начиная с нескольких вершин.
-В начале работы алгоритма случайным образом выбираются инициирующие вершины (по требуемому количеству доменов).
-Каждая из выбранных вершин относится к соответствующему домену.
-После этого начинается процесс одновременного наращивания доменов, при котором на каждой итерации алгоритма к каждому домену добавляется одна соседняя еще не раскрашенная вершина (при условии, что это можно сделать).
-Процесс завершается, когда все вершины графа оказываются распределенными по доменам.
-На рис.~\ref{fig:incr} проиллюстрирован процесс наращивания доменов от случайно выбранных вершин для графа на плоскости.
+The bubble growth algorithm for graph decomposition \cite{17Fan} is based on a breadth-first traversal of the graph, performed simultaneously, starting from several initiating vertices.
+At the beginning of the algorithm, the initiating vertices are randomly selected (according to the required number of domains).
+Each of the selected vertices belongs to a corresponding domain.
+After that, the process of simultaneous domain building begins, in which, at each iteration of the algorithm, one neighboring vertex that has not yet been colored is added to each domain (provided that this can be done).
+The process ends when all the vertices of the graph are distributed across domains.
+In Fig.~\ref{fig:incr} illustrates the process of building domains from randomly selected vertices for a graph on a plane.
 
-После распределения всех вершин по доменам для каждого домена вычисляется его центр, после чего центры доменов принимаются за новые инициирующие вершины, раскраска графа сбрасывается, а далее выполняется наращивание доменов от этих новых инициирующих вершин.
-Этот процесс может продолжаться либо фиксированное количество раз, либо до момента достижения определенного условия (стабилизация инициирующих вершин, достижение сбалансированного разбиения, повторение ранее полученной конфигурации) \cite{18Golovchenko}.
-Алгоритм пузырькового роста не гарантирует получение сбалансированного разбиения на домены или формирование коротких границ между доменами.
-Однако этот алгоритм отличается своей простотой, что позволяет использовать его в качестве базовой операции в комплексных подходах к декомпозиции \cite{19Wu}.
+After distributing all the vertices by domain, its center is calculated for each domain, after which the domain centers are taken as new initiating vertices, the graph coloring is reset, and then the domains are built from these new initiating vertices.
+This process can continue either a fixed number of times, or until a certain condition is reached (stabilization of the initiating vertices, achieving a balanced partition, repeating the previously obtained configuration) \cite{18Golovchenko}.
+The bubble growth algorithm does not guarantee a balanced division into domains or the formation of short boundaries between domains.
+However, this algorithm is distinguished by its simplicity, which allows it to be used as a basic operation in complex approaches to the decomposition of \cite{19Wu}.
 
-Отметим кратко потенциал использования алгоритма пузырькового роста в семействе генетических алгоритмов \cite{20Katosh}.
-Генетические алгоритмы являются природоподобными эвристическими алгоритмами, которые активно применяются для решения оптимизационных задач с большим количеством параметров \cite{21Wirayanti}.
-Во время работы генетического алгоритма моделируется процесс выживания популяции, состоящей из отдельных особей, каждая из которых представляет собой решение некоторой оптимизационной задачи.
-Для реализации алгоритма должно быть определено понятие генотипа (некоторого кода особи), реализован процесс создания особи по его генотипу, определена функция пригодности особи, а также реализованы операции скрещивания и мутации особей на уровне генотипов.
-В процессе развития популяции наиболее слабые особи вымирают, а более приспособленные оставляют потомство, что приводит к повышению среднего значения функции пригодности особей в популяции.
-Генетические алгоритмы применимы для решения задач комбинаторной оптимизации, в частности для задачи декомпозиции графа.
-Однако зачастую при использовании генетического алгоритма для решения задачи декомпозиции графа происходит смешивание понятия генотипа и особи.
-Например, в работе \cite{22Chaouche} при декомпозиции графа в генотипе кодируется каждое ребро, а в работе \cite{23Li} в генотипе кодируется явное распределение вершин по доменам.
-То есть генотип практически подменяет собой понятие особи, что приводит к существенному замедлению работы генетического алгоритма и невозможности его применения для декомпозиции больших графов.
-Также применение механизмов скрещивания и мутаций непосредственно к особям вызывает сомнение с точки зрения корректности.
-Простота и скорость работы алгоритма пузырькового роста позволяет использовать его в генетических алгоритмах в качестве операции построения особи из генотипа, представленного набором инициирующих вершин.
-При этом в роли мутации генотипа может рассматриваться смещение инициирующей вершины к случайному соседу.
-Такой подход применения алгоритма пузырькового роста внутри генетического алгоритма был апробирован на практике, и решение доступно в открытом репозитории https://github.com/r-aax/mendel.
+Let us briefly note the potential of using the bubble growth algorithm in the family of genetic algorithms \cite{20Katosh}.
+Genetic algorithms are nature-like heuristic algorithms that are actively used to solve optimization problems with a large number of parameters \cite{21Wirayanti}.
+During the operation of the genetic algorithm, the survival process of a population consisting of individual individuals is modeled, each of which represents a solution to some optimization problem.
+To implement the algorithm, the concept of a genotype (some code of an individual) must be defined, the process of creating an individual based on its genotype must be implemented, the fitness function of the individual must be determined, and the operations of crossing and mutating individuals at the genotype level must be implemented.
+In the process of population development, the weakest individuals die out, while the more fit ones leave offspring, which leads to an increase in the average value of the fitness function of individuals in the population.
+Genetic algorithms are applicable for solving combinatorial optimization problems, in particular for graph decomposition problems.
+However, when using a genetic algorithm to solve the graph decomposition problem, the concepts of genotype and individual are often mixed.
+For example, in \cite{22Chaouche}, when decomposing a graph, each edge is encoded in the genotype, and in \cite{23Li}, the explicit distribution of vertices across domains is encoded in the genotype.
+In other words, the genotype practically replaces the concept of an individual, which leads to a significant slowdown in the work of the genetic algorithm and the impossibility of its use for the decomposition of large graphs.
+Also, the application of the mechanisms of crossing and mutation directly to individuals is questionable from the point of view of correctness.
+The simplicity and speed of the bubble growth algorithm allows it to be used in genetic algorithms as an operation for constructing an individual from a genotype represented by a set of initiating vertices.
+In this case, the shift of the initiating vertex to a random neighbor can be considered as a genotype mutation.
+This approach of using the bubble growth algorithm inside the genetic algorithm has been approbated in practice, and the solution is available in an open repository https://github.com/r-aax/mendel.
 
 \section{Векторизация алгоритма пузырькового роста}
 
