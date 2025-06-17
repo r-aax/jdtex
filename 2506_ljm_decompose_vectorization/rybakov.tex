@@ -87,29 +87,29 @@ Practical results were obtained on an Intel Xeon Phi 7290 Knights Landing microp
 
 \section{Introduction}
 
-Высокопроизводительные вычисления позволяют производить моделирование природных и технологических процессов с высокой степенью детализации, одновременно учитывать множество факторов различного происхождения, быстро анализировать многочисленные варианты.
-Это позволяет получать картину исследуемого процесса с требуемой точностью, максимально отражая реально существующую ситуацию взамен дорогостоящих, опасных или просто невозможных натурных экспериментов.
-Использование суперкомпьютерных технологий позволяет существенно снизить стоимость и сроки создания новых конкурентоспособных изделий, объектов и систем.
-Спектр областей применения высокопроизводительных вычислений очень широк.
-Так, с помощью суперкомпьютерного моделирования решаются задачи газовой и гидродинамики \cite{01Smirnov}, молекулярной динамики \cite{02Guo}, физики плазмы \cite{03Asch}, механики твердого тела \cite{04Morgan}, математики \cite{05Lohiya} и другие.
-Высокопроизводительные вычисления применяются для решения таких больших расчетных научно-технических задач, как моделирование атмосферы \cite{06Kang}, проектирование летательных аппаратов \cite{07Morad}, исследование нефтяных и газовых месторождений \cite{08Eremin}, моделирование крупных молекул и многоатомных систем \cite{09Yan} и многих других.
+High-performance computing makes it possible to simulate natural and technological processes with a high degree of detail, simultaneously take into account many factors of various origins, and quickly analyze numerous options.
+This allows us to obtain a picture of the process under study with the required accuracy, reflecting the actual situation as much as possible instead of expensive, dangerous or simply impossible full-scale experiments.
+The use of supercomputing technologies can significantly reduce the cost and time required to create new competitive products, facilities, and systems.
+The range of high-performance computing applications is very wide.
+Thus, using supercomputer modeling, problems of gas dynamics and hydrodynamics \cite{01Smirnov}, molecular dynamics \cite{02Guo}, plasma physics \cite{03Asch}, solid mechanics \cite{04Morgan}, mathematics \cite{05Lohiya} and others are solved.
+High-performance computing is used to solve such large computational scientific and technical problems as atmospheric modeling \cite{06Kang}, aircraft design \cite{07Morad}, exploration of oil and gas fields \cite{08Eremin}, modeling of large molecules and polyatomic systems \cite{09Yan} and many others.
 
-При решении расчетной задачи на вычислительном кластере необходимо выполнять распараллеливание между его узлами для ускорения вычислений \cite{10Voevodin}.
-Следующий уровень распараллеливания вычислений -- распараллеливание в рамках одного вычислительного узла на общей памяти \cite{11Zhou}.
-Самым низким уровнем распараллеливания вычислений можно считать векторизацию – распараллеливание на уровне отдельных инструкций \cite{12Feng}.
+When solving a computational problem on a supercomputer system, parallelization must be performed between its nodes to speed up calculations \cite{10Voevodin}.
+The next level of computing parallelization is parallelization within a single computing node on shared memory \cite{11Zhou}.
+The lowest level of parallelization of calculations can be considered vectorization – parallelization at the level of individual instructions \cite{12Feng}.
 
-Векторизация является важной низкоуровневой оптимизацией программного кода, с помощью которой можно достичь кратного ускорения суперкомпьютерных приложений.
-Все основные современные микропроцессорные архитектуры (x86, ARM, Power, <<Эльбрус>>, LoongArch, Sunway и другие) поддерживают векторные вычисления, причем наблюдается тенденция на увеличение размера вектора (на сегодняшний день максимальная длина равна 512 битам, но уже сейчас логически эта длина не ограничена, учитывая наборы векторных инструкций с переменной длиной
-вектора).
+Vectorization is an important low-level optimization of software code, which can be used to achieve multiple acceleration of supercomputer applications.
+All major modern microprocessor architectures (x86, ARM, Power, <<Elbrus>>, LoongArch, Sunway, and others) support vector computing, and there is a tendency to increase the size of the vector (today the maximum length is 512 bits, but now this length is logically unlimited, given the sets of vector instructions with a variable the length
+of the vector).
 
-Сейчас наиболее перспективным набором векторных инструкций является набор AVX-512, так как в нем поддержана возможность выборочной обработки элементов векторов с помощью векторных масок.
-Эта уникальная возможность позволяет векторизовать сложный программный контекст, содержащий команды передачи управления, гнезда циклов и вызовы функций.
-Можно считать, что впервые набор векторных инструкций AVX-512 был поддержан в 2016 году в микропроцессорах Intel Xeon Phi Knights Landing (KNL), так как более раннее поколение Intel Xeon Phi Knights Corner (KNC) представляет собой ускоритель, и векторный код для него не является x86 совместимым.
-С этого момента вопросы векторизации приложений активно обсуждаются в научном сообществе.
-Можно отметить множество работ по векторизации программного контеста в приложении к различным предметным областям: газодинамические решатели \cite{12-1Kulikov}, инструменты шифрования \cite{12-2Buhrow}, анализ временных рядов \cite{12-3Quislant}, сортировка массива чисел \cite{12-4Blacher}, быстрое преобразование Фурье \cite{12-5Sansone} и многое другое.
+Currently, the most advantageous set of vector instructions is the AVX-512 set, as it supports the possibility of selective processing of vector elements using vector masks.
+This unique feature allows you to vectorize a complex programming context containing control transfer commands, loop nests, and function calls.
+It can be considered that for the first time the AVX-512 vector instruction set was supported in 2016 in Intel Xeon Phi Knights Landing (KNL) microprocessors, since the earlier generation Intel Xeon Phi Knights Corner (KNC) is an accelerator, and the vector code for it is not x86 compatible.
+Since that moment, the issues of application vectorization have been actively discussed in the scientific community.
+There are many papers on the vectorization of the software contest in application to various subject areas: gas dynamic solvers \cite{12-1Kulikov}, encryption tools \cite{12-2Buhrow}, time series analysis \cite{12-3Quislant}, sorting of an array of numbers \cite{12-4Blacher}, fast Fourier transform \cite{12-5Sansone} and more.
 
-В этой работе будем рассматривать применение векторизации с помощью набора инструкций AVX-512 к целочисленному программному контексту, содержащему циклы с нерегулярным количеством итераций.
-В качестве такого контеста возьмем алгоритм пузырькового роста декомпозиции графа, в котором выполняется одновременный обход графа в ширину от случайным образом расположенных инициирующих вершин.
+In this paper, we will consider the application of vectorization using the AVX-512 instruction set to an integer calculations containing loops with an irregular number of iterations.
+As such, we will take the bubble growth algorithm of graph decomposition, in which a simultaneous breadth-first traversal of the graph is performed from randomly located initiating vertices.
 
 \section{Алгоритм пузырькового роста декомпозиции графа}
 
