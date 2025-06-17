@@ -17,9 +17,6 @@ centertags]%
 \usepackage{listings}
 \usepackage{xcolor}
 
-\usepackage[utf8]{inputenc}
-\usepackage[russian]{babel}
-
 \lstset{
 language=C++,
 basewidth=0.5em,
@@ -49,13 +46,13 @@ escapeinside={\%*}{*)}
 \authorrunning{Rybakov} % for running heads
 %\authorrunning{First-Author, Second-Author} % for running heads
 
-\title{Векторизация целочисленного программного контекста \\ на примере задачи декомпозиции графа}
+\title{Vectorization of the integer calculations \\ in the graph decomposition problem}
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
-\author{\firstname{А.~А.}~\surname{Рыбаков}}
+\author{\firstname{A.~A.}~\surname{Rybakov}}
 \email[E-mail: ]{rybakov_aa@nrcki.ru,rybakov@jscc.ru,rybakov.aax@gmail.com}
-\affiliation{Национальный исследовательский центр «Курчатовский институт», 123182, Москва, пл. Академика Курчатова, д. 1, Россия.}
+\affiliation{National Research Centre \textquotedblleft Kurchatov Institute\textquotedblright, 123182, Moscow, Academician Kurchatov sq. 1, Russia.}
 
 %\author{\firstname{B.}~\surname{Second-Author}}
 %\email[E-mail: ]{Second.Author@email.com}
@@ -69,19 +66,20 @@ escapeinside={\%*}{*)}
 %\received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
 
 \begin{abstract} % You shouldn't use formulas and citations in the abstract.
-Статья посвящена проблеме векторизации программного контекста, преимущественно работающего с целыми числами и содержащего большое количество операций передачи управления.
-Такой программный контекст зачастую встречается в задачах комбинаторной оптимизации, в которых приходится работать с дискретными структурами данных, косвенностью при обращении в память и гнездами циклов с нерегулярным числом итераций.
-Эти факторы негативно влияют на применение векторизации, а автоматическая векторизация для такого контекста практически невозможна.
-В статье рассматривается возможность использования набора инструкций AVX-512 для векторизации кода с перечисленными особенностями, так как преимущества маскированных векторных операций позволяют достичь ускорения даже при наличии таких узких мест.
-Применение векторизации рассматривается на примере алгоритма пузырькового роста декомпозиции графа, где граф представлен в виде списков смежности вершин.
-Для рассматриваемого алгоритма описан метод применения векторизации к гнездам циклов с использованием целочисленных маскированных векторных инструкций из набора AVX-512F.
-Векторизованный алгоритм декомпозиции апробирован на графах с количеством вершин до 4 миллионов.
-Проведены практические эксперименты на микропроцессоре Intel Xeon Phi 7290 Knights Landing, которые показали ускорение программного кода в диапазоне 1,7 -- 2,2 раз в зависимости от размера расчетной сетки.
+The article is devoted to the problem of integer calculations vectorization.
+Integer calculations is a program context which mainly works with integers and contains a large number of control transfer operations.
+Such a program context is often found in combinatorial optimization problems where one has to work with discrete data structures, memory access indirection, and loop nests with an irregular number of iterations.
+These factors negatively affect the use of vectorization, and automatic vectorization is almost impossible for such a context.
+The article discusses the possibility of using the AVX-512 instruction set to vectorize code with the listed features, since the advantages of masked vector operations make it possible to achieve acceleration even in the presence of such bottlenecks.
+The application of vectorization is considered using the example of a bubble growth algorithm for graph decomposition, where the graph is represented as lists of vertex adjacencies.
+For the algorithm under consideration, a method is described for applying vectorization to loop nests using integer masked vector instructions from the AVX-512F set.
+The vectorized decomposition algorithm has been tested on graphs with up to 4 million vertices.
+Practical results were obtained on an Intel Xeon Phi 7290 Knights Landing microprocessor, and they demonstrated acceleration of the program code in the range of 1.7 - 2.2 times, depending on the size of the computational mesh.
 \end{abstract}
 
-\subclass{12345, 54321} % Enter 2010 Mathematics Subject Classification.
+\subclass{68W10, 68R10} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{векторизация, AVX-512, целочисленный программный контекст, комбинаторная оптимизация, декомпозиция графа, алгоритм пузырькового роста} % Include keywords separeted by comma.
+\keywords{vectorization, AVX-512, integer calculations, combinatorial optimization, graph decomposition, bubble growth algorithm} % Include keywords separeted by comma.
 
 \maketitle
 
@@ -268,119 +266,119 @@ while (is_q)
 
 \bibitem{01Smirnov}
 \refitem{article}
-E.~M.~Smirnov, D.~K.~Zaitsev, A.~A.~Smirnovsky et al., \textquotedblleft Assessment of several advanced numerical algorithms implemented in the CFD code SINF/Flag-S for supercomputer simulations, \textquotedblright Supercomputing Frontiers and Innovations \textbf{11} (2), 14--31 (2024). https://doi.org/10.14529/jsfi240202
+E.~M.~Smirnov, D.~K.~Zaitsev, A.~A.~Smirnovsky et al., \textquotedblleft Assessment of several advanced numerical algorithms implemented in the CFD code SINF/Flag-S for supercomputer simulations\textquotedblright, Supercomputing Frontiers and Innovations \textbf{11} (2), 14--31 (2024). https://doi.org/10.14529/jsfi240202
 
 \bibitem{02Guo}
 \refitem{article}
-Z.~Guo, D.~Lu, Y.~Yan et al., \textquotedblleft Extending the limit of molecular dynamics with ab initio accuracy to 10 billion atoms, \textquotedblright 27th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming, April 2--6, Seoul, Republic of Korea (2022). https://doi.org/10.1145/3503221.3508425
+Z.~Guo, D.~Lu, Y.~Yan et al., \textquotedblleft Extending the limit of molecular dynamics with ab initio accuracy to 10 billion atoms\textquotedblright, 27th ACM SIGPLAN Symposium on Principles and Practice of Parallel Programming, April 2--6, Seoul, Republic of Korea (2022). https://doi.org/10.1145/3503221.3508425
 
 \bibitem{03Asch}
 \refitem{article}
-C.~Asch, E.~Francesquini, and E.~Meneses, \textquotedblleft An implementation of a plasma physiscs application for distributed-memory supercomputers using a directive-based programming framework, \textquotedblright Revista Colombiana de Computaci\'on \textbf{25} (1), 39--47 (2024). https://doi.org/10.29375/25392115.5053
+C.~Asch, E.~Francesquini, and E.~Meneses, \textquotedblleft An implementation of a plasma physiscs application for distributed-memory supercomputers using a directive-based programming framework\textquotedblright, Revista Colombiana de Computaci\'on \textbf{25} (1), 39--47 (2024). https://doi.org/10.29375/25392115.5053
 
 \bibitem{04Morgan}
 \refitem{article}
-N.~Morgan, C.~Yanusah, A.~Diaz et al., \textquotedblleft Enabling parallel performance and portability of solid mechanics simulations across CPU and GPU architectures, \textquotedblright Information \textbf{15}, 716 (2024). https://doi.org/10.3390/info15110716
+N.~Morgan, C.~Yanusah, A.~Diaz et al., \textquotedblleft Enabling parallel performance and portability of solid mechanics simulations across CPU and GPU architectures\textquotedblright, Information \textbf{15}, 716 (2024). https://doi.org/10.3390/info15110716
 
 \bibitem{05Lohiya}
 \refitem{article}
-R.~Lohiya, and N.~Kumar, \textquotedblleft Harnessing the power of supercomputers: solving complex mathematical problems and queueing theory, \textquotedblright International Journal for Research Publication and Seminar \textbf{15} (1), 166--172. https://doi.org/10.36676/jrps.v15.il.1398
+R.~Lohiya, and N.~Kumar, \textquotedblleft Harnessing the power of supercomputers: solving complex mathematical problems and queueing theory\textquotedblright, International Journal for Research Publication and Seminar \textbf{15} (1), 166--172. https://doi.org/10.36676/jrps.v15.il.1398
 
 \bibitem{06Kang}
 \refitem{article}
-J.-S.~Kang, H.~Myung, and J.-H.~Yuk, \textquotedblleft Examination of computational performance and potential applications of a global numerical weather prediction model MPAS using KISTI supercomputer NURION, \textquotedblright Journal of Marine Science and Engineering \textbf{9}, 1147 (2021). https://doi.org/10.3390/jmse9101147
+J.-S.~Kang, H.~Myung, and J.-H.~Yuk, \textquotedblleft Examination of computational performance and potential applications of a global numerical weather prediction model MPAS using KISTI supercomputer NURION\textquotedblright, Journal of Marine Science and Engineering \textbf{9}, 1147 (2021). https://doi.org/10.3390/jmse9101147
 
 \bibitem{07Morad}
 \refitem{article}
-A.~Morad, \textquotedblleft Multidisciplinary conceptual investigation for integrating stores, not in the original configuration of a subsonic airplane, \textquotedblright Journal of Physics: Conference Series \textbf{2616}, 012005 (2023). https://doi.org/10.1088/1742-6596/2616/1/012005
+A.~Morad, \textquotedblleft Multidisciplinary conceptual investigation for integrating stores, not in the original configuration of a subsonic airplane\textquotedblright, Journal of Physics: Conference Series \textbf{2616}, 012005 (2023). https://doi.org/10.1088/1742-6596/2616/1/012005
 
 \bibitem{08Eremin}
 \refitem{article}
-Н.~А.~Еремин, \textquotedblleft Эволюция цифровой нефтегазовой экосистемы от суперкомпьютинга к метакомпьютингу, \textquotedblright Известия Тульского государственного университета. Науки о Земле \textbf{1}, 190--201 (2023).
+Н.~А.~Еремин, \textquotedblleft Эволюция цифровой нефтегазовой экосистемы от суперкомпьютинга к метакомпьютингу\textquotedblright, Известия Тульского государственного университета. Науки о Земле \textbf{1}, 190--201 (2023).
 
 \bibitem{09Yan}
 \refitem{article}
-Y.-J.~Yan, H.-B.~Li, T.~Zhao et al., \textquotedblleft 10-million atoms simulation of first-principle package LS3DF, \textquotedblright Journal of Computer Science and Technology \textbf{39} (1), 45--62 (2024). https://doi.org/10.1007/s11390-023-3011-6
+Y.-J.~Yan, H.-B.~Li, T.~Zhao et al., \textquotedblleft 10-million atoms simulation of first-principle package LS3DF\textquotedblright, Journal of Computer Science and Technology \textbf{39} (1), 45--62 (2024). https://doi.org/10.1007/s11390-023-3011-6
 
 \bibitem{10Voevodin}
 \refitem{article}
-V.~V.~Voevodin, D.~I.~Shaikhislamov, and D.~A.~Nikitenko, \textquotedblleft How to assess the quality of supercomputer resource usage, \textquotedblright Supercomputing Frontiers and Innovations \textbf{9} (3), 4--18 (2022). https://doi.org/10.14529/jsfi220301
+V.~V.~Voevodin, D.~I.~Shaikhislamov, and D.~A.~Nikitenko, \textquotedblleft How to assess the quality of supercomputer resource usage\textquotedblright, Supercomputing Frontiers and Innovations \textbf{9} (3), 4--18 (2022). https://doi.org/10.14529/jsfi220301
 
 \bibitem{11Zhou}
 \refitem{article}
-Q.-W.~Zhou, J.-N.~Li, R.-C.~Zhao et al., \textquotedblleft Compilation optimization of DCU-oriented OpenMP thread scheduling, \textquotedblright Journal of Physics. Conference Series \textbf{2558} (1), 012003 (2023). https://doi.org/10.1088/1742-6596/2558/1/012003
+Q.-W.~Zhou, J.-N.~Li, R.-C.~Zhao et al., \textquotedblleft Compilation optimization of DCU-oriented OpenMP thread scheduling\textquotedblright, Journal of Physics. Conference Series \textbf{2558} (1), 012003 (2023). https://doi.org/10.1088/1742-6596/2558/1/012003
 
 \bibitem{12Feng}
 \refitem{article}
-J.~Feng, Y.~He, and Q.~Tao, \textquotedblleft Evaluation of compilers’ capability of automatic vectorization based on source code analysis, \textquotedblright Scientific Programming \textbf{6}, 1--15 (2021). https://doi.org/10.1155/2021/3264624
+J.~Feng, Y.~He, and Q.~Tao, \textquotedblleft Evaluation of compilers’ capability of automatic vectorization based on source code analysis\textquotedblright, Scientific Programming \textbf{6}, 1--15 (2021). https://doi.org/10.1155/2021/3264624
 
 % --- AVX-512 examples
 
 \bibitem{12-1Kulikov}
 \refitem{article}
-I.~Kulikov, I.~Chernykh, and A.~Tutukov, \textquotedblleft A new hydrodynamic code with explicit vectorization instructions optimizations that is dedicated to the numerical simulation of astrophysical gas flow. I. Numerical method, tests, and model problem, \textquotedblright The Astrophysical Journal Supplement Series \textbf{243} (4), 15~P. (2019). https://doi.org/10.3847/1538-4365/ab2237
+I.~Kulikov, I.~Chernykh, and A.~Tutukov, \textquotedblleft A new hydrodynamic code with explicit vectorization instructions optimizations that is dedicated to the numerical simulation of astrophysical gas flow. I. Numerical method, tests, and model problem\textquotedblright, The Astrophysical Journal Supplement Series \textbf{243} (4), 15~P. (2019). https://doi.org/10.3847/1538-4365/ab2237
 
 \bibitem{12-2Buhrow}
 \refitem{article}
-B.~Buhrow, B.~Gilbert, and C.~Haider, \textquotedblleft Parallel modular multiplication using 512-bit advanced vector instructions, \textquotedblright Journal of Cryptographic Engineering, \textbf{12}, 95--105 (2022). https://doi.org/10.1007/s13389-021-00256-9
+B.~Buhrow, B.~Gilbert, and C.~Haider, \textquotedblleft Parallel modular multiplication using 512-bit advanced vector instructions\textquotedblright, Journal of Cryptographic Engineering, \textbf{12}, 95--105 (2022). https://doi.org/10.1007/s13389-021-00256-9
 
 \bibitem{12-3Quislant}
 \refitem{article}
-R.~Quislant, and I.~Fernandez, \textquotedblleft Time series analysis acceleration with advanced vectorization extensions, \textquotedblright The Journal of Supercomputing, \textbf{79} (9), 10178--10207 (2023). https://doi.org/10.1007/s11227-023-05060-2
+R.~Quislant, and I.~Fernandez, \textquotedblleft Time series analysis acceleration with advanced vectorization extensions\textquotedblright, The Journal of Supercomputing, \textbf{79} (9), 10178--10207 (2023). https://doi.org/10.1007/s11227-023-05060-2
 
 \bibitem{12-4Blacher}
 \refitem{article}
-M.~Blacher, J.~Giesen, P.~Sanders P. et al., \textquotedblleft Vectorized and performance-portable Quicksort, \textquotedblright arXiv, 2205.05982, 1--21 (2022). https://doi.org/10.48550/arXiv.2205.05982
+M.~Blacher, J.~Giesen, P.~Sanders P. et al., \textquotedblleft Vectorized and performance-portable Quicksort\textquotedblright, arXiv, 2205.05982, 1--21 (2022). https://doi.org/10.48550/arXiv.2205.05982
 
 \bibitem{12-5Sansone}
 \refitem{article}
-G.~Sansone, and M.~Cococcioni, \textquotedblleft Experiments on speeding up the recursive fast Fourier transform by using AVX-512 SIMD instructions, \textquotedblright In: R.~Berta, A.~De~Gloria (eds) Applications in Electronics Pervading Industry, Environment and Society, ApplePies 2022, Lecture Notes in Electrical Engineering \textbf{1036}. https://doi.org/10.1007/978-3-031-30333-3\_34
+G.~Sansone, and M.~Cococcioni, \textquotedblleft Experiments on speeding up the recursive fast Fourier transform by using AVX-512 SIMD instructions\textquotedblright, In: R.~Berta, A.~De~Gloria (eds) Applications in Electronics Pervading Industry, Environment and Society, ApplePies 2022, Lecture Notes in Electrical Engineering \textbf{1036}. https://doi.org/10.1007/978-3-031-30333-3\_34
 
 % ---
 
 \bibitem{13Ayall}
 \refitem{article}
-T.~Ayall, H.~Liu, C.~Zhou et al., \textquotedblleft Graph computing systems and partitioning techniques: a survey, \textquotedblright IEEE Access \textbf{10}, 118523--118550 (2022). https://doi.org/10.1109/ACCESS.2022.3219422
+T.~Ayall, H.~Liu, C.~Zhou et al., \textquotedblleft Graph computing systems and partitioning techniques: a survey\textquotedblright, IEEE Access \textbf{10}, 118523--118550 (2022). https://doi.org/10.1109/ACCESS.2022.3219422
 
 \bibitem{14Lee}
 \refitem{article}
-H.~Lee, J.~Baek, S.~Song et al., \textquotedblleft Efficient large graph partitioning scheme using incremental processing in GPU, \textquotedblright IEEE Access \textbf{13}, 43889--43903 (2025). https://doi.org/10.1109/ACCESS.2025.3547976
+H.~Lee, J.~Baek, S.~Song et al., \textquotedblleft Efficient large graph partitioning scheme using incremental processing in GPU\textquotedblright, IEEE Access \textbf{13}, 43889--43903 (2025). https://doi.org/10.1109/ACCESS.2025.3547976
 
 \bibitem{15Ahmed}
 \refitem{article}
-A.~Ahmed, F.~Siddique, K.~Skadron et al., \textquotedblleft GraphTango: A hybrid representation format for efficient streaming graph updates and analysis, \textquotedblright International Journal of Parallel Programming \textbf{52}, 147--170 (2024). https://doi.org/10.1007/s10766-024-00768-x
+A.~Ahmed, F.~Siddique, K.~Skadron et al., \textquotedblleft GraphTango: A hybrid representation format for efficient streaming graph updates and analysis\textquotedblright, International Journal of Parallel Programming \textbf{52}, 147--170 (2024). https://doi.org10.1007/s10766-024-00768-x
 
 \bibitem{16Salwasser}
 \refitem{article}
-D.~Salwasser, D.~Seemaier, L.~Gottesb\"uren et al., \textquotedblleft Tera-scale multilevel graph partitioning, \textquotedblright arXiv 2410.19119 (2024). https://doi.org/10.48550/arXiv.2410.19119
+D.~Salwasser, D.~Seemaier, L.~Gottesb\"uren et al., \textquotedblleft Tera-scale multilevel graph partitioning\textquotedblright, arXiv 2410.19119 (2024). https://doi.org/10.48550/arXiv.2410.19119
 
 \bibitem{17Fan}
 \refitem{article}
-W.~Fan, M.~Liu, C.~Tian et al., \textquotedblleft Incrementalization of graph partitioning algorithms, \textquotedblright Proceedings of the VLDB Endowment \textbf{13} (8), 1261--1274 (2020). https://doi.org/10.14778/3389133.3389142
+W.~Fan, M.~Liu, C.~Tian et al., \textquotedblleft Incrementalization of graph partitioning algorithms\textquotedblright, Proceedings of the VLDB Endowment \textbf{13} (8), 1261--1274 (2020). https://doi.org/10.14778/3389133.3389142
 
 \bibitem{18Golovchenko}
 \refitem{article}
-Е.~Н.~Головченко, \textquotedblleft Обзор алгоритмов декомпозиции графов, \textquotedblright Препринты ИПМ им.~М.~В.~Келдыша \textbf{2} (2020). https://doi.org/10.20948/prepr-2020-2
+Е.~Н.~Головченко, \textquotedblleft Обзор алгоритмов декомпозиции графов\textquotedblright ,Препринты ИПМ им.~М.~В.~Келдыша \textbf{2} (2020). https://doi.org/10.20948/prepr-2020-2
 
 \bibitem{19Wu}
 \refitem{article}
-Y.~Wu, J.~Du, and D.~Ni, \textquotedblleft Balanced domain partitioning for software defined networks, \textquotedblright IEEE Access \textbf{11}, 6467--6476 (2023). https://doi.org/10.1109/ACCESS.2023.3237733
+Y.~Wu, J.~Du, and D.~Ni, \textquotedblleft Balanced domain partitioning for software defined networks\textquotedblright, IEEE Access \textbf{11}, 6467--6476 (2023). https://doi.org/10.1109/ACCESS.2023.3237733
 
 \bibitem{20Katosh}
 \refitem{article}
-S.~Katosh, S.~Chauhan, and V.~Kumar, \textquotedblleft A review on genetic algorithm: past, present and future, \textquotedblright Multimedia Tools and Applications \textbf{80}, 8091--8126 (2020). https://doi.org/10.1007/s11042-020-10139-6
+S.~Katosh, S.~Chauhan, and V.~Kumar, \textquotedblleft A review on genetic algorithm: past, present and future\textquotedblright, Multimedia Tools and Applications \textbf{80}, 8091--8126 (2020). https://doi.org/10.1007/s11042-020-10139-6
 
 \bibitem{21Wirayanti}
 \refitem{article}
-N.~Wirayanti, and H.~Sriwindono, \textquotedblleft Implementation of hybrid genetic algorithm for solving the teacher placement problem, \textquotedblright Social Science and Humanities Journal. \textbf{9} (1), 6341--6347 (2025). https://doi.org/10.18535/sshj.v9i01.1460
+N.~Wirayanti, and H.~Sriwindono, \textquotedblleft Implementation of hybrid genetic algorithm for solving the teacher placement problem\textquotedblright, Social Science and Humanities Journal. \textbf{9} (1), 6341--6347 (2025). https://doi.org/10.18535/sshj.v9i01.1460
 
 \bibitem{22Chaouche}
 \refitem{article}
-A.~Chaouche, and M.~Boulif, \textquotedblleft Edge-set reduction to efficiently solve the graph partitioning problem with the genetic algorithm, \textquotedblright arXiv 2307.10410 (2023). https://doi.org/10.48550/arXiv.2307.10410
+A.~Chaouche, and M.~Boulif, \textquotedblleft Edge-set reduction to efficiently solve the graph partitioning problem with the genetic algorithm\textquotedblright, arXiv 2307.10410 (2023). https://doi.org/10.48550/arXiv.2307.10410
 
 \bibitem{23Li}
 \refitem{article}
-M.~Li, H.~Cui, C.~Zhou et al., \textquotedblleft GAP: genetic algorithm based large-scale graph partition in heterogeneous cluster, \textquotedblright IEEE Access \textbf{8}, 144197--144204 (2020). https://doi.org/10.1109/ACCESS.2020.3014351
+M.~Li, H.~Cui, C.~Zhou et al., \textquotedblleft GAP: genetic algorithm based large-scale graph partition in heterogeneous cluster\textquotedblright, IEEE Access \textbf{8}, 144197--144204 (2020). https://doi.org/10.1109/ACCESS.2020.3014351
 
 \end{thebibliography}
 \end{document}
