@@ -125,7 +125,9 @@ TODO
 Пусть величины смещений ячеек $A_2A$, $AB$ и $BB_2$ равны $H_{i - 1}$, $H_i$ и $H_{i + 1}$ соответственно.
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.8\textwidth]{pics/theoretical.pdf}
 \captionstyle{normal}\caption{Теоретическая оценка приближенных методов перестроения выпуклой поверхности в двумерном случае.}
 \label{fig:text_1_remesh_2d_theoretical}
@@ -174,7 +176,9 @@ $\blacksquare$\\
 Для получения теоретической оценки точности для метода окрестностей в случае выпуклой сетки рассмотрим следующее вспомогательное утверждение.
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.7\textwidth]{pics/accuracy_okrestnost.pdf}
 \captionstyle{normal}\caption{Вычисление смещения узла в методе окрестностей для выпуклой сетки.}
 \label{fig:text_1_remesh_2d_accuracy_okrestnost}
@@ -254,7 +258,9 @@ $\blacksquare$\\
 Для получения теоретической оценки точности для метода окрестностей в случае вогнутой сетки рассмотрим следующее вспомогательное утверждение, аналогичное лемме~\ref{lem:text_1_remesh_2d_accuracy_okrestnost}.
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.7\textwidth]{pics/accuracy_okrestnost2.pdf}
 \captionstyle{normal}\caption{Вычисление смещения узла в методе окрестностей для вогнутой сетки.}
 \label{fig:text_1_remesh_2d_accuracy_okrestnost}
@@ -295,7 +301,9 @@ $\blacksquare$\\
 Используя полученные соотношения для $S_i^r$, $S_i^t$, $S_i^o$, можно проанализировать зависимости величин $\delta_i^r$, $\delta_i^t$, $\delta_i^o$ от $\alpha$ и $\frac{\Delta H}{l}$, при этом будем использовать фиксированную величину $H = \frac{l}{2}$ (см. рис.~\ref{fig:text_1_remesh_3d_main_chart}).
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.8\textwidth]{pics/remesh_3d_chart.png}
 \captionstyle{normal}\caption{Графики поверхностнй $\delta_i^r(\alpha, \frac{\Delta H}{l})$, $\delta_i^t(\alpha, \frac{\Delta H}{l})$, $\delta_i^o(\alpha, \frac{\Delta H}{l})$ при фиксированном значении $H = \frac{l}{2}$.}
 \label{fig:text_1_remesh_3d_main_chart}
@@ -308,7 +316,9 @@ $\blacksquare$\\
 Из рисунка видно, что метод трапеций перестроения поверхности при небольших значениях $\frac{\Delta H}{l}$ наиболее точен, а точность методов прямоугольников и окрестностей достаточно близки.
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{pics/remesh_fix_alfa_chart.png}
 \captionstyle{normal}\caption{Графики поверхностнй $\delta_i^r(\frac{\Delta H}{l})$, $\delta_i^t(\frac{\Delta H}{l})$, $\delta_i^o(\frac{\Delta H}{l})$ при фиксированных значениях $\alpha = 0,5$ (слева) и $\alpha = -0,5$ (справа).}
 \label{fig:text_1_remesh_fix_alfa_chart}
@@ -412,14 +422,18 @@ $\blacksquare$\\
 Дополнительно заметим, что использование метода трапеций для малых углов $\alpha$ приводит к неконтролируемому росту $h_A$, что делает применение этого метода неприемлемым.
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/cavern-methods.pdf}
 \captionstyle{normal}\caption{Сглаживание впадины при методах прямоугольников (слева), трапеций (в центре), окрестностей (справа).}
 \label{fig:text_1_remesh_2d_cavern_methods}
 \end{figure}
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/cavern-methods-chart.png}
 \captionstyle{normal}\caption{Сравнение сглаживания впадины для методов прямоугольников, трапеций и окрестностей.}
 \label{fig:text_1_remesh_2d_cavern_methods_chart}
