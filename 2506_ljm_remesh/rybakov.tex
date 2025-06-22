@@ -126,10 +126,14 @@ TODO
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.8\textwidth]{pics/theoretical.pdf}
-\captionstyle{normal}\caption{Теоретическая оценка приближенных методов перестроения выпуклой поверхности в двумерном случае.}
+\onelinecaptionsfalse % if the caption is multiline
+%\onelinecaptionstrue  % if the caption is one-line
+\begin{tabular}{ll}
+\includegraphics[width=0.45\textwidth]{pics/theoretical.pdf}
+&
+\includegraphics[width=0.45\textwidth]{pics/theoretical_concave.pdf}
+\end{tabular}
+\captionstyle{normal}\caption{Теоретическая оценка приближенных методов перестроения выпуклой (слева) и вогнутой (справа) сетки.}
 \label{fig:text_1_remesh_2d_theoretical}
 \end{figure}
 
@@ -177,10 +181,14 @@ $\blacksquare$\\
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.7\textwidth]{pics/accuracy_okrestnost.pdf}
-\captionstyle{normal}\caption{Вычисление смещения узла в методе окрестностей для выпуклой сетки.}
+\onelinecaptionsfalse % if the caption is multiline
+%\onelinecaptionstrue  % if the caption is one-line
+\begin{tabular}{ll}
+\includegraphics[width=0.45\textwidth]{pics/accuracy_okrestnost.pdf}
+&
+\includegraphics[width=0.45\textwidth]{pics/accuracy_okrestnost2.pdf}
+\end{tabular}
+\captionstyle{normal}\caption{Вычисление смещения узла в методе окрестностей для выпуклой (слева) и вогнутой (справа) сетки.}
 \label{fig:text_1_remesh_2d_accuracy_okrestnost}
 \end{figure}
 
@@ -218,13 +226,6 @@ $\blacksquare$\\
 
 Теперь рассмотрим случай вогнутой сетки, представленный на рис.~\ref{fig:text_1_remesh_2d_theoretical_concave}.
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.8\textwidth]{pics/theoretical_concave.pdf}
-\captionstyle{center}\caption{Теоретическая оценка приближенных методов перестроения вогнутой поверхности в двумерном случае.}
-\label{fig:text_1_remesh_2d_theoretical_concave}
-\end{figure}
-
 \begin{lemma}
 Для ячейки $AB$ вогнутой сетки с равными углами $\angle (\overline{BA}, \overline{AA_2}) = \angle (\overline{AB}, \overline{BB_2}) = \alpha$ (см. рис.~\ref{fig:text_1_remesh_2d_theoretical_concave})
 \begin{equation}\label{eqn:text_1_remesh2_saa2b2b_gen2}
@@ -256,15 +257,6 @@ $\blacksquare$\\
 Заметим, что формулы \eqref{eqn:text_1_remesh2_s_rect_vogn} -- \eqref{eqn:text_1_remesh2_trap_vogn} идентичны формулам \eqref{eqn:text_1_remesh2_s_rect} -- \eqref{eqn:text_1_remesh2_trap} с учетом знака $\alpha$, поэтому формулы \eqref{eqn:text_1_remesh2_s_rect} -- \eqref{eqn:text_1_remesh2_trap} применимы как для положительных значений углов $\alpha$ (случай выпуклой сетки), так и для отрицательных значений $\alpha$ (случай вогнутой сетки).
 
 Для получения теоретической оценки точности для метода окрестностей в случае вогнутой сетки рассмотрим следующее вспомогательное утверждение, аналогичное лемме~\ref{lem:text_1_remesh_2d_accuracy_okrestnost}.
-
-\begin{figure}[ht]
-\setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
-\includegraphics[width=0.7\textwidth]{pics/accuracy_okrestnost2.pdf}
-\captionstyle{normal}\caption{Вычисление смещения узла в методе окрестностей для вогнутой сетки.}
-\label{fig:text_1_remesh_2d_accuracy_okrestnost}
-\end{figure}
 
 \begin{lemma}\label{lem:text_1_remesh_2d_accuracy_okrestnost2}
 Пусть $AB = l$, выше прямой $AB$ расположена точка $X$ такая, что $\angle (\overline{AX}, \overline{BA}) = \alpha$.
@@ -317,8 +309,8 @@ $\blacksquare$\\
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
+\onelinecaptionsfalse % if the caption is multiline
+%\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{pics/remesh_fix_alfa_chart.png}
 \captionstyle{normal}\caption{Графики поверхностнй $\delta_i^r(\frac{\Delta H}{l})$, $\delta_i^t(\frac{\Delta H}{l})$, $\delta_i^o(\frac{\Delta H}{l})$ при фиксированных значениях $\alpha = 0,5$ (слева) и $\alpha = -0,5$ (справа).}
 \label{fig:text_1_remesh_fix_alfa_chart}
@@ -390,14 +382,18 @@ $\blacksquare$\\
 $\blacksquare$\\
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+\onelinecaptionsfalse % if the caption is multiline
+%\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/peak-methods.pdf}
 \captionstyle{normal}\caption{Сглаживание пика при методах прямоугольников (слева), трапеций (в центре), окрестностей (справа).}
 \label{fig:text_1_remesh_2d_peak_methods}
 \end{figure}
 
 \begin{figure}[ht]
-\centering
+\setcaptionmargin{5mm}
+%\onelinecaptionsfalse % if the caption is multiline
+\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/peak-methods-chart.png}
 \captionstyle{normal}\caption{Сравнение сглаживания острого пика для методов прямоугольников, трапеций и окрестностей.}
 \label{fig:text_1_remesh_2d_peak_methods_chart}
@@ -423,8 +419,8 @@ $\blacksquare$\\
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
-%\onelinecaptionsfalse % if the caption is multiline
-\onelinecaptionstrue  % if the caption is one-line
+\onelinecaptionsfalse % if the caption is multiline
+%\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/cavern-methods.pdf}
 \captionstyle{normal}\caption{Сглаживание впадины при методах прямоугольников (слева), трапеций (в центре), окрестностей (справа).}
 \label{fig:text_1_remesh_2d_cavern_methods}
