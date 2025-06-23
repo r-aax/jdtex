@@ -15,22 +15,19 @@ centertags]%
 {revtex4}
 \usepackage{ljm}
 
-\usepackage[utf8]{inputenc}
-\usepackage[russian]{babel}
-
 \begin{document}
 
 \titlerunning{Surface remesh methods} % for running heads
 \authorrunning{Rybakov} % for running heads
 %\authorrunning{First-Author, Second-Author} % for running heads
 
-\title{Оценки методов перестроения поверхности \\ в задаче ледообразования}
+\title{Estimation of surface remesh methods \\ in the ice accretion problem}
 % Splitting into lines is performed by the command \\
 % The title is written in accordance with the rules of capitalization.
 
-\author{\firstname{А.~А.}~\surname{Рыбаков}}
+\author{\firstname{A.~A.}~\surname{Rybakov}}
 \email[E-mail: ]{rybakov_aan@nrcki.ru,rybakov@jscc.ru,rybakov.aax@gmail.com}
-\affiliation{Национальный исследовательский центр «Курчатовский институт», 123182, Москва, пл. Академика Курчатова, д. 1, Россия.}
+\affiliation{National Research Centre \textquotedblleft Kurchatov Institute\textquotedblright, 123182, Moscow, Academician Kurchatov sq. 1, Russia.}
 
 %\author{\firstname{B.}~\surname{Second-Author}}
 %\email[E-mail: ]{Second.Author@email.com}
@@ -44,20 +41,18 @@ centertags]%
 %\received{June 13, 2018} % The date of receipt to the editor, i.e. December 06, 2017
 
 \begin{abstract} % You shouldn't use formulas and citations in the abstract.
-В статье рассматривается проблема перестроения поверхностной расчетной сетки в задаче ледообразования.
-В этой задаче поверхностная сетка должна быть перестроена в соответствии с объемом накопленного льда в каждой ячейке сетки.
-Главным фактором при выборе метода перестроения сетки является точность метода, характеризующаяся величиной отклонения заметаемого ячейкой объема от целевого значения.
-Другим определяющим фактором является способность метода перестроения сглаживать дефекты сетки -- острые пики и впадины.
-Без этого расчетная сетка может накапливать дефекты, что рано или поздно приводит к невозможности продолжения расчетов.
-В работе рассматриваются теоретические оценки трех методов перестроения поверхностной сетки -- метода прямоугольников, метода трапеций и метода окрестностей -- с точки зрения точности перестроения и способности сглаживания дефектов.
-Результаты анализа показали, что методы прямоугольников и трапеций не могут сглаживать дефекты расчетной сетки при перестроении, а значит их использование в задаче ледообразования небезопасно.
-Метод окрестностей обладает допустимой точностью перестроения и может сглаживать дефекты расчетной сетки.
-Все результаты получены в двумерной постановке, однако выводы могут быть перенесены на аналогичные методы перестроения поверхностной сетки в трехмерном случае.
-\end{abstract}
+The article considers the problem of rebuilding the surface computational mesh in the problem of ice accretion.
+In this problem, the surface mesh should be rebuilt in accordance with the volume of ice accumulated in each mesh cell.
+The main factor in choosing a mesh rebuilding method is the accuracy of the method, characterized by the magnitude of the deviation of the volume swept by the cell from the target value.
+Another determining factor is the ability of the rebuilding method to smooth out mesh defects -- sharp peaks and caverns.
+Without this, the computational mesh can accumulate defects, which sooner or later leads to the impossibility of continuing the calculations.
+The paper considers theoretical estimates of three methods of rebuilding the surface mesh -- the rectangles method, the trapeziums method and the neighborhoods method - from the point of view of the accuracy of rebuilding and the ability to smooth out defects.
+The results of the analysis showed that the rectangles and trapeziums methods cannot smooth out the defects of the computational mesh during rebuilding, which means that their use in the problem of ice formation is unsafe.
+The neighborhoods method has an acceptable rebuilding accuracy and can smooth out the defects of the computational mesh. All results were obtained in a two-dimensional case, but the conclusions can be transferred to similar methods of rebuilding the surface mesh in a three-dimensional case.\end{abstract}
 
 \subclass{68U05} % Enter 2010 Mathematics Subject Classification.
 
-\keywords{перестроение поверхностной сетки, метод прямоугольников, метод трапеций, метод окрестностей, точность перестроения, сглаживание острых пиков и впадин} % Include keywords separeted by comma.
+\keywords{rebuilding surface mesh, rectangles method, trapeziums method, neighborhoods method, rebuilding accuracy, smoothing sharp peaks and caverns} % Include keywords separeted by comma.
 
 \maketitle
 
@@ -67,46 +62,46 @@ centertags]%
 
 \section{Introduction}
 
-Численное моделирование процесса обледенения поверхности тела является сложной мультифизической задачей, включающей в себя моделирование процессов газовой динамики, теплообмена, течения жидкости, динамики капель в воздушном потоке и других.
-Исследование процессов ледообразования имеет важное практическое значение.
-В частности характер и интенсивность образования льда на поверхности летательного аппарата критическим образом влияет на его летные характеристики, что напрямую связано с безопасностью полетов \cite{Raj}.
+Numerical modeling of the icing process of the surface is a complex multiphysical problem, including modeling of gas dynamics, heat exchange, liquid flow, droplet dynamics in the air flow, and others.
+The study of ice formation processes is of great practical importance.
+In particular, the nature and intensity of ice formation on the surface of an aircraft critically affects its flight characteristics, which is directly related to flight safety \cite{Raj}.
 
-На сегодняшний день среди зарубежного программного обеспечения для моделирования процесса ледообразования лидером является программный комплекс ANSYS (включая модули FENSAP-ICE, DROP3D, ICE3D) \cite{Martini}.
-В России также активно ведется разработка математических алгоритмов и программного обеспечения по этому направлению.
-Можно отметить исследования по разработке модуля iceFoam в составе открытого пакета OpenFOAM \cite{Koshelev}.
-Среди коммерческих продуктов в последние годы активно развивается пакет IceVision в составе программного комплекса FlowVision \cite{Sorokin}, а также решение в составе пакета инженерного анализа ЛОГОС \cite{Galanov}.
+Today, the leader among foreign software for modeling the ice formation process is the ANSYS software package (including the FENSAP-ICE, DROP3D, ICE3D modules) \cite{Martini}.
+In Russia, mathematical algorithms and software in this area are also being actively developed.
+It is possible to note the research on the development of the iceFoam module as part of the open OpenFOAM package \cite{Koshelev}.
+Among commercial products, the IceVision package as part of the FlowVision software package \cite{Sorokin} has been actively developing in recent years, as well as a solution as part of the LOGOS engineering analysis package \cite{Galanov}.
 
-Моделирование процесса ледяного покрова осуществляется, как правило, на поверхностной расчетной сетке и состоит из двух основных частей.
-Первой частью является вычисление интенсивности нарастания льда в отдельных элементах сетки (это может быть вычисление массы скопившегося льда в каждой ячейке расчетной сетки за единицу времени, либо скорость образования ледяного покрова в узлах сетки, либо другие аналогичные характеристики).
-Для выполнения вычисления интенсивности нарастания льда в элементах расчетной сетки существует множество моделей ледообразования, учитывающих разные состояния льда, динамику водяной пленки, тепловые потоки и другие факторы \cite{Bartkus,Zhang,Pena}.
-Модели ледообразования не рассматриваются в рамках данной работы.
-Второй важной составляющей моделирования ледяного нароста является определение изменения поверхности тела после нарастания на ней слоя льда.
-В данной статье проводится анализ методов перестроения поверхностной сетки в двумерной постановке, для которых существуют трехмерные аналоги.
+Modeling of the ice cover process is usually performed on a surface computational mesh and consists of two main parts.
+The first part is the calculation of the ice growth rate in individual mesh cells (this can be the calculation of the mass of ice accumulated in each mesh cell per unit time, or the rate of ice cover formation at mesh nodes, or other similar characteristics).
+To calculate the ice growth rate in mesh elements, there are many ice formation models that take into account different ice states, water film dynamics, heat flows, and other factors \cite{Bartkus,Zhang,Pena}.
+Ice formation models are not considered in this paper.
+The second important component of ice growth modeling is the determination of changes in the surface after the ice layer has grown on it.
+This article analyzes methods for rebuilding a surface mesh in a two-dimensional formulation, for which three-dimensional analogs exist.
 
-Рассмотрим геометрическую задачу о перестроении поверхности в двумерном пространстве в общем виде.
-Пусть дана поверхностная сетка в виде ломаной без самопересечений, каждая ячейка которой представлена отрезком длины $l_i$ ($0 \le i < n$).
-У $i$-ой ячейки инцидентными узлами являются узлы с номерами $i$ и $i + 1$.
-Если узлы с номерами $0$ и $n$ совпадают, то сетка является замкнутой.
-Известно направление нормали каждой ячейки, а также направление движения каждого узла, совпадающее с направлением суммы единичных нормалей, проведенных к инцидентным ячейкам.
-Для двумерного случая это направление лежит на биссектрисе угла, образованного двумя инцидентными ячейками.
-Угол между двумя соседними ячейками с номерами $i - 1$ и $i$ будем обозначать через $2 \phi_i$.
-Пусть известно, что за некий малый промежуток времени $i$-ая ячейка сдвигается в направлении своей нормали на некоторую величину $H_i$, заметая таким образом площадь $T_i = l_i H_i$, эту площадь будем называть целевой площадью.
-Однако если просто сдвинуть каждую ячейку в направлении своей нормали, то сетка потеряет целостность, поэтому мы можем осуществлять движение только узлов.
-Требуется найти такие значения локальных сдвигов узлов сетки $h_i$ ($0 \le i \le n$), чтобы заметаемая площадь $S_i$ между исходной поверхностью и новой поверхностью для каждой ячейки сетки как можно меньше отличалась от значения целевой площади $T_i$.
-Для оценки отклонения фактической заметаемой площади от целевой будем использовать обозначения $\Delta_i = S_i - T_i$, $\delta_i = \frac{\Delta_i}{T_i}$.
+Let us consider the geometric problem of rebuilding a surface in two-dimensional space in general.
+Let a surface mesh be given in the form of a polyline without self-intersections, each cell of which is represented by a segment of length $l_i$ ($0 \le i < n$).
+For the $i$-th cell, the incident nodes are nodes with numbers $i$ and $i + 1$.
+If nodes with numbers $0$ and $n$ coincide, then the mesh is closed.
+The direction of the normal of each cell is known, as well as the direction of motion of each node, which coincides with the direction of the sum of unit normals drawn to the incident cells.
+For the two-dimensional case, this direction lies on the bisector of the angle formed by two incident cells.
+The angle between two adjacent cells with numbers $i - 1$ and $i$ will be denoted by $2 \phi_i$.
+Let it be known that over a certain small period of time the $i$-th cell shifts in the direction of its normal by some value $H_i$, thus sweeping out an area $T_i = l_i H_i$, we will call this area the target area.
+However, if we simply shift each cell in the direction of its normal, the mesh will lose its integrity, so we can only move the nodes.
+It is required to find such values of local shifts of the mesh nodes $h_i$ ($0 \le i \le n$) that the swept area $S_i$ between the original surface and the new surface for each mesh cell differs as little as possible from the value of the target area $T_i$.
+To estimate the deviation of the actual swept area from the target area, we will use the notations $\Delta_i = S_i - T_i$, $\delta_i = \frac{\Delta_i}{T_i}$.
 
-В применении к задаче ледообразования величина $H_i$ соответствует толщине образозавшегося слоя льда в $i$-ой ячейке \cite{Beaugendre}.
-Новая перестроенная поверхностная сетка соответствует поверхности ледяного покрова, а общая заметаемая площадь при движении поверхности соответствует объему накопленного на поверхности льда \cite{Tong}.
-Задача нахождения величин сдвигов узлов сетки $h_i$ при фиксированных направлениях смещения может быть решена методом градиентного спуска \cite{Rybakov}.
-Однако метод градиентного спуска оказывается слишком требовательным к вычислительным ресурсам при увеличении размера сетки.
-К тому же, качество решения зачастую оказывается неудовлетворительным при попадании в локальные минимумы.
-Поэтому для решения поставленной задачи могут быть использованы приближенные методы, основанные на представлении целевой площади в виде примитивных геометрических фигур.
+When applied to the ice formation problem, the value $H_i$ corresponds to the thickness of the ice layer formed in the $i$-th cell \cite{Beaugendre}.
+The new rebuilt surface mesh corresponds to the surface of the ice cover, and the total swept area during surface movement corresponds to the volume of ice accumulated on the surface \cite{Tong}.
+The problem of finding the values of shifts of mesh nodes $h_i$ for fixed directions of displacement can be solved by the gradient descent method \cite{Rybakov}.
+However, the gradient descent method turns out to be too demanding on computational resources as the mesh size increases.
+In addition, the quality of the solution is often unsatisfactory when hitting local minima.
+Therefore, approximate methods based on representing the target area in the form of primitive geometric figures can be used to solve the problem.
 
 %--------------------------------------------------------------------------------------------------------------------------------
 
-\section{Приближенные методы перестроения поверхности}
+\section{Approximate methods of surface remeshing}
 
-Рассмотрим приближенные методы перестроения расчетной сетки, основанные на представлении целевой площади в виде примитивных геометрических фигур.
+Let us consider approximate methods for rebuilding the computational mesh, based on representing the target area in the form of primitive geometric figures.
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
@@ -117,52 +112,50 @@ centertags]%
 &
 \includegraphics[width=0.45\textwidth]{pics/remesh_trapeziums.pdf}
 \end{tabular}
-\captionstyle{normal}\caption{Перестроение поверхности методом прямоугольников (слева) и трапеций (справа).}
+\captionstyle{normal}\caption{Reconstruction of the surface using rectangles (left) and trapeziums (right).}
 \label{fig:text_1_remesh_2d_rectangles_and_trapeziums}
 \end{figure}
 
-В качестве первого метода перестроения поверхности рассмотрим приближение, при котором целевая площадь для $i$-ой ячейки представлена прямоугольником со сторонами $l_i$ и $H_i$.
-В качестве величины смещения узла берется среднее арифметичское двух высот инцидентных ячеек $h_i = \frac{H_{i - 1} + H_i}{2}$ (см. рис.~\ref{fig:text_1_remesh_2d_rectangles_and_trapeziums} слева).
-Этот метод перестроения поверхности будем называть методом прямогольников.
-Заметаемую $i$-ой ячейкой площадь при использовании метода прямоугольников будем обозначать $S_i^r$, также обозначим $\Delta_i^r = S_i^r - T_i$, $\delta_i^r = \frac{\Delta_i^r}{T_i}$.
+As the first method of remeshing the surface, we consider an approximation in which the target area for the $i$-th cell is represented by a rectangle with sides $l_i$ and $H_i$.
+As the value of the node displacement, we take the arithmetic mean of two heights of the incident cells $h_i = \frac{H_{i - 1} + H_i}{2}$ (see Fig.~\ref{fig:text_1_remesh_2d_rectangles_and_trapeziums} on the left).
+We will call this method of remeshing the rectangles method.
+The area swept by the $i$-th cell using the rectangle method will be denoted by $S_i^r$, we also denote $\Delta_i^r = S_i^r - T_i$, $\delta_i^r = \frac{\Delta_i^r}{T_i}$.
 
-В качестве второго метода перестроения поверхности будем рассматривать метод трапеций.
-В методе трапеций целевая площадь $i$-ой ячейки представляется трапецией с площадью $T_i = l_i H_i$.
-Боковые стороны этой трапеции лежат на направлениях движения двух узлов, инцидентных рассматриваемой ячейке.
-Высота трапеции $H_i^t$ находится с помощью решения квадратного уравнения.
-После построения трапеций для всех ячеек сетки у каждого узла появляется две новые потенциальные позиции для сдвига (образованные ячейкой слева и ячейкой справа).
-В качестве финальной новой позиции выбирается их среднее значение (рис.~\ref{fig:text_1_remesh_2d_rectangles_and_trapeziums} справа).
-Таким образом, величина смещения узла определяется как $h_i = \frac{H_{i - 1}^t + H_i^t}{2 \sin \phi_i}$.
-Заметаемую $i$-ой ячейкой площадь при использовании метода трапеций будем обозначать $S_i^t$, также обозначим $\Delta_i^t = S_i^t - T_i$, $\delta_i^t = \frac{\Delta_i^t}{T_i}$.
-
-В качестве третьего метода перестроения сетки рассматривается метод окрестностей, описание которого в трехмерной постановке может быть найдено в \cite{Meshcheryakov}.
-В этом методе для определения новых позиций узлов рассматривается фронт движения сетки (см. рис.~\ref{fig:text_1_remesh_2d_okrestnost}).
+As the second method of rebuilding the surface, we will consider the trapeziums method.
+In the trapeziums method, the target area of the $i$-th cell is represented by a trapezium with area $T_i = l_i H_i$.
+The lateral sides of this trapezium lie in the directions of motion of two nodes incident to the cell in question.
+The height of the trapezium $H_i^t$ is found by solving a quadratic equation.
+After constructing the trapeziums for all cells of the mesh, each node has two new potential positions for shifting (formed by the cell on the left and the cell on the right).
+Their average value is selected as the final new position (Fig.~\ref{fig:text_1_remesh_2d_rectangles_and_trapeziums} on the right).
+Thus, the magnitude of the node shift is determined as $h_i = \frac{H_{i - 1}^t + H_i^t}{2 \sin \phi_i}$.
+The area swept by the $i$-th cell when using the trapeziums method will be denoted by $S_i^t$, and we will also denote $\Delta_i^t = S_i^t - T_i$, $\delta_i^t = \frac{\Delta_i^t}{T_i}$.
+As a third method of mesh rebuilding, the neighborhoods method is considered, the description of which in a three-dimensional formulation can be found in \cite{Meshcheryakov}.
+In this method, the mesh movement front is considered to determine new node positions (Fig.~\ref{fig:text_1_remesh_2d_okrestnost}).
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.6\textwidth]{pics/remesh_okrestnost.pdf}
-\captionstyle{normal}\caption{Перестроение поверхности методом окрестностей.}
+\captionstyle{normal}\caption{Surface remeshing using the neighborhoods method.}
 \label{fig:text_1_remesh_2d_okrestnost}
 \end{figure}
 
-При этом фронтом движения узла с номером $i$ является сфера с центром в этом узле и радиусом $r_i = \frac{H_{i - 1} + H_i}{2}$.
-Фронтом движения ячейки сетки является выпуклая оболочка фронтов движения двух инцидентных ей узлов.
-Тогда фронтом движения сетки является объединение фронтов движения всех ее ячеек.
-В качестве нового положения узла будем брать пересечение направления смещения узла и границы фронта движения сетки.
-Заметаемую $i$-ой ячейкой площадь при использовании метода окрестностей будем обозначать $S_i^o$, также обозначим $\Delta_i^o = S_i^o - T_i$, $\delta_i^o = \frac{\Delta_i^o}{T_i}$.
+In this case, the motion front of the node with the number $i$ is a sphere with the center at this node and the radius $r_i = \frac{H_{i - 1} + H_i}{2}$.
+The motion front of a mesh cell is the convex hull of the motion fronts of two nodes incident to it.
+Then the motion front of the mesh is the union of the motion fronts of all its cells.
+As the new position of the node, we will take the intersection of the direction of displacement of the node and the boundary of the motion front of the mesh.
+When using the neighborhoods method, we will denote the area swept by the $i$-th cell by $S_i^o$, and also denote $\Delta_i^o = S_i^o - T_i$, $\delta_i^o = \frac{\Delta_i^o}{T_i}$.
 
 %--------------------------------------------------------------------------------------------------------------------------------
 
-\section{Теоретические оценки точности методов перестроения сетки}
+\section{Theoretical estimates of the accuracy of mesh rebuilding methods}
 
-Приведем теоретическую оценку точности приближенных методов перестроения поверхности.
-Оценку будем проводить для модельной расчетной сетки, которая удовлетворяет следующим требованиям.
-Все ячейки сетки одинаковые и имеют длину $l$, поверхность является выпуклой.
-Для любой ячейки $AB$ и ее соседей $A_2A$ и $BB_2$ углы $\angle (\overline{BA}, \overline{AA_2})$ и $\angle (\overline{AB}, \overline{BB_2})$ являются постоянной величиной и равны $\alpha$ (см. рис.~\ref{fig:text_1_remesh_2d_theoretical} слева).
-Пусть величины смещений ячеек $A_2A$, $AB$ и $BB_2$ равны $H_{i - 1}$, $H_i$ и $H_{i + 1}$ соответственно.
-
+Let us present a theoretical estimate of the accuracy of approximate methods of remeshing.
+The estimate will be performed for a model computational mesh that satisfies the following requirements.
+All mesh cells are identical and have length $l$, the surface is convex.
+For any cell $AB$ and its neighbors $A_2A$ and $BB_2$, the angles $\angle (\overline{BA}, \overline{AA_2})$ and $\angle (\overline{AB}, \overline{BB_2})$ are constant and equal to $\alpha$ (see Fig.~\ref{fig:text_1_remesh_2d_theoretical} on the left).
+Let the displacements of cells $A_2A$, $AB$ and $BB_2$ be equal to $H_{i - 1}$, $H_i$ and $H_{i + 1}$, respectively.
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
@@ -172,37 +165,36 @@ centertags]%
 &
 \includegraphics[width=0.45\textwidth]{pics/theoretical_concave.pdf}
 \end{tabular}
-\captionstyle{normal}\caption{Теоретическая оценка приближенных методов перестроения выпуклой (слева) и вогнутой (справа) сетки.}
+\captionstyle{normal}\caption{Theoretical evaluation of approximate methods for rebuilding convex (left) and concave (right) meshes.}
 \label{fig:text_1_remesh_2d_theoretical}
 \end{figure}
 
-Для вычисления величин $\Delta$, $\delta$ необходимо вычислить площадь $S_i = S_{AA_1B_1B}$.
-При использовании разных методов перестроения эта площадь будет различаться.
+To calculate the values $\Delta$, $\delta$ it is necessary to calculate the area $S_i = S_{AA_1B_1B}$.
+When using different remeshing methods this area will differ.
 
 \begin{lemma}\label{lem:text_1_remesh2_vypukl_lemma}
-Для ячейки $AB$ выпуклой сетки с равными углами $\angle (\overline{BA}, \overline{AA_2}) = \angle (\overline{AB}, \overline{BB_2}) = \alpha$ (см. рис.~\ref{fig:text_1_remesh_2d_theoretical})
+For a cell $AB$ of a convex mesh with equal angles $\angle (\overline{BA}, \overline{AA_2}) = \angle (\overline{AB}, \overline{BB_2}) = \alpha$ (see Fig.~\ref{fig:text_1_remesh_2d_theoretical})
 \begin{equation}\label{eqn:text_1_remesh2_saa2b2b_gen}
 S_i(h_i, h_{i + 1}) = \frac{1}{2} \sin \alpha \left( \lambda(h_i + h_{i+1}) + h_ih_{i+1} \right)
 \end{equation}
-где $\lambda = \frac{l}{2 \sin \frac{\alpha}{2}}$, $l = AB$, $h_i = AA_1$, $h_{i + 1} = BB_1$.
+where $\lambda = \frac{l}{2 \sin \frac{\alpha}{2}}$, $l = AB$, $h_i = AA_1$, $h_{i + 1} = BB_1$.
 \end{lemma}
 
-Так как рассматриваемая сетка выпуклая, то лучи $A_1A$ и $B_1B$ пересекаются в некоторой точке $O$.
-При этом треугольник $AOB$ равнобедренный, $\angle BAO = \angle ABO = \angle B_1BX = \angle B_1BB_2 - \alpha = \frac{\pi - \alpha}{2}$, $\phi_i = \phi_{i + 1} = \frac{\pi + \alpha}{2}$, $\angle AOB = \alpha$, откуда $OA = OB = \lambda = \frac{l}{2 \sin \frac{\alpha}{2}}$.
-Далее выражаем площадь $S_i = S_{A_1OB_1} - S_{AOB}$, что после преобразования и дает требуемое соотношение \eqref{eqn:text_1_remesh2_saa2b2b_gen}.
-$\blacksquare$\\
+Since the mesh under consideration is convex, the rays $A_1A$ and $B_1B$ intersect at some point $O$.
+In this case, the triangle $AOB$ is isosceles, $\angle BAO = \angle ABO = \angle B_1BX = \angle B_1BB_2 - \alpha = \frac{\pi - \alpha}{2}$, $\phi_i = \phi_{i + 1} = \frac{\pi + \alpha}{2}$, $\angle AOB = \alpha$, whence $OA = OB = \lambda = \frac{l}{2 \sin \frac{\alpha}{2}}$.
+Next we express the area $S_i = S_{A_1OB_1} - S_{AOB}$, which after transformation gives the required ratio \eqref{eqn:text_1_remesh2_saa2b2b_gen}.$\blacksquare$\\
 
-Далее будем рассматривать линейное изменение величины смещения ячеек сетки, то есть $H_i = H$, $H_{i - 1} = H - \Delta H$, $H_{i + 1} = H + \Delta H$.
+Next, we will consider a linear change in the magnitude of the mesh cell displacement, that is, $H_i = H$, $H_{i - 1} = H - \Delta H$, $H_{i + 1} = H + \Delta H$.
 
-Для перестроения методом прямоугольников имеем $h_i = H - \frac{1}{2} \Delta H$, $h_{i + 1} = H + \frac{1}{2} \Delta H$, откуда
+For remeshing by the rectangles method we have $h_i = H - \frac{1}{2} \Delta H$, $h_{i + 1} = H + \frac{1}{2} \Delta H$, whence
 \begin{equation}\label{eqn:text_1_remesh2_s_rect}
 	S_i^r = \cos \frac{\alpha}{2} \left( lH + \left( H^2 - \frac{1}{4} \Delta H^2 \right) \sin \frac{\alpha}{2} \right)
 \end{equation}
 
-Теперь перейдем к вычислению $S_i^t$ для метода трапеций.
-В методе трапеций мы должны представить целевые площади в ячейках $A_2A$, $AB$, $BB_2$ с помощью равнобоких трапеций, для которых известно одно из оснований (одинаково для всех ячеек и равно $l$), угол при этом основании (одинаковый для всех ячеек и равен $\phi = \frac{\pi + \alpha}{2}$, а также площади этих трапеций, равные $T_{i - 1} = l(H - \Delta H)$, $T_i = lH$ и $T_{i + 1} = l(H + \Delta H)$ соответственно.
-На основании этих данных необходимо вычислить высоты трапеций, что можно сделать с помощью решения квадратного уравнения.
-Обозначим высоты этих трапеций:
+Now let's move on to calculating $S_i^t$ for the trapeziums method.
+In the trapeziums method, we must represent the target areas in cells $A_2A$, $AB$, $BB_2$ using isosceles trapeziums for which one of the bases is known (the same for all cells and equal to $l$), the angle at this base (the same for all cells and equal to $\phi = \frac{\pi + \alpha}{2}$, and the areas of these trapeziums, equal to $T_{i - 1} = l(H - \Delta H)$, $T_i = lH$ and $T_{i + 1} = l(H + \Delta H)$, respectively.
+Based on this data, it is necessary to calculate the heights of the trapeziums, which can be done by solving a quadratic equation.
+Let's denote the heights of these trapeziums:
 \begin{equation}
 	\begin{aligned}\label{eqn:text_1_remesh_2_Ht_vypukl}
 		& H_{i - 1}^t = H^t\left(l(H - \Delta H), l, \frac{\pi + \alpha}{2}\right) \\ 
@@ -211,12 +203,12 @@ $\blacksquare$\\
 	\end{aligned}
 \end{equation}
 
-Тогда $h_i = \frac{H_{i - 1}^t + H_i^t}{2 \sin \phi_i} = \frac{H_{i - 1}^t + H_i^t}{2 \cos \frac{\alpha}{2}}$, $h_{i+1} = \frac{H_i^t + H_{i+1}^t}{2 \sin \phi_{i + 1}} = \frac{H_i^t + H_{i+1}^t}{2 \cos \frac{\alpha}{2}}$ и выражение \eqref{eqn:text_1_remesh2_saa2b2b_gen} для $S_i^t$ принимает следующий вид:
+Then $h_i = \frac{H_{i - 1}^t + H_i^t}{2 \sin \phi_i} = \frac{H_{i - 1}^t + H_i^t}{2 \cos \frac{\alpha}{2}}$, $h_{i+1} = \frac{H_i^t + H_{i+1}^t}{2 \sin \phi_{i + 1}} = \frac{H_i^t + H_{i+1}^t}{2 \cos \frac{\alpha}{2}}$ and the expression \eqref{eqn:text_1_remesh2_saa2b2b_gen} for $S_i^t$ takes the following form:
 \begin{equation}\label{eqn:text_1_remesh2_trap}
 	S_i^t = \frac{1}{4} \left( (H_{i - 1}^t + 2 H_i^t + H_{i + 1}^t)l + (H_{i - 1}^t + H_i^t) (H_i^t + H_{i+1}^t) \tg \frac{\alpha}{2} \right)
 \end{equation}
 
-Для получения теоретической оценки точности для метода окрестностей в случае выпуклой сетки рассмотрим следующее вспомогательное утверждение (см. рис.~\ref{fig:text_1_remesh_2d_accuracy_okrestnost} слева).
+To obtain a theoretical estimate of the accuracy for the neighborhoods method in the case of a convex mesh, consider the following auxiliary statement (see Fig.~\ref{fig:text_1_remesh_2d_accuracy_okrestnost} on the left).
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
@@ -227,15 +219,15 @@ $\blacksquare$\\
 &
 \includegraphics[width=0.45\textwidth]{pics/accuracy_okrestnost2.pdf}
 \end{tabular}
-\captionstyle{normal}\caption{Вычисление смещения узла в методе окрестностей для выпуклой (слева) и вогнутой (справа) сетки.}
+\captionstyle{normal}\caption{Calculation of node displacement in the neighborhoods method for a convex (left) and concave (right) mesh.}
 \label{fig:text_1_remesh_2d_accuracy_okrestnost}
 \end{figure}
 
 \begin{lemma}\label{lem:text_1_remesh_2d_accuracy_okrestnost}
-Пусть $AB = l$, ниже прямой $AB$ расположена точка $X$ такая, что $\angle (\overline{AX}, \overline{BA}) = \alpha$.
-Пусть построены две окружности с центрами в точках $A$ и $B$ и с радиусами $r$ и $r + \Delta r$ соответственно.
-Для построенных окружностей построена выпуклая оболочка, состоящая из дуг этих окружностей, а также отрезков общих касательных (точки касания общей касательной построенных окружностей, лежащие выше прямой $AB$, обозначим $A_2$ и $B_2$ соответственно).
-Пусть на этой выпуклой оболочке -- на окружности с центром в точке $A$, либо на отрезке $A_2B_2$ -- лежит точка $A_1$ такая, что $\angle XAA_1 = \angle BAA_1 = \phi$, $AA_1 = h$, тогда 
+Let $AB = l$, below the line $AB$ there is a point $X$ such that $\angle (\overline{AX}, \overline{BA}) = \alpha$.
+Let two circles be constructed with centers at points $A$ and $B$ and with radii $r$ and $r + \Delta r$, respectively.
+For the constructed circles, a convex hull is constructed consisting of arcs of these circles, as well as segments of common tangents (the points of tangency of the common tangent of the constructed circles, lying above the line $AB$, are denoted by $A_2$ and $B_2$, respectively).
+Let this convex hull -- either on the circle with center at point $A$ or on the segment $A_2B_2$ -- contain a point $A_1$ such that $\angle XAA_1 = \angle BAA_1 = \phi$, $AA_1 = h$, then
 \begin{equation}
 	\begin{cases}\label{eqn:text_1_remesh_2d_okr_h}
 		h = r, \  \sin \frac{\alpha}{2} > \frac{\Delta r}{l}, \\
@@ -244,18 +236,18 @@ $\blacksquare$\\
 \end{equation}
 \end{lemma}
 
-Если точка $A_1$ не находится на отрезке $A_2B_2$, то $h = AA_1 = r$.
+If point $A_1$ is not on segment $A_2B_2$, then $h = AA_1 = r$.
 
-Рассмотрим случай, когда $A_1$ находится на отрезке $A_2B_2$, в этом случае $\Delta r > 0$.
-Через точку $A$ проведем прямую, параллельную $A_2B_2$, до пересечения с $BB_2$ в точке $H$.
-Тогда $\angle B_2OB = \angle HAB = \beta = \arcsin \frac{\Delta r}{l}$.
-Так как $\angle A_1AB = \phi = \frac{\pi + \alpha}{2}$, то $\angle OAA_2 + \theta + \phi = \pi$, откуда получим $\theta = \beta - \frac{\alpha}{2}$.
+Consider the case when $A_1$ is on the segment $A_2B_2$, in which case $\Delta r > 0$.
+Through point $A$ we draw a line parallel to $A_2B_2$ until it intersects $BB_2$ at point $H$.
+Then $\angle B_2OB = \angle HAB = \beta = \arcsin \frac{\Delta r}{l}$.
+Since $\angle A_1AB = \phi = \frac{\pi + \alpha}{2}$, then $\angle OAA_2 + \theta + \phi = \pi$, whence we obtain $\theta = \beta - \frac{\alpha}{2}$.
 
-Таким образом, условие нахождения точки $A_1$ на отрезке $A_2B_2$ равносильно $\theta \ge 0$.
-То есть при $\theta < 0$, получаем $h = r$, а при $\theta \ge 0$ значение $h$ можно выразить из прямоугольного треугольника $AA_1A_2$.
+Thus, the condition for finding the point $A_1$ on the segment $A_2B_2$ is equivalent to $\theta \ge 0$.
+That is, for $\theta < 0$, we obtain $h = r$, and for $\theta \ge 0$, the value of $h$ can be expressed from the right triangle $AA_1A_2$.
 $\blacksquare$\\
 
-Используя лемму~\ref{lem:text_1_remesh_2d_accuracy_okrestnost}, для метода окрестностей можно выразить $S_i^o$ из \eqref{eqn:text_1_remesh2_saa2b2b_gen}, подставив туда выражения для $h_i$ и $h_{i + 1}$ из \eqref{eqn:text_1_remesh_2d_okr_h}:
+Using the lemma~\ref{lem:text_1_remesh_2d_accuracy_okrestnost}, $S_i^o$ from \eqref{eqn:text_1_remesh2_saa2b2b_gen} can be expressed for the neighborhoods method by substituting there the expressions for $h_i$ and $h_{i + 1}$ from \eqref{eqn:text_1_remesh_2d_okr_h}:
 \begin{equation}
 	\begin{aligned}
 	& h_i = h \left( \alpha, l, H - \frac{1}{2}\Delta H, \Delta H \right) \\
@@ -263,22 +255,22 @@ $\blacksquare$\\
 	\end{aligned}
 \end{equation}
 
-Теперь рассмотрим случай вогнутой сетки, представленный на рис.~\ref{fig:text_1_remesh_2d_theoretical} справа.
+Now consider the case of a concave mesh, shown in Fig.~\ref{fig:text_1_remesh_2d_theoretical} on the right.
 
 \begin{lemma}
-Для ячейки $AB$ вогнутой сетки с равными углами $\angle (\overline{BA}, \overline{AA_2}) = \angle (\overline{AB}, \overline{BB_2}) = \alpha$ (см. рис.~\ref{fig:text_1_remesh_2d_theoretical} справа)
+For a cell $AB$ of a concave mesh with equal angles $\angle (\overline{BA}, \overline{AA_2}) = \angle (\overline{AB}, \overline{BB_2}) = \alpha$ (see Fig.~\ref{fig:text_1_remesh_2d_theoretical} on the right)
 \begin{equation}\label{eqn:text_1_remesh2_saa2b2b_gen2}
 S_i = \frac{1}{2} \sin \alpha \left( \lambda(h_i + h_{i+1}) - h_ih_{i+1} \right)
 \end{equation}
-где $\lambda = \frac{1}{2 \sin \frac{\alpha}{2}}$, $l = AB$, $h_i = AA_1$, $h_{i + 1} = BB_1$, при этом формула \eqref{eqn:text_1_remesh2_saa2b2b_gen2} применима при выполнении хотя бы одного из условий $h_i \le \lambda$, $h_{i+1} \le \lambda$.
+where $\lambda = \frac{1}{2 \sin \frac{\alpha}{2}}$, $l = AB$, $h_i = AA_1$, $h_{i + 1} = BB_1$, and the formula \eqref{eqn:text_1_remesh2_saa2b2b_gen2} is applicable if at least one of the conditions $h_i \le \lambda$, $h_{i+1} \le \lambda$ is met.
 \end{lemma}
 
-Вычисления производятся аналогично лемме~\ref{lem:text_1_remesh2_vypukl_lemma}, с той лишь разницей, что $S_i = S_{AOB} - S_{A_1OB_1}$, откуда имеем выражение \eqref{eqn:text_1_remesh2_saa2b2b_gen2}.
+The calculations are performed similarly to the lemma~\ref{lem:text_1_remesh2_vypukl_lemma}, with the only difference that $S_i = S_{AOB} - S_{A_1OB_1}$, from which we have the expression \eqref{eqn:text_1_remesh2_saa2b2b_gen2}.
 
-Выполнение хотя бы одного из условий $h_i \le \lambda$, $h_{i+1} \le \lambda$ необходимо для предотвращения самопересечения сетки.
+Fulfillment of at least one of the conditions $h_i \le \lambda$, $h_{i+1} \le \lambda$ is necessary to prevent self-intersection of the mesh.
 $\blacksquare$\\
 
-Для перестроения методом прямоугольников и методом трапеций в случае вогнутой сетки получим формулы, аналогичные \eqref{eqn:text_1_remesh2_s_rect}, \eqref{eqn:text_1_remesh_2_Ht_vypukl} и \eqref{eqn:text_1_remesh2_trap}:
+For reconstruction by the rectangles method and the trapeziums method in the case of a concave mesh, we obtain formulas similar to \eqref{eqn:text_1_remesh2_s_rect}, \eqref{eqn:text_1_remesh_2_Ht_vypukl} and \eqref{eqn:text_1_remesh2_trap}:
 \begin{equation}\label{eqn:text_1_remesh2_s_rect_vogn}
 	S_i^r = \cos \frac{\alpha}{2} \left( lH - \left( H^2 - \frac{1}{4} \Delta H^2 \right) \sin \frac{\alpha}{2} \right) \\
 \end{equation}
@@ -293,15 +285,15 @@ $\blacksquare$\\
 	S_i^t = \frac{1}{4} \left( (H_{i - 1}^t + 2 H_i^t + H_{i + 1}^t)l - (H_{i - 1}^t + H_i^t) (H_i^t + H_{i+1}^t) \tg \frac{\alpha}{2} \right)
 \end{equation}
 
-Заметим, что формулы \eqref{eqn:text_1_remesh2_s_rect_vogn} -- \eqref{eqn:text_1_remesh2_trap_vogn} идентичны формулам \eqref{eqn:text_1_remesh2_s_rect} -- \eqref{eqn:text_1_remesh2_trap} с учетом знака $\alpha$, поэтому формулы \eqref{eqn:text_1_remesh2_s_rect} -- \eqref{eqn:text_1_remesh2_trap} применимы как для положительных значений углов $\alpha$ (случай выпуклой сетки), так и для отрицательных значений $\alpha$ (случай вогнутой сетки).
+Note that the formulas \eqref{eqn:text_1_remesh2_s_rect_vogn} -- \eqref{eqn:text_1_remesh2_trap_vogn} are identical to the formulas \eqref{eqn:text_1_remesh2_s_rect} -- \eqref{eqn:text_1_remesh2_trap} taking into account the sign of $\alpha$, therefore the formulas \eqref{eqn:text_1_remesh2_s_rect} -- \eqref{eqn:text_1_remesh2_trap} are applicable both for positive values of the angles $\alpha$ (the case of a convex mesh) and for negative values of $\alpha$ (the case of a concave mesh).
 
-Для получения теоретической оценки точности для метода окрестностей в случае вогнутой сетки рассмотрим следующее вспомогательное утверждение, аналогичное лемме~\ref{lem:text_1_remesh_2d_accuracy_okrestnost} (см. рис.~\ref{fig:text_1_remesh_2d_accuracy_okrestnost} справа).
+To obtain a theoretical estimate of the accuracy for the neighborhoods method in the case of a concave mesh, we consider the following auxiliary statement, similar to Lemma~\ref{lem:text_1_remesh_2d_accuracy_okrestnost} (see Fig.~\ref{fig:text_1_remesh_2d_accuracy_okrestnost} on the right).
 
 \begin{lemma}\label{lem:text_1_remesh_2d_accuracy_okrestnost2}
-Пусть $AB = l$, выше прямой $AB$ расположена точка $X$ такая, что $\angle (\overline{AX}, \overline{BA}) = \alpha$.
-Пусть построены две окружности с центрами в точках $A$ и $B$ и с радиусами $r$ и $r + \Delta r$ соответственно.
-Для построенных окружностей построена выпуклая оболочка, состоящая из дуг этих окружностей, а также отрезков общих касательных (точки касания общей касательной построенных окружностей, лежащие выше прямой $AB$, обозначим $A_2$ и $B_2$ соответственно).
-Пусть на этой выпуклой оболочке -- на окружности с центром в точке $A$ либо на отрезке $A_2B_2$ -- лежит точка $A_1$ такая, что $\angle XAA_1 = \angle BAA_1 = \phi$, $AA_1 = h$, тогда 
+Let $AB = l$, and let $X$ be located above the line $AB$ such that $\angle (\overline{AX}, \overline{BA}) = \alpha$.
+Let two circles be constructed with centers at points $A$ and $B$ and with radii $r$ and $r + \Delta r$, respectively.
+A convex hull is constructed for the constructed circles, consisting of arcs of these circles, as well as segments of common tangents (the points of tangency of the common tangent of the constructed circles, lying above the line $AB$, are denoted by $A_2$ and $B_2$, respectively).
+Let this convex hull -- either on the circle with center at point $A$ or on the segment $A_2B_2$ -- contain a point $A_1$ such that $\angle XAA_1 = \angle BAA_1 = \phi$, $AA_1 = h$, then
 \begin{equation}
 	\begin{cases}\label{eqn:text_1_remesh_2d_okr_h2}
 		h = r, \ \sin \frac{\alpha}{2} < \frac{-\Delta r}{l}, \\
@@ -310,18 +302,18 @@ $\blacksquare$\\
 \end{equation}
 \end{lemma}
 
-Если точка $A_1$ не находится на отрезке $A_2B_2$, то $h = AA_1 = r$.
+If point $A_1$ is not on segment $A_2B_2$, then $h = AA_1 = r$.
 
-Рассмотрим случай, когда $A_1$ находится на отрезке $A_2B_2$, в этом случае $\Delta r < 0$.
-Через точку $B$ проведем прямую, параллельную $A_2B_2$, до пересечения с $AA_2$ в точке $H$.
-Тогда $\angle A_2OA = \angle HBA = \beta = \arcsin \frac{-\Delta r}{l}$.
-Так как $\angle A_1AB = \phi = \frac{\pi - \alpha}{2}$, то $\angle A_2AA_1 = \theta = \angle A_2AO - \phi = \frac{\alpha}{2} - \beta$.
+Let us consider the case when $A_1$ is on the segment $A_2B_2$, in which case $\Delta r < 0$.
+Through point $B$ we draw a line parallel to $A_2B_2$ until it intersects $AA_2$ at point $H$.
+Then $\angle A_2OA = \angle HBA = \beta = \arcsin \frac{-\Delta r}{l}$.
+Since $\angle A_1AB = \phi = \frac{\pi - \alpha}{2}$, then $\angle A_2AA_1 = \theta = \angle A_2AO - \phi = \frac{\alpha}{2} - \beta$.
 
-Таким образом, условие нахождения точки $A_1$ на отрезке $A_2B_2$ равносильно $\theta \ge 0$.
-То есть при $\theta < 0$, получаем $h = r$, а при $\theta \ge 0$ значение $h$ можно выразить из прямоугольного треугольника $AA_1A_2$.
+Thus, the condition for finding the point $A_1$ on the segment $A_2B_2$ is equivalent to $\theta \ge 0$.
+That is, for $\theta < 0$, we obtain $h = r$, and for $\theta \ge 0$, the value of $h$ can be expressed from the right triangle $AA_1A_2$.
 $\blacksquare$\\
 
-Используя лемму~\ref{lem:text_1_remesh_2d_accuracy_okrestnost2}, для метода окрестностей можно выразить $S_i^o$ из \eqref{eqn:text_1_remesh2_saa2b2b_gen2} подставив туда выражения для $h_i$ и $h_{i + 1}$ из \eqref{eqn:text_1_remesh_2d_okr_h2}:
+Using the lemma~\ref{lem:text_1_remesh_2d_accuracy_okrestnost2}, for the neighborhoods method we can express $S_i^o$ from \eqref{eqn:text_1_remesh2_saa2b2b_gen2} by substituting there the expressions for $h_i$ and $h_{i + 1}$ from \eqref{eqn:text_1_remesh_2d_okr_h2}:
 \begin{equation}
 	\begin{aligned}
 	& h_i = \max \left( h \left( \alpha, l, H - \frac{3}{2}\Delta H, \Delta H \right), h \left( \alpha, l, H - \frac{1}{2}\Delta H, \Delta H \right) \right) \\
@@ -329,95 +321,91 @@ $\blacksquare$\\
 	\end{aligned}
 \end{equation}
 
-Используя полученные соотношения для $S_i^r$, $S_i^t$, $S_i^o$, можно проанализировать зависимости величин $\delta_i^r$, $\delta_i^t$, $\delta_i^o$ от $\alpha$ и $\frac{\Delta H}{l}$, при этом будем использовать фиксированную величину $H = \frac{l}{2}$ (см. рис.~\ref{fig:text_1_remesh_3d_main_chart}).
+Using the obtained relations for $S_i^r$, $S_i^t$, $S_i^o$, we can analyze the dependences of the quantities $\delta_i^r$, $\delta_i^t$, $\delta_i^o$ on $\alpha$ and $\frac{\Delta H}{l}$, while we will use the fixed quantity $H = \frac{l}{2}$ (see Fig.~\ref{fig:text_1_remesh_3d_main_chart}).
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.8\textwidth]{pics/remesh_3d_chart.png}
-\captionstyle{normal}\caption{Графики поверхностей $\delta_i^r(\alpha, \frac{\Delta H}{l})$, $\delta_i^t(\alpha, \frac{\Delta H}{l})$, $\delta_i^o(\alpha, \frac{\Delta H}{l})$ при фиксированном значении $H = \frac{l}{2}$.}
+\captionstyle{normal}\caption{Vizualization of $\delta_i^r(\alpha, \frac{\Delta H}{l})$, $\delta_i^t(\alpha, \frac{\Delta H}{l})$, $\delta_i^o(\alpha, \frac{\Delta H}{l})$ for a fixed value of $H = \frac{l}{2}$.}
 \label{fig:text_1_remesh_3d_main_chart}
 \end{figure}
 
-Из рис.~\ref{fig:text_1_remesh_3d_main_chart} можно отметить, что при $\Delta H = 0$ метод трапеций по определению абсолютно точен.
-Также отметим, что при $\Delta H = 0$ отклонения $\delta_i^r$ и $\delta_i^o$ практически совпадают.
+From Fig.~\ref{fig:text_1_remesh_3d_main_chart} it can be noted that for $\Delta H = 0$ the trapeziums method is absolutely accurate by definition.
+We also note that for $\Delta H = 0$ the deviations $\delta_i^r$ and $\delta_i^o$ are almost identical.
 
-Построим дополнительно два графика зависимостей $\delta_i^r$, $\delta_i^t$, $\delta_i^o$ от $\frac{\Delta H}{l}$ при фиксированных значениях $\alpha = 0,5$ (для выпуклой сетки) и $\alpha = -0,5$ (для вогнутой сетки) (см. рис.~\ref{fig:text_1_remesh_fix_alfa_chart}).
-Из рисунка видно, что метод трапеций перестроения поверхности при небольших значениях $\frac{\Delta H}{l}$ наиболее точен, а точность методов прямоугольников и окрестностей достаточно близки.
+Let us additionally construct two graphs of the dependences of $\delta_i^r$, $\delta_i^t$, $\delta_i^o$ on $\frac{\Delta H}{l}$ for fixed values of $\alpha = 0.5$ (for a convex mesh) and $\alpha = -0.5$ (for a concave mesh) (see Fig.~\ref{fig:text_1_remesh_fix_alfa_chart}).
+It is evident from the figure that the trapeziums method of rebuilding the surface for small values of $\frac{\Delta H}{l}$ is the most accurate, while the accuracy of the rectangle and neighborhoods methods is quite close.
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 %\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{pics/remesh_fix_alfa_chart.png}
-\captionstyle{normal}\caption{Графики поверхностнй $\delta_i^r(\frac{\Delta H}{l})$, $\delta_i^t(\frac{\Delta H}{l})$, $\delta_i^o(\frac{\Delta H}{l})$ при фиксированных значениях $\alpha = 0,5$ (слева) и $\alpha = -0,5$ (справа).}
+\captionstyle{normal}\caption{Charts of $\delta_i^r(\frac{\Delta H}{l})$, $\delta_i^t(\frac{\Delta H}{l})$, $\delta_i^o(\frac{\Delta H}{l})$ for fixed values of $\alpha = 0.5$ (left) and $\alpha = -0.5$ (right).}
 \label{fig:text_1_remesh_fix_alfa_chart}
 \end{figure}
 
 %--------------------------------------------------------------------------------------------------------------------------------
 
-\section{Ozenki sglazhivaniya острых пиков и впадин}
+\section{Smoothing out sharp peaks and caverns}
 
-Приведем оценки сглаживания острых пиков и впадин для рассмотренных методов перестроения сетки (методы прямоугольников, трапеций и окрестностей).
-Для этого будем рассматривать расчетную сетку с одинаковыми ячейками-отрезками длины $l$.
+Let us present estimates of smoothing of sharp peaks and caverns for the considered methods of mesh rebuilding (rectangles, trapeziums and neighborhoods methods). For this, we will consider a computational mesh with identical cells-segments of length $l$.
 
-Для оценки сглаживания острых пиков будем считать, что сетка является абсолютно плоской за исключением двух соседних ячеек, которые образуют острый пик с углом $2 \alpha$ (см. рис.~\ref{fig:text_1_remesh_2d_peak_cavern_general} слева).
-Аналогично для оценки сглаживания впадин будем считать, что сетка является абсолютно плоской за исключением двух соседних ячеек, которые образуют впадину с углом $2 \alpha$ (см. рис.~\ref{fig:text_1_remesh_2d_peak_cavern_general} справа)
+To evaluate the smoothing of sharp peaks, we will assume that the mesh is absolutely flat except for two adjacent cells that form a sharp peak with an angle of $2 \alpha$ (see Fig.~\ref{fig:text_1_remesh_2d_peak_cavern_general} on the left).
+Similarly, to evaluate the smoothing of caverns, we will assume that the mesh is absolutely flat except for two adjacent cells that form a valley with an angle of $2 \alpha$ (see Fig.~\ref{fig:text_1_remesh_2d_peak_cavern_general} on the right).
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=0.8\textwidth]{./pics/peak-cavern-general.pdf}
-\captionstyle{normal}\caption{Оценка сглаживания угла при остром пике (слева) и при впадине (справа).}
+\captionstyle{normal}\caption{Evaluation of angle smoothing at a sharp peak (left) and at a trough (right).}
 \label{fig:text_1_remesh_2d_peak_cavern_general}
 \end{figure}
 
-Во всех трех методах (прямоугольников, трапеций и окрестностей) направления смещения узлов совпадают (и лежат на биссектрисах углов, образованных соседними ячейками), поэтому будем рассматривать задачу сглаживания угла при остром пике и при впадине для произвольных смещений узлов $A$ и $B$.
-Для этого докажем следующие леммы.
+In all three methods (rectangles, trapeziums and neighborhoods) the directions of node displacement coincide (and lie on the bisectors of the angles formed by neighboring cells), so we will consider the problem of smoothing the angle at a sharp peak and at a cavern for arbitrary displacements of nodes $A$ and $B$. To do this, we will prove the following lemmas.
 
 \begin{lemma}\label{lem:text_1_peak_smooth}
-При перемещении узлов $A$ и $B$ -- узлов одной из сторон острого пика -- вдоль биссектрис углов, образованных инцидентными ячейками, на расстояния $h_A$ и $h_B$ соответственно (см. рис.~\ref{fig:text_1_remesh_2d_peak_cavern_general} слева) значение сглаженного угла $\angle OA_1B_1 = \hat{\alpha}_1$ выражается через $\angle OAB = \alpha$ следующим образом:
+When moving nodes $A$ and $B$ -- nodes of one of the sides of the sharp peak -- along the bisectors of the angles formed by the incident cells, by distances $h_A$ and $h_B$, respectively (see Fig.~\ref{fig:text_1_remesh_2d_peak_cavern_general} on the left), the value of the smoothed angle $\angle OA_1B_1 = \hat{\alpha}_1$ is expressed through $\angle OAB = \alpha$ as follows:
 \begin{equation}\label{eqn:text_1_envelope_alpha1_peak}
 \hat{\alpha}_1(h_A, h_B) = \arctg \frac{l \sin \alpha + h_B \cos \gamma}{l \cos \alpha + h_A - h_B \sin \gamma}	
 \end{equation}
 \end{lemma}
 
-Выразим через $\alpha$ остальные углы: $\beta = \frac{\pi}{2} - \alpha$, $\gamma = \frac{\pi}{4} + \frac{\alpha}{2}$.
-Через углы $\alpha$ и $\gamma$ находим $OA = l \cos \alpha$, $OB = l \sin \alpha$, $BX = h_B \cos \gamma$, $B_1X = h_B \sin \gamma = OY$, откуда получаем $YB_1 = OB + BX = l \sin \alpha + h_B \cos \gamma$, $YA_1 = OA + AA_1 - OY = l \cos \alpha + h_A - h_B \sin \gamma$, откуда получаем $\hat{\alpha}_1(h_A, h_B) = \arctg \frac{YB_1}{YA_1}$, что приводит к \eqref{eqn:text_1_envelope_alpha1_peak}.
+Let's express the remaining angles through $\alpha$: $\beta = \frac{\pi}{2} - \alpha$, $\gamma = \frac{\pi}{4} + \frac{\alpha}{2}$. Using the angles $\alpha$ and $\gamma$ we find $OA = l \cos \alpha$, $OB = l \sin \alpha$, $BX = h_B \cos \gamma$, $B_1X = h_B \sin \gamma = OY$, whence we obtain $YB_1 = OB + BX = l \sin \alpha + h_B \cos \gamma$, $YA_1 = OA + AA_1 - OY = l \cos \alpha + h_A - h_B \sin \gamma$, whence we obtain $\hat{\alpha}_1(h_A, h_B) = \arctg \frac{YB_1}{YA_1}$, which leads to \eqref{eqn:text_1_envelope_alpha1_peak}.
 $\blacksquare$\\
 
 \begin{lemma}\label{lem:text_1_cavern_smooth}
-При перемещении узлов $A$ и $B$ -- узлов одной из сторон впадины -- вдоль биссектрис углов, образованных инцидентными ячейками, на расстояния $h_A \le AO$ и $h_B$ соответственно (см. рис.~\ref{fig:text_1_remesh_2d_peak_cavern_general} справа) значение сглаженного угла $\angle OA_1B_1 = \check{\alpha}_1$ выражается через $\angle OAB = \alpha$ следующим образом:
+When moving nodes $A$ and $B$ -- nodes of one of the sides of the cavern -- along the bisectors of the angles formed by the incident cells, by distances $h_A \le AO$ and $h_B$, respectively (see Fig.~\ref{fig:text_1_remesh_2d_peak_cavern_general} on the right), the value of the smoothed angle $\angle OA_1B_1 = \check{\alpha}_1$ is expressed through $\angle OAB = \alpha$ as follows:
 \begin{equation}\label{eqn:text_1_envelope_alpha1_cavern}
 \check{\alpha}_1(h_A, h_B) = \arctg \frac{l \sin \alpha - h_B \cos \gamma}{l \cos \alpha - h_A + h_B \sin \gamma}
 \end{equation}
-при ограничениях на угол $\alpha$
+under constraints on the angle $\alpha$
 \begin{equation}\label{eqn:text_1_envelope_alpha1_cavern2}
 \arcsin \frac{h_B \left( \sqrt{8 l^2 + h_B^2} - h_B \right)}{4 l^2} \le \alpha \le \arccos \frac{h_A}{l}
 \end{equation}
 \end{lemma}
 
-Выразим через $\alpha$ остальные углы: $\beta = \frac{\pi}{2} - \alpha$, $\gamma = \frac{\pi}{4} + \frac{\alpha}{2}$.
-Через углы $\alpha$ и $\gamma$ находим $OA = l \cos \alpha$, $OB = l \sin \alpha$, $BX = h_B \cos \gamma$, $B_1X = h_B \sin \gamma = OY$, откуда получаем $YB_1 = OB - BX = l \sin \alpha - h_B \cos \gamma$, $YA_1 = OA - AA_1 + OY = l \cos \alpha - h_A + h_B \sin \gamma$, откуда получаем $\check{\alpha}_1(h_A, h_B) = \arctg \frac{YB_1}{YA_1}$, что приводит к \eqref{eqn:text_1_envelope_alpha1_cavern}.
+Let's express the remaining angles through $\alpha$: $\beta = \frac{\pi}{2} - \alpha$, $\gamma = \frac{\pi}{4} + \frac{\alpha}{2}$. Using angles $\alpha$ and $\gamma$ we find $OA = l \cos \alpha$, $OB = l \sin \alpha$, $BX = h_B \cos \gamma$, $B_1X = h_B \sin \gamma = OY$, whence we obtain $YB_1 = OB - BX = l \sin \alpha - h_B \cos \gamma$, $YA_1 = OA - AA_1 + OY = l \cos \alpha - h_A + h_B \sin \gamma$, whence we obtain $\check{\alpha}_1(h_A, h_B) = \arctg \frac{YB_1}{YA_1}$, which leads to \eqref{eqn:text_1_envelope_alpha1_cavern}.
 
-Рассмотрим дополнительные условия применимости формулы \eqref{eqn:text_1_envelope_alpha1_cavern}.
+Let us consider additional conditions for the applicability of the formula \eqref{eqn:text_1_envelope_alpha1_cavern}.
 
-Условие $h_A \le AO$ равносильно $\alpha \le \arccos \frac{h_A}{l}$.
+The condition $h_A \le AO$ is equivalent to $\alpha \le \arccos \frac{h_A}{l}$.
 
-Требованием на отсутствие самопересечения сетки является условие $BX \le OB$, то есть $h_B \cos \gamma \le l \sin \alpha$.
-Подставляя явное выражение для $\cos \gamma$, получим
+The requirement for the absence of self-intersection of the mesh is the condition $BX \le OB$, that is, $h_B \cos \gamma \le l \sin \alpha$.
+Substituting the explicit expression for $\cos \gamma$, we obtain
 \begin{equation}
 	h_B \frac{1}{\sqrt{2}} \left( \cos \frac{\alpha}{2} - \sin \frac{\alpha}{2} \right) \le l \sin \alpha
 \end{equation}
 
-Так как $\alpha < \frac{\pi}{2}$, то обе части неравенства положительные, поэтому возведем их в квадрат, и после преобразований получим
+Since $\alpha < \frac{\pi}{2}$, both parts of the inequality are positive, so we square them, and after transformations we get
 \begin{equation}\label{eqn:text_1_envelope_find_alpha3}
 	1 - \sin \alpha \le 2 \left( \frac{l}{h_B} \right)^2 \sin^2 \alpha
 \end{equation}
 
-Введя обозначение $p = 2 \left( \frac{l}{h_B} \right)^2$ и решая квадратное неравенство \eqref{eqn:text_1_envelope_find_alpha3} относительно $\sin \alpha$, получим условие $\alpha \ge \arcsin \frac{\sqrt{4p + 1} - 1}{2p}$, что в сококупности с условием $\alpha \le \arccos \frac{h_A}{l}$ приводит к \eqref{eqn:text_1_envelope_alpha1_cavern2}.
+Introducing the notation $p = 2 \left( \frac{l}{h_B} \right)^2$ and solving the quadratic inequality \eqref{eqn:text_1_envelope_find_alpha3} with respect to $\sin \alpha$, we obtain the condition $\alpha \ge \arcsin \frac{\sqrt{4p + 1} - 1}{2p}$, which together with the condition $\alpha \le \arccos \frac{h_A}{l}$ leads to \eqref{eqn:text_1_envelope_alpha1_cavern2}.
 $\blacksquare$\\
 
 \begin{figure}[ht]
@@ -425,7 +413,7 @@ $\blacksquare$\\
 \onelinecaptionsfalse % if the caption is multiline
 %\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/peak-methods.pdf}
-\captionstyle{normal}\caption{Сглаживание пика при методах прямоугольников (слева), трапеций (в центре), окрестностей (справа).}
+\captionstyle{normal}\caption{Smoothing of the peak using the rectangles (left), trapeziums (center), and neighborhoods (right) methods.}
 \label{fig:text_1_remesh_2d_peak_methods}
 \end{figure}
 
@@ -434,34 +422,34 @@ $\blacksquare$\\
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/peak-methods-chart.png}
-\captionstyle{normal}\caption{Сравнение сглаживания острого пика для методов прямоугольников, трапеций и окрестностей.}
+\captionstyle{normal}\caption{Comparison of sharp peak smoothing for rectangles, trapeziums and neighborhoods methods.}
 \label{fig:text_1_remesh_2d_peak_methods_chart}
 \end{figure}
 
-На основе Леммы~\ref{lem:text_1_peak_smooth} получим оценки сглаживания угла при остром пике при условии постоянного значения $H$ во всех ячейках сетки.
+Based on Lemma~\ref{lem:text_1_peak_smooth}, we obtain estimates of the smoothing of the angle at a sharp peak under the condition of a constant value of $H$ in all mesh cells.
 
-Для метода прямоугольников имеем $h_A = h_B = H$ (см. рис~\ref{fig:text_1_remesh_2d_peak_methods} слева).
+For the rectangles method we have $h_A = h_B = H$ (see Fig~\ref{fig:text_1_remesh_2d_peak_methods} on the left).
 
-Для метода трапеций необходимо сначала найти высоты трапеций $AA_1B^{-}B$ и $CC_1B^{+}B$ с рис.~\ref{fig:text_1_remesh_2d_peak_methods} в центре из условия равенства площадей этих трапеций значению $lH$.
-Высоты этих трапеций $H^{-}$ и $H^{+}$ получаются с помощью решения квадратного уравнения.
-Тогда $h_A = \frac{H^{-}}{\sin \alpha}$, $h_B = \frac{H^{-} + H^{+}}{2 \sin \gamma}$.
+For the trapeziums method, it is necessary to first find the heights of the trapeziums $AA_1B^{-}B$ and $CC_1B^{+}B$ from Fig.~\ref{fig:text_1_remesh_2d_peak_methods} in the center from the condition that the areas of these trapeziums are equal to the value of $lH$.
+The heights of these trapeziums $H^{-}$ and $H^{+}$ are obtained by solving a quadratic equation.
+Then $h_A = \frac{H^{-}}{\sin \alpha}$, $h_B = \frac{H^{-} + H^{+}}{2 \sin \gamma}$.
 
-В случае метода окрестностей $h_A = H$,  $h_B = \frac{H}{\sin \gamma}$ (см. рис.~\ref{fig:text_1_remesh_2d_peak_methods} справа).
+In the case of the neighborhoods method $h_A = H$, $h_B = \frac{H}{\sin \gamma}$ (see Fig.~\ref{fig:text_1_remesh_2d_peak_methods} on the right).
 
-На рис.~\ref{fig:text_1_remesh_2d_peak_methods_chart} приведены графики сравнения методов прямоугольников, трапеций и окрестностей в применении к сглаживанию острых пиков.
-При этом используется фиксированная величина смещения ячейки $H = \frac{l}{4}$.
-На графике слева показана зависимость изменения сглаженного угла $\hat{\alpha}_1$ от $\alpha$.
-На графике справа показана эффективность сглаживания, выраженная формулой $\frac{2 \hat{\alpha}_1 - 2 \alpha}{\pi - 2 \alpha}$ (значение 1 означает полное сглаживание пика до угла $\hat{\alpha}_1 = \frac{\pi}{2}$).
+Fig.~\ref{fig:text_1_remesh_2d_peak_methods_chart} shows comparison charts of rectangles, trapeziums and neighborhoods methods applied to smoothing sharp peaks.
+In this case, a fixed cell offset value $H = \frac{l}{4}$ is used.
+The chart on the left shows the dependence of the change in the smoothed angle $\hat{\alpha}_1$ on $\alpha$.
+The chart on the right shows the smoothing efficiency expressed by the formula $\frac{2 \hat{\alpha}_1 - 2 \alpha}{\pi - 2 \alpha}$ (the value 1 means complete smoothing of the peak up to the angle $\hat{\alpha}_1 = \frac{\pi}{2}$).
 
-Можно отметить, что наиболее эффективное сглаживание угла $\alpha$ обеспечивает метод окрестностей.
-Дополнительно заметим, что использование метода трапеций для малых углов $\alpha$ приводит к неконтролируемому росту $h_A$, что делает применение этого метода неприемлемым.
+It can be noted that the most effective smoothing of the angle $\alpha$ is provided by the neighborhoods method.
+Additionally, we note that using the trapeziums method for small angles $\alpha$ leads to an uncontrolled growth of $h_A$, which makes the use of this method unacceptable.
 
 \begin{figure}[ht]
 \setcaptionmargin{5mm}
 \onelinecaptionsfalse % if the caption is multiline
 %\onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/cavern-methods.pdf}
-\captionstyle{normal}\caption{Сглаживание впадины при методах прямоугольников (слева), трапеций (в центре), окрестностей (справа).}
+\captionstyle{normal}\caption{Smoothing of a cavern using the rectangles (left), trapeziums (center), and neighborhoods (right) methods.}
 \label{fig:text_1_remesh_2d_cavern_methods}
 \end{figure}
 
@@ -470,42 +458,43 @@ $\blacksquare$\\
 %\onelinecaptionsfalse % if the caption is multiline
 \onelinecaptionstrue  % if the caption is one-line
 \includegraphics[width=1.0\textwidth]{./pics/cavern-methods-chart.png}
-\captionstyle{normal}\caption{Сравнение сглаживания впадины для методов прямоугольников, трапеций и окрестностей.}
+\captionstyle{normal}\caption{Comparison of cavern smoothing for rectangles, trapeziums and neighborhoods methods.}
 \label{fig:text_1_remesh_2d_cavern_methods_chart}
 \end{figure}
 
-На основе Леммы~\ref{lem:text_1_cavern_smooth} получим оценки сглаживания угла при впадине при условии постоянного значения $H$ во всех ячейках сетки.
+Based on Lemma~\ref{lem:text_1_cavern_smooth}, we obtain estimates of the smoothing of an angle at a cavern under the condition of a constant value of $H$ in all mesh cells.
 
-Для метода прямоугольников имеем $h_A = h_B = H$ (см. рис~\ref{fig:text_1_remesh_2d_cavern_methods} слева).
+For the rectangles method we have $h_A = h_B = H$ (see Fig~\ref{fig:text_1_remesh_2d_cavern_methods} on the left).
 
-Для метода трапеций необходимо сначала найти высоты трапеций $AA_1B^{-}B$ и $CC_1B^{+}B$ с рис.~\ref{fig:text_1_remesh_2d_cavern_methods} в центре из условия равенства площадей этих трапеций значению $lH$.
-Высоты этих трапеций $H^{-}$ и $H^{+}$ получаются с помощью решения квадратного уравнения.
-Тогда $h_A = \frac{H^{-}}{\sin \alpha}$, $h_B = \frac{H^{-} + H^{+}}{2 \sin \gamma}$.
+For the trapeziums method, it is necessary to first find the heights of the trapeziums $AA_1B^{-}B$ and $CC_1B^{+}B$ from Fig.~\ref{fig:text_1_remesh_2d_cavern_methods} in the center from the condition that the areas of these trapeziums are equal to the value of $lH$.
+The heights of these trapeziums $H^{-}$ and $H^{+}$ are obtained by solving a quadratic equation.
+Then $h_A = \frac{H^{-}}{\sin \alpha}$, $h_B = \frac{H^{-} + H^{+}}{2 \sin \gamma}$.
 
-В случае метода окрестностей $h_A = \frac{H}{\sin \alpha}$,  $h_B = H$ (см. рис.~\ref{fig:text_1_remesh_2d_cavern_methods} справа).
+In the case of the neighborhoods method $h_A = \frac{H}{\sin \alpha}$, $h_B = H$ (see Fig.~\ref{fig:text_1_remesh_2d_cavern_methods} on the right).
 
-На рис.~\ref{fig:text_1_remesh_2d_cavern_methods_chart} приведены графики сравнения методов прямоугольников, трапеций и окрестностей в применении к сглаживанию впадин.
-При этом используется фиксированная величина смещения ячейки $H = \frac{l}{4}$.
-На графике слева показана зависимость изменения сглаженного угла $\check{\alpha}_1$ от $\alpha$.
-На графике справа показана эффективность сглаживания, выраженная формулой $\frac{2 \check{\alpha}_1 - 2 \alpha}{\pi - 2 \alpha}$ (значение 1 означает полное сглаживание пика до угла $\hat{\alpha}_1 = \frac{\pi}{2}$).
+Fig.~\ref{fig:text_1_remesh_2d_cavern_methods_chart} shows comparison charts of rectangles, trapeziums and neighborhoods methods applied to smoothing of caverns.
+In this case, a fixed cell offset value $H = \frac{l}{4}$ is used.
+The chart on the left shows the dependence of the change in the smoothed angle $\check{\alpha}_1$ on $\alpha$.
+The chart on the right shows the smoothing efficiency expressed by the formula $\frac{2 \check{\alpha}_1 - 2 \alpha}{\pi - 2 \alpha}$ (the value 1 means complete smoothing of the peak up to the angle $\hat{\alpha}_1 = \frac{\pi}{2}$).
 
-Можно отметить, что метод прямоугольников не сглаживает угол, а наоборот, делает его еще более острым (значение эффективности сглаживания меньше нуля).
-Метод трапеций показывает лучшую эффективность сглаживания, но с меньшей областью применимости.
+It can be noted that the rectangles method does not smooth the angle, but on the contrary, makes it even sharper (the smoothing efficiency value is less than zero).
+The trapeziums method shows better smoothing efficiency, but with a smaller area of ​​applicability.
 
 %--------------------------------------------------------------------------------------------------------------------------------
 
 \section{Conclusion}
 
-Из приведенных оценок точности методов перестроения поверхностной сетки (см. рис.~\ref{fig:text_1_remesh_3d_main_chart}), а также способности сглаживания острых пиков (см. рис.~\ref{fig:text_1_remesh_2d_peak_methods_chart}) и впадин (см. рис.~\ref{fig:text_1_remesh_2d_cavern_methods_chart}) можно сделать следующие выводы.
-Метод трапеций перестроения сетки является более точным, точность методов прямоугольников и окрестностей практически совпадают при небольших значениях и изменениях $H$.
-С точки зрения сглаживания дефектов сетки метод трапеций неприменим, так как приводит к неконтролируемому росту острых пиков.
-Метод прямоугольников неэффективен при сглаживании острых пиков, и не способен сглаживать впадины.
-Таким образом, метод окрестностей перестроения является оптимальным с точки зрения точности перестроения и способности сглаживания дефектов сетки.
+The following conclusions can be drawn from the above estimates of the accuracy of the surface mesh rebuilding methods (see Fig.~\ref{fig:text_1_remesh_3d_main_chart}), as well as the ability to smooth out sharp peaks (see Fig.~\ref{fig:text_1_remesh_2d_peak_methods_chart}) and caverns (see Fig.~\ref{fig:text_1_remesh_2d_cavern_methods_chart}).
+The trapeziums mesh rebuilding method is more accurate, the accuracy of the rectangles and neighborhoods methods is almost the same for small values ​​and changes in $H$.
+From the point of view of smoothing out mesh defects, the trapeziums method is not applicable, since it leads to uncontrolled growth of sharp peaks.
+The rectangles method is ineffective in smoothing out sharp peaks and is not capable of smoothing out caverns.
+Thus, the neighborhoods rebuilding method is optimal in terms of rebuilding accuracy and the ability to smooth out mesh defects.
 
 %--------------------------------------------------------------------------------------------------------------------------------
 
 \begin{acknowledgments}
-Работа выполнена в рамках государственного задания НИЦ «Курчатовский институт».
+The work was carried out as part of the state assignment of the National Research Centre \textquotedblleft Kurchatov Institute\textquotedblright.
+
 \end{acknowledgments}
 
 %
