@@ -69,16 +69,16 @@ centertags]%
 
 Численное моделирование процесса обледенения поверхности тела является сложной мультифизической задачей, включающей в себя моделирование процессов газовой динамики, теплообмена, течения жидкости, динамики капель в воздушном потоке и других.
 Исследование процессов ледообразования имеет важное практическое значение.
-В частности характер и интенсивность образования льда на поверхности летательного аппарата критическим образом влияет на его летные характеристики, что напрямую связано с безопасностью полетов.
+В частности характер и интенсивность образования льда на поверхности летательного аппарата критическим образом влияет на его летные характеристики, что напрямую связано с безопасностью полетов \cite{Raj}.
 
-На сегодняшний день среди зарубежного программного обеспечения для моделирования процесса ледообразования лидером является программный комплекс ANSYS (включая модули FENSAP-ICE, DROP3D, ICE3D).
+На сегодняшний день среди зарубежного программного обеспечения для моделирования процесса ледообразования лидером является программный комплекс ANSYS (включая модули FENSAP-ICE, DROP3D, ICE3D) \cite{Martini}.
 В России также активно ведется разработка математических алгоритмов и программного обеспечения по этому направлению.
-Можно отметить исследования по разработке модуля iceFoam в составе открытого пакета OpenFOAM.
-Среди коммерческих продуктов в последние годы активно развивается пакет IceVision в составе программного комплекса FlowVision, а также решение в составе пакета инженерного анализа ЛОГОС.
+Можно отметить исследования по разработке модуля iceFoam в составе открытого пакета OpenFOAM \cite{Koshelev}.
+Среди коммерческих продуктов в последние годы активно развивается пакет IceVision в составе программного комплекса FlowVision \cite{Sorokin}, а также решение в составе пакета инженерного анализа ЛОГОС \cite{Galanov}.
 
 Моделирование процесса ледяного покрова осуществляется, как правило, на поверхностной расчетной сетке и состоит из двух основных частей.
 Первой частью является вычисление интенсивности нарастания льда в отдельных элементах сетки (это может быть вычисление массы скопившегося льда в каждой ячейке расчетной сетки за единицу времени, либо скорость образования ледяного покрова в узлах сетки, либо другие аналогичные характеристики).
-Для выполнения вычисления интенсивности нарастания льда в элементах расчетной сетки существует множество моделей ледообразования, учитывающих разные состояния льда, динамику водяной пленки, тепловые потоки и другие факторы.
+Для выполнения вычисления интенсивности нарастания льда в элементах расчетной сетки существует множество моделей ледообразования, учитывающих разные состояния льда, динамику водяной пленки, тепловые потоки и другие факторы \cite{Bartkus,Zhang,Pena}.
 Модели ледообразования не рассматриваются в рамках данной работы.
 Второй важной составляющей моделирования ледяного нароста является определение изменения поверхности тела после нарастания на ней слоя льда.
 В данной статье проводится анализ методов перестроения поверхностной сетки в двумерной постановке, для которых существуют трехмерные аналоги.
@@ -95,9 +95,9 @@ centertags]%
 Требуется найти такие значения локальных сдвигов узлов сетки $h_i$ ($0 \le i \le n$), чтобы заметаемая площадь $S_i$ между исходной поверхностью и новой поверхностью для каждой ячейки сетки как можно меньше отличалась от значения целевой площади $T_i$.
 Для оценки отклонения фактической заметаемой площади от целевой будем использовать обозначения $\Delta_i = S_i - T_i$, $\delta_i = \frac{\Delta_i}{T_i}$.
 
-В применении к задаче ледообразования величина $H_i$ соответствует толщине образозавшегося слоя льда в $i$-ой ячейке.
-Новая перестроенная поверхностная сетка соответствует поверхности ледяного покрова, а общая заметаемая площадь при движении поверхности соответствует объему накопленного на поверхности льда.
-Задача нахождения величин сдвигов узлов сетки $h_i$ при фиксированных направлениях смещения может быть решена методом градиентного спуска.
+В применении к задаче ледообразования величина $H_i$ соответствует толщине образозавшегося слоя льда в $i$-ой ячейке \cite{Beaugendre}.
+Новая перестроенная поверхностная сетка соответствует поверхности ледяного покрова, а общая заметаемая площадь при движении поверхности соответствует объему накопленного на поверхности льда \cite{Tong}.
+Задача нахождения величин сдвигов узлов сетки $h_i$ при фиксированных направлениях смещения может быть решена методом градиентного спуска \cite{Rybakov}.
 Однако метод градиентного спуска оказывается слишком требовательным к вычислительным ресурсам при увеличении размера сетки.
 К тому же, качество решения зачастую оказывается неудовлетворительным при попадании в локальные минимумы.
 Поэтому для решения поставленной задачи могут быть использованы приближенные методы, основанные на представлении целевой площади в виде примитивных геометрических фигур.
@@ -135,7 +135,7 @@ centertags]%
 Таким образом, величина смещения узла определяется как $h_i = \frac{H_{i - 1}^t + H_i^t}{2 \sin \phi_i}$.
 Заметаемую $i$-ой ячейкой площадь при использовании метода трапеций будем обозначать $S_i^t$, также обозначим $\Delta_i^t = S_i^t - T_i$, $\delta_i^t = \frac{\Delta_i^t}{T_i}$.
 
-В качестве третьего метода перестроения сетки рассматривается метод окрестностей, описание которого в трехмерной постановке может быть найдено в [X].
+В качестве третьего метода перестроения сетки рассматривается метод окрестностей, описание которого в трехмерной постановке может быть найдено в \cite{Meshcheryakov}.
 В этом методе для определения новых позиций узлов рассматривается фронт движения сетки (см. рис.~\ref{fig:text_1_remesh_2d_okrestnost}).
 
 \begin{figure}[ht]
@@ -514,9 +514,53 @@ $\blacksquare$\\
 
 \begin{thebibliography}{99}
 
-\bibitem{01Smirnov}
+\bibitem{Raj}
 \refitem{article}
-E.~M.~Smirnov, D.~K.~Zaitsev, A.~A.~Smirnovsky et al., \textquotedblleft Assessment of several advanced numerical algorithms implemented in the CFD code SINF/Flag-S for supercomputer simulations, \textquotedblright Supercomputing Frontiers and Innovations \textbf{11} (2), 14--31 (2024). https://doi.org/10.14529/jsfi240202
+L.~Prince~Raj, K.~Yee, and R.~S.~Myong, \textquotedblleft Sensivity of ice and aerodynamic performance degradation to critical physical and modeling parameters affecting airfoil icing\textquotedblright, Aerospace Sci. Technol. \textbf{98}, 105659-1--46 (2020). https://doi.org/10.1016/j.ast.2019.105659
+
+\bibitem{Martini}
+\refitem{article}
+F.~Martini, H.~Ibrahim, L.~T.~C. Montoya, P.~Rizk, and A.~Ilinca, \textquotedblleft Turbulence modeling of iced wind turbine airfoils\textquotedblright, Energies \textbf{15}, 8325-1--21 (2022). https://doi.org/10.3390/en15228325
+
+\bibitem{Koshelev}
+\refitem{article}
+K.~B.~Koshelev, V.~G.~Melnikova, and S.~V.~Strijhak, \textquotedblleft Development of ice-foam solver for modeling ice accretion\textquotedblright, Tr. Inst. Sist. Program. RAN \textbf{32}, 217--234 (2020). https://doi.org/10.15514/ISPRAS-2020-32(4)-16
+
+\bibitem{Sorokin}
+\refitem{article}
+K.~E.~Sorokin, P.~M.~Byvaltsev, A.~A.~Aksenov, S.~V.~Zhluktov, D.~V.~Savitskiy, A.~A.~Babulin, and V.~I.~Shevyakov, \textquotedblleft Numerical simulation of ice accretion if FlowVision sotfware\textquotedblright, Comput. Res. Model. \textbf{12}, 83--96 (2020). https://doi.org/10.20537/2076-7633-2020-12-1-83-96
+
+\bibitem{Galanov}
+\refitem{article}
+N.~G.~Galanov, A.~V.~Sarazov, R.~N.~Zhukov, and A.~S.~Kozelkov, \textquotedblleft Application of various ice accretion simulation approaches in the LOGOS software package\textquotedblright, J. Phys.: Conf. Ser. \textbf{2099}, 012029-1--8 (2021). https://doi.org/10.1088/1742-6596/2099/1/012029
+
+\bibitem{Bartkus}
+\refitem{article}
+T.~P.~Bartkus, P.~M.~Struk, and J.-C.~Tsao, “Evaluation of a thermodynamic ice-crystal icing model using experimental ice accretion data,” in \textit{Proceedings of the Atmospheric and Space Environments Conference, 2018, pp. 1--18}. https://doi.org/10.2514/6.2018-4129
+
+\bibitem{Zhang}
+\refitem{article}
+X.~Zhang, X.~Wu, and J.~Min, “Aircraft icing model considering both rime ice property variability and runback water effect,” Int. J. Heat Mass Transfer \textbf{104}, 510--516 (2017). https://doi.org/10.1016/j.ijheatmasstransfer.2016.08.086
+
+\bibitem{Pena}
+\refitem{article}
+D.~Pena, Y.~Hoarau, and E.~Laurendeau, “A single step ice accretion model using level-set method,” J. Fluids Struct. \textbf{65}, 278--294 (2016). https://doi.org/10.1016/j.jfluidstructs.2016.06.001
+
+\bibitem{Beaugendre}
+\refitem{misc}
+H.~Beaugendre, \textquotedblleft A PDE-based approach to in-flight ice accretion\textquotedblright, PhD Thesis (Dep. of Mech. Eng., McGill Univ., Montr\'eal, Qu\'ebec, 2003).
+
+\bibitem{Tong}
+\refitem{article}
+X.~Tong, D.~Thompson, Q.~Arnoldus, E.~Collins, and E.~Luke, \textquotedblleft Three-dimensional  surface evolution and mesh deformation for aircraft icing applications\textquotedblright, J. of Aircraft {\bf 54}, 1047--1063 (2017). https://doi.org/10.2514/1.C033949
+
+\bibitem{Rybakov}
+\refitem{article}
+A.~A.~Rybakov and S.~S.~Shumilin, \textquotedblleft Approximate  methods of the surface mesh deformation in two-dimensional case\textquotedblright, Lobachevskii J. Math. {\bf 40}, 1848--1852 (2019). https://doi.org/10.1134/S1995080219110258
+
+\bibitem{Meshcheryakov}
+\refitem{article}
+A.~O.~Meshcheryakov, and A.~A.~Rybakov, \textquotedblleft Evolution of the surface computational mesh in the ice accretion process\textquotedblright, Lobachevskii J. Math. {\bf 44}, 361--378 (2023). https://doi.org/10.1134/S1995080223110367
 
 \end{thebibliography}
 \end{document}
