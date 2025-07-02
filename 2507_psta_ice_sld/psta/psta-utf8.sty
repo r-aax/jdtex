@@ -1,0 +1,434 @@
+% The submition for psta document class default
+% cyrillic option [utf8]{psta}[2024/10/11 12:58:42]
+%
+\paperheight 210mm
+\paperwidth 148mm
+\hoffset -1in
+\voffset -1in
+\topmargin=12mm
+\headheight=8mm
+\headsep=4mm
+\evensidemargin=18.5mm
+\oddsidemargin=18.5mm
+\footskip=0pt
+\textheight = 167 mm %=171-12-15-8-4, from OST 29.124-94 margins 10..24-12-15-11 +2mm trim
+\textwidth  = 111 mm %=148.5-13-24
+\def\russian@alph#1{\ifcase#1\or 
+     а\or б\or в\or г\or д\or е\or ж\or
+     з\or и\or к\or л\or м\or н\or о\or
+     п\or р\or с\or т\or у\or ф\or х\or
+     ц\or ч\or ш\or щ\or э\or ю\or я\else\@ctrerr\fi}
+\@ifundefined{journalabbreviationinenglish}{%
+    \def\journalabbreviationinenglish{PSTA}\RequirePackage{cmap}}{}%
+\gdef\JournalURL{https://psta.psiras.ru/}\gdef \IssueURL#1{\JournalURL}%
+\def\ISSN{2079-3316}\let\EISSN\ISSN\let\Journalnumber\ISSN
+\def\TopHead{\switch@language@icon\hss\colonTitlefont\PSTAsubmit\hss\firstheadline\hss \colonTitlefont ISSN \Journalnumber}%
+\orgdef firstheadline\\ psta.psiras.ru/index_en.htm\\  PROGRAM SYSTEMS: THEORY AND APPLICATIONS\\
+                    psta.psiras.ru\\ ПРОГРАММНЫЕ СИСТЕМЫ: ТЕОРИЯ И ПРИЛОЖЕНИЯ\\
+
+\orgdef JournalLink\\ psta.psiras.ru/index_en.htm\\ Program Systems: Theory and Applications\\
+                    psta.psiras.ru\\ Программные системы: теория и приложения\\
+\ForCommaSpaceSeparatedListUntillPoint{\DefineDefaultRussian}%
+\placename{Pereslavl-Zalesskiy}{Переславль-Залесский},
+\AnonimousReview{Double blind peer review means: \emph{Reviewer doesn't know authors, authors don't know reviewer}}{Двойное слепое рецензирование означает: \emph{рецензент не знает авторов, авторы не знают рецензента}},
+\BBCname{BBC}{\href{http://bbk.rsl.ru/external/bbk?block=ETALON}{ББК}},
+\Etcname{etc.}{и др.},
+\Figureautorefname{Figure}{Рисунок},
+\Figurename{Figure}{Рисунок},
+\Insectionautorefname{In~Section}{В~разделе},
+\Insectionsautorefname{In~Sections}{В~разделах},
+\Intableautorefname{In~Table}{В~таблице},
+\Intablesautorefname{In~Tables}{В~таблицах},
+\Licensed{Licensed to the public under}{Публичная лицензия},
+\No{No}{№},
+\Onfigureautorefname{On~Figure}{На~рисунке},
+\PSTAAssigned{Only for rewiewing!}{Только для рецензирования! },
+\PSTASubmitted{Submitted to}{Направлено в журнал},
+\PSTAat{at }{ },
+\PSTAblind{hidden}{скрыто},
+\pstahiddenauthorsname{Information about the authors is hidden from the reviewer}{Информация об авторах скрыта от рецензента},
+\PSTAcorrected{Corrected}{Исправлена},
+\PSTAfor{for the journal }{в журнал },
+\PSTAjouA{From authors}{От авторов},
+\PSTAjouQ{From editor}{От редакции},
+\PSTApreliminary{(предварительная версия)}{(preliminary version)},
+\PSTAprepared{Submitted}{рукопись направлена},
+\PSTApublished{published online}{опубликована онлайн},
+\PSTAreceived{The article was received}{Статья поступила в редакцию},
+\PSTAaccepted{accepted for publication}{принята к публикации},
+\PSTArecommended{Recommended by}{Рекомендовал к публикации},
+\PSTArevised{approved after reviewing}{одобрена после рецензирования},
+\PSTAPER{Personal}{Персоналия},
+\PSTARAR{Research Article}{научная статья},
+\PSTAREV{Review Article}{Обзорная статья},
+\PSTArubric{%
+		principles and technologies of electronic publications\or
+		applied software systems\or
+		information technology in medicine\or
+		applied software systems\or
+		artificial intelligence, intelligence systems, neural networks\or
+		theoretical foudations of software systems\or
+		mathematical modeling\or
+		optimization methods and control theory\or
+		hardware and software for distributed and supercomputer systems\or
+		hardware and software for distributed and supercomputer systems\or
+        personalia}{%
+		принципы и технологии электронных публикаций\or
+		прикладные программные системы\or
+		информационные технологии в медицине\or
+		прикладные программные системы\or
+		искусственный интеллект, интеллектуальные системы, нейронные сети\or
+		теоретические основания программных систем\or
+		математическое моделирование\or
+		методы оптимизации и теория управления\or
+		программное и аппаратное обеспечение распределенных и суперкомпьютерных систем\or
+		программное и аппаратное обеспечение распределенных и суперкомпьютерных систем\or
+        персоналии},
+\PSTACRediT{idea\or methodology\or software\or validation\or formal analysis\or investigation\or resources\or data curation\or writing (original draft)\or writing (review \& editing)\or visualization\or supervision\or project administration\or funding acquisition}{\or идея\or методология\or программное обеспечение\or валидация\or формальный анализ\or расследование\or сбор материала\or курирование данных\or написание черновой версии\or доработка и редактирование\or визуализация\or наставничество\or администрирование\or финансирование},
+\PSTACRediTstext{Authors contribution}{Вклад авторов},
+\PSTAnoCRediTstext{The authors contributed equally to this article}{Авторы внесли равный вклад в подготовку публикации},
+\PSTAconflictofinterests{The author declare no conflicts of interests}{\emph{Декларация об отсутствии личной заинтересованности:} благополучие автора не зависит от результатов исследования},
+\PSTAconflictsofinterests{The authors declare no conflicts of interests}{\emph{Декларация об отсутствии личной заинтересованности:} благополучие авторов не зависит от результатов исследования},
+\PSTAacknowledgments{Acknowledgments}{Благодарности},
+\PSTAsubmitting{(submitting)}{(направляется в печать)},
+\PSTAsubmit{To the journal }{В журнал },
+\moreonthis@{learn more about the author\@ifoneauthor{}s on p.}{подробнее об автор\@ifoneauthor{е}{ах} на с.},
+\more@info@inAltLang{learn more about the author\@ifoneauthor{}s in Russian on p.}{подробнее об автор\@ifoneauthor{е}{ах} по-английски на с.},
+\RINC{RSCI}{РИНЦ},
+\SSylkaa{For citation}{Для цитирования},
+\Tableautorefname{Table}{Таблица},
+\Tablesautorefname{Tables}{Таблицы},
+\TwoWeeksFrom{Two weeks from}{Две недели с },
+\UDCname{UDC}{\href{http://scs.viniti.ru/udc/}{УДК}},
+\bibEditiontext{Ed.}{Изд.},
+\bibIssuetext{No.~}{№\,},
+\bibPagestext{Pp.}{С.},
+\bibPagetext{p.}{С.},
+\bibParttext{Part}{Ч.},
+\bibVoltext{Vol.}{Т.},
+\bibbookVoltext{V.}{Т.},
+\bibbookvoltext{v.}{т.},
+\bibeditiontext{ed.}{изд.},
+\bibedstext{eds.}{ред.},
+\bibedtext{ed.}{ред.},
+\bibetcname{etc.}{и др.},
+\bibissuetext{no.~}{№},
+\bibserissuetext{no.~}{№},
+\bibserIssuetext{No.~}{№},
+\bibpagestext{pp.}{с.},
+\bibpagetext{p.}{с.},
+\bibpaperidtext{id.}{ид.},
+\bibparttext{part}{ч.},
+\bibserissuetext{}{№},
+\bibt@appear{to appear}{в~печати},
+\bibvoltext{vol.}{т.},
+\bibwithtext{with }{совм.\ с~},
+\design{design}{дизайн},
+\figureautorefname{Figure}{рисунок},
+\fnum@figure{Figure \thefigure}{Рисунок \thefigure},
+\fromfigureautorefname{from~Figure}{из~рисунка},
+\fromsectionautorefname{from~Section}{из~раздела},
+\fromsectionsautorefname{from~Sections}{из~разделов},
+\fromtableautorefname{from~Table}{из~таблицы},
+\fromtablesautorefname{from~Tables}{из~таблиц},
+\glossaryname{Glossary}{Предметный Указатель},
+\infigureautorefname{in~Figure}{в~рисунке},
+\inotherlanguagename{In~Russian}{Англ.},
+\insectionautorefname{in~Section}{в~разделе},
+\insectionsautorefname{in~Sections}{в~разделах},
+\intableautorefname{in~Table}{в~таблице},
+\intablesautorefname{in~Tables}{в~таблицах},
+\introductionname{Introduction}{Введение},
+\inrussname{In Russ.}{},
+\russianenglishname{In Russian, in English}{Русс.$+$англ.},
+\englishrussianname{In English, in Russian}{Англ.$+$русс.},
+\absrussianenglishname{Linked article texts in Russian and in English}{Связанные тексты статьи на русском и на английском языках},
+\absenglishrussianname{Linked article texts in English and in Russian}{Связанные тексты статьи на английском и на русском языках},
+\keywordsname{Key words and phrases}{Ключевые слова и фразы},
+\manyauthors{Information about the authors}{Информация об авторах},
+\oneauthor{Information about the author}{Информация об авторе},
+\linktootherlanguageabstract{see abstract in English on p.}{Аннотация по-русски на с.},
+\linktootherlanguagepaper{Эта статья по-русски}{This Article in English},
+\onfigureautorefname{on~Figure}{на~рисунке},
+\onfigureautorefsfname{on~Figures}{на~рисунках},
+\ontableautorefname{on~Table}{на~таблице},
+\ontablesautorefname{on~Tables}{на~таблицах},
+\pagesText{Pp.}{С.},
+\pagestext{pp.}{с.},
+\pagetext{p.}{с.},
+\proofname{Proof}{Доказательство},
+\sectionautorefname{Section}{раздел},
+\startquote{``}{«},
+\stopquote{''}{»},
+\tableautorefname{Table}{таблица},
+\tablesautorefname{Tables}{таблицы},
+\thereferences{References}{Список \ifnum\Year>2023 использованных источников\else литературы\fi}
+\orgdef AMU\\ https://www.univ-amu.fr/en\\ Aix-Marseille University, Marseille, France\\
+              https://www.univ-amu.fr/fr\\ Университет Экс-Марсель, Марсель, Франция\\
+\orgdef ASU\\ http://www.asu.ru/en/\\ Altai State University\\
+              http://www.asu.ru/\\ Алтайский государственный университет\\
+\orgdef BGU\\ https://bgu.ru/eng/\\ Baikal State University, Irkutsk, Russia\\
+              https://bgu.ru/\\ Байкальский государственный университет, Иркутск, Россия\\
+\orgdef BELSU\\ http://www.bsu.edu.ru/en/\\ Belgorod National Research University\\
+                http://www.bsu.edu.ru/bsu/\\ Белгородский государственный национальный исследовательский университет\\
+\orgdef BMSTU\\ http://www.bmstu.ru/en\\ Bauman Moscow State Technical University, Moscow, Russia\\
+                http://www.bmstu.ru/\\  МГТУ имени Н.\,Э.~Баумана, Москва, Россия\\
+\orgdef BIONET\\ http://www.bionet.nsc.ru/en\\ Institute of Cytology and Genetics SB RAS\\
+                http://www.bionet.nsc.ru/\\ Институт цитологии и генетики СО РАН\\
+\orgdef BSU\\   http://en.bsu.ru/\\ Buryat State University, Ulan-Ude, Russia\\
+                http://www.bsu.ru/\\ Бурятский государственный университет, Улан-Уде, Россия\\
+\orgdef CardioTomsk\\ en.cardio-tomsk.ru/\\ Cardiology Research Institute of Tomsk NRMC, Tomsk, Russia\\
+                cardio-tomsk.ru/\\ НИИ Кардиологии Томского НИМЦ, Томск, Россия\\
+\orgdef CLIRE\\ http://cplire.ru/html/index.html\\ Kotelnikov Institute of Radioengineering and Electronics of RAS\\
+                http://cplire.ru/rus/index.html\\ Институт радиотехники и электроники им.~В.\,А.~Котельникова РАН\\
+\orgdef Cornell\\ http://www.cornell.edu/\\ Cornell University\\
+                http://www.cornell.edu/\\ Корнеллский университет\\
+\orgdef ECNU\\  http://english.ecnu.edu.cn/\\ East China Normal University\\
+                http://english.ecnu.edu.cn/\\ Восточно-Китайский педагогический университет\\
+\orgdef EZAN\\  http://www.ezan.ac.ru//en//\\ Experimental Factory of Scientific Engineering And Special Design Department of RAS\\
+                http://www.ezan.ac.ru//ru/\\ Экспериментальный завод научного приборостроения РАН\\
+\orgdef EKTU\\  https://www.ektu.kz?lang=en\\ D. Serikbayev East Kazakhstan technical university, Oskemen, Kazakhstan\\
+                https://www.ektu.kz?lang=ru\\ Восточно-Казахстанский технический университет имени Д. Серикбаева, Усть-Каменогорск, Казахстан\\
+\orgdef FA\\    https://en.fa.ru/\\ Financial University under the Government of the Russian Federation, Moscow, Russia\\
+                http://www.fa.ru/Pages/Home.aspx\\ Финансовый Университет при Правительстве Российской Федерации, Москва, Россия\\
+\orgdef FRCCSC\\    http://www.frccsc.ru\\  Federal Research Center "Computer Science and Control" of RAS, Moscow, Russia\\
+                http://www.frccsc.ru\\ Федеральный исследовательский центр «Информатика и управление» РАН, Москва, Россия\\   
+\orgdef GCTC\\  http://www.gctc.su/\\ Gagarin Research\&Test Cosmonaut Training Center\\
+                http://www.gctc.ru/\\ НИИ ЦПК имени Ю.~А.~Гагарина\\
+\orgdef GUMRF\\ https://gumrf.ru/en/\\ Admiral Makarov State University of Maritime and Inland Shipping,  St. Petersburg, Russia\\
+                https://gumrf.ru/\\ ГУМРФ имени адмирала С.О. Макарова, Санкт-Петербург, Россия\\
+\orgdef HIT\\   http://www.hit.edu.cn/\\ Harbin Institute of Technology\\
+                en.hit.edu.cn/\\  Харбинский политехнический университет\\
+\orgdef HPPI\\  http://www.hppi.troitsk.ru/\\ Vereshchagin Institute for High Pressure Physics of RAS, Moscow, Russia\\
+                http://www.hppi.troitsk.ru/\\ Институт физики высоких давлений им.~Л.\,Ф.~Верещагина РАН, Москва, Россия\\
+\orgdef HSPPUC\\ https://harris.uchicago.edu/\\ Harris School of Public Policy, University of Chicago\\
+                https://harris.uchicago.edu/\\ Школа публичной политики имени Харриса (Университет Чикаго)\\ 
+\orgdef HSE\\   http://www.hse.ru/en\\ Higher School of Economics, Moscow, Russia\\
+                http://www.hse.ru/\\ Высшая школа экономики, Москва, Россия\\
+\orgdef HZAVISI\\ hzavisi.company.weiku.com/\\ Hangzhou Avisi Electronics Co., Ltd.\\
+                  hzavisi.company.weiku.com/\\ ООО Ханчжоуская компания электронных технологий <<AIVISI>>\\
+\orgdef IACP\\  http://www.iacp.dvo.ru/?lang=en\\ Institute of Automation and Control Processes of the Far Eastern Branch of the RAS, Vladivostok, Russia\\
+                http://www.iacp.dvo.ru/\\ Институт автоматики и процессов управления ДВО РАН, Владивосток, Россия\\
+\orgdef IBRAE\\ http://en.ibrae.ac.ru/\\ Nuclear Safety Institute of RAS\\
+                http://www.ibrae.ac.ru/\\ Институт проблем безопасного развития атомной энергетики РАН\\
+\orgdef IDM\\   http://idm.ru/\\ IDM Ltd\\
+                http://idm.ru/\\ ООО «ИДМ», г. Зеленоград\\
+\orgdef IDSTU\\ http://www.idstu.irk.ru/en/\\ Institute for System Dynamics and Control Theory of SB RAS\\
+                http://www.idstu.irk.ru/\\ Институт динамики систем и теории управления СО РАН\\
+\orgdef IFRSUTE\\ http://www.idstu.irk.ru/\\ Irkutsk Institute (branch) of PRUE\\
+                http://www.ifrsute.ru/\\ Иркутский филиал РЭУ им.~Г.\,В. Плеханова\\
+\orgdef IITP\\  http://www.iitp.ru/en\\ Institute for Information Transmission Problems of RAS, Moscow, Russia\\
+                http://www.iitp.ru/\\ Институт проблем передачи информации им.~А.\,А.~Харкевича РАН, Москва, Россия\\
+\orgdef ICMM\\  http://www.icmm.ru/en\\ Institute of Continuous Media Mechanics of UB RAS\\
+                http://www.icmm.ru\\ Институт механики сплошных сред УРО РАН\\
+\orgdef IKIT\\  http://ikit.sfu-kras.ru/en\\  Institute of Space and Information Technologies, Siberian Federal University, Krasnoyarsk, Russia\\
+                http://ikit.sfu-kras.ru/\\ Институт космических и информационных технологий СФУ, Красноярск, Россия\\
+\orgdef ININF\\ http://www.antat.ru/en/iinf/\\ Institute of Applied Research\\
+                http://www.antat.ru/ru/iinf/\\ Институт прикладных исследований АН РТ\\
+\orgdef INMED\\  https://www.inmed.fr/\\ Institut de Neurobiologie de la Méditerranée, Marseille, France\\
+                https://www.inmed.fr/\\ Средиземноморский институт нейробиологии (INMED), Марсель, Франция\\                 
+\orgdef INSERM\\ https://www.inserm.fr/en/home/\\  Institut national de la santé et de la recherche médicale, Paris, France\\
+                 https://www.inserm.fr/fr/home/\\  Национальный институт здоровья и медицинских исследований, Париж, Франция\\
+\orgdef Innopolis\\ https://innopolis.university/en/\\ Innopolis University, Innopolis, Russia\\
+                    https://innopolis.university/\\ Университет Иннополис, Иннополис, Россия\\
+\orgdef Informika\\ http://www.informika.ru/\\ SIIT\&T ``Informika'', Moscow, Russia\\
+                    http://www.informika.ru/\\ ГНИИ ИТТ <<Информика>>, Москва, Россия\\\\
+\orgdef IHS\\   http://www.ihs.ac.at/\\ Institute for Advanced Studies (IHS), Vienna\\
+                http://www.ihs.ac.at/\\ Институт перспективных исследований в Вене\\
+\orgdef IPME\\  https://ipme.ru/en\\ Institute for Problems in Mechanical Engineering of RAS, Moscow, Russia\\
+                https://ipme.ru/\\ Институт проблем машиноведения РАН, Москва, Россия\\
+\orgdef IPMI\\  http://mathem.krc.karelia.ru/index.php?plang=e\\  Institute of Applied Mathematical Research KarRC of RAS\\
+                http://mathem.krc.karelia.ru/\\ Институт прикладных математических исследований  КарНЦ РАН\\
+\orgdef IPM\\   http://www.ipmnet.ru/en/\\ A. Ishlinsky Institute for Problems in Mechanics of RAS\\
+                http://www.ipmnet.ru/\\ Институт проблем механики им.~А.\,Ю. Ишлинского РАН\\
+\orgdef IPPM\\  http://www.ippm.ru/index.php?ls=en\\ Institute for Design Problems in Microelectronics\\
+                http://www.ippm.ru\\ Институт проблем проектирования в микроэлектронике РАН\\
+\orgdef IPU\\   http://www.ipu.ru/en\\ V.\,A. Trapeznikov Institute of Control Sciences of RAS, Moscow, Russia\\
+                http://www.ipu.ru/\\ Институт проблем управления имени В.\,А.~Трапезникова РАН, Москва, Россия\\
+\orgdef IR\\    http://www.orcid.org/\\ Independent Researcher\\
+                http://www.orcid.org/\\ Независимый исследователь\\
+\orgdef ISA\\   http://www.isa.ru/en\\ Institute for Systems Analysis, FRC "Computer Science and Control" of RAS, Moscow, Russia\\
+                http://www.isa.ru/\\ Институт системного анализа ФИЦ "Информатика и управление" РАН, Москва, Россия\\
+\orgdef ISIAIZ\\ http://isi.aiz/en\\  Institute of Control Systems of ANAS\\ 
+                http://isi.aiz.ru\\ Институт Систем Управления НАНА\\
+\orgdef ISEM\\  http://isem.irk.ru/en/\\ Melentiev Energy Systems Institute SB RAS\\
+                http://isem.irk.ru/\\ Институт систем энергетики им.~Л.\,А.~Мелентьева СО РАН\\
+\orgdef ISPRAS\\    https://www.ispras.ru/en\\ Ivannikov Institute for System Programming of RAS, Moscow, Russia\\
+                    https://www.ispras.ru/\\ Институт системного программирования им. В.П. Иванникова РАН, Москва, Россия\\
+\orgdef ISTU\\  http://www.istu.edu/eng/\\ Irkutsk State Technical University, Irkutsk, Russia\\
+                http://www.istu.edu/\\ Иркутский национальный исследовательский технический университет, Иркутск, Россия\\
+\orgdef JIHT\\  http://www.jiht.ru/en/\\ Joint Institute for High Temperatures of RAS, Dubna, Russia\\
+                http://www.jiht.ru/\\ Объединенный институт высоких температур РАН, Дубна, Россия\\
+\orgdef JSCC\\  http://www.jscc.ru/eng/index.shtml\\ Joint Supercomputer Center of RAS, Moscow, Russia\\
+                http://www.jscc.ru/\\ Межведомственный суперкомпьютерный центр РАН, Москва, Россия\\
+\orgdef KAI\\   https://kai.ru/web/en\\ Kazan National Research Technical University named after A.\,N.~Tupolev (KAI), Kazan, Russia\\
+                https://kai.ru\\ Казанский национальный исследовательский технический университет им. А.\,Н.~Туполева (КАИ), Казань, Россия\\
+\orgdef KIAM\\  http://www.keldysh.ru/PSI/\\ Keldysh Institute of Applied Mathematics of RAS, Moscow, Russia\\
+                http://www.keldysh.ru/PSI/\\ Институт прикладной математики им. М.\,В.~Келдыша РАН, Москва, Россия\\
+\orgdef KPFU\\  http://kpfu.ru/eng\\ Kazan Federal University, Kazan, Russia\\
+                http://kpfu.ru/\\ Казанский (Приволжский) федеральный университет, Казань, Россия\\
+\orgdef KRC\\   http://mathem.krc.karelia.ru/?plang=e\\ Institute of Applied Mathematical Research KarRC of RAS, Petrozavodsk, Russia\\
+                http://mathem.krc.karelia.ru/\\ Институт прикладных математических исследований КарНЦ РАН, Петрозаводск, Россия\\
+\orgdef KUBSU\\ https://kubsu.ru/en\\ Kuban State University, Krasnodar, Russia\\
+                https://kubstu.ru\\ Кубанский государственный университет, Краснодар, Россия\\
+\orgdef KUBSTU\\ https://kubstu.ru/en\\ Kuban State Technological University, Krasnodar, Russia\\
+                https://kubstu.ru\\ Кубанский государственный технологический университет, Краснодар, Россия\\
+\orgdef LIT\\   http://zavodlit.ru/\\ Zavod LIT, department of innovation, Pereslavl-Zalesskiy, Russia\\
+                http://zavodlit.ru/\\ ЗАО «Завод ЛИТ», отдел инноваций, Переславль-Залесский, Россия\\
+\orgdef Linguanet\\ http://www.linguanet.ru/en/\\ Moscow State Linguistic University, Moscow, Russia\\
+                http://www.linguanet.ru/ru/\\ Московский государственный лингвистический университет, Москва, Россия\\
+\orgdef LSIS\\  http://www.lsis.org/\\ Laboratoire des Sciences de l'Information et des Systemes, UMR, CNRS, France\\
+                http://www.lsis.org/\\ Лаборатория информатики и теории систем, UMR, CNRS, Франция\\
+\orgdef MADI\\  http://www.madi.ru/\\ Moscow State Automobile \&\ Road Technical University\\
+                http://www.madi.ru/\\ Московский автомобильно-дорожный государственный технический университет, Москва, Россия\\
+\orgdef MAI\\   http://en.mai.ru\\ Moscow Aviation Institute, Moscow, Russia\\
+                http://www.mai.ru/\\ Московский авиационный институт, Москва, Россия\\
+\orgdef MAMI\\  http://mami.ru/?eng\\ Moscow  State  Technical  University ``MAMI'', Moscow, Russia\\
+                http://mami.ru\\ Московский государственный машиностроительный университет (МАМИ), Москва, Россия\\
+\orgdef MEPHI\\ http://eng.mephi.ru\\ Moscow Engineering Physics Institute, Moscow, Russia\\
+                http://mephi.ru\\ Национальный исследовательский ядерный университет «МИФИ», Москва, Россия\\
+\orgdef MGIMO\\ https://english.mgimo.ru/\\ Moscow State Institute of International Relations (MGIMO), Moscow, Russia\\
+                https://mgimo.ru/\\ МГИМО МИД России, Москва, Россия\\  
+\orgdef MIAN\\ http://www.mi.ras.ru/index.php?l=1\\ Steklov Mathematical Institute of RAS, Moscow, Russia\\
+                http://www.mi-ras.ru/\\ Математический институт им.~В.\,А.~Стеклова, Москва, Россия\\
+\orgdef MPU \\  http://mospolytech.ru/?eng\\ Moscow Polytechnic University, Moscow, Russia\\
+                http://mospolytech.ru\\ Московский Политехнический Университет, Москва, Россия\\
+\orgdef MIET\\  http://eng.miet.ru/\\ National Research University of Electronic Technology (MIET), Zelenograd, Russia\\
+                http://www.miet.ru/\\ Национальный исследовательский университет «МИЗТ», Зеленоград, Россия\\
+\orgdef MIPT\\  http://mipt.ru//\\ Moscow Institute of Physics and Technology, Moscow, Russia\\
+                http://mipt.ru/\\ Московский физико-технический институт, Москва, Россия\\
+\orgdef MIREA\\ http://english.mirea.ru/\\ MIREA - Russian Technological University, Moscow, Russia\\
+                http://www.mirea.ru//\\ МИРЭА - Российский технологический университет, Москва, Россия\\
+\orgdef MMSC\\  http://www.mmcs.sfedu.ru/\\ Scientific Reseach Institute of Mechanics and Applied Mathematics of SFU\\
+                http://www.mmcs.sfedu.ru/\\ Институт математики, механики и компьютерных наук ЮФУ\\
+\orgdef MPEI\\  http://www.mpei.ru/lang/en/Pages/default.aspx\\ National Research University "Moscow Power Engineering Institute"\\
+                http://www.mpei.ru/\\ Национальный исследовательский университет «Московский энергетический институт», Москва, Россия\\
+\orgdef MSU\\   http://www.msu.ru/en/\\ Lomonosov Moscow State University\\
+                http://www.msu.ru\\ Московский государственный университет имени М. В. Ломоносова, Москва, Россия\\
+\orgdef MVS\\   http://mvs.sfedu.ru/\\ Scientific-Research Institute Multiprocessing Computing Systems after Kalyaev of SFU\\
+                http://mvs.sfedu.ru/\\  НИИ вычислительных многопроцессорных систем им.~А.\,В.~Каляева ЮФУ\\
+\orgdef NIISI\\ http://www.niisi.ru\\ Scientific Research Institute of System Development of RAS, Moscow, Russia\\
+                http://www.niisi.ru\\ Научно-исследовательский институт системных исследований РАН, Москва, Россия\\
+\orgdef NIISEVM\\ http://www.super-computer.ru/\\ NII Super-Computer\\
+                http://www.super-computer.ru/\\ ОАО «НИИ супер ЭВМ»\\
+\orgdef NIIVK\\ http://www.niivk.ru/\\ NIIVK im. M.\,A.~Kartseva\\
+                http://www.niivk.ru/\\ ОАО «НИИВК им.~М.~А.~Карцева»\\
+\orgdef NRSCI\\ http://eng.nrcki.ru/\\ National Research Center ``Kurchatov Institute'', Moscow, Russia\\
+                http://www.nrcki.ru/\\ Национальный исследовательский центр «Курчатовский институт», Москва, Россия\\
+\orgdef NSCF\\  http://nscf.ru/\\ National Supercomputer Forum, Pereslavl-Zalesskiy, Russia\\
+                http://nscf.ru/\\ Национальный суперкомпьютерный Форум, Переславль-Залесский, Россия\\
+\orgdef NSCFup\\ http://nscf.ru/\\ National supercomputer forum, Pereslavl-Zalesskiy, Russia\\
+                http://nscf.ru/\\ Национальный суперкомпьютерный Форум, Переславль-Залесский, Россия\\
+\orgdef NSTU\\  http://en.nstu.ru/\\  Novosibirsk State Technical University, Novosibirsk, Russia\\
+                http://www.nstu.ru/\\ Новосибирский государственный технический университет, Новосибирск, Россия\\
+\orgdef NSU\\   http://www.nsu.ru/exp/index.jz?lang=en\\  Novosibirsk State University, Novosibirsk, Russia\\
+                http://www.nsu.ru/\\ Новосибирский государственный университет, Новосибирск, Россия\\
+\orgdef PIRAO\\ http://www.pirao.ru/en\\ RAE Psychological Institute\\
+                http://www.pirao.ru\\ Психологический институт РАО\\
+\orgdef POOIRK\\ http://www.pooirk.ru/\\  Irkutsk Rehabilitation College, Irkutsk, Russia\\
+                http://www.pooirk.ru/\\  Иркутский реабилитационный техникум, Иркутск, Россия\\
+\orgdef PSI\\   http://www.botik.ru/PSI/\\ Ailamazyan Program Systems Institute of RAS, Ves'kovo, Russia\\
+                http://www.botik.ru/PSI/\\ Институт программных систем им. А.\,К.~Айламазяна РАН, Веськово, Россия\\
+\orgdef PNZGU\\ http://international.pnzgu.ru/\\ Penza State University, Penza, Russia\\
+                http://www.pnzgu.ru/\\ Пензенский государственный университет, Пенза, Россия\\
+\orgdef PVTU\\  http://en.volgatech.net/\\ Volga State University of Technology\\
+                http://www.volgatech.net/\\ Поволжский государственный технологический университет\\
+\orgdef PZGS\\ http://xn----7sbbiboanhc0bcdo8ars6rub.xn--p1ai/\\ Pereslavl-Zalesskiy Grammar School\\
+               http://xn----7sbbiboanhc0bcdo8ars6rub.xn--p1ai/\\ МОУ -- гимназия г. Переславля-Залесского\\
+\orgdef RANEPA\\ https://www.ranepa.ru/en/\\ The Presidential Academy of~National Economy and Public Administration, Moscow, Russia\\
+                 https://www.ranepa.ru/\\ Российская академия народного хозяйства и государственной службы при Президенте Российской Федерации, Москва, Россия\\
+\orgdef RSUE\\  https://rsue.ru/\\ Rostov State University of Economics, Rostov-on-Don, Russia\\
+                https://int.rsue.ru/en/\\ Ростовский государственный экономический университет (РИНХ), Ростов-на-Дону, Россия\\
+\orgdef RSUH\\  https://www.rsuh.ru/en/\\ Russian state university for the humanities, Moscow, Russia\\
+                https://www.rsuh.ru/\\ Российский государственный гуманитарный университет, Москва, Россия\\
+\orgdef RGSU\\  http://en.rgsu.net//\\ Russian State Social University, Moscow, Russia\\
+                http://www.rgsu.net/\\ Российский государственный социальный университет, Москва, Россия\\
+\orgdef RSMU\\  https://pirogov-university.com/\\ Pirogov Russian National Research Medical University, Moscow, Russia\\
+                https://rsmu.ru/\\ Российский национальный исследовательский медицинский университет им. Н. И. Пирогова, Москва, Россия\\
+\orgdef RUDN\\  http://eng.rudn.ru\\ RUDN University, Moscow, Russia\\
+                http://www.rudn.ru\\ Российский университет дружбы народов, Москва, Россия\\
+\orgdef SCIRUS\\ http://sci-rus.ru\\ SCIRUS Co. Ltd.\\
+                http://sci-rus.ru\\ ООО «СКИРУС»\\
+\orgdef SGAU\\  https://en.vavilovsar.ru/\\ Vavilov University, Saratov, Russia\\
+                https://sgau.ru/\\ ФГБОУ ВО Вавиловский университет, Саратов, Россия\\
+\orgdef Skoltech\\ https://www.skoltech.ru/en/\\ Skolkovo Institute of Science and Technology, Skolkovo, Russia\\ 
+                   https://www.skoltech.ru/\\ Сколковский институт науки и технологий, Сколково, Россия\\
+\orgdef SFEDU\\ http://www.sfedu.ru/\\ Southern Federal University, Rostov-on-Don, Russia\\
+                http://www.sfedu.ru/\\ Южный Федеральный Университет, Ростов-на-Дону, Россия\\
+\orgdef SFU\\   http://www.sfu-kras.ru/en\\  Siberian Federal University, Krasnoyarsk, Russia\\
+                http://www.sfu-kras.ru/\\ Сибирский федеральный университет, Красноярск, Россия\\
+\orgdef SGU\\   http://www.sgu.ru/en\\ Saratov State University, Saratov, Russia\\
+                http://www.sgu.ru/\\ Саратовский государственный университет им. Н.\,Г. Чернышевского, Саратов, Россия\\
+\orgdef SIRIUS\\ https://siriusuniversity.ru/eng/\\ Sirius University of Science and Technology, Sirius, Russia\\
+                https://siriusuniversity.ru\\ Университет «Сириус», «Сириус», Россия\\
+\orgdef SSTU\\  https://en.sstu.ru/\\ Saratov State Technical University, Saratov, Russia\\
+                https://www.sstu.ru/\\ СГТУ им. Ю.А. Гагарина, Саратов, Россия\\
+\orgdef STT\\   http://www.cttgroup.ru/\\ Creation and Transfer of Technologies JSC\\
+                http://www.cttgroup.ru/\\  АО «СТТ груп»\\
+\orgdef SIT\\   http://edu.botik.ru\\ Science-intensive Information Techlnologies\\
+                http://edu.botik.ru\\  Наукоёмкие информационные технологии\\
+\orgdef SPBU\\  http://english.spbu.ru/\\ St Petersburg University\\
+                http://spbu.ru/\\ Санкт-Петербургский государственный университет\\
+\orgdef SPIIRAS\\ http://www.spiiras.nw.ru/index.php?newlang=english\\ St. Petersburg Institute for Informatics and Automation of RAS\\
+                http://www.spiiras.nw.ru\\ Санкт-Петербургский институт информатики и автоматизации РАН\\
+\orgdef SSCC\\  http://www.sscc.ru/index_e.html\\  Institute of Computational Mathematics and Mathematical Geophysics SB RAS\\
+                http://www.sscc.ru//\\ Институт вычислительной математики и математической геофизики СО РАН\\
+\orgdef STANKIN\\   http://www.stankin.ru/\\ Moscow State Technological University ''Stankin'', Moscow, Russia\\
+                http://www.stankin.ru/\\ Московский государственный технологический университет «СТАНКИН», Москва, Россия\\
+\orgdef SUPEREVM\\ http://superevm.ru/index.php?page=home-2\\ Supercomputers and Neurocomputers Research Center\\
+                http://superevm.ru//\\ Научно-исследовательский центр супер-ЭВМ и нейрокомпьютеров\\
+\orgdef SUSU\\  http://en.susu.ac.ru/\\ South Ural State University\\
+                http://www.susu.ac.ru/\\ Южно-уральский государственный университет\\
+\orgdef telemedai\\ https://telemedai.ru/en/\\ Scientific and Practical Clinical Center for Diagnostics and Telemedicine Technologies of the Moscow Department of Health, Moscow, Russia\\
+                https://telemedai.ru/\\ Научно-практический клинический центр диагностики и телемедицинских технологий Департамента здравоохранения города Москвы, Москва, Россия\\
+\orgdef TGMU\\  https://tgmu.ru/\\ Federal State Budgetary Educational Institution of Higher Education "Pacific State Medical University" of the
+Ministry of Healthcare of the Russian Federation, Vladivostok, Russia\\
+                https://tgmu.ru/\\ ФГБОУ ВО «Тихоокеанский государственный медицинский университет» Министерства здравоохранения Российской Федерации, Владивосток, Россия\\
+\orgdef TSTU\\  http://en.susu.ac.ru/\\ Tver State Technical University, Tver, Russia\\
+                http://www.tstu.tver.ru/\\ Тверской государственный технический университет, Тверь, Россия\\
+\orgdef TUE\\   http://www.tue.nl/\\ Eindhoven University of Technology\\
+                http://www.tue.nl/\\ Технический университет Эйндховена\\
+\orgdef UDSU\\  http://udsu.ru/\\ Udmurt State University, Izhevsk, Russia\\
+                http://udsu.ru//\\ Удмуртский государственный университет, Ижевск, Россия\\
+\orgdef UGP\\   http://site.u.pereslavl.ru/\\ Ailamazyan Pereslavl University\\
+                http://site.u.pereslavl.ru/\\ УГП имени А.~К.~Айламазяна\\
+\orgdef URFU\\  https://urfu.ru/en/\\ Ural Federal University, Ekaterinburg, Russia\\
+                https://urfu.ru/ru/\\ Уральский федеральный университет им.~Б.\,Н.~Ельцина, г.~Екатеринбург, Россия\\
+\orgdef VNIIEF\\ https://www.vniief.ru/en\\ Russian  federal  nuclear  center All-russian research institute of experimental physics, Sarov, Russia\\
+                https://www.vniief.ru/\\  Российский федеральный ядерный центр Всероссийский научно-исследовательский институт экспериментальной физики, Саров, Россия\\
+\orgdef VolSU\\ https://volsu.ru/other/eng/\\ Volgograd State University, Volgograd, Russia\\
+                https://volsu.ru/\\ Волгоградский государственный университет, Волгоград, Россия\\
+\orgdef VNIIA\\ http://vniia.ru/eng/\\ All-Russia Research Institute of Automatics\\
+                http://vniia.ru/\\ Всероссийский НИИ автоматики им.~Н.~Л.~Духова\\
+\orgdef VSUA\\   http://www.vsu.am/index.php/en/\\ Vanadzor State University after Hovhannes Toumanyan\\
+                http://www.vsu.am/index.php/ru/\\ Ванадзорский Государственный университет им.~Ов.~Туманяна\\
+\orgdef VYATSU\\ http://www.vyatsu.ru\\ Vyatka State University, Kirov, Russia\\
+                http://www.vyatsu.ru/\\ Вятский государственный университет, Киров, Россия\\
+\orgdef YARSU\\ http://uniyar.ac.ru/en/\\ P.G. Demidov Yaroslavl State University\\
+                http://uniyar.ac.ru/\\ Ярославский государственный университет им.~П.\,Г. Демидова\\ 
+\orgdef ZIOC\\  https://zioc.ru/?lang=en\\ Zelinsky Institute of Organic Chemistry of RAS, Moscow, Russia\\
+                https://zioc.ru/\\ Институт органической химии им.~Н.\,Д. Зелинского РАН, Москва, Россия\\
+\orgdef ZJU\\   http://www.zju.edu.cn/english/\\ Zhejiang University\\
+                http://www.zju.edu.cn/\\  Университет Чжецзянь, г.~Ханчжоу, Китай\\
+
+\def\Autorefs#1{{\let\sectionautorefname\Sectionsautorefname\let\tableautorefname\Tablesautorefname \let\figureautorefname\Figuresautorefname \autoref {#1}}}
+\def\autorefs#1{{\let\sectionautorefname\sectionsautorefname\let\tableautorefname\tablesautorefname \let\figureautorefname\figuresautorefname \autoref {#1}}}
+\def\Autoref#1{{\let\sectionautorefname\Sectionautorefname\let\tableautorefname\Tableautorefname \let\figureautorefname\Figuresautorefname \autoref {#1}}}
+\def\Fromrefs#1{{\let\sectionautorefname\Fromsectionsautorefname\let\tableautorefname\Fromtablesautorefname \let\figureautorefname\Fromfiguresautorefname \autoref {#1}}}
+\def\fromrefs#1{{\let\sectionautorefname\fromsectionsautorefname\let\tableautorefname\fromtablesautorefname \let\figureautorefname\fromfiguresautorefname \autoref {#1}}}
+\def\Fromref#1{{\let\sectionautorefname\Fromsectionautorefname\let\tableautorefname\Fromtableautorefname \let\figureautorefname\Fromfiguresautorefname \autoref {#1}}}
+\def\fromref#1{{\let\sectionautorefname\fromsectionautorefname\let\tableautorefname\fromtableautorefname \let\figureautorefname\fromfiguresautorefname \autoref {#1}}}
+\def\Inrefs#1{{\let\sectionautorefname\Insectionsautorefname\let\tableautorefname\Intablesautorefname \let\figureautorefname \Infiguresautorefname \autoref {#1}}}
+\def\Inref#1{{\let\sectionautorefname\Insectionautorefname\let\tableautorefname\Intableautorefname \let\figureautorefname \Infigureautorefname \autoref {#1}}}
+\def\inrefs#1{{\let\sectionautorefname\insectionsautorefname\let\tableautorefname\intablesautorefname \let\figureautorefname \infiguresautorefname \autoref {#1}}}
+\def\inref#1{{\let\sectionautorefname\insectionautorefname\let\tableautorefname\intableautorefname \let\figureautorefname \infigureautorefname \autoref {#1}}}
+\def\Onrefs#1{{\let\tableautorefname\Intableautorefname \let\figureautorefname \Onfigureautorefname \autoref {#1}}}
+\def\onrefs#1{{\let\tableautorefname\intableautorefname \let\figureautorefname \onfigureautorefname \autoref {#1}}}
+\def\Onref#1{{\let\tableautorefname\Intableautorefname \let\figureautorefname \Onfigureautorefname \autoref {#1}}}
+\def\onref#1{{\let\tableautorefname\intableautorefname \let\figureautorefname \onfigureautorefname \autoref {#1}}}
+%
+\def\journallicense{\href{https://creativecommons.org/licenses/by/4.0/\ifx\languagename 
+    \russian@lang deed.ru\fi}{\includegraphics[height=8pt]{psta/CC-BY-OO}\llap{\textcolor{white}{CC-BY-4.0}}}\rlap{\l@nameuse{CCByInfo}}}%
+\endinput
+
+% vim:ts=4:expandtab:syn=tex:iskeyword=@,48-58,95,128-255,@-@:

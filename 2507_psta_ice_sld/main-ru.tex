@@ -1,0 +1,507 @@
+\documentclass{psta}% Подгружает макропакеты:
+% \usepackage{inputenc,fontenc,babel,hyperref,url,xcolor,textcase,backref,enumitem,
+%       amssymb,amscd,euscript,nameref,graphics,pdflscape,upref,rotating,array}
+% Авторы могут использовать другие общедоступные макропакеты.
+\usepackage{soulutf8}
+\usepackage{fancyvrb}
+\usepackage{attachfile2}
+\usepackage{makecell}
+\newcommand\thinhline{\Xhline{0.1pt}}
+\newcommand\thinvline{\textcolor{lightgray}{\vrule width .2pt}}
+%\usepackage{ragged2e}
+%\tracingall
+%\tracingnone
+
+\selectlanguage{russian} % Не забывайте отметить возврат на русский язык
+\newcommand\vitem[1][]{\SaveVerb[%
+    aftersave={\item[\footnotesize\em{\UseVerb[#1]{vsave}}]}]{vsave}}
+% Пожалуйста, уточните классификация Вашей статьи согласно УДК и MSC
+\subjclass[UDC]{004.915+808.2:347.777}
+\subjclass[2020]{97P99; 97U99}
+% Выберите и укажите, пожалуйста, тип статьи и номер рубрики, см.\ ниже
+%\ArticleType {RAR} % Research Article
+\JournalRubric {0} % см. пояснение в тексте
+%
+\title [Шаблон стилевого файла]{Готовим  в~\LaTeXe~статью в~журнал «Программные~системы: теория~и~приложения»\subtitle{ш}аблон стилевого файла}
+% \title [Сокращённое название для колонтитула]{Полный заголовок статьи}
+\thanks{Работа поддержана грантом XXX №  YYY-ZZZ}
+
+
+% Аналогично для каждого из остальных авторов
+\author{Знаменский, Сергей Витальевич}
+\CRediT{1,2,3[создание стилевого файла],7,9,10,11,13}{99.95\%}
+\email{svz@latex.pereslavl.ru} % Электронный адрес автора
+\correspondent % отмечен автор, участвующий в переписке
+\address{\PSI} % Для организаций авторов, публиковавших статьи в журнале, можно использовать макроопределения из psta/psta-utf8.sty
+\info{д.ф.-м.н., гл. научн. сотр. Института программных систем имени А.\,К.~Айламазяна РАН. Научные интересы мигрируют от функционального анализа и аналогов выпуклости в~$\mathbb C^n$ к~прозрачным и действенным алгоритмам}
+\imageauthor{Foto by A. Yu. Fomenko, CC-BY-SA}
+\orcid{0000-0001-8845-7627}
+\image{pics/svz}
+
+% Фамилия, запятая, пробел, имя отчество автора
+\author{Фамилия соавтора, Имя Отчество}
+\address{\href{https://ru.wikipedia.org/wiki/\%D0\%A3\%D0\%BD\%D0\%B8\%D0\%B2\%D0\%B5\%D1\%80\%D1\%81\%D0\%B8\%D1\%82\%D0\%B5\%D1\%82}{Университет соавтора, город, страна}}
+\address{\PSI} % Для организаций авторов, публиковавших статьи в журнале, можно использовать макроопределения из psta/psta-utf8.sty
+\email{first.author@mail.ru}
+\info{здесь в свободной форме в 5-9 строках описывается официальный статус соавтора, его научных интересы и достижения}
+\image{pics/nobody}% файл фотографии автора
+\orcid{0000.0000.0000.0000}
+\CRediT{10}{0.05\%} % Участие автора, см. пояснение в тексте
+
+\begin{abstract}
+Новый дизайн статьи журнала «Программные системы: теория и приложения» включает недавно ставшую стандартной информацию.
+Элементы оформления титульной информации научной статьи формализованы в соответствии с ГОСТ Р 7.0.7-2021.
+Приведенные примеры оформления основного текста также включают такие сложные ситуации, как заголовок с подзаголовком
+и таблицу на полную повёрнутую страницу.
+
+Качественное авторское оформление в \LaTeXe\ ускоряет публикацию в журнале.
+Шаблон адресуется авторам, оформляющим свою рукопись в \LaTeXe, и содержит заготовку с примерами и пояснениями к использованию важнейших макросов стилевого файла для подготовки статьи и \Href{http://psta.psiras.ru/publ-conditions/publ-conditions.html}{требования редакции}.
+
+\end{abstract}
+\keywords{Стилевой файл, \LaTeXe, дизайн издания, двуязычная публикация}
+
+% Все метаданные должны также присутствовать на английском языке,
+% заключённые в  \selectlanguage{english}...,\selectlanguage{russian}:
+\selectlanguage{english}
+\title[Template for submission]{Prepare article in \LaTeXe\subtitle (template for submission to the journal)}
+% \title [Short title for top colontitle]{The Full Engish Title}
+% Last name, coma other names
+\thanks{The work is supported by the grant XXX №  YYY-ZZZ}
+
+\author{Znamenskij, Sergej Vital'evich}
+\address{\PSI}
+\info{Research interests migrated from research in Functional Analysis, Complex Analysis and finite-dimensional Projective Geometry (analogues of Convexity) to  the Research of Practical Computational Algorithms}
+\email{svz@latex.pereslavl.ru}
+\orcid{0000-0001-8845-7627}
+\authorid{1507}
+
+\author{Family Name, Other Names}
+\address{University, town, country}
+\address{\PSI}
+% Other information about author should present either in English
+
+\begin{abstract}
+The new design of the article in the journal "Program systems: theory and applications" includes information that has recently become standard.
+Elements of design of the title information of a scientific article are formalized in accordance with GOST R 7.0.7-2021.
+The given examples of body text design also include such complex situations as a heading with a subheading
+and a full-page table.
+
+High-quality author's design in \LaTeXe\ speeds up publication in the journal.
+The template is addressed to authors preparing their manuscript in \LaTeXe, and contains a template with examples and explanations for using the most important style file macros for preparing an article and \Href{http://psta.psiras.ru/publ-conditions/publ-conditions.html }{editorial requirements}.
+\end{abstract}
+\keywords{here are comme delimited words and combinations of words to search, a couple of lines}
+\selectlanguage{russian} % Не забывайте отметить возврат на русский язык
+%
+
+\begin{document}
+\Russian
+\maketitle
+% Если список авторов не умещается в колонтитул, используйте \shortauthors{...}
+
+\section*{Введение}
+
+\Href{http://psta.psiras.ru/publ-conditions/psta.zip}{Стилевой файл} журнала \Href{http://psta.psiras.ru/}{«Программные системы: теория и приложения»}  дополняет стандартный \LaTeXe\ макрокомандами, упрощающими высококачественную подготовку двуязычных изданий и облегчающими совместную проработку русскоязычной и англоязычной версии.
+
+Оформление русскоязычной версии ориентировано на закреплённые в российских ГОСТах традиции, а оформление англоязычной\---на современное состояние классических традиций американского математического общества.
+
+Текст шаблона содержит примеры использование макросов стилевого файла с краткими пояснениями и рекомендациями.
+\Altref{Раздел}{sec:general} характеризует общие требования к использованию пакета \verb|psta|.
+\Altref{В~разделе}{sec:meta} описываются макрокоманды для оформления научной статьи согласно ГОСТ Р 7.0.7-2021.
+\Altref{Раздел}{sec:text} знакомит со стилем журнала и особенностями оформления элементов текста, иллюстраций, гиперссылок, библиографии.
+
+\section{Назначение макропакета и подготовка к его использованию}\label{sec:general}
+Макропакет доступен \Href{http://psta.psiras.ru/publ-conditions/psta.zip}{по ссылке}, создан для обработки современным \texttt{pdflatex}, но допускает и другие способы обработки LaTeX.
+
+\subsection{Подготовка к работе}
+Ожидается, что авторы знакомы с общепринятыми требованиями
+\begin{itemize}
+\item к структуре и содержанию научных публикаций \cites{Safonov2007,Fradkov2003,Sviderskaya2011,KirillovaLong,KirillovaShort},
+\item к набору в \LaTeX\ \cites{Stolarov,Vorontsov,Syutkin},
+\item к оформлению сложных формул в  AMS\LaTeX\ \cites{AMSshort,Mathmode}.
+\end{itemize}
+
+Для улучшения качества pdf и получения возможности доводки корректуры полезно установить пакет \verb|cm-super|.
+
+Перед началом работы рекомендуется раскрыть с~поддиректориями архив psta.zip %\attachfile{psta.zip}
+и обработать файл \textsf{mail-ru.tex} в Вашей системе. К сожалению, LaTeX быстро меняется, и, например, базовая установка Миктех, если не включать обновления, застревает на символе номера.
+Если компиляция \textsf{main-ru.pdf} прошла успешно, то можно поменять в \textsf{main-ru.tex} заполнение титульной информации, а затем и содержимое.
+
+
+
+\subsection{Опции макропакета}
+Несколько опций могут использоваться в первой строке исходного файла \verb|\documentclass[|...\verb|]{psta}| в квадратных скобках:
+\begin{description}
+% Команда \vitem из пакета fancyvrb заменяет неработающее сочетание \item \verb
+\vitem |russain|, \verb |english| настраивают оформление для статей на русском языке или на английском языке;
+\vitem |blind| для отправки PDF рецензенту аккуратно прячет персональную информацию. Если в тексте статьи есть фрагменты, которые могут идентифицировать автора, то автор прячет их в аргумент команды \verb|\HideFromPeer{|...\verb|}|, чтобы избежать лишнего редактирования;
+\vitem |secsymbol| добавляет символ параграфа в заголовки, при этом  гиперссылка \verb|\ref{|метка\footnote{русские буквы в метках пока не работают.}\verb|}| на (под)раздел  \verb|\label{|метка\verb|}| приобретает желаемый вид как в \Href{http://psta.psiras.ru/read/psta2018_1_53-83.pdf\#page=7}{этой опубликованной статье}.
+\vitem |sloppy| заставляет команду \verb|\sloppy| делать пробелы между словами и формулами более растяжимыми только до конца текущего абзаца.
+\end{description}
+
+\section{Титульная информация о статье}\label{sec:meta}
+Преамбула исходного файла (до \verb|\begin|\verb|{document}|) должна содержать всю титульную информацию, включая информацию об авторах на русском и английском языках.
+Язык переключает команда  \verb|\selectlanguage|\verb|{|...\verb|}|.
+
+\subsection{Тип и рубрика статьи}
+
+Отличный от RAR тип статьи указывается командой \verb|\ArticleType{|...\verb|}| с аргументом из \Altref{таблицы}{tab:ArticleType},
+\begin{table}\footnotesize
+\caption{Типы статей}\label{tab:ArticleType}
+\begin{tabular}{|c|m{30mm}<{\raggedright}!{\thinvline}m{61mm}|}
+\hline
+Аргумент&\hfil\hfil Значение	 &\hfil Пояснение\\
+\hline
+PER	& Персоналия		 (Personal)& От редакционной коллегии.\\\thinhline
+RAR	& Научная статья 	 (Research Article)& Текст статьи должен ясно описывать, обосновывать и обсуждать значимо новые уникальные результаты и не содержать 
+повторений, ненужных для понимания результатов, их новизны и значимости. 
+Численная оценка заимствований не значима.\\\thinhline
+REV	& Обзорная статья	 (Review Article)&Обзор, по-новому представляющий состояние исследований в области и выявляющий ключевые направления дальнейшего развития.\\\thinhline
+SCO	& Краткое сообщение 	 (Short~Communication)& По особому решению редакционной коллегии. \\
+\hline
+\end{tabular}
+\end{table}
+(как в метаданных \Href{https://www.elibrary.ru/}{E-library}).
+
+Номер рубрики \verb|\JournalRubric{|...\verb|}| авторы выбирают на основании \Altref{таблицы}{tab:JournalRubric}, в которой зачёркнуты прежние названия рубрик.
+\begin{table}\footnotesize\renewcommand{\arraystretch}{1.3}
+\caption{Рубрики журнала и научные специальности}\label{tab:JournalRubric}
+\begin{tabular}{|c|>{\raggedright}p{37mm}<{\footnotesize}!{\thinvline}>{\raggedright}p{41mm}<{\footnotesize}!{\thinvline}>{\raggedright}p{14mm}<{\footnotesize}|}
+\hline
+№ & Наименование рубрики\centering & Специальности ВАК\centering & Отрасли науки\centering\arraybackslash\\
+\hline
+1 & \st{Информационные системы в культуре и образовании} Прикладные программные системы & 2.3.5. Математическое и программное обеспечение вычислительных систем, комплексов и компьютерных сетей & физ.-мат., техн. \arraybackslash\\\thinhline
+2 & Информационные системы в медицине & 3.3.9. Медицинская информатика & мед. \arraybackslash\\\thinhline
+3 & \st{Информационные системы в экономике} Прикладные программные системы &2.3.5. Математическое и программное обеспечение вычислительных систем, комплексов и компьютерных сетей & физ.-мат., техн. \arraybackslash\\\thinhline
+4 & Искусственный интеллект, интеллектуальные системы, нейронные сети &1.2.1. Искусственный интеллект и машинное обучение & физ.-мат.,  \arraybackslash\\\thinhline
+5 & \st{Математические основы программирования} Теоретические основания программных систем & 2.3.7. Компьютерное моделирование и автоматизация проектирования & физ.-мат., техн. \arraybackslash\\\thinhline
+6 & Математическое моделирование & 1.2.2. Математическое моделирование, численные методы и комплексы программ & техн. \arraybackslash\\\thinhline
+7 & Методы оптимизации и теория управления & 2.3.1. Системный анализ, управление и обработка информации & физ.-мат., техн. \arraybackslash\\\thinhline
+8 & \st{Программное и аппаратное обеспечение для суперЭВМ} Программное и аппаратное обеспечение распределенных и суперкомпьютерных систем & 2.3.5. Математическое и программное обеспечение вычислительных систем, комплексов и компьютерных сетей, \newline2.3.7. Компьютерное моделирование и автоматизация проектирования & физ.-мат., техн. \arraybackslash\\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{УДК, MSC, заголовок, аннотация}
+Коды классификаторов статьи заполняются в командах
+
+\noindent
+\verb|\subjclass [UDC]{|\Href{https://teacode.com/online/udc/}{...}\verb|}| и  \verb|\subjclass [2020]{|\Href{https://mathscinet.ams.org/msnhtml/msc2020.pdf}{...}\verb|}|.
+
+Заглавие статьи (не более 20 слов) оформляется \verb|\title{|...\verb|}|, но
+для длинных заголовков в верхнем колонтитуле используется необязательный краткий вариант заголовка
+\verb|\title [|...\verb|]{|...\verb|}|.
+Если нужен подзаголовок, то команда  \verb|\subtitle| отделяет его в заголовке. В этом случае либо первая буква подзаголовка заключается в фигурные скобки, чтобы стать заглавной в библиографической ссылке, либо подзаголовок заключается в скобки.
+
+Аннотация, оформляемая окружением \verb|abstract|, должна лаконично (100$\div$250 слов) раскрыть основные результаты статьи и их научную ценность.
+Ключевые слова и фразы \verb|\keywords{|...\verb|}| (3$\div$15 слов и сочетаний через запятую) для улучшения поиска статьи.
+
+\subsection{Макрокоманды для информации об авторе}
+
+Команда {\verb|\author{|...\verb|}|} воспринимает фамилию автора (например, von Neumann) и его имя с отчеством либо список имён.
+Согласно аргументации в руководстве к пакету \Href{http://www.ams.org/arc/tex/amsrefs/amsrdoc.pdf}{AMSRefs} и ГОСТ Р 7.0.100-2018, фамилия отделяется запятой. После запятой в русском языке ставится пробел. Особый признак при наличии также отделяется запятой с пробелом, например,
+
+\verb|\author{Лаврентьев, {М}ихаил {М}ихайлович, мл.}|
+
+\noindent
+Первые буквы русских имён и отчества (как и нераздельные  сочетания начальных английских букв Yu, Sh и др.) выделяются фигурными скобками для надёжности автоматического формирования элементов оформления статьи.
+
+Информация об авторе прописывается в аргументах команд:
+
+
+\begin{description}
+\vitem |\address{|\!\!\!...\verb|}| место работы(ссылка на сайт), город, страна;
+\vitem |\thanks{|\!\!\!...\verb|}| благодарности или информация о~поддержке;
+\vitem |\email{|\!\!\!...\verb|}| адрес электронной почты;
+\vitem |\orcid{|\!\!\!...\verb|}| идентификатор авторской регистрации в \Href{www.orcid.org}{ORCID};
+\vitem|\info{|\!\!\!...\verb|}| описание в 4-7 строчках официального статуса автора, его научных интересов или достижений;
+\vitem|\image{|\!\!\!...\verb|}| имя файла с качественной фотографией лица автора.
+\end{description}
+
+Те из команд \verb|\thanks{|...\verb|}| и \verb|\address{|...\verb|}|, которые относятся ко всем авторам, предшествуют всем командам \verb|\author|,
+остальные приводятся (возможно дублируются) после каждого \verb|\author|, к которому они относятся.
+Это дублирование автоматически преобразуется в компактное представление связей на титульной странице статьи.
+Автор, ответственный за переписку, выделяется командой \verb|\correspondent|.
+
+\Altref{Таблица}{tab:CRediT} содержит общепринятые термины описания вклада
+авторов, введенные в \cite{CRediT} и активно используемые ведущими издательствами
+\linebreak \begin{landscape} % вставка широкой таблицы или иллюстрации между строками абзаца
+\begin{table}\footnotesize
+\caption{Онтология авторского вклада}\label{tab:CRediT}
+\renewcommand{\arraystretch}{1.0}
+\begin{tabular}{|c|>{\raggedright}m{3cm}<{\baselineskip7pt}|m{115mm}<{\baselineskip7pt}|}
+\hline
+Код & возможная формулировка в статье\centering & значение в онтологии\centering\arraybackslash\\
+\hline
+1 & идея &\---концептуализация идеи; формулирование или эволюция всеобъемлющих целей и задач исследования\\
+2 & методология &\---разработка или проектирование методологии исследований; создание моделей\\
+3 & программирование &\---программирование, разработка программного обеспечения; разработка компьютерных программ; реализация компьютерного кода и вспомогательных алгоритмов; тестирование существующих компонентов кода\\
+4 & валидация &\---проверка общей воспроизводимости результатов/экспериментов и других результатов исследований.\\
+5 & формальный анализ &\---применение статистических, математических, вычислительных или других формальных методов для анализа или синтеза данных исследования.\\
+6 & проведение экспериментов &\---проведение процесса исследования и расследования, в частности проведение экспериментов или сбор данных/доказательств.\\
+7 & сбор материала &\---предоставление исследовательских материалов, реагентов, материалов, пациентов, лабораторных образцов, животных, инструментов, вычислительных ресурсов или других инструментов анализа.\\
+8 & курирование данных &\---действия по управлению для аннотирования (производства метаданных), очистки данных и поддержания исследовательских данных (включая программный код, где это необходимо для интерпретации самих данных) для первоначального использования и последующего повторного использования.\\
+9 & написание черновой версии &\---подготовка, создание и/или представление опубликованной работы, особенно написание первоначального черновика (включая основной перевод)\\
+10 & доработка и редактирование &\---подготовка, создание и/или представление опубликованной работы участниками исходной исследовательской группы, особенно критический обзор, комментарий или пересмотр, включая этапы до или после публикации.\\
+11 & визуализация данных &\---подготовка, создание и/или представление опубликованной работы, в частности визуализация/представление данных.\\
+12 & надзор &\---надзор и ответственность руководства за планирование и выполнение исследовательской деятельности, включая наставничество вне основной группы.\\
+13 & администрирование проекта &\---ответственность за управление и координацию планирования и выполнения исследовательской деятельности.\\
+14 & финансирование &\---Организация финансовой поддержки\\
+\hline
+\end{tabular}
+\vskip -3cm
+\end{table}
+\end{landscape} \noindent % конец вставки
+\newline\noindent
+ \Href{https://www.elsevier.com/authors/policies-and-guidelines/credit-author-statement}{Elsevier} и \Href{https://onlinelibrary.wiley.com/doi/epdf/10.1002/leap.1210}{Wiley}.
+Команда  \verb|\CRediT{|...\verb|}{|...\verb|}| имеет аргументами
+ список кодов формулировок и процент участия автора.
+Если вклад авторов различается, то авторы могут использовать для описания индивидуального вклада как это показано \hyperlink{AuthorContfibution}{в конце русской части этого текста}.
+Формулировка кода может быть уточнена в квадратных скобках. Например,
+\verb|\CRediT{1,2,3[создание стилевого файла],7,9,10,11,13}{95\%}| задаёт последний абзац русскоязычной части этого pdf.
+
+\par\pagegoal=\vsize % восстановление разрушенного макропакетом pdflscape межстрочного интервала по завершению абзаца с ландшафтной вставкой
+
+Если кто-то из авторов спонсируется односторонне заинтересованным в результатах исследования источником), то необходимо сформулировать в аргументе команды \verb|\ConflictOfInterests{|...\verb|}| всю информацию о конфликтах интересов авторов.
+
+\section{Структура и текст статьи}\label{sec:text}
+\subsection{Стиль статьи}
+Стиль статей в журнале «Программные системы: теория и приложения» нацелен на ясность восприятия.
+
+Безличные предложения (passive voice) считаются дурным доном в~англоязычных издательствах.
+Современный академический стиль вместо «Проведён анализ» предпочитает «Мы провели анализ» если авторов несколько либо
+анализ приведён выше, что позволяет под «Мы» подразумевать автора с читателем. Иначе «Проведённый анализ» должен стать началом предложения.
+
+Предложения должны быть полными, законченными, не слишком длинными, но не должны начинаться формулой, цифрой или малознакомой аббревиатурой.
+Желательно исключать слова и части фраз, которые не способствуют лучшему пониманию результата.
+
+Редакция просит авторов придерживаться единообразного разумного стиля использования буквы ё (либо всюду, либо там, где это существенно для понимания)
+и обязательности/ненужности дублирования знаков математических операций при переносе части формулы на новую строку в русской версии.
+
+Русские буквы в формулах стандартно выглядят прямыми в отличие от английских.
+
+\subsection{Списки}
+Класс \verb|psta.cls| использует пакет \verb|enumitem| для разнообразных стилей перечислений \Href{http://psta.psiras.ru/read/psta2017_1_3-46.pdf\#page=38}{с таким, например, результатом}.
+Стиль перечисления указывается в первой строке, влияет на вид списка и соответственно оформляет ссылки \verb|\ref{|метка\verb|}| на помеченные командой \verb|\label{|метка\verb|}| элементы списка.
+Например, оформление
+
+\verb|\begin{enumerate}[1.1]|
+
+\noindent
+задаёт нумерацию списков  вида 1, 1.1, 2, 2.1, 2.1.1, 2.1.2, оформление \verb|[abvgd]| задаёт список с нумерацией русскими буквами, \verb|[abc]|\---латинскими буквами, заглавными буквами нумеруют \verb|[ABVGD]| и \verb|[ABC]|.
+
+\subsection{Таблицы и иллюстрации}
+Рисунки и таблицы оформляются окружениями \verb|figure| и \verb|table| без модификаторов \verb|[ht]|.
+Рисунки и таблицы всегда сами в англоязычной версии располагаются вверху страницы, а в русскоязычной версии строго следуют по тексту, как того требует ГОСТ по отчётам НИР.
+Это автоматически срабатывает, если вставка в исходном файле непосредственно следует за её первым упоминанием в тексте, порой разбивая абзац или предложение.
+Каждый рисунок сопровождается лаконичным подзаголовком (а таблица \--- заглавием) и меткой \verb|\label|, на которую обязательно должна указывать ccылка \verb|\ref| из описания в тексте.
+
+Пакет \verb|booktabs| улучшает вид таблиц в англоязычных текстах, в русскоязычных обрамление полное.
+Ландшафтное расположение больших таблиц и рисунков \Href{http://psta.psiras.ru/read/psta2017_1_121-134.pdf\#page=10}{как здесь} обеспечивает пакет \verb|pdflscape|.
+
+Иллюстрации к статье должны иметь высокое качество, не страдающее при семикратном увеличении, а размер и шрифт надписей на рисунках должен соответствовать оформлению основного текста.
+Для сложных иллюстраций с подрисунками полезен пакет \verb|subcaption|, определяющий окружение \verb|subfigure|. В нём синтаксис команд \verb|\caption| и \verb|\label| такой же как в окружении \verb|figure|. Это обеспечивает автоматические ссылки на подрисунки и нумерацию их в русском тексте русскими буквами.
+Результат можно посмотреть \Href{http://psta.psiras.ru/read/psta2017_1_135-149.pdf\#page=5}{здесь}.
+
+Иллюстрации используются в формате, обеспечивающем типографское качество:
+\begin{itemize}
+\item для схем, диаграмм и графиков обязательна  векторная графика (файлы из офисных приложений сохраняются в PDF);
+\item снимки с экрана делаются при максимально доступном размере окна на дисплее с высоким разрешением и сохраняются в PNG;
+\item фотографии делаются с высоким разрешением в JPG, потери сжатия не должны быть заметны при внимательном просмотре.
+\end{itemize}
+
+
+\subsection{Тире и перенос в словах с дефисом}\label{sec:auto}
+Имеющиеся в макропакете \texttt{babel} специфики национальных типографских традиций стилевой файл дополняет макрокомандами, срабатывающими корректно в любом языке.
+
+При использовании стилевого файла действуют макрокоманды пакета \texttt{ncs} для тире в предложениях и составных словах:
+\begin{itemize}
+\item макрокоманда русского тире \verb|\---| в русском тексте даёт более короткое тире, чем в английском.
+\item использование \verb|\=/| вместо \verb|-| в словосочетании
+ <<сложно\=/сочинённое>> и других составных словах разрешает заблокированное автоматические переносы частей слова с дефисом на другую строчку, запрещая разрыв по самому тире.
+Для разрешения разрыва также и по тире используется \verb|\-/|.
+\end{itemize}
+
+
+\subsection{Оформление списка литературы и гиперссылки}
+Возможность перехода по ссылке нередко облегчает читателю восприятие текста.
+
+Стилевой файл предлагает широкое использования в русском тексте и макрокоманду \verb|\Altref{|текст\verb|}{|метка\verb|}|, упрощающую переход читателя по гиперссылке на рисунок, таблицу или раздел поскольку курсор мышки легче установить на слово, чем на цифру.
+Пример в конце введения этого шаблона \verb|\Altref{В~разделе}{sec:meta}| делает чувствительным к клику мыши текст \emph{В~разделе}.
+
+Использование пакета \Href{https://www.mathnet.ru/poffice/amsbibpackage.phtml?wshow=amsbibpackage&option_lang=rus}{amsbib} при оформлении списка литературы позволяет единообразно оформить русскоязычный список литературы в~ГОСТ и англоязычный в духе AMS (как ниже).
+В англоязычном списке в отличие от ГОСТ инициалы приводятся перед фамилией в списках, сформированных в порядке цитирования.
+Авторам достаточно предоставить русскоязычный список с переводами заголовков книг и статей в комментариях по образку исходного файла этого документа, тогда англоязычный в редакции сформируется автоматически.
+
+Рекомендуется ссылки на сайты по возможности не выносить в список литературы, а оформлять на месте или в подстрочных примечаниях гиперссылками \verb|\Href{ссылка}{текст}| с описанием источника. Для ссылок, в порядке исключения включаемых в список литературы, кроме самой ссылки обязательно указывается организация \verb|\publ| и заголовок  \verb|\eprint|, а если на странице указаны, то авторы \verb|\by| и год \verb|\yr|.
+
+\section*{Заключение}
+
+
+Об ошибках компиляции шаблона и нерешённых проблемах реализации желанного оформления просим незамедлительно сообщить автору по e-mail
+\href{mailto:svz@latex.pereslavl.ru}{svz@latex.pereslavl.ru}.
+
+\begin{thebibliography}{9}
+
+\RBibitem{Safonov2007}
+\by Сафонов В.\,О.
+\paper Молодым программистам: как писать научные работы по ИТ
+%\paper For young programmers: how to write scientific papers on IT
+%\lang{in Russian}
+\jour Компьютерные инструменты в образовании
+\publaddr СПб
+\publ Изд-во ЦПО «Информатизация образования»
+\yr 2007
+\issue 6
+\pages 11--22
+\elibrary 13503158
+
+\RBibitem{Fradkov2003}
+\by Фрадков В.\,О.
+\paper Как опубликовать хорошую статью и отклонить плохую. Заметки рецензента
+%\paper How to publish a good article and reject a bad one. Reviewer's notes
+%\lang{in Russian}
+\jour Автоматика и телемеханика
+\yr 2003
+\issue 10
+\pages 149--157
+\doi https://doi.org/10.1023/1026025826125
+
+\RBibitem{Sviderskaya2011}
+\eprint Как написать и опубликовать статью в международном научном журнале
+%\eprint How to write and publish an article in an international scientific journal
+\eprintinfo Сост. И.\,В.~Свидерская, В.\,В.~Кратасюк
+\publaddr Красноярск
+\publ Сиб. федерал. ун-т
+\yr 2011
+\totalpages 52
+\URL http://index.petrsu.ru/files/Kak_napisat_i_opublikovat_statyu.pdf
+
+\RBibitem{KirillovaLong}
+\eprint Методические рекомендации по подготовке и оформлению научных статей в журналах, индексируемых в международных наукометрических базах данных
+\publ Ассоциация научных редакторов и издателей
+\publaddr М.
+\eprintinfo под общ. ред.  О.\,В.~Кирилловой
+\yr 2017
+\totalpages 144
+\miscnote Прил.
+\elibrary 36503266
+
+\RBibitem{KirillovaShort}
+\paper Краткие рекомендации для авторов по подготовке и оформлению научных статей в журналах, индексируемых в международных наукометрических базах данных
+\by Кириллова~О.\,В., Парфенова~С.\,Л., Гришакина~Е.\,Г., Кулешова~А.\,В., Базанова~Е.\,М., Доронина~Е.\,Г., Зельдина~М.\,М., Безроднова~К.\,А.
+\jour Лучевая диагностика и терапия
+\yr 2017
+\issue 1(8)
+\pages 6-12
+\elibrary 29004820
+
+\RBibitem{Stolarov}
+\by Столяров~А.\,В.
+\book Сверстай диплом красиво: LaTeX за три дня
+\publ МАКС Пресс
+\publaddr М.
+\yr 2010
+\totalpages  98
+\URL http://www.stolyarov.info/books/pdf/latex3days.pdf
+
+\RBibitem{Vorontsov}
+\by  Воронцов К.\,В.
+\eprint LaTeX2e в примераx
+\totalpages  59
+\URL http://www.ccas.ru/voron/download/voron05latex.pdf
+
+\RBibitem{Syutkin}
+    Сюткин В. \LaTeXe\ документация на русском языке. 2002.~\--- 145 с\URL http://www-sbras.nsc.ru/win/docs/TeX/LaTex2e/docs_koi.html
+
+\Bibitem{AMSshort} Downes~M., Beeton~M. Short Math Guide for LATEX. \foreignlanguage{english}{American Mathematical Society}, 2017
+
+\bibitem{Mathmode} Vo\ss~H.,  Mathematical Typesetting with \LaTeX, 2017
+    \URL http://mirror.ctan.org/info/math/voss/mathmode/Mathmode.pdf
+
+\bibitem{CRediT} Liz A., O’Connell A., Kiermer V. How can we ensure visibility and diversity in researchcontributions? How the Contributor Role Taxonomy(CRediT) is helping the shift from authorship tocontributorship. // Learned Publishing 2019 v. 32. Pp. 71–74 \crossref{10.1002/leap.1210}
+
+\end{thebibliography}
+\AuthorImageWidth{19mm}
+\makefinish
+
+\selectlanguage{english}
+\maketitle
+\begin{thebibliography}{9}
+
+
+\bibitem{Safonov2007}
+\by V.\,O.~Safonov
+\paper For young programmers: how to write scientific papers on IT
+\lang{in Russian}
+\jour Komp'juternye instrumenty v obrazovanii
+\publaddr SPb
+\publ Izd-vo CPO «Informatizacija obrazovanija»
+\yr 2007
+\issue 6
+\pages 11--22
+\elibrary 13503158
+
+\bibitem{Fradkov2003}
+\by V.\,O.~Fradkov
+\paper How to publish a good article and reject a bad one. Reviewer's notes
+\lang{in Russian}
+\jour Avtomatika i telemehanika
+\yr 2003
+\issue 10
+\pages 149--157
+\doi https://doi.org/10.1023/1026025826125
+
+\bibitem{Sviderskaya2011}
+\eprint How to write and publish an article in an international scientific journal
+\eprintinfo Sost. I.\,V.~Sviderskaja, V.\,V.~Kratasjuk
+\publaddr Krasnojarsk
+\publ Sib. federal. un-t
+\yr 2011
+\totalpages 52
+\URL http://index.petrsu.ru/files/Kak_napisat_i_opublikovat_statyu.pdf
+
+\bibitem{KirillovaLong}
+\eprint Guidelines for the preparation and design of scientific articles in journals indexed in international scientometric databases
+\publ Associacija nauchnyh redaktorov i izdatelej
+\publaddr M.
+\eprintinfo pod obshh. red.  O.\,V.~Kirillovoj
+\yr 2017
+\totalpages 144
+\lang{in Russian}
+\elibrary 36503266
+
+\bibitem{KirillovaShort}
+\paper Brief recommendations for authors on the preparation and design of scientific articles in journals indexed in international scientometric databases
+\by Kirillova~O.\,V., Parfenova~S.\,L., Grishakina~E.\,G., Kuleshova~A.\,V., Bazanova~E.\,M., Doronina~E.\,G., Zel'dina~M.\,M., Bezrodnova~K.\,A.
+\jour Luchevaja diagnostika i terapija
+\yr 2017
+\issue 1(8)
+\pages 6-12
+\lang{in Russian}
+\elibrary 29004820
+
+\bibitem{Stolarov}
+\by Stoljarov~A.\,V.
+\book Type up a diploma beautifully: LaTeX in three days
+\publ MAKS Press
+\publaddr M.
+\yr 2010
+\totalpages  98
+\URL http://www.stolyarov.info/books/pdf/latex3days.pdf
+
+\bibitem{Vorontsov}
+\by K.\,V.~ Voroncov
+\eprint LaTeX2e in examples
+\lang{in Russian}
+\totalpages  59
+\URL http://www.ccas.ru/voron/download/voron05latex.pdf
+
+\bibitem{Syutkin}
+    Sjutkin V. \LaTeXe\ dokumentacija na russkom jazyke. 2002.~\--- 145 s\URL http://www-sbras.nsc.ru/win/docs/TeX/LaTex2e/docs_koi.html
+
+\bibitem{CRediT} Liz A., O’Connell A., Kiermer V. How can we ensure visibility and diversity in research contributions? How the Contributor Role Taxonomy(CRediT) is helping the shift from authorship to contributorship. // Learned Publishing 2019 v. 32. Pp. 71–74 \crossref{10.1002/leap.1210}
+
+\end{thebibliography}
+
+\end{document}
+ToDo: > Хочется, чтобы в статье при обсуждении тех или иных приемов были примеры с результатом, чтобы читатель мог сам посмотреть их исходник. Но когда Вы лишь даете в качестве примера ссылку на некий pdf в сети только с результатом (как в разделах 3.2 и 3.3), у читателя нет возможности сопоставить этот результат с исходником, чтобы понять, как это сделано.
