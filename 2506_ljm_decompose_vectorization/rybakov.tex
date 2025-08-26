@@ -51,7 +51,7 @@ escapeinside={\%*}{*)}
 % The title is written in accordance with the rules of capitalization.
 
 \author{\firstname{A.~A.}~\surname{Rybakov}}
-\email[E-mail: ]{rybakov_aan@nrcki.ru,rybakov@jscc.ru,rybakov.aax@gmail.com}
+\email[E-mail: ]{rybakov.aax@gmail.com,rybakov_aan@nrcki.ru,rybakov@jscc.ru}
 \affiliation{National Research Centre \textquotedblleft Kurchatov Institute\textquotedblright, 123182, Moscow, Academician Kurchatov sq. 1, Russia.}
 
 %\author{\firstname{B.}~\surname{Second-Author}}
@@ -88,7 +88,7 @@ Practical results were obtained on an Intel Xeon Phi 7290 Knights Landing microp
 \section{Introduction}
 
 High-performance computing makes it possible to simulate natural and technological processes with a high degree of detail, simultaneously take into account many factors of various origins, and quickly analyze numerous options.
-This allows us to obtain a picture of the process under study with the required accuracy, reflecting the actual situation as much as possible instead of expensive, dangerous or simply impossible full-scale experiments.
+This allows us to obtain a picture of the process under study with the required accuracy, reflecting the actual situation as much as possible instead of expensive, dangerous or even impossible full-scale experiments.
 The use of supercomputing technologies can significantly reduce the cost and time required to create new competitive products, facilities, and systems.
 The range of high-performance computing applications is very wide.
 Thus, using supercomputer modeling, problems of gas dynamics and hydrodynamics \cite{01Smirnov}, molecular dynamics \cite{02Guo}, plasma physics \cite{03Asch}, solid mechanics \cite{04Morgan}, mathematics \cite{05Lohiya} and others are solved.
@@ -96,18 +96,18 @@ High-performance computing is used to solve such large computational scientific 
 
 When solving a computational problem on a supercomputer system, parallelization must be performed between its nodes to speed up calculations \cite{10Voevodin}.
 The next level of computing parallelization is parallelization within a single computing node on shared memory \cite{11Zhou}.
-The lowest level of parallelization of calculations can be considered vectorization -- parallelization at the level of individual instructions \cite{12Feng}.
+The lowest level of calculations parallelization can be considered vectorization -- parallelization at the level of individual instructions \cite{12Feng}.
 
 Vectorization is an important low-level optimization of software code, which can be used to achieve multiple acceleration of supercomputer applications.
 All major modern microprocessor architectures (x86, ARM, Power, <<Elbrus>>, LoongArch, Sunway, and others) support vector computing, and there is a tendency to increase the size of the vector (today the maximum length is 512 bits, but now this length is logically unlimited, given the sets of vector instructions with a variable length of the vector).
 
 Currently, the most advantageous set of vector instructions is the AVX-512, as it supports the possibility of selective processing of vector elements using vector masks.
 This unique feature allows to vectorize a complex programming context containing control transfer commands, loop nests, and function calls.
-It can be considered that for the first time the AVX-512 vector instructions set was supported in 2016 in Intel Xeon Phi Knights Landing (KNL) microprocessors, since the earlier generation Intel Xeon Phi Knights Corner (KNC) is an accelerator, and the vector code for it is not x86 compatible.
+It can be considered that for the first time the AVX-512 vector instructions set was supported in 2016 in Intel Xeon Phi Knights Landing (KNL) microprocessors, since the earlier generation Intel Xeon Phi Knights Corner (KNC) was an accelerator, and the vector code for it is not x86 compatible.
 Since that moment, the issues of application vectorization have been actively discussed in the scientific community.
 There are many papers on the vectorization of the software in application to various subject areas: gas dynamic solvers \cite{12-1Kulikov}, encryption tools \cite{12-2Buhrow}, time series analysis \cite{12-3Quislant}, sorting of an array of numbers \cite{12-4Blacher}, fast Fourier transform \cite{12-5Sansone} and more.
 
-In this paper, we will consider the application of vectorization using the AVX-512 instruction set to an integer calculations containing loops with an irregular number of iterations.
+In this paper, we will consider the application of vectorization using the AVX-512 instruction set to integer calculations containing loops with an irregular number of iterations.
 As such, we will take the bubble growth algorithm of graph decomposition, in which a simultaneous breadth-first traversal of the graph is performed from randomly located initiating vertices.
 
 \section{Bubble growth graph decomposition algorithm}
@@ -130,11 +130,12 @@ Let's consider the following graph decomposition algorithm -- the bubble growth 
 The bubble growth algorithm for graph decomposition \cite{17Fan} is based on a breadth-first traversal of the graph, performed simultaneously, starting from several initiating vertices.
 At the beginning of the algorithm, the initiating vertices are randomly selected (according to the required number of domains).
 Each of the selected vertices belongs to a corresponding domain.
-After that, the process of simultaneous domain building begins, in which, at each iteration of the algorithm, one neighboring vertex that has not yet been colored is added to each domain (provided that this can be done).
+After that, the process of simultaneous domains building begins.
+At each iteration of the algorithm, each domain is increased by one vertex that has not yet been assigned to any domain (if this can be done).
 The process ends when all the vertices of the graph are distributed across domains.
-In Fig.~\ref{fig:incr} illustrates the process of building domains from randomly selected vertices for a graph on a plane.
+Fig.~\ref{fig:incr} illustrates the process of building domains from randomly selected vertices for a graph on a plane.
 
-After distributing all the vertices by domain, its center is calculated for each domain, after which the domain centers are taken as new initiating vertices, the graph coloring is reset, and then the domains are built from these new initiating vertices.
+After distributing all the vertices by domain, its center is calculated for each domain, after which the domain centers are taken as new initiating vertices, the graph decomposition is reset, and then the domains are built from these new initiating vertices.
 This process can continue either a fixed number of times, or until a certain condition is reached (stabilization of the initiating vertices, achieving a balanced partition, repeating the previously obtained configuration) \cite{18Golovchenko}.
 The bubble growth algorithm does not guarantee a balanced division into domains or the formation of short boundaries between domains.
 However, this algorithm is distinguished by its simplicity, which allows it to be used as a basic operation in complex approaches to the graph decomposition \cite{19Wu}.
@@ -157,13 +158,13 @@ This approach of using the bubble growth algorithm inside the genetic algorithm 
 
 The use of the bubble growth algorithm as a single operation in complex approaches to graph decomposition (like the genetic algorithm) places increased demands on its performance.
 Let's consider the possibilities of speeding up this algorithm using AVX-512 instructions set for vectorization.
-Let's say we have a graph, information about its edges is written in the structure \texttt{vector$<$vector$<$int$>>$ inc}, where \texttt{inc[i]} is a list of numbers of all vertices adjacent to the vertex \texttt{i} (vertex neighborhood).
+Let's say we have a graph, information about its edges is written in the structure \texttt{vector$<$vector$<$int$>>$ inc}, where \texttt{inc[i]} is a list of numbers of all vertices adjacent to the vertex \texttt{i} (adjacency list, or vertex neighborhood).
 The domain numbers that specific vertices belong to are stored in the \texttt{vector$<$int$>$ domains} structure.
 The \texttt{vector$<$queue$<$int$>>$ q} structure is a list of queues.
 Each queue \texttt{q[i]} is queue of vertices waiting to enter \texttt{i}-th domain.
 At the beginning of the algorithm, the \texttt{q[i]} queue contains only one initiating vertex of the \texttt{i}-th domain.
 Let's say we need to decompose the graph (or color the graph) into \texttt{domains\_count} domains.
-Then the simple implementation of the bubble growth algorithm for domains from the initiating vertices may be written as following (see Listing~\ref{lst:impl}):
+Then the simple implementation of the bubble growth algorithm for domains from the initiating vertices may be written as simultaneous breadth-first traversal of the graph starting from the initiating vertices (see Listing~\ref{lst:impl}):
 
 \begin{lstlisting}[caption={Implementation of the bubble domain growth algorithm.},label={lst:impl}]
 while (is_q)
