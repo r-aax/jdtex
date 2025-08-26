@@ -26,7 +26,7 @@ centertags]%
 % The title is written in accordance with the rules of capitalization.
 
 \author{\firstname{A.~A.}~\surname{Rybakov}}
-\email[E-mail: ]{rybakov_aan@nrcki.ru,rybakov@jscc.ru,rybakov.aax@gmail.com}
+\email[E-mail: ]{rybakov.aax@gmail.com,rybakov@jscc.ru,rybakov_aan@nrcki.ru}
 \affiliation{National Research Centre \textquotedblleft Kurchatov Institute\textquotedblright, 123182, Moscow, Academician Kurchatov sq. 1, Russia.}
 
 %\author{\firstname{B.}~\surname{Second-Author}}
@@ -46,7 +46,7 @@ In this problem, the surface mesh should be rebuilt in accordance with the volum
 The main factor in choosing a mesh rebuilding method is the accuracy of the method, characterized by the magnitude of the deviation of the volume swept by the cell from the target value.
 Another determining factor is the ability of the rebuilding method to smooth out mesh defects -- sharp peaks and caverns.
 Without this, the computational mesh can accumulate defects, which sooner or later leads to the impossibility of continuing the calculations.
-The paper considers theoretical estimates of three methods of rebuilding the surface mesh -- the rectangles method, the trapeziums method and the neighborhoods method - from the point of view of the accuracy of rebuilding and the ability to smooth out defects.
+The paper considers theoretical estimates of three methods of rebuilding the surface mesh -- the rectangles method, the trapeziums method and the neighborhoods method -- from the point of view of the accuracy of rebuilding and the ability to smooth out defects.
 The results of the analysis showed that the rectangles and trapeziums methods cannot smooth out the defects of the computational mesh during rebuilding, which means that their use in the problem of ice formation is unsafe.
 The neighborhoods method has an acceptable rebuilding accuracy and can smooth out the defects of the computational mesh. All results were obtained in a two-dimensional case, but the conclusions can be transferred to similar methods of rebuilding the surface mesh in a three-dimensional case.\end{abstract}
 
@@ -119,7 +119,7 @@ Let us consider approximate methods for rebuilding the computational mesh, based
 As the first method of remeshing the surface, we consider an approximation in which the target area for the $i$-th cell is represented by a rectangle with sides $l_i$ and $H_i$.
 As the value of the node displacement, we take the arithmetic mean of two heights of the incident cells $h_i = \frac{H_{i - 1} + H_i}{2}$ (see Fig.~\ref{fig:text_1_remesh_2d_rectangles_and_trapeziums} on the left).
 We will call this method of remeshing the rectangles method.
-The area swept by the $i$-th cell using the rectangle method will be denoted by $S_i^r$, we also denote $\Delta_i^r = S_i^r - T_i$, $\delta_i^r = \frac{\Delta_i^r}{T_i}$.
+The area swept by the $i$-th cell using the rectangles method will be denoted by $S_i^r$, we also denote $\Delta_i^r = S_i^r - T_i$, $\delta_i^r = \frac{\Delta_i^r}{T_i}$.
 
 As the second method of rebuilding the surface, we will consider the trapeziums method.
 In the trapeziums method, the target area of the $i$-th cell is represented by a trapezium with area $T_i = l_i H_i$.
@@ -182,7 +182,8 @@ where $\lambda = \frac{l}{2 \sin \frac{\alpha}{2}}$, $l = AB$, $h_i = AA_1$, $h_
 
 Since the mesh under consideration is convex, the rays $A_1A$ and $B_1B$ intersect at some point $O$.
 In this case, the triangle $AOB$ is isosceles, $\angle BAO = \angle ABO = \angle B_1BX = \angle B_1BB_2 - \alpha = \frac{\pi - \alpha}{2}$, $\phi_i = \phi_{i + 1} = \frac{\pi + \alpha}{2}$, $\angle AOB = \alpha$, whence $OA = OB = \lambda = \frac{l}{2 \sin \frac{\alpha}{2}}$.
-Next we express the area $S_i = S_{A_1OB_1} - S_{AOB}$, which after transformation gives the required ratio \eqref{eqn:text_1_remesh2_saa2b2b_gen}.$\blacksquare$\\
+Next we express the area $S_i = S_{A_1OB_1} - S_{AOB}$, which after transformation gives the required ratio \eqref{eqn:text_1_remesh2_saa2b2b_gen}.
+$\blacksquare$\\
 
 Next, we will consider a linear change in the magnitude of the mesh cell displacement, that is, $H_i = H$, $H_{i - 1} = H - \Delta H$, $H_{i + 1} = H + \Delta H$.
 
@@ -485,7 +486,7 @@ The trapeziums method shows better smoothing efficiency, but with a smaller area
 \section{Conclusion}
 
 The following conclusions can be drawn from the above estimates of the accuracy of the surface mesh rebuilding methods (see Fig.~\ref{fig:text_1_remesh_3d_main_chart}), as well as the ability to smooth out sharp peaks (see Fig.~\ref{fig:text_1_remesh_2d_peak_methods_chart}) and caverns (see Fig.~\ref{fig:text_1_remesh_2d_cavern_methods_chart}).
-The trapeziums mesh rebuilding method is more accurate, the accuracy of the rectangles and neighborhoods methods is almost the same for small values ​​and changes in $H$.
+The trapeziums mesh rebuilding method is more accurate, the accuracy of the rectangles and neighborhoods methods is almost the same for small values and changes in $H$.
 From the point of view of smoothing out mesh defects, the trapeziums method is not applicable, since it leads to uncontrolled growth of sharp peaks.
 The rectangles method is ineffective in smoothing out sharp peaks and is not capable of smoothing out caverns.
 Thus, the neighborhoods rebuilding method is optimal in terms of rebuilding accuracy and the ability to smooth out mesh defects.
